@@ -28,6 +28,9 @@ readonly class OrderManagement
     public function related(User $actor, int $orderId, string $relation, int $limit = 100, int $offset = 0): array
     {
         $order = $this->find($actor, $orderId);
+        if (!in_array($relation, ['lineItems', 'adjustments'], true) && !Access::canAccess($actor, 'view', $order)) {
+            throw new InvalidArgumentException('Resource not found.');
+        }
         if ($limit < 1 || $limit > 100 || $offset < 0) {
             throw new InvalidArgumentException('Use limit 1-100 and a nonnegative offset.');
         }
@@ -44,20 +47,26 @@ readonly class OrderManagement
 
     public function setLineItem(User $actor, int $orderId, int $quantity, ?int $lineItemId = null, ?int $purchasableId = null, array $options = [], ?string $note = null): Order
     {
-        $this->find($actor, $orderId, 'save');
+        $this->find($actor, $orderId, 'updateCart');
         if (($lineItemId === null) === ($purchasableId === null) || $quantity < 0) {
             throw new InvalidArgumentException('Provide exactly one of lineItemId and purchasableId, and a nonnegative quantity.');
         }
         return Mutation::run("commerce:order-management:$orderId", function() use ($actor, $orderId, $quantity, $lineItemId, $purchasableId, $options, $note): Order {
-            $order = $this->find($actor, $orderId, 'save');
+            $order = $this->find($actor, $orderId, 'updateCart');
             if ($lineItemId !== null) {
                 $item = collect($order->getLineItems())->firstWhere('id', $lineItemId);
                 if (!$item) {
                     throw new InvalidArgumentException('Resource not found.');
                 }
             } else {
-                $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId);
-                if (!$purchasable || !Access::allows($actor, 'view', $purchasable)) {
+                $purchasables = Plugin::getInstance()->getPurchasables();
+                $customerEdit = !Access::allows($actor, 'save', $order);
+                $purchasable = $customerEdit
+                    ? $purchasables->getPurchasableById($purchasableId, $order->orderSiteId, $actor->id)
+                    : $purchasables->getPurchasableById($purchasableId);
+                if (!$purchasable || ($customerEdit
+                        ? !$purchasables->isPurchasableAvailable($purchasable, $order, $actor)
+                        : !Access::allows($actor, 'view', $purchasable))) {
                     throw new InvalidArgumentException('Resource not found.');
                 }
                 $item = Plugin::getInstance()->getLineItems()->resolveLineItem($order, $purchasableId, $options);
@@ -72,7 +81,7 @@ readonly class OrderManagement
                 $order->addLineItem($item);
             }
             $order->setRecalculationMode($order->isCompleted ? Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY : Order::RECALCULATION_MODE_ALL);
-            return $this->save($actor, $order);
+            return $this->save($actor, $order, 'updateCart');
         });
     }
 
@@ -156,9 +165,9 @@ readonly class OrderManagement
         });
     }
 
-    private function save(User $actor, Order $order): Order
+    private function save(User $actor, Order $order, string $ability = 'save'): Order
     {
-        if (!Access::allows($actor, 'save', $order)) {
+        if (!Access::allows($actor, $ability, $order)) {
             throw new InvalidArgumentException('Resource not found.');
         }
         if (!Craft::$app->getElements()->saveElement($order)) {

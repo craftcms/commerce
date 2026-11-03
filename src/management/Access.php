@@ -44,8 +44,21 @@ class Access
 
     public static function allows(User $actor, string $ability, ElementInterface $element): bool
     {
+        // This is a narrow MCP cart path, not a grant of native order-save permission.
+        if ($element instanceof Order && in_array($ability, ['view', 'updateCart'], true) && self::ownsCart($actor, $element)) {
+            return true;
+        }
+        if ($ability === 'updateCart') {
+            $ability = 'save';
+        }
         return self::canAccess($actor, $ability, $element)
             && (in_array($ability, ['capture', 'refund'], true) || Authorization::allows($actor, $ability, $element));
+    }
+
+    public static function ownsCart(User $actor, Order $order): bool
+    {
+        return $actor->id !== null && $order->id !== null && !$order->isCompleted
+            && $order->getCustomerId() === $actor->id;
     }
 
     /** Additional integration restrictions, also applied to CMS tools that bypass adapters. */

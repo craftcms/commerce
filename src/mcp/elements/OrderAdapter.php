@@ -7,9 +7,11 @@ namespace craft\commerce\mcp\elements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\management\Access;
 use craft\commerce\Plugin;
 use craft\elements\db\UserQuery;
 use craft\elements\User;
+use Mcp\Exception\ToolCallException;
 
 class OrderAdapter extends CommerceElementAdapter
 {
@@ -52,15 +54,25 @@ class OrderAdapter extends CommerceElementAdapter
         return new Order([...$context, 'number' => Plugin::getInstance()->getCarts()->generateCartNumber(), 'origin' => Order::ORIGIN_CP]);
     }
 
+    protected function authorizeSave(User $actor, ElementInterface $element): void
+    {
+        if (!Access::allows($actor, 'updateCart', $element)) {
+            throw new ToolCallException('Resource not found.');
+        }
+    }
+
     protected function populate(ElementInterface $element, array $attributes, array $fields, User $actor): void
     {
         if ($element instanceof Order && isset($attributes['storeId'])) {
             $element->storeId = $attributes['storeId'];
-            unset($attributes['storeId']);
         }
         $this->authorizeSave($actor, $element);
+        if (!Access::allows($actor, 'save', $element)
+            && ($fields || array_diff(array_keys($attributes), ['couponCode', 'shippingMethodHandle', 'shippingAddress', 'billingAddress']))) {
+            throw new ToolCallException('Only coupon codes, shipping methods and addresses can be updated without Edit orders permission.');
+        }
         $email = $attributes['email'] ?? null;
-        unset($attributes['email']);
+        unset($attributes['email'], $attributes['storeId']);
         parent::populate($element, $attributes, $fields, $actor);
         if ($element instanceof Order && $email !== null && $element->getCustomer()?->email !== $email) {
             // Unlike Order::setEmail(), preparing an element must not persist a new customer.
@@ -100,6 +112,6 @@ class OrderAdapter extends CommerceElementAdapter
 
     protected function notes(): array
     {
-        return ['Orders and carts share this type. Use criteria.isCompleted to distinguish them.', 'Order numbers are bearer credentials and are not returned. Use id or uid.', 'Use commerce.orders tools for line items, status changes, completion, email, transactions and fulfillment. Totals and payment state are computed by Commerce.'];
+        return ['Orders and carts share this type. Use criteria.isCompleted to distinguish them.', 'Customers can update coupon codes, shipping methods and addresses on their own existing incomplete carts without Edit orders permission. Customer, store, status and custom field changes are not allowed through this owner path.', 'Order numbers are bearer credentials and are not returned. Use id or uid.', 'Use commerce.orders tools for line items, status changes, completion, email, transactions and fulfillment. Totals and payment state are computed by Commerce.'];
     }
 }

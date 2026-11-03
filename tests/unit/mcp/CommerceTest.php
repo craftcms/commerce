@@ -558,6 +558,101 @@ class CommerceTest extends TestCase
         return [['empty'], ['same-location'], ['missing-location']];
     }
 
+    public function testCustomersCanEditOnlyTheirOwnIncompleteCarts(): void
+    {
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $cart = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer3@crafttest.com']])['element'];
+        $peer = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer1@crafttest.com']])['element'];
+        $guest = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId]])['element'];
+        $completed = Order::find()->isCompleted()->one();
+        $variant = Variant::find()->sku('hct-blue')->one();
+        $this->ok('commerce.resources.create', ['type' => 'discounts', 'attributes' => [
+            'storeId' => $storeId, 'name' => 'Customer cart discount', 'enabled' => true,
+            'allPurchasables' => true, 'allCategories' => true, 'requireCouponCode' => true,
+            'baseDiscount' => -5, 'coupons' => [['code' => 'OWNCART']],
+        ]]);
+        $method = $this->ok('commerce.resources.create', ['type' => 'shippingMethods', 'attributes' => [
+            'storeId' => $storeId, 'name' => 'Customer express', 'handle' => 'customerExpress', 'enabled' => true,
+        ]])['item'];
+        $this->ok('commerce.resources.create', ['type' => 'shippingRules', 'attributes' => ['name' => 'Express rate', 'methodId' => $method['id'], 'baseRate' => 7]]);
+        $unavailable = $this->ok('elements.create', ['type' => 'variants', 'attributes' => [
+            'productId' => $variant->primaryOwnerId, 'sku' => 'mcp-unavailable-cart', 'basePrice' => 13, 'enabled' => false,
+        ]])['element'];
+        $this->asUser('customer3@crafttest.com', []);
+        Craft::$app->get('mcp')->tokenScopes = [Mcp::SCOPE_WRITE];
+        $this->denied('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'purchasableId' => $unavailable['id'], 'quantity' => 1]);
+        $this->ok('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 2]);
+        $items = $this->ok('commerce.orders.related', ['orderId' => $cart['id'], 'relation' => 'lineItems'])['items'];
+        self::assertCount(1, $items);
+        self::assertSame(2, $items[0]['qty']);
+        $address = ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'countryCode' => 'US', 'administrativeArea' => 'NY', 'locality' => 'New York', 'postalCode' => '10001', 'addressLine1' => '1 Customer St'];
+        $this->ok('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => [
+            'couponCode' => 'OWNCART', 'shippingMethodHandle' => 'usShipping', 'shippingAddress' => $address,
+            'billingAddress' => [...$address, 'addressLine1' => '2 Billing St'],
+        ]]);
+        $saved = Order::find()->id($cart['id'])->status(null)->one();
+        self::assertSame($cart['customerId'], $saved->customerId);
+        self::assertSame('OWNCART', $saved->couponCode);
+        self::assertSame('usShipping', $saved->shippingMethodHandle);
+        self::assertSame('1 Customer St', $saved->getShippingAddress()->addressLine1);
+        self::assertSame('2 Billing St', $saved->getBillingAddress()->addressLine1);
+        self::assertEqualsWithDelta(-5, $saved->getTotalDiscount(), 0.000001);
+        $this->ok('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['shippingMethodHandle' => 'customerExpress']]);
+        $saved = Order::find()->id($cart['id'])->status(null)->one();
+        self::assertSame('customerExpress', $saved->shippingMethodHandle);
+        self::assertEqualsWithDelta(7, $saved->getTotalShippingCost(), 0.000001);
+        self::assertSame($cart['id'], $this->ok('elements.get', ['type' => 'orders', 'id' => $cart['id']])['element']['id']);
+        $this->ok('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'lineItemId' => $items[0]['id'], 'quantity' => 3]);
+        self::assertSame(3, Order::find()->id($cart['id'])->status(null)->one()->getLineItems()[0]->qty);
+        $this->ok('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'lineItemId' => $items[0]['id'], 'quantity' => 0]);
+        self::assertSame([], $this->ok('commerce.orders.related', ['orderId' => $cart['id'], 'relation' => 'lineItems'])['items']);
+        foreach ([$peer['id'], $guest['id'], $completed->id] as $id) {
+            $this->denied('elements.update', ['type' => 'orders', 'id' => $id, 'attributes' => ['couponCode' => 'OWNCART']]);
+            $this->denied('commerce.orders.set-line-item', ['orderId' => $id, 'purchasableId' => $variant->id, 'quantity' => 1]);
+        }
+        $this->asUser('customer1@crafttest.com', []);
+        $this->denied('elements.update', ['type' => 'orders', 'id' => $completed->id, 'attributes' => ['couponCode' => 'OWNCART']]);
+        $this->denied('commerce.orders.set-line-item', ['orderId' => $completed->id, 'purchasableId' => $variant->id, 'quantity' => 1]);
+    }
+
+    public function testCustomerCartEditingCannotEscalatePrivileges(): void
+    {
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $cart = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer3@crafttest.com']])['element'];
+        $peer = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer1@crafttest.com']])['element'];
+        $variant = Variant::find()->sku('hct-blue')->one();
+        $this->ok('commerce.orders.set-line-item', ['orderId' => $peer['id'], 'purchasableId' => $variant->id, 'quantity' => 2]);
+        $peerItem = Order::find()->id($peer['id'])->status(null)->one()->getLineItems()[0];
+        $statusId = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($storeId)->first()->id;
+        $this->asUser('customer3@crafttest.com', []);
+        Craft::$app->get('mcp')->tokenScopes = [Mcp::SCOPE_WRITE];
+        // Establish that this is the permitted owner path before probing restrictions.
+        $this->ok('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]]);
+        foreach ([['customerId' => $peer['customerId']], ['email' => 'mcp-cart-takeover@crafttest.com'], ['storeId' => $storeId + 1], ['isCompleted' => true], ['orderStatusId' => $statusId], ['message' => 'Administrative edit']] as $attributes) {
+            $this->denied('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => $attributes]);
+        }
+        $this->denied('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'fields' => ['untrusted' => 'value']]);
+        $this->denied('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer3@crafttest.com']]);
+        $this->denied('commerce.orders.complete', ['orderId' => $cart['id']]);
+        $this->denied('commerce.orders.set-status', ['orderId' => $cart['id'], 'statusId' => $statusId]);
+        $this->denied('commerce.orders.send-email', ['orderId' => $cart['id'], 'emailId' => 1]);
+        $this->denied('commerce.orders.related', ['orderId' => $cart['id'], 'relation' => 'transactions']);
+        $this->denied('elements.delete', ['type' => 'orders', 'id' => $cart['id']]);
+        $this->denied('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'lineItemId' => $peerItem->id, 'quantity' => 0]);
+        self::assertSame(2, Order::find()->id($peer['id'])->status(null)->one()->getLineItems()[0]->qty);
+        Craft::$app->get('mcp')->tokenScopes = [Mcp::SCOPE_READ];
+        $this->denied('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]]);
+        $this->denied('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 1]);
+        $saved = Order::find()->id($cart['id'])->status(null)->one();
+        self::assertFalse($saved->isCompleted);
+        self::assertSame($cart['customerId'], $saved->customerId);
+        self::assertSame($storeId, $saved->storeId);
+        self::assertSame($cart['orderStatusId'] ?? null, $saved->orderStatusId);
+        self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail('mcp-cart-takeover@crafttest.com'));
+        Craft::$app->get('mcp')->tokenScopes = null;
+        self::assertFalse(Craft::$app->getElements()->canSave($saved, Craft::$app->getUser()->getIdentity()));
+    }
+
     private function asUser(string $email, array $permissions): void
     {
         $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($email);

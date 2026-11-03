@@ -22,15 +22,13 @@ readonly class OrderCapabilities
 
     /** @return array<string, mixed> */
     #[McpTool(name: 'commerce.orders.related', description: 'Reads line items, transactions, status history, adjustments or inventory fulfillment for an order. Payment credentials and raw gateway responses are excluded.', annotations: new ToolAnnotations(readOnlyHint: true))]
-    #[RequiresPermission('commerce-manageOrders')]
     public function related(int $orderId, #[Schema(enum: ['lineItems', 'transactions', 'history', 'adjustments', 'fulfillment'])] string $relation, int $limit = 100, int $offset = 0): array
     {
         return $this->call(fn() => $this->orders->related($this->actor->user(), $orderId, $relation, $limit, $offset));
     }
 
     /** @return array<string, mixed> */
-    #[McpTool(name: 'commerce.orders.set-line-item', description: 'Sets an existing line item quantity or adds a purchasable. Provide exactly one of lineItemId or purchasableId. Quantity zero removes the item. Recalculates Commerce totals.', annotations: new ToolAnnotations(destructiveHint: true))]
-    #[RequiresPermission('commerce-editOrders')]
+    #[McpTool(name: 'commerce.orders.set-line-item', description: 'Sets an existing line item quantity or adds a purchasable. Customers can edit their own existing incomplete carts; other orders require Edit orders permission. Provide exactly one of lineItemId or purchasableId. Quantity zero removes the item. Recalculates Commerce totals.', annotations: new ToolAnnotations(destructiveHint: true))]
     public function setLineItem(int $orderId, #[Schema(minimum: 0)] int $quantity, ?int $lineItemId = null, ?int $purchasableId = null, #[Schema(type: 'object')] array $options = [], ?string $note = null): array
     {
         return $this->call(fn() => ['order' => ElementData::attributes($this->orders->setLineItem($this->actor->user(), $orderId, $quantity, $lineItemId, $purchasableId, $options, $note))]);
