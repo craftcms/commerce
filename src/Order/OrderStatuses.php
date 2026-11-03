@@ -6,12 +6,12 @@ namespace CraftCms\Commerce\Order;
 
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Email\Jobs\SendEmailJob;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderStatus;
@@ -363,29 +363,19 @@ class OrderStatuses
             return;
         }
 
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLocale = \Craft::$app->formattingLocale;
-
         foreach ($event->emails as $email) {
             if (!$email->enabled) {
                 continue;
             }
 
-            // Set language by email's set locale
-            // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
-            $language = $email->getRenderLanguage($event->order);
-            Locale::switchAppLanguage($language);
-
-            SendEmailJob::dispatch(
+            // Use the email's language, since $order->toArray() formats the asCurrency attributes with it
+            I18N::withLocale($email->getRenderLanguage($event->order), null, fn() => SendEmailJob::dispatch(
                 orderId: $event->order->id,
                 orderData: $event->order->toArray(),
                 commerceEmailId: $email->id,
                 orderHistoryId: $event->orderHistory->id,
-            );
+            ));
         }
-
-        // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
     }
 
     /**

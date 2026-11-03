@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Pdf;
 
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\RouteToken\RouteTokens;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\Path;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Template;
@@ -14,7 +15,6 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
@@ -354,28 +354,21 @@ class Pdfs
         $variables['order'] = $event->order;
         $variables['option'] = $event->option;
 
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLanguage = \Craft::$app->formattingLocale;
-        $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
-
-        Locale::switchAppLanguage($pdfLanguage);
-
         if (!$event->template || !app(TemplateResolver::class)->exists($event->template, TemplateMode::Site)) {
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
             throw new \Exception('PDF template file does not exist.');
         }
 
         try {
-            $html = Template::renderTemplate($event->template, $variables, TemplateMode::Site);
+            $html = I18N::withLocale(
+                $pdf?->getRenderLanguage($order) ?? app()->getLocale(),
+                null,
+                fn() => Template::renderTemplate($event->template, $variables, TemplateMode::Site),
+            );
         } catch (\Exception $e) {
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             // Set the pdf html to the render error.
             Log::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage(), ['exception' => $e]);
             $html = t('An error occurred while generating this PDF.', category: 'commerce');
         }
-
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
         // Set the config options
         $dompdfTempDir = Path::temp() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
