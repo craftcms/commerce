@@ -193,6 +193,13 @@ class CartController extends BaseFrontEndController
         // Get the cart from the request or from the session.
         $this->_cart = $this->_getCart();
 
+        $currency = $this->request->getParam('paymentCurrency');
+        if ($currency !== null && $currency !== '') {
+            if (!is_string($currency) || $plugin->getPaymentCurrencies()->getPaymentCurrencyByIso($currency, $this->_cart->getStore()->id) === null) {
+                throw new BadRequestHttpException(Craft::t('commerce', 'Unsupported payment currency.'));
+            }
+        }
+
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         if ($this->_cart->id === null) {
             // Make sure we have a fully saved cart before attempting any mutations.
@@ -361,7 +368,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set payment currency on cart
-        if ($currency = $this->request->getParam('paymentCurrency')) {
+        if ($currency) {
             $this->_cart->paymentCurrency = $currency;
         }
 
