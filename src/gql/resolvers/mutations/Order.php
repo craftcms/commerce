@@ -12,6 +12,7 @@ use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\gql\base\ElementMutationResolver;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -99,6 +100,11 @@ class Order extends ElementMutationResolver
         // Null means “leave the line items alone”, and can’t be normalized as input objects
         if (!isset($arguments['lineItems'])) {
             unset($arguments['lineItems']);
+        }
+
+        // Order statuses are store-specific
+        if (isset($arguments['orderStatusId']) && !$commerce->getOrderStatuses()->getOrderStatusById($arguments['orderStatusId'], $order->storeId)) {
+            throw new Error('No such order status exists');
         }
 
         if (!empty($arguments['recalculationMode'])) {
@@ -194,7 +200,8 @@ class Order extends ElementMutationResolver
             $options = isset($data['options']) ? Json::decode($data['options']) : null;
 
             if (!empty($data['id'])) {
-                $lineItem = $existingLineItems[$data['id']] ?? throw new Error('No such line item exists on this order');
+                // Remove it so it can’t be listed twice
+                $lineItem = ArrayHelper::remove($existingLineItems, $data['id']) ?? throw new Error('No such line item exists on this order');
                 if (isset($options)) {
                     $lineItem->setOptions($options);
                 }

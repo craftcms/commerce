@@ -273,10 +273,16 @@ class MutationsTest extends TestCase
 
         $result = $this->execute($schema, "mutation {
             save_tShirts_ProductDraft(draftId: $draftId, title: \"Draft title\", sortOrder: [$variantId], variants: [{id: $variantId, basePrice: 99}]) {
-                title isDraft variants { price }
+                id title isDraft variants { price }
             }
         }")['data']['save_tShirts_ProductDraft'];
-        self::assertSame(['title' => 'Draft title', 'isDraft' => true, 'variants' => [['price' => 99.0]]], $result);
+        self::assertSame(['title' => 'Draft title', 'isDraft' => true, 'variants' => [['price' => 99.0]]], array_diff_key($result, ['id' => true]));
+
+        // The draft’s variants require the drafts scope, like the draft itself
+        $draftVariantsQuery = "{ variants(productId: {$result['id']}) { price } }";
+        $readScope = ["productTypes.$productType->uid:read"];
+        self::assertSame([], $this->execute($this->schema($readScope), $draftVariantsQuery)['data']['variants']);
+        self::assertSame([['price' => 99.0]], $this->execute($this->schema([...$readScope, 'elements.drafts:read']), $draftVariantsQuery)['data']['variants']);
 
         // The canonical product and its variants are untouched until the draft is published
         $canonical = Product::find()->id($product->id)->status(null)->one();
@@ -324,6 +330,43 @@ class MutationsTest extends TestCase
         self::assertTrue($order['isCompleted']);
         self::assertNotNull($order['dateOrdered']);
         self::assertSame([['sku' => 'hct-blue', 'qty' => 3]], $order['lineItems']);
+    }
+
+    public function testOrderMutationsRejectDuplicateLineItemsAndForeignStatuses(): void
+    {
+        $storeUid = Plugin::getInstance()->getStores()->getPrimaryStore()->uid;
+        $schema = $this->schema(["orders.$storeUid:read", "orders.$storeUid:create", "orders.$storeUid:save"]);
+        $white = Variant::find()->sku('hct-white')->one()->id;
+        $order = $this->execute($schema, "mutation {
+            save_Order(email: \"gql@example.com\", lineItems: [{purchasableId: $white, qty: 1}]) { id number shortNumber lineItems { id } }
+        }")['data']['save_Order'];
+        $lineItemId = $order['lineItems'][0]['id'];
+
+        // Order numbers are single values
+        $result = $this->execute($schema, "{
+            byNumber: orders(number: \"{$order['number']}\", isCompleted: false) { id }
+            byShortNumber: orders(shortNumber: \"{$order['shortNumber']}\", isCompleted: false) { id }
+        }")['data'];
+        self::assertSame([['id' => $order['id']]], $result['byNumber']);
+        self::assertSame([['id' => $order['id']]], $result['byShortNumber']);
+
+        $result = $this->execute($schema, "mutation {
+            save_Order(id: {$order['id']}, lineItems: [{id: $lineItemId, qty: 1}, {id: $lineItemId, qty: 2}]) { id }
+        }");
+        self::assertSame('No such line item exists on this order', $result['errors'][0]['message']);
+
+        $foreignStatusId = (new Query())
+            ->select('id')
+            ->from(Table::ORDERSTATUSES)
+            ->where(['not', ['storeId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id]])
+            ->scalar();
+        self::assertNotFalse($foreignStatusId);
+        $result = $this->execute($schema, "mutation { save_Order(id: {$order['id']}, orderStatusId: $foreignStatusId) { id } }");
+        self::assertSame('No such order status exists', $result['errors'][0]['message']);
+
+        $order = Order::find()->id($order['id'])->one();
+        self::assertNull($order->orderStatusId);
+        self::assertEquals(1, $order->getTotalQty());
     }
 
     public function testAuthenticatedUsersNeedPermissionToEditOrders(): void

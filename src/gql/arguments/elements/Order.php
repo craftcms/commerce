@@ -30,12 +30,12 @@ class Order extends ElementArguments
         return array_merge(parent::getArguments(), self::getContentArguments(), [
             'number' => [
                 'name' => 'number',
-                'type' => Type::listOf(Type::string()),
+                'type' => Type::string(),
                 'description' => 'Narrows the query results based on the order number.',
             ],
             'shortNumber' => [
                 'name' => 'shortNumber',
-                'type' => Type::listOf(Type::string()),
+                'type' => Type::string(),
                 'description' => 'Narrows the query results based on the short order number.',
             ],
             'reference' => [

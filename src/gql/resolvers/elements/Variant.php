@@ -69,11 +69,20 @@ class Variant extends ElementResolver
         $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.primaryOwnerId]]');
         $query->andWhere(['in', '[[p.typeId]]', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
 
-        // Modified variants have a private primary owner; unchanged variants can still have a private contextual owner.
-        if ($user = GqlHelper::getSchemaUser()) {
+        // Modified variants are owned by a product draft; unchanged variants can still have a draft contextual owner.
+        // Hide them unless the schema can query drafts, and limit authenticated users to their own provisional drafts.
+        $user = GqlHelper::getSchemaUser();
+        $canQueryDrafts = GqlHelper::canQueryDrafts();
+        if ($user || !$canQueryDrafts) {
             foreach (['variantOwner' => 'commerce_variants.primaryOwnerId', 'variantContextOwner' => 'elements_owners.ownerId'] as $alias => $ownerColumn) {
-                $draftAlias = $alias . 'Draft';
                 $query->innerJoin(CmsTable::ELEMENTS . " $alias", "[[$alias.id]] = [[$ownerColumn]]");
+
+                if (!$canQueryDrafts) {
+                    $query->andWhere(["$alias.draftId" => null]);
+                    continue;
+                }
+
+                $draftAlias = $alias . 'Draft';
                 $query->leftJoin(CmsTable::DRAFTS . " $draftAlias", "[[$draftAlias.id]] = [[$alias.draftId]]");
                 $query->andWhere([
                     'or',

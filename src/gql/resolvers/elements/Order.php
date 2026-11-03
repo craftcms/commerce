@@ -31,7 +31,8 @@ class Order extends ElementResolver
     {
         // If this is the beginning of a resolver chain, start fresh
         if ($source === null) {
-            $query = OrderElement::find();
+            // Eager-load line items to avoid a query per order
+            $query = OrderElement::find()->withLineItems();
         // If not, get the prepared element query
         } else {
             $query = $source->$fieldName;
