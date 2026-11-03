@@ -67,7 +67,6 @@ class CatalogPricing extends BaseJob implements RetryableJobInterface
                 throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
             }
 
-            Plugin::getInstance()->getCatalogPricingRules()->clearCaches();
             $this->_process($queue, $reservedRecord->storeId, $purchasableIds, $catalogPricingRuleIds, $reservedRecord->id);
         }
 
@@ -84,6 +83,7 @@ class CatalogPricing extends BaseJob implements RetryableJobInterface
     private function _process($queue, ?int $storeId, ?array $purchasableIds, ?array $catalogPricingRuleIds, ?int $reservedRowId): void
     {
         $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
+        Plugin::getInstance()->getCatalogPricingRules()->clearCaches();
         $catalogPricingRules = null;
 
         if (!empty($catalogPricingRuleIds)) {

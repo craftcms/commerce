@@ -381,6 +381,39 @@ class CatalogPricingQueueTest extends Unit
     }
 
     /**
+     * @return array<string, array{0: array{purchasableIds?: int[], storeId?: int|null}, 1: bool}>
+     */
+    public function rulesCacheJobsDataProvider(): array
+    {
+        return [
+            'consolidated job' => [[], true],
+            'explicit-ID job' => [['purchasableIds' => [1]], false],
+        ];
+    }
+
+    /**
+     * Test that every kind of job discards memoized rules before regenerating prices.
+     *
+     * @dataProvider rulesCacheJobsDataProvider
+     */
+    public function testJobsDiscardMemoizedRulesBeforeProcessing(array $config, bool $seedRow): void
+    {
+        if ($seedRow) {
+            $this->_seedRow(CatalogPricingQueueRecord::TYPE_PURCHASABLE, [1]);
+        }
+
+        $rules = Plugin::getInstance()->getCatalogPricingRules();
+        $stale = collect(['stale']);
+        $cache = new ReflectionProperty($rules, '_allCatalogPricingRules');
+        $cache->setValue($rules, [$this->_storeId => $stale]);
+
+        (new CatalogPricingJob($config))->execute(\Craft::$app->getQueue());
+
+        $current = $cache->getValue($rules);
+        self::assertTrue($current === null || ($current[$this->_storeId] ?? null) !== $stale);
+    }
+
+    /**
      * Test that the job reports the queue's configured TTR and allows two retries.
      */
     public function testJobUsesQueueTtrAndLimitsRetries(): void
