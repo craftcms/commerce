@@ -7,6 +7,7 @@ namespace craft\commerce\mcp\elements;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\elements\User;
 use Mcp\Exception\ToolCallException;
 
@@ -49,6 +50,10 @@ class VariantAdapter extends CommerceElementAdapter
             $element->setPrimaryOwner($product);
             $element->siteId = $product->siteId;
             unset($attributes['productId']);
+        }
+        if ($element instanceof Variant && isset($attributes['shippingCategoryId'])
+            && !Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($attributes['shippingCategoryId'], $element->getStoreId())) {
+            throw new ToolCallException('Shipping category not found in this store.');
         }
         parent::populate($element, $attributes, $fields, $actor);
     }

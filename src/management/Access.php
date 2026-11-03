@@ -74,7 +74,7 @@ class Access
             if (!$subject || ($subject->isProvisionalDraft && $subject->getBehavior('draft')?->creatorId !== $actor->id)) {
                 return false;
             }
-            if ($subject instanceof Product && $ability === 'save'
+            if ($subject instanceof Product && ($ability === 'save' || ($element instanceof Variant && $ability === 'delete'))
                 && !$actor->can('commerce-saveProductType:' . $subject->getType()->uid)) {
                 return false;
             }

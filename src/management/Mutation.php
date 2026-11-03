@@ -10,16 +10,25 @@ use RuntimeException;
 /** Serializes inventory, order and payment writes using Craft's configured mutex. */
 class Mutation
 {
-    public static function run(string $key, callable $operation): mixed
+    /** @param string|list<string> $keys */
+    public static function run(string|array $keys, callable $operation): mixed
     {
         $mutex = Craft::$app->getMutex();
-        if (!$mutex->acquire($key, 5)) {
-            throw new RuntimeException('Another Commerce operation is in progress.');
-        }
+        $keys = array_values(array_unique((array)$keys));
+        sort($keys, SORT_STRING);
+        $acquired = [];
         try {
+            foreach ($keys as $key) {
+                if (!$mutex->acquire($key, 5)) {
+                    throw new RuntimeException('Another Commerce operation is in progress.');
+                }
+                $acquired[] = $key;
+            }
             return $operation();
         } finally {
-            $mutex->release($key);
+            foreach (array_reverse($acquired) as $key) {
+                $mutex->release($key);
+            }
         }
     }
 }

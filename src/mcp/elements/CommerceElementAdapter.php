@@ -51,7 +51,11 @@ abstract class CommerceElementAdapter extends BaseElementAdapter
             $element instanceof Transfer => 'commerce:transfer-management:',
             default => 'commerce:element-management:',
         };
-        return Mutation::run($key . $element->id, function() use ($element, $attributes, $fields, $actor): array {
+        $keys = [$key . $element->id];
+        if ($element instanceof Order) {
+            $keys[] = 'orderComplete:' . $element->id;
+        }
+        return Mutation::run($keys, function() use ($element, $attributes, $fields, $actor): array {
             $fresh = $this->find($element->id, null, $element->siteId);
             if (!$fresh) {
                 throw new ToolCallException('Resource not found.');

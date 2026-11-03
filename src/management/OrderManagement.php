@@ -51,7 +51,7 @@ readonly class OrderManagement
         if (($lineItemId === null) === ($purchasableId === null) || $quantity < 0) {
             throw new InvalidArgumentException('Provide exactly one of lineItemId and purchasableId, and a nonnegative quantity.');
         }
-        return Mutation::run("commerce:order-management:$orderId", function() use ($actor, $orderId, $quantity, $lineItemId, $purchasableId, $options, $note): Order {
+        return Mutation::run(["commerce:order-management:$orderId", "orderComplete:$orderId"], function() use ($actor, $orderId, $quantity, $lineItemId, $purchasableId, $options, $note): Order {
             $order = $this->find($actor, $orderId, 'updateCart');
             if ($lineItemId !== null) {
                 $item = collect($order->getLineItems())->firstWhere('id', $lineItemId);

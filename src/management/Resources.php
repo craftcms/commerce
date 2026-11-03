@@ -6,6 +6,7 @@ namespace craft\commerce\management;
 
 use Craft;
 use craft\base\conditions\ConditionInterface;
+use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\OrderStatus;
@@ -155,7 +156,10 @@ readonly class Resources
                     $layout->id = $existing->id;
                     $layout->uid = $existing->uid;
                     $layout->type = $existing->type;
-                    $attributes[$name] = $layout;
+                    /** @var FieldLayoutBehavior $behavior */
+                    $behavior = $item->getBehavior($name);
+                    $behavior->setFieldLayout($layout);
+                    unset($attributes[$name]);
                 }
             }
         }
@@ -195,6 +199,10 @@ readonly class Resources
         }
         if ($type === ResourceType::Emails && $item->pdfId && !Plugin::getInstance()->getPdfs()->getPdfById($item->pdfId, $item->storeId)) {
             throw new InvalidArgumentException('PDF not found in this store.');
+        }
+        if ($type === ResourceType::TaxRates && $item->taxZoneId !== null
+            && !Plugin::getInstance()->getTaxZones()->getTaxZoneById($item->taxZoneId, $item->storeId)) {
+            throw new InvalidArgumentException('Tax zone not found in this store.');
         }
 
         $saved = $item instanceof OrderStatus ? Plugin::getInstance()->get($service)->$save($item, $emailIds) : Plugin::getInstance()->get($service)->$save($item);

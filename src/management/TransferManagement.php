@@ -65,6 +65,12 @@ readonly class TransferManagement
         $this->find($actor, $id, 'save');
         return Mutation::run("commerce:transfer-management:$id", function() use ($actor, $id): Transfer {
             $transfer = $this->find($actor, $id, 'save');
+            $locations = Plugin::getInstance()->getInventoryLocations();
+            if (!$transfer->originLocationId || !$transfer->destinationLocationId
+                || !$locations->getInventoryLocationById($transfer->originLocationId)
+                || !$locations->getInventoryLocationById($transfer->destinationLocationId)) {
+                throw new InvalidArgumentException('Choose two distinct active inventory locations.');
+            }
             // Validate locations and details under live rules before leaving draft state.
             $transfer->setScenario(Transfer::SCENARIO_LIVE);
             // Yii skips the native detail validator for an empty array.

@@ -458,6 +458,82 @@ class CommerceTest extends TestCase
         $this->denied('elements.update', ['type' => 'products', 'id' => $saved->id, 'attributes' => ['title' => 'Read-only peer']]);
     }
 
+    public function testReadOnlyPeerCannotDeleteSharedDraftVariants(): void
+    {
+        $product = Product::find()->type('tShirts')->one();
+        $owner = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
+        $draft = Craft::$app->getDrafts()->createDraft($product, $owner->id, 'Shared draft');
+        $variant = Craft::$app->getDrafts()->createDraft($product->getDefaultVariant(), $owner->id, 'Shared variant',
+            newAttributes: ['primaryOwnerId' => $draft->id, 'ownerId' => $draft->id, 'basePrice' => 23.45]);
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $type = $product->getType();
+        $permissions = ['accessCp', 'accessPlugin-commerce', "editSite:$site->uid", "commerce-viewProductType:$type->uid"];
+        $this->asUser('customer3@crafttest.com', $permissions);
+        self::assertSame($variant->id, $this->ok('elements.get', ['type' => 'variants', 'id' => $variant->id])['element']['id']);
+        $this->denied('drafts.delete', ['type' => Variant::class, 'id' => $variant->id]);
+        self::assertNotNull(Variant::find()->id($variant->id)->drafts(null)->status(null)->one());
+        $this->asUser('customer3@crafttest.com', [...$permissions, "commerce-saveProductType:$type->uid"]);
+        self::assertTrue($this->ok('drafts.delete', ['type' => Variant::class, 'id' => $variant->id])['deleted']);
+    }
+
+    public function testTaxRatesRequireAZoneInTheirStore(): void
+    {
+        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        $other = Plugin::getInstance()->getStores()->getStoreByHandle('ukStore');
+        $zone = $this->ok('commerce.resources.create', ['type' => 'taxZones', 'attributes' => [
+            'storeId' => $other->id, 'name' => 'Foreign zone', 'condition' => ['class' => \craft\commerce\elements\conditions\addresses\ZoneAddressCondition::class],
+        ]])['item'];
+        $category = collect(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories())->first();
+        $attributes = ['storeId' => $store->id, 'name' => 'Scoped rate', 'rate' => 0.13, 'taxCategoryId' => $category->id];
+        $this->denied('commerce.resources.create', ['type' => 'taxRates', 'attributes' => [...$attributes, 'taxZoneId' => $zone['id']]]);
+        $rate = $this->ok('commerce.resources.create', ['type' => 'taxRates', 'attributes' => [...$attributes, 'taxZoneId' => null]])['item'];
+        $this->denied('commerce.resources.update', ['type' => 'taxRates', 'storeId' => $store->id,
+            'identifier' => ['id' => $rate['id']], 'attributes' => ['taxZoneId' => $zone['id']],
+        ]);
+        self::assertNull(Plugin::getInstance()->getTaxRates()->getTaxRateById($rate['id'], $store->id)->taxZoneId);
+        $local = $this->ok('commerce.resources.create', ['type' => 'taxZones', 'attributes' => [
+            'storeId' => $store->id, 'name' => 'Local zone', 'condition' => ['class' => \craft\commerce\elements\conditions\addresses\ZoneAddressCondition::class],
+        ]])['item'];
+        self::assertSame($local['id'], $this->ok('commerce.resources.update', ['type' => 'taxRates', 'storeId' => $store->id,
+            'identifier' => ['id' => $rate['id']], 'attributes' => ['taxZoneId' => $local['id']],
+        ])['item']['taxZoneId']);
+    }
+
+    public function testVariantsRejectForeignStoreShippingCategories(): void
+    {
+        $variant = Variant::find()->sku('hct-blue')->one();
+        $other = Plugin::getInstance()->getStores()->getStoreByHandle('ukStore');
+        $category = $this->ok('commerce.resources.create', ['type' => 'shippingCategories', 'attributes' => [
+            'storeId' => $other->id, 'name' => 'Foreign shipping', 'handle' => 'foreignShipping',
+        ]])['item'];
+        $this->denied('elements.update', ['type' => 'variants', 'id' => $variant->id, 'attributes' => ['shippingCategoryId' => $category['id']]]);
+        $this->denied('elements.create', ['type' => 'variants', 'attributes' => [
+            'productId' => $variant->primaryOwnerId, 'sku' => 'invalid-shipping', 'shippingCategoryId' => $category['id'],
+        ]]);
+        self::assertSame($variant->shippingCategoryId, Variant::find()->id($variant->id)->one()->getShippingCategory()->id);
+        self::assertSame($variant->shippingCategoryId, $this->ok('elements.update', ['type' => 'variants', 'id' => $variant->id,
+            'attributes' => ['shippingCategoryId' => $variant->shippingCategoryId],
+        ])['element']['shippingCategoryId']);
+    }
+
+    public function testProductTypeFieldLayoutsCanBeCreatedAndUpdated(): void
+    {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $layout = ['tabs' => [['name' => 'MCP fields', 'elements' => []]]];
+        $type = $this->ok('commerce.configuration.create', ['type' => 'productTypes', 'attributes' => [
+            'name' => 'MCP layouts', 'handle' => 'mcpLayouts', 'siteSettings' => [['siteId' => $site->id]],
+            'productFieldLayout' => $layout, 'variantFieldLayout' => $layout,
+        ]])['item'];
+        foreach (['productFieldLayout', 'variantFieldLayout'] as $name) {
+            self::assertSame('MCP fields', $type[$name]['tabs'][0]['name']);
+        }
+        $updated = $this->ok('commerce.configuration.update', ['type' => 'productTypes', 'identifier' => ['id' => $type['id']],
+            'attributes' => ['variantFieldLayout' => ['tabs' => [['name' => 'Updated variant fields', 'elements' => []]]]],
+        ])['item'];
+        self::assertSame('MCP fields', $updated['productFieldLayout']['tabs'][0]['name']);
+        self::assertSame('Updated variant fields', $updated['variantFieldLayout']['tabs'][0]['name']);
+    }
+
     public function testStandaloneProvisionalVariantIsPrivateWithCanonicalOwner(): void
     {
         $product = Product::find()->type('tShirts')->one();
@@ -536,6 +612,10 @@ class CommerceTest extends TestCase
     public function testDispatchRejectsInvalidDraftTopology(string $state): void
     {
         $origin = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first();
+        if ($state === 'inactive-origin') {
+            $origin = new InventoryLocation(['name' => 'Other origin', 'handle' => 'otherOrigin']);
+            self::assertTrue(Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($origin));
+        }
         $destination = new InventoryLocation(['name' => 'Other location', 'handle' => 'otherLocation']);
         self::assertTrue(Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($destination));
         $item = Variant::find()->sku('hct-blue')->one()->inventoryItemId;
@@ -544,6 +624,12 @@ class CommerceTest extends TestCase
         ])['transfer'];
         if ($state === 'empty') {
             Craft::$app->getDb()->createCommand()->delete(Table::TRANSFERDETAILS, ['transferId' => $transfer['id']])->execute();
+        } elseif (str_starts_with($state, 'inactive-')) {
+            self::assertTrue(Plugin::getInstance()->getInventoryLocations()->executeDeactivateInventoryLocation(
+                new \craft\commerce\models\inventory\DeactivateInventoryLocation([
+                    'inventoryLocation' => $state === 'inactive-origin' ? $origin : $destination,
+                    'destinationInventoryLocation' => $state === 'inactive-origin' ? $destination : $origin,
+                ])));
         } else {
             Craft::$app->getDb()->createCommand()->update(Table::TRANSFERS,
                 ['destinationLocationId' => $state === 'same-location' ? $origin->id : null], ['id' => $transfer['id']])->execute();
@@ -555,7 +641,7 @@ class CommerceTest extends TestCase
 
     public static function invalidTransferDrafts(): array
     {
-        return [['empty'], ['same-location'], ['missing-location']];
+        return [['empty'], ['same-location'], ['missing-location'], ['inactive-origin'], ['inactive-destination']];
     }
 
     public function testCustomersCanEditOnlyTheirOwnIncompleteCarts(): void
@@ -651,6 +737,130 @@ class CommerceTest extends TestCase
         self::assertNull(Craft::$app->getUsers()->getUserByUsernameOrEmail('mcp-cart-takeover@crafttest.com'));
         Craft::$app->get('mcp')->tokenScopes = null;
         self::assertFalse(Craft::$app->getElements()->canSave($saved, Craft::$app->getUser()->getIdentity()));
+    }
+
+    /** @dataProvider cartUpdateOperations */
+    public function testCustomerEditsCannotReopenACartDuringCheckout(string $operation): void
+    {
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $cart = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer3@crafttest.com']])['element'];
+        $variant = Variant::find()->sku('hct-blue')->one();
+        $this->ok('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 2]);
+        $this->asUser('customer3@crafttest.com', []);
+        Craft::$app->get('mcp')->tokenScopes = [Mcp::SCOPE_WRITE];
+        $attempted = false;
+        $completed = false;
+        $listener = function($event) use ($cart, &$attempted, &$completed): void {
+            if ($attempted || !$event->element instanceof Order || $event->element->id !== $cart['id']) {
+                return;
+            }
+            $attempted = true;
+            try {
+                // Native checkout races after the MCP owner check, before the stale cart is saved.
+                $completed = Order::find()->id($cart['id'])->status(null)->one()->markAsComplete();
+            } catch (\Exception) {
+                // A serialized checkout can be retried after this edit finishes.
+            }
+        };
+        $elements = Craft::$app->getElements();
+        $elements->on(\craft\services\Elements::EVENT_BEFORE_SAVE_ELEMENT, $listener);
+        try {
+            $this->ok($operation, $operation === 'elements.update'
+                ? ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]]
+                : ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 3]);
+        } finally {
+            $elements->off(\craft\services\Elements::EVENT_BEFORE_SAVE_ELEMENT, $listener);
+        }
+        self::assertTrue($attempted);
+        $saved = Order::find()->id($cart['id'])->status(null)->one();
+        if ($completed) {
+            self::assertTrue($saved->isCompleted, 'An MCP cart edit must never reopen an order completed by checkout.');
+        } else {
+            self::assertTrue($saved->markAsComplete());
+        }
+        $this->denied('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]]);
+    }
+
+    public static function cartUpdateOperations(): array
+    {
+        return [['elements.update'], ['commerce.orders.set-line-item']];
+    }
+
+    /** @dataProvider competingInventoryWrites */
+    public function testFulfillmentSerializesWithOtherInventoryWriters(string $operation): void
+    {
+        $inventory = Plugin::getInstance()->getInventory();
+        $product = Product::find()->type('tShirts')->one();
+        $created = $this->ok('elements.create', ['type' => 'variants', 'attributes' => [
+            'productId' => $product->id, 'sku' => 'mcp-stock-race', 'basePrice' => 12, 'inventoryTracked' => true,
+        ]])['element'];
+        $variant = Variant::find()->id($created['id'])->one();
+        $location = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first();
+        $this->ok('commerce.stores.set-inventory-locations', ['storeId' => $variant->getStoreId(), 'ids' => [$location->id]]);
+        $this->ok('commerce.inventory.update', ['locationId' => $location->id, 'itemId' => $variant->inventoryItemId,
+            'type' => 'available', 'action' => 'set', 'quantity' => 10,
+        ]);
+        $orders = [];
+        for ($i = 0; $i < 2; $i++) {
+            $cart = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $variant->getStoreId()]])['element'];
+            $this->ok('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 1]);
+            $this->ok('commerce.orders.complete', ['orderId' => $cart['id']]);
+            $orders[] = Order::find()->id($cart['id'])->status(null)->one();
+        }
+        $levels = array_map(fn($order) => $inventory->getInventoryFulfillmentLevels($order)->firstWhere('inventoryItemId', $variant->inventoryItemId), $orders);
+        self::assertNotNull($levels[0]);
+        self::assertNotNull($levels[1]);
+        self::assertSame($levels[0]->inventoryLocationId, $levels[1]->inventoryLocationId);
+        $locationId = $levels[0]->inventoryLocationId;
+        $this->ok('commerce.inventory.update', ['locationId' => $locationId, 'itemId' => $variant->inventoryItemId,
+            'type' => 'available', 'action' => 'adjust', 'quantity' => 1 - $inventory->getFulfillableQuantity($variant->inventoryItemId, $locationId),
+        ]);
+        self::assertSame(1, $inventory->getFulfillableQuantity($variant->inventoryItemId, $locationId));
+        $validations = 0;
+        $competing = null;
+        $listener = function($event) use ($operation, $inventory, $variant, $levels, $orders, $locationId, &$validations, &$competing): void {
+            if ($event->sender->lineItemId === $levels[0]->lineItemId && ++$validations === 2) {
+                // Interleave after the final stock validation but before the ledger write.
+                if ($operation === 'fulfill') {
+                    $response = $this->call('commerce.orders.fulfill', ['orderId' => $orders[1]->id,
+                        'lineItemId' => $levels[1]->lineItemId, 'locationId' => $locationId, 'quantity' => 1,
+                    ]);
+                    $competing = !($response['result']['isError'] ?? false);
+                } else {
+                    try {
+                        $inventory->updateInventoryLevel($variant->inventoryItemId, -1, [
+                            'inventoryLocationId' => $locationId, 'updateAction' => \craft\commerce\enums\InventoryUpdateQuantityType::ADJUST,
+                        ]);
+                        $competing = true;
+                    } catch (\RuntimeException) {
+                        $competing = false;
+                    }
+                }
+            }
+        };
+        $class = \craft\commerce\models\inventory\InventoryFulfillMovement::class;
+        \yii\base\Event::on($class, \yii\base\Model::EVENT_AFTER_VALIDATE, $listener);
+        try {
+            $this->ok('commerce.orders.fulfill', ['orderId' => $orders[0]->id, 'lineItemId' => $levels[0]->lineItemId,
+                'locationId' => $locationId, 'quantity' => 1,
+            ]);
+        } finally {
+            \yii\base\Event::off($class, \yii\base\Model::EVENT_AFTER_VALIDATE, $listener);
+        }
+        self::assertNotNull($competing);
+        self::assertFalse($competing, 'A competing inventory write must not pass a fulfillment that already validated the remaining stock.');
+        self::assertSame(0, $inventory->getFulfillableQuantity($variant->inventoryItemId, $locationId));
+        self::assertSame($levels[1]->outstandingCommittedQuantity,
+            $inventory->getInventoryFulfillmentLevels($orders[1])->firstWhere('lineItemId', $levels[1]->lineItemId)->outstandingCommittedQuantity);
+        $inventory->updateInventoryLevel($variant->inventoryItemId, 1, [
+            'inventoryLocationId' => $locationId, 'updateAction' => \craft\commerce\enums\InventoryUpdateQuantityType::ADJUST,
+        ]);
+        self::assertSame(1, $inventory->getFulfillableQuantity($variant->inventoryItemId, $locationId));
+    }
+
+    public static function competingInventoryWrites(): array
+    {
+        return [['fulfill'], ['native-adjust']];
     }
 
     private function asUser(string $email, array $permissions): void
