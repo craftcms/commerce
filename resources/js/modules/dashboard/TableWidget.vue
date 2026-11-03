@@ -28,7 +28,7 @@
   <craft-card data-color="gray">
     <slot name="header" />
     <div class="body">
-      <table v-if="data.rows.length" class="data fullwidth">
+      <table v-if="data.rows.length" class="commerce-widget-table">
         <thead>
           <tr>
             <th v-for="column in data.columns" :key="column.key" scope="col">
@@ -62,6 +62,34 @@
 </template>
 
 <style scoped>
+  .commerce-widget-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .commerce-widget-table th,
+  .commerce-widget-table td {
+    padding-block: 6px;
+    padding-inline: 0 12px;
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  .commerce-widget-table tbody th {
+    font-weight: normal;
+  }
+
+  .commerce-widget-table th:last-child,
+  .commerce-widget-table td:last-child {
+    padding-inline-end: 0;
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  .commerce-widget-table tbody tr {
+    border-block-start: 1px solid var(--c-color-neutral-border-quiet);
+  }
+
   .commerce-status {
     display: inline-flex;
     align-items: center;

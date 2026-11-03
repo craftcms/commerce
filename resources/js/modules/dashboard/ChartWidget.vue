@@ -52,6 +52,7 @@
   ];
   const doughnutColors = [...colors, '#A0AEC0'];
 
+  const container = ref<HTMLElement>();
   const canvas = ref<HTMLCanvasElement>();
   const emptyLabel = window.Craft.t('commerce', 'No stats available.');
   let chart: Chart | undefined;
@@ -116,14 +117,14 @@
           })),
         },
         options: {
-          aspectRatio: 1,
+          maintainAspectRatio: false,
           cutout: '60%',
           plugins: {
             legend: {
               position: 'bottom',
               rtl,
               onClick: () => {},
-              labels: {boxWidth: 8, usePointStyle: true},
+              labels: {boxWidth: 8, boxHeight: 8, usePointStyle: true},
             },
             tooltip,
           },
@@ -166,7 +167,7 @@
             display: showLegend,
             rtl,
             onClick: () => {},
-            labels: {boxWidth: 6, usePointStyle: true},
+            labels: {boxWidth: 6, boxHeight: 6, usePointStyle: true},
           },
           tooltip,
         },
@@ -174,31 +175,71 @@
     };
   }
 
+  /**
+   * Chart.js measures its container when it's created, so a chart drawn while
+   * the widget is flipped to its settings would be sized to nothing. Wait
+   * until the container has a width.
+   */
+  let pending = false;
+  const resizeObserver = new ResizeObserver(() => {
+    if (pending) {
+      render();
+    }
+  });
+
   function render(): void {
     chart?.destroy();
     chart = undefined;
+    pending = false;
 
-    if (canvas.value && props.data.labels.length) {
-      chart = new Chart(canvas.value, config());
+    if (!canvas.value || !props.data.labels.length) {
+      return;
     }
+
+    if (!container.value?.clientWidth) {
+      pending = true;
+      return;
+    }
+
+    chart = new Chart(canvas.value, config());
   }
 
-  onMounted(render);
+  onMounted(() => {
+    if (container.value) {
+      resizeObserver.observe(container.value);
+    }
+
+    render();
+  });
   watch(() => props.data, render, {deep: true, flush: 'post'});
-  onBeforeUnmount(() => chart?.destroy());
+  onBeforeUnmount(() => {
+    resizeObserver.disconnect();
+    chart?.destroy();
+  });
 </script>
 
 <template>
   <craft-card data-color="gray">
     <slot name="header" />
-    <div class="body">
-      <canvas
+    <div ref="container" class="body">
+      <div
         v-if="data.labels.length"
-        ref="canvas"
-        role="img"
-        :aria-label="data.datasets.map((dataset) => dataset.label).join(', ')"
-      ></canvas>
+        :class="{'commerce-chart-doughnut': data.type === 'doughnut'}"
+      >
+        <canvas
+          ref="canvas"
+          role="img"
+          :aria-label="data.datasets.map((dataset) => dataset.label).join(', ')"
+        ></canvas>
+      </div>
       <craft-empty v-else :label="emptyLabel"></craft-empty>
     </div>
   </craft-card>
 </template>
+
+<style scoped>
+  .commerce-chart-doughnut {
+    position: relative;
+    height: 250px;
+  }
+</style>
