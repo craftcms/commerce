@@ -824,7 +824,8 @@ class CatalogPricingQueueTest extends Unit
 
         // Verify the state of all rows
         /** @var CatalogPricingQueueRecord[] $allRows */
-        $allRows = CatalogPricingQueueRecord::find()->all();
+        // Order by ID (insertion order) so rows compare by position; PostgreSQL does not guarantee heap order.
+        $allRows = CatalogPricingQueueRecord::find()->orderBy(['id' => SORT_ASC])->all();
         self::assertCount(count($expectedRows), $allRows, 'Should have expected number of rows');
 
         foreach ($expectedRows as $index => $expected) {
