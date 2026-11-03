@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\User\Data\Permission;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Policies\OrderPolicy;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
@@ -22,6 +24,7 @@ trait HasPermissions
 {
     private function registerPolicies(): void
     {
+        Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Transfer::class, TransferPolicy::class);
         Gate::policy(Variant::class, VariantPolicy::class);

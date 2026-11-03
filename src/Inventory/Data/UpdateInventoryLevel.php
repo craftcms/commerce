@@ -36,7 +36,7 @@ class UpdateInventoryLevel extends Component
         $allowedTypes = array_map(fn($t) => $t->value, InventoryTransactionType::allowedManualAdjustmentTypes());
 
         return [
-            'updateAction' => ['required', Rule::in(InventoryUpdateQuantityType::values())],
+            'updateAction' => ['required', Rule::enum(InventoryUpdateQuantityType::class)],
             'quantity' => ['required', 'integer'],
             'inventoryLocationId' => ['required', 'integer'],
             'inventoryItemId' => ['required', 'integer'],
