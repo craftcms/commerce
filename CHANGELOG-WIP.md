@@ -30,6 +30,7 @@
 - Deprecated `craft\commerce\elements\Product`. `CraftCms\Commerce\Product\Elements\Product` should be used instead.
 - Deprecated `craft\commerce\elements\Product::EVENT_DEFINE_PARENT_SELECTION_CRITERIA`. `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving` should be used instead.
 - Deprecated `craft\commerce\elements\Variant`. `CraftCms\Commerce\Product\Variant\Elements\Variant` should be used instead.
+- `CraftCms\Commerce\Product\Variant\Elements\Variant::getProduct()` is no longer deprecated.
 - Deprecated `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT`. `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.

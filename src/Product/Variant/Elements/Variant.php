@@ -409,7 +409,6 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Returns the product associated with this variant.
      */
-    #[\Deprecated(message: 'in 5.0.0. Use [[getOwner()]] instead.')]
     public function getProduct(): ?Product
     {
         /** @var Product|null */
