@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Email;
 
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Email\Data\EmailSettings;
 use CraftCms\Cms\Image\CraftAssetTransformDriver;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
@@ -133,7 +132,7 @@ class Emails
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewEmail) {
-            $email->id = CraftDb::idByUid(Table::EMAILS, $email->uid);
+            $email->id = DB::table(Table::EMAILS)->idByUid($email->uid);
         }
 
         return true;
@@ -177,7 +176,7 @@ class Emails
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-            $emailRecord->pdfId = $pdfUid ? CraftDb::idByUid(Table::PDFS, $pdfUid) : null;
+            $emailRecord->pdfId = $pdfUid ? DB::table(Table::PDFS)->idByUid($pdfUid) : null;
             $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
             /** @phpstan-ignore-next-line nullsafe.neverNull ($renderSite is genuinely nullable - it's null whenever 'renderSite' isn't present in $data) */
             $emailRecord->renderSiteId = $renderSite?->id ?? null;

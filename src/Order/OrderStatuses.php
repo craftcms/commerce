@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
@@ -178,7 +177,7 @@ class OrderStatuses
         if ($isNewStatus) {
             $statusUid = Str::uuid()->toString();
         } else {
-            $statusUid = CraftDb::uidById(Table::ORDERSTATUSES, $orderStatus->id);
+            $statusUid = DB::table(Table::ORDERSTATUSES)->uidById($orderStatus->id);
         }
 
         $otherStatuses = $this->getAllOrderStatuses($orderStatus->storeId)->where('uid', '!=', $statusUid)->all();
@@ -192,7 +191,7 @@ class OrderStatuses
         ProjectConfig::set($configPath, $configData, force: $force);
 
         if ($isNewStatus) {
-            $orderStatus->id = CraftDb::idByUid(Table::ORDERSTATUSES, $statusUid);
+            $orderStatus->id = DB::table(Table::ORDERSTATUSES)->idByUid($statusUid);
             $orderStatus->uid = $statusUid;
         }
 
@@ -252,7 +251,7 @@ class OrderStatuses
                     ProjectConfig::processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
                 }
 
-                $emailIds = CraftDb::idsByUids(Table::EMAILS, $data['emails']);
+                $emailIds = DB::table(Table::EMAILS)->idsByUids($data['emails']);
                 $now = now()->toDateTimeString();
 
                 foreach ($emailIds as $emailId) {
@@ -396,7 +395,7 @@ class OrderStatuses
      */
     public function reorderOrderStatuses(array $ids): bool
     {
-        $uidsByIds = CraftDb::uidsByIds(Table::ORDERSTATUSES, $ids);
+        $uidsByIds = DB::table(Table::ORDERSTATUSES)->uidsByIds($ids);
 
         foreach ($ids as $orderStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {

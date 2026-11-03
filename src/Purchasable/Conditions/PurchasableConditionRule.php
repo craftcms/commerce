@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Conditions;
 
-use craft\helpers\Cp;
 use CraftCms\Cms\Condition\BaseConditionRule;
 use CraftCms\Cms\Cp\FormFields;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementQueryConditionRuleInterface;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
@@ -85,7 +85,7 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
                 $elements = $purchasableType::find()
                     ->id($this->_elementIds[$purchasableType])
                     ->site('*')
-                    ->preferSites(array_filter([Cp::requestedSite()?->id]))
+                    ->preferSites(array_filter([app(RequestedSite::class)->get()?->id]))
                     ->status(null)
                     ->unique()
                     ->all();

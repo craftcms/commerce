@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\Elements;
 
-use craft\helpers\Localization;
 use CraftCms\Cms\Element\Contracts\NestedElementInterface;
 use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Support\Facades\I18N;
@@ -237,25 +236,25 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $length = $values['length'] ?? null;
         unset($values['length']);
         if ($length !== null) {
-            $this->length = $length ? (float)Localization::normalizeNumber($length) : null;
+            $this->length = $length ? (float)I18N::normalizeNumber($length) : null;
         }
 
         $width = $values['width'] ?? null;
         unset($values['width']);
         if ($width !== null) {
-            $this->width = $width ? (float)Localization::normalizeNumber($width) : null;
+            $this->width = $width ? (float)I18N::normalizeNumber($width) : null;
         }
 
         $height = $values['height'] ?? null;
         unset($values['height']);
         if ($height !== null) {
-            $this->height = $height ? (float)Localization::normalizeNumber($height) : null;
+            $this->height = $height ? (float)I18N::normalizeNumber($height) : null;
         }
 
         $weight = $values['weight'] ?? null;
         unset($values['weight']);
         if ($weight !== null) {
-            $this->weight = $weight ? (float)Localization::normalizeNumber($weight) : null;
+            $this->weight = $weight ? (float)I18N::normalizeNumber($weight) : null;
         }
 
         $this->setAttributes($values);

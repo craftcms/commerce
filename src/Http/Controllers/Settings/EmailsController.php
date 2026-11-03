@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\helpers\App;
 use CraftCms\Cms\Cp\SelectOptions;
+use CraftCms\Cms\Email\Data\EmailSettings;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
@@ -254,11 +254,11 @@ class EmailsController extends BaseSettingsController
             ->instructions(t('What this email will be called in the control panel.', category: 'commerce'))
             ->required();
         $uiNodes[] = Field::make(t('Status Email Address', category: 'commerce'), Text::make('senderAddress')
-            ->placeholder(App::mailSettings()->fromEmail)
+            ->placeholder(EmailSettings::fromProjectConfig()->resolvedFromEmail())
             ->textExpanderTriggers($envTriggers))
             ->instructions(t('The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings.', category: 'commerce'));
         $uiNodes[] = Field::make(t('From Name', category: 'commerce'), Text::make('senderName')
-            ->placeholder(App::mailSettings()->fromName)
+            ->placeholder(EmailSettings::fromProjectConfig()->resolvedFromName())
             ->textExpanderTriggers($envTriggers))
             ->instructions(t('The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.', category: 'commerce'));
         $uiNodes[] = Field::make(t('Email Subject', category: 'commerce'), Text::make('subject'))
