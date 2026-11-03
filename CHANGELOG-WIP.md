@@ -824,7 +824,7 @@
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
 - The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
-- Removed the `commerce/promotions/sales/*` templates.
+- Removed the `commerce/promotions/*` templates.
 - Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
 - Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
