@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Donation as DonationRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
 use yii\validators\Validator;
@@ -32,6 +33,11 @@ use yii\validators\Validator;
  */
 class Donation extends Purchasable
 {
+    /**
+     * @since 5.8.0
+     */
+    public const GQL_TYPE_NAME = 'Donation';
+
     /**
      * By default the donation is not available for purchase.
      *
@@ -86,6 +92,15 @@ class Donation extends Purchasable
     public static function hasStatuses(): bool
     {
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.8.0
+     */
+    public function canSave(User $user): bool
+    {
+        return parent::canSave($user) || $user->can('commerce-manageDonationSettings');
     }
 
     /**
@@ -296,5 +311,14 @@ class Donation extends Purchasable
 
                 $purchasableStoreRecord->save(false);
             });
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.8.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return self::GQL_TYPE_NAME;
     }
 }

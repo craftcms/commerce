@@ -230,6 +230,11 @@ class Order extends Element implements HasStoreInterface
     public const ORIGIN_REMOTE = 'remote';
 
     /**
+     * @since 5.8.0
+     */
+    public const GQL_TYPE_NAME = 'Order';
+
+    /**
      * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
      *
      * ```php
@@ -1385,6 +1390,15 @@ class Order extends Element implements HasStoreInterface
     public function canSave(User $user): bool
     {
         return parent::canSave($user) || $user->can('commerce-editOrders');
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.8.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return self::GQL_TYPE_NAME;
     }
 
     /**

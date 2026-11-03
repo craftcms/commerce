@@ -38,6 +38,11 @@ use yii\web\Response;
 class Transfer extends Element
 {
     /**
+     * @since 5.8.0
+     */
+    public const GQL_TYPE_NAME = 'Transfer';
+
+    /**
      * The status of the transfer status
      *
      * @var TransferStatusType
@@ -666,7 +671,7 @@ JS, [
     public function getDetails(): array
     {
         if ($this->_details === null) {
-            $this->_details = Plugin::getInstance()->getTransfers()->getTransferDetailsByTransferId($this->id);
+            $this->_details = $this->id ? Plugin::getInstance()->getTransfers()->getTransferDetailsByTransferId($this->id) : [];
         }
 
         return $this->_details;
@@ -965,5 +970,14 @@ JS, [
             $totalQuantity += $detail->quantity;
         }
         return $totalQuantity;
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.8.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return self::GQL_TYPE_NAME;
     }
 }

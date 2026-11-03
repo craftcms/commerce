@@ -516,6 +516,7 @@ class ProductType extends Model implements FieldLayoutProviderInterface
         $fieldLayout->reservedFieldHandles = [
             'cheapestVariant',
             'defaultVariant',
+            'productType',
             'variants',
         ];
 

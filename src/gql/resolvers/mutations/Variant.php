@@ -1,0 +1,143 @@
+<?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
+
+namespace craft\commerce\gql\resolvers\mutations;
+
+use Craft;
+use craft\commerce\elements\Product as ProductElement;
+use craft\commerce\elements\Variant as VariantElement;
+use craft\commerce\helpers\Gql;
+use craft\commerce\models\ProductType;
+use craft\gql\base\ElementMutationResolver;
+use craft\helpers\ElementHelper;
+use GraphQL\Error\Error;
+use GraphQL\Type\Definition\ResolveInfo;
+use Throwable;
+
+/**
+ * Class Variant
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 5.8.0
+ */
+class Variant extends ElementMutationResolver
+{
+    /** @inheritdoc */
+    protected array $immutableAttributes = ['id', 'uid', 'productId', 'siteId'];
+
+    /**
+     * Saves a variant using the passed arguments.
+     *
+     * @param array $arguments
+     * @param ResolveInfo $resolveInfo
+     * @return VariantElement
+     * @throws Throwable
+     */
+    public function saveVariant(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): VariantElement
+    {
+        /** @var ProductType $productType */
+        $productType = $this->getResolutionData('productType');
+        $this->requireSchemaAction("productTypes.$productType->uid", 'save');
+
+        $siteId = $arguments['siteId'] ?? Craft::$app->getSites()->getPrimarySite()->id;
+        $this->requireAllowedSite($siteId);
+
+        if (!empty($arguments['id']) || !empty($arguments['uid'])) {
+            $query = VariantElement::find()->status(null)->siteId($siteId);
+            if (!empty($arguments['uid'])) {
+                $query->uid($arguments['uid']);
+            } else {
+                $query->id($arguments['id']);
+            }
+
+            $variant = $query->one();
+
+            if (!$variant) {
+                throw new Error('No such variant exists');
+            }
+
+            $product = $variant->getOwner();
+        } else {
+            if (empty($arguments['productId'])) {
+                throw new Error('A product ID is required to create a variant.');
+            }
+
+            $product = ProductElement::find()->id($arguments['productId'])->siteId($siteId)->status(null)->one();
+
+            if (!$product) {
+                throw new Error('No such product exists');
+            }
+
+            $variant = new VariantElement();
+            $variant->setPrimaryOwner($product);
+            $variant->setOwner($product);
+        }
+
+        if ($product?->typeId !== $productType->id) {
+            throw new Error(sprintf('The variant’s product isn’t in the “%s” product type.', $productType->name));
+        }
+
+        if (!Gql::canAccessProductDraft($product) || !Gql::canAccessProductDraft($variant->getPrimaryOwner())) {
+            throw new Error('Unable to perform the action.');
+        }
+
+        // Saving a variant on its own doesn’t validate the product, so enforce the product type’s variant limit here
+        if (!$variant->id && $productType->maxVariants && $product->getVariants(true)->count() >= $productType->maxVariants) {
+            throw new Error(Craft::t('commerce', 'Too many variants for this product.'));
+        }
+
+        $variant = $this->populateElementWithData($variant, $arguments, $resolveInfo);
+        $variant = $this->saveElement($variant);
+
+        return VariantElement::find()->id($variant->id)->siteId($siteId)->status(null)->one();
+    }
+
+    /**
+     * Populates a variant with data submitted as part of its product’s save mutation.
+     *
+     * The data should already be normalized.
+     *
+     * @param VariantElement $variant
+     * @param array $data
+     * @return VariantElement
+     */
+    public function populateVariant(VariantElement $variant, array $data): VariantElement
+    {
+        return $this->populateElementWithData($variant, $data);
+    }
+
+    /**
+     * Deletes a variant identified by the passed arguments.
+     *
+     * @param array $arguments
+     * @param ResolveInfo $resolveInfo
+     * @return bool
+     * @throws Throwable
+     */
+    public function deleteVariant(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): bool
+    {
+        $variant = VariantElement::find()->id($arguments['id'])->status(null)->one();
+
+        if (!$variant) {
+            return false;
+        }
+
+        $this->requireSchemaAction('productTypes.' . $variant->getOwner()->getType()->uid, 'save');
+        if (!Gql::canAccessProductDraft($variant->getOwner()) || !Gql::canAccessProductDraft($variant->getPrimaryOwner())) {
+            throw new Error('Unable to perform the action.');
+        }
+        $this->requireUserAuthorization($variant, 'delete');
+
+        // Deleting a variant doesn’t validate its product, and enabled products must have at least one variant
+        $product = $variant->getOwner();
+        if ($product->enabled && !ElementHelper::isDraftOrRevision($variant) && $product->getVariants(true)->count() <= 1) {
+            throw new Error(Craft::t('commerce', 'Must have at least one variant.'));
+        }
+
+        return Craft::$app->getElements()->deleteElement($variant, $arguments['hardDelete'] ?? false);
+    }
+}

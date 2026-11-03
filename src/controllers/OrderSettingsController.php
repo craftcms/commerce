@@ -58,11 +58,14 @@ class OrderSettingsController extends BaseAdminController
             'customer',
             'estimatedBillingAddress',
             'estimatedShippingAddress',
+            'lineItems',
+            'orderStatus',
             'paymentAmount',
             'paymentCurrency',
             'paymentSource',
             'recalculationMode',
             'shippingAddress',
+            'store',
         ];
 
         if (!$fieldLayout->validate()) {

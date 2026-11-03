@@ -12,6 +12,7 @@ use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql as GqlHelper;
+use craft\db\Table as CmsTable;
 use craft\elements\db\ElementQuery;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
@@ -67,6 +68,30 @@ class Variant extends ElementResolver
 
         $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.primaryOwnerId]]');
         $query->andWhere(['in', '[[p.typeId]]', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
+
+        // Modified variants are owned by a product draft; unchanged variants can still have a draft contextual owner.
+        // Hide them unless the schema can query drafts, and limit authenticated users to their own provisional drafts.
+        $user = GqlHelper::getSchemaUser();
+        $canQueryDrafts = GqlHelper::canQueryDrafts();
+        if ($user || !$canQueryDrafts) {
+            foreach (['variantOwner' => 'commerce_variants.primaryOwnerId', 'variantContextOwner' => 'elements_owners.ownerId'] as $alias => $ownerColumn) {
+                $query->innerJoin(CmsTable::ELEMENTS . " $alias", "[[$alias.id]] = [[$ownerColumn]]");
+
+                if (!$canQueryDrafts) {
+                    $query->andWhere(["$alias.draftId" => null]);
+                    continue;
+                }
+
+                $draftAlias = $alias . 'Draft';
+                $query->leftJoin(CmsTable::DRAFTS . " $draftAlias", "[[$draftAlias.id]] = [[$alias.draftId]]");
+                $query->andWhere([
+                    'or',
+                    ["$alias.draftId" => null],
+                    ["$draftAlias.provisional" => false],
+                    ["$draftAlias.creatorId" => $user->id],
+                ]);
+            }
+        }
 
         return $query;
     }

@@ -8,7 +8,6 @@
 namespace craft\commerce\gql\types\generators;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\types\elements\Product as ProductTypeElement;
@@ -16,6 +15,8 @@ use craft\commerce\helpers\Gql as CommerceGqlHelper;
 use craft\commerce\models\ProductType as ProductTypeModel;
 use craft\commerce\Plugin;
 use craft\gql\base\GeneratorInterface;
+use craft\gql\base\ObjectType;
+use craft\gql\base\SingleGeneratorInterface;
 use craft\gql\GqlEntityRegistry;
 
 /**
@@ -24,42 +25,44 @@ use craft\gql\GqlEntityRegistry;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-class ProductType implements GeneratorInterface
+class ProductType implements GeneratorInterface, SingleGeneratorInterface
 {
     /**
      * @inheritdoc
      */
     public static function generateTypes(mixed $context = null): array
     {
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
         $gqlTypes = [];
 
-        foreach ($productTypes as $productType) {
-            /** @var ProductTypeModel $productType */
-            $typeName = ProductElement::gqlTypeNameByContext($productType);
-            $requiredContexts = ProductElement::gqlScopesByContext($productType);
-
-            if (!CommerceGqlHelper::isSchemaAwareOf($requiredContexts)) {
-                continue;
+        foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
+            if (CommerceGqlHelper::isSchemaAwareOf(ProductElement::gqlScopesByContext($productType))) {
+                $type = static::generateType($productType);
+                $gqlTypes[$type->name] = $type;
             }
-
-            $contentFields = $productType->getCustomFields();
-            $contentFieldGqlTypes = [];
-
-            /** @var Field $contentField */
-            foreach ($contentFields as $contentField) {
-                $contentFieldGqlTypes[$contentField->handle] = $contentField->getContentGqlType();
-            }
-
-            $productTypeFields = Craft::$app->getGql()->prepareFieldDefinitions(array_merge(ProductInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
-
-            // Generate a type for each product type
-            $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new ProductTypeElement([
-                'name' => $typeName,
-                'fields' => fn() => $productTypeFields,
-            ]));
         }
 
         return $gqlTypes;
+    }
+
+    /**
+     * @inheritdoc
+     * @since 5.8.0
+     */
+    public static function generateType(mixed $context): ObjectType
+    {
+        /** @var ProductTypeModel $context */
+        $typeName = ProductElement::gqlTypeNameByContext($context);
+
+        return GqlEntityRegistry::getOrCreate($typeName, fn() => new ProductTypeElement([
+            'name' => $typeName,
+            'fields' => function() use ($context, $typeName) {
+                $contentFieldGqlTypes = [];
+                foreach ($context->getCustomFields() as $contentField) {
+                    $contentFieldGqlTypes[$contentField->handle] = $contentField->getContentGqlType();
+                }
+
+                return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(ProductInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
+            },
+        ]));
     }
 }
