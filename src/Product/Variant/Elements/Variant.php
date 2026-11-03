@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Product\Variant\Elements;
 
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
-use CraftCms\Cms\Element\Actions\Copy;
+use CraftCms\Cms\Element\Actions\ClientAction;
 use CraftCms\Cms\Element\Actions\Restore;
 use CraftCms\Cms\Element\Concerns\NestedElement;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
@@ -1116,7 +1116,7 @@ class Variant extends Purchasable implements NestedElementInterface
             $actions[] = ['type' => SetDefaultVariant::class];
         }
 
-        $actions[] = ['type' => Copy::class];
+        $actions[] = ClientAction::copy();
 
         return $actions;
     }

@@ -80,6 +80,7 @@
 - `CraftCms\Commerce\Product\Elements\Product::getStore()` now falls back to the store of the product’s site when `storeId` isn’t set.
 - Removed `craft\commerce\web\assets\productindex\ProductIndexAsset`.
 - Commerce Products fields no longer support creating products inline.
+- Product indexes no longer have a “Copy reference tag” action. It’s still available from the product edit screen.
 - Added `CraftCms\Commerce\Http\Controllers\CreateProductController`, replacing `ProductsController::create()`. It also handles the `commerce/products/create` action, which returns the new draft as JSON.
 - New products now follow their product type’s “Enabled by default” site setting, rather than always being enabled.
 - The product edit screen is now an Inertia page (`commerce::products/Edit`), rendered by `CraftCms\Commerce\Http\Controllers\EditProductController` and `CraftCms\Commerce\Http\ViewModels\ProductEditViewModel`. Products save through `elements/save`.
