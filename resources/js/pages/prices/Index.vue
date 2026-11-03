@@ -156,14 +156,19 @@
     <div class="commerce-prices-toolbar">
       <ActionMenu
         v-if="sites.length > 1"
-        icon="world"
         :label="currentSite?.label ?? null"
         :actions="sites"
-      />
+      >
+        <template #invoker="{attributes}">
+          <craft-button v-bind="attributes" type="button" icon="world">{{
+            currentSite?.label
+          }}</craft-button>
+        </template>
+      </ActionMenu>
       <craft-button
         type="button"
         icon="filter"
-        :variant="conditionRuleCount ? 'primary' : undefined"
+        :variant="conditionRuleCount ? 'primary' : 'fill'"
         :aria-expanded="showFilters ? 'true' : 'false'"
         @click="showFilters = !showFilters"
         >{{
