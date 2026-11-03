@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\ProductType;
 
-use craft\helpers\Cp;
-use craft\helpers\Db as CraftDb;
+use CraftCms\Cms\Cp\RequestedSite;
+use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\Jobs\ResaveElements;
 use CraftCms\Cms\FieldLayout\FieldLayout;
@@ -109,7 +109,7 @@ class ProductTypes
         }
 
         $viewableIds = [];
-        $cpSite = Cp::requestedSite();
+        $cpSite = app(RequestedSite::class)->get();
 
         foreach ($allProductTypes as $productType) {
             if (!$user->can('commerce-viewProductType:' . $productType->uid)) {
@@ -289,7 +289,7 @@ class ProductTypes
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewProductType) {
-            $productType->id = CraftDb::idByUid(Table::PRODUCTTYPES, $productType->uid);
+            $productType->id = DB::table(Table::PRODUCTTYPES)->idByUid($productType->uid);
         }
 
         return true;
@@ -446,7 +446,7 @@ class ProductTypes
                     ->all();
             }
 
-            $siteIdMap = CraftDb::idsByUids('{{%sites}}', array_keys($siteData));
+            $siteIdMap = DB::table(CraftTable::SITES)->idsByUids(array_keys($siteData));
 
             foreach ($siteData as $siteUid => $siteSettings) {
                 $siteId = $siteIdMap[$siteUid];
@@ -650,7 +650,7 @@ class ProductTypes
     public function afterSaveSiteHandler(SiteSaved $event): void
     {
         if ($event->isNew && isset($event->oldPrimarySiteId)) {
-            $oldPrimarySiteUid = CraftDb::uidById('{{%sites}}', $event->oldPrimarySiteId);
+            $oldPrimarySiteUid = DB::table(CraftTable::SITES)->uidById($event->oldPrimarySiteId);
             $existingProductTypeSettings = ProjectConfig::get(self::CONFIG_PRODUCTTYPES_KEY);
 
             if (!ProjectConfig::isApplyingExternalChanges() && is_array($existingProductTypeSettings)) {

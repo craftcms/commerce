@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Pdf;
 
-use craft\helpers\Db as CraftDb;
-use craft\helpers\FileHelper;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Path;
@@ -148,7 +146,7 @@ class Pdfs
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewPdf) {
-            $pdf->id = CraftDb::idByUid(Table::PDFS, $pdf->uid);
+            $pdf->id = DB::table(Table::PDFS)->idByUid($pdf->uid);
         }
 
         return true;
@@ -388,15 +386,15 @@ class Pdfs
         File::makeDirectory($dompdfTempDir);
         File::makeDirectory($dompdfFontCache);
 
-        if (!FileHelper::isWritable($dompdfLogFile)) {
+        if (!$this->isWritable($dompdfLogFile)) {
             throw new \ErrorException("Unable to write to file: $dompdfLogFile");
         }
 
-        if (!FileHelper::isWritable($dompdfFontCache)) {
+        if (!$this->isWritable($dompdfFontCache)) {
             throw new \ErrorException("Unable to write to folder: $dompdfFontCache");
         }
 
-        if (!FileHelper::isWritable($dompdfTempDir)) {
+        if (!$this->isWritable($dompdfTempDir)) {
             throw new \ErrorException("Unable to write to folder: $dompdfTempDir");
         }
 
@@ -476,5 +474,18 @@ class Pdfs
             ->orderBy('sortOrder');
 
         return $query;
+    }
+
+    /**
+     * Whether a file or directory can be written to. A file that doesn't exist yet is
+     * writable if it can be created.
+     */
+    private function isWritable(string $path): bool
+    {
+        if (is_dir($path)) {
+            return is_writable($path);
+        }
+
+        return file_exists($path) ? is_writable($path) : is_writable(dirname($path));
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\ProductType\Data;
 
-use craft\helpers\Db;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
@@ -27,6 +26,7 @@ use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use function CraftCms\Cms\t;
 
@@ -488,7 +488,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
 
         if ($this->isStructure) {
             $config['structure'] = [
-                'uid' => $this->structureId ? Db::uidById(CraftTable::STRUCTURES, $this->structureId) : (string)Str::uuid(),
+                'uid' => $this->structureId ? DB::table(CraftTable::STRUCTURES)->uidById($this->structureId) : (string)Str::uuid(),
             ];
         }
 
@@ -500,7 +500,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
                     $layoutUid = (string)Str::uuid();
                     $fieldLayout->uid = $layoutUid;
                 } else {
-                    $layoutUid = Db::uidById(CraftTable::FIELDLAYOUTS, $fieldLayout->id);
+                    $layoutUid = DB::table(CraftTable::FIELDLAYOUTS)->uidById($fieldLayout->id);
                 }
 
                 return [$layoutUid => $fieldLayoutConfig];
@@ -515,7 +515,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
         $allSiteSettings = $this->getSiteSettings();
 
         foreach ($allSiteSettings as $siteId => $settings) {
-            $siteUid = Db::uidById(CraftTable::SITES, $siteId);
+            $siteUid = DB::table(CraftTable::SITES)->uidById($siteId);
             $config['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings->hasUrls,
                 'enabledByDefault' => $settings->enabledByDefault,

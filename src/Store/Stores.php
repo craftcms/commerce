@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Store;
 
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
@@ -203,7 +202,7 @@ class Stores
         if ($isNewStore) {
             $store->uid = Str::uuid()->toString();
         } elseif (!$store->uid) {
-            $store->uid = CraftDb::uidById(Table::STORES, $store->id);
+            $store->uid = DB::table(Table::STORES)->uidById($store->id);
         }
 
         $configPath = self::CONFIG_STORES_KEY . '.' . $store->uid;
@@ -215,7 +214,7 @@ class Stores
 
         // Now that we have a store ID, save it on the model
         if ($isNewStore) {
-            $store->id = CraftDb::idByUid(Table::STORES, $store->uid);
+            $store->id = DB::table(Table::STORES)->idByUid($store->uid);
 
             // Create any default data we need for the store
             $orderStatus = new OrderStatus([
@@ -451,7 +450,7 @@ class Stores
      */
     public function reorderStores(array $ids): bool
     {
-        $uidsByIds = CraftDb::uidsByIds(Table::STORES, $ids);
+        $uidsByIds = DB::table(Table::STORES)->uidsByIds($ids);
 
         foreach ($ids as $sortOrder => $id) {
             if (!empty($uidsByIds[$id])) {
@@ -597,7 +596,7 @@ class Stores
         }
 
         if (!$siteStore->uid) {
-            $siteStore->uid = CraftDb::uidById(CraftTable::SITES, $siteStore->siteId);
+            $siteStore->uid = DB::table(CraftTable::SITES)->uidById($siteStore->siteId);
         }
 
         $configPath = self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid;
@@ -633,8 +632,8 @@ class Stores
                 $siteStoreRecord = new SiteStoreRecord();
             }
 
-            $siteStoreRecord->siteId = CraftDb::idByUid(CraftTable::SITES, $siteStoreUid);
-            $siteStoreRecord->storeId = CraftDb::idByUid(Table::STORES, $data['store']);
+            $siteStoreRecord->siteId = DB::table(CraftTable::SITES)->idByUid($siteStoreUid);
+            $siteStoreRecord->storeId = DB::table(Table::STORES)->idByUid($data['store']);
             $siteStoreRecord->uid = $siteStoreUid;
 
             $siteStoreRecord->save();

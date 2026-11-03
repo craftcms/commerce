@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Order\Elements;
 
 use Carbon\Carbon;
 use CommerceGuys\Addressing\AddressInterface;
-use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
@@ -1609,11 +1608,7 @@ class Order extends Element implements HasStoreInterface
     {
         $lockKey = "order-after-save:$this->number";
         $lock = Cache::lock($lockKey, 30);
-        try {
-            $lock->block(15);
-        } catch (LockTimeoutException) {
-            throw new MutexException($lockKey, 'Could not acquire a lock to save the order.');
-        }
+        $lock->block(15);
 
         try {
             // Make sure addresses are set before recalculation so that on the next page load

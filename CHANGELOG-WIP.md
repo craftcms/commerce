@@ -520,6 +520,7 @@
 - Added `CraftCms\Commerce\Order\Events\OrderStatusChanged`.
 - Added `CraftCms\Commerce\Order\Events\PurgeAddressesEvent`.
 - Deprecated `craft\commerce\elements\Order`. `CraftCms\Commerce\Order\Elements\Order` should be used instead.
+- `CraftCms\Commerce\Order\Elements\Order` now throws `Illuminate\Contracts\Cache\LockTimeoutException` instead of `craft\errors\MutexException` when it can’t acquire its save lock.
 - Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`. `CraftCms\Commerce\Order\Events\OrderPaid` should be used instead.
 - Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`. `CraftCms\Commerce\Order\Events\OrderAuthorized` should be used instead.
 - Deprecated `craft\commerce\elements\Order::EVENT_BEFORE_COMPLETE_ORDER`. `CraftCms\Commerce\Order\Events\OrderCompleting` should be used instead.
