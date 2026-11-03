@@ -20,6 +20,7 @@ use craft\commerce\enums\LineItemType;
 use craft\commerce\enums\OrderNoticeType;
 use craft\commerce\events\InventoryMovementEvent;
 use craft\commerce\events\UpdateInventoryLevelEvent;
+use craft\commerce\management\Mutation;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
@@ -450,39 +451,42 @@ class Inventory extends Component
             return true;
         }
 
-        $transaction = Craft::$app->getDb()->beginTransaction();
+        $keys = $updateInventoryLevels->map(static fn(UpdateInventoryLevel $level) => "commerce:inventory-ledger:$level->inventoryLocationId:$level->inventoryItemId")->values()->all();
+        Mutation::run($keys, function() use ($updateInventoryLevels): void {
+            $transaction = Craft::$app->getDb()->beginTransaction();
 
-        try {
-            foreach ($updateInventoryLevels as $updateInventoryLevel) {
-                if ($updateInventoryLevel->updateAction === InventoryUpdateQuantityType::SET) {
-                    $this->_setInventoryLevel($updateInventoryLevel);
-                } else {
-                    $this->_adjustInventoryLevel($updateInventoryLevel);
+            try {
+                foreach ($updateInventoryLevels as $updateInventoryLevel) {
+                    if ($updateInventoryLevel->updateAction === InventoryUpdateQuantityType::SET) {
+                        $this->_setInventoryLevel($updateInventoryLevel);
+                    } else {
+                        $this->_adjustInventoryLevel($updateInventoryLevel);
+                    }
                 }
+
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                throw $e;
             }
+        });
 
-            $transaction->commit();
+        // @TODO Consider pushing updateStoreStockCache() into a queued job so inventory updates don't block on cache regeneration
+        // Update all purchasables stock
+        foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
+            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
+        }
 
-            // @TODO Consider pushing updateStoreStockCache() into a queued job so inventory updates don't block on cache regeneration
-            // Update all purchasables stock
-            foreach ($updateInventoryLevels->getPurchasables() as $purchasable) {
-                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
-            }
-
-            // Trigger event for each successful update
-            foreach ($updateInventoryLevels as $updateInventoryLevel) {
-                if ($this->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
-                    $this->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent([
+        // Trigger event for each successful update
+        foreach ($updateInventoryLevels as $updateInventoryLevel) {
+            if ($this->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
+                $this->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent([
                         'updateInventoryLevel' => $updateInventoryLevel,
                     ]));
-                }
             }
-
-            return true;
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
         }
+
+        return true;
     }
 
     /**
@@ -634,23 +638,29 @@ class Inventory extends Component
      */
     public function executeInventoryMovements(InventoryMovementCollection $inventoryMovements): bool
     {
-        $tableName = Table::INVENTORYTRANSACTIONS;
+        // Share item/location locks with every ledger writer, including checkout and transfers.
+        $keys = $inventoryMovements->flatMap(static fn(InventoryMovementInterface $movement) => [
+            'commerce:inventory-ledger:' . $movement->getFromInventoryLocation()->id . ':' . $movement->getInventoryItem()->id,
+            'commerce:inventory-ledger:' . $movement->getToInventoryLocation()->id . ':' . $movement->getInventoryItem()->id,
+        ])->values()->all();
+        $saved = Mutation::run($keys, function() use ($inventoryMovements): bool {
+            $tableName = Table::INVENTORYTRANSACTIONS;
 
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
 
-        try {
-            /** @var InventoryMovementInterface $inventoryMovement */
-            foreach ($inventoryMovements as $inventoryMovement) {
-                if (!$inventoryMovement->isValid()) {
-                    $transaction->rollBack();
-                    return false;
-                }
+            try {
+                /** @var InventoryMovementInterface $inventoryMovement */
+                foreach ($inventoryMovements as $inventoryMovement) {
+                    if (!$inventoryMovement->isValid()) {
+                        $transaction->rollBack();
+                        return false;
+                    }
 
-                $movementDate = Db::prepareDateForDb(new \DateTime());
+                    $movementDate = Db::prepareDateForDb(new \DateTime());
 
-                // First insert operation
-                $fromInsertResult = $db->createCommand()
+                    // First insert operation
+                    $fromInsertResult = $db->createCommand()
                     ->insert($tableName, [
                         'quantity' => -$inventoryMovement->getQuantity(),
                         'type' => $inventoryMovement->getFromInventoryTransactionType()->value,
@@ -665,13 +675,13 @@ class Inventory extends Component
                     ])
                     ->execute();
 
-                if (!$fromInsertResult) {
-                    $transaction->rollBack();
-                    return false;
-                }
+                    if (!$fromInsertResult) {
+                        $transaction->rollBack();
+                        return false;
+                    }
 
-                // Second insert operation
-                $toInsertResult = $db->createCommand()
+                    // Second insert operation
+                    $toInsertResult = $db->createCommand()
                     ->insert($tableName, [
                         'quantity' => $inventoryMovement->getQuantity(),
                         'type' => $inventoryMovement->getToInventoryTransactionType()->value,
@@ -686,37 +696,42 @@ class Inventory extends Component
                     ])
                     ->execute();
 
-                if (!$toInsertResult) {
-                    $transaction->rollBack();
-                    return false;
+                    if (!$toInsertResult) {
+                        $transaction->rollBack();
+                        return false;
+                    }
                 }
+
+                $transaction->commit();
+                return true;
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                throw $e;
             }
+        });
+        if (!$saved) {
+            return false;
+        }
 
-            $transaction->commit();
-
-            // @TODO Consider pushing the per-movement updateStoreStockCache() calls into a queued job so large batch movements don't block on cache regeneration
-            foreach ($inventoryMovements as $inventoryMovement) {
-                // Update all purchasables stock
-                $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();
-                if ($purchasable) {
-                    Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
-                }
+        // @TODO Consider pushing the per-movement updateStoreStockCache() calls into a queued job so large batch movements don't block on cache regeneration
+        foreach ($inventoryMovements as $inventoryMovement) {
+            // Update all purchasables stock
+            $purchasable = $inventoryMovement->getInventoryItem()->getPurchasable();
+            if ($purchasable) {
+                Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
             }
+        }
 
-            // Trigger event for each successful movement
-            foreach ($inventoryMovements as $inventoryMovement) {
-                if ($this->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
-                    $this->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent([
+        // Trigger event for each successful movement
+        foreach ($inventoryMovements as $inventoryMovement) {
+            if ($this->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
+                $this->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent([
                         'inventoryMovement' => $inventoryMovement,
                     ]));
-                }
             }
-
-            return true;
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
         }
+
+        return true;
     }
 
 

@@ -70,6 +70,7 @@ use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Settings;
+use craft\commerce\plugin\Mcp;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
@@ -310,6 +311,7 @@ class Plugin extends BasePlugin
     use CommerceServices;
     use Variables;
     use Routes;
+    use Mcp;
 
     /**
      * @inheritdoc
@@ -334,6 +336,7 @@ class Plugin extends BasePlugin
         $this->_registerGqlComponents();
         $this->_registerGqlEagerLoadableFields();
         $this->_registerGqlArgumentHandlers();
+        $this->_registerMcp();
         $this->_registerLinkTypes();
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
