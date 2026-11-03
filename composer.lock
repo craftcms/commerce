@@ -418,12 +418,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "ccf2333cdbaf99f66ff3d479377a3a0487ffab2f"
+                "reference": "b5bf8ff4df5a62b480d15fe67e69b3fcc25061e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/ccf2333cdbaf99f66ff3d479377a3a0487ffab2f",
-                "reference": "ccf2333cdbaf99f66ff3d479377a3a0487ffab2f",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/b5bf8ff4df5a62b480d15fe67e69b3fcc25061e7",
+                "reference": "b5bf8ff4df5a62b480d15fe67e69b3fcc25061e7",
                 "shasum": ""
             },
             "require": {
@@ -606,7 +606,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-11-02T23:34:07+00:00"
+            "time": "2026-11-03T13:19:45+00:00"
         },
         {
             "name": "craftcms/cms-assets",
@@ -614,12 +614,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms-assets.git",
-                "reference": "16183088da6599f4aec12ff1b5fb26f3e0a4abeb"
+                "reference": "28b590dbedc3aca3ac21332e79fcd625fefc2970"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/16183088da6599f4aec12ff1b5fb26f3e0a4abeb",
-                "reference": "16183088da6599f4aec12ff1b5fb26f3e0a4abeb",
+                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/28b590dbedc3aca3ac21332e79fcd625fefc2970",
+                "reference": "28b590dbedc3aca3ac21332e79fcd625fefc2970",
                 "shasum": ""
             },
             "default-branch": true,
@@ -632,7 +632,7 @@
             "support": {
                 "source": "https://github.com/craftcms/cms-assets/tree/6.x"
             },
-            "time": "2026-11-02T22:31:53+00:00"
+            "time": "2026-11-03T12:47:57+00:00"
         },
         {
             "name": "craftcms/laravel-aliases",
@@ -11282,16 +11282,16 @@
         },
         {
             "name": "web-auth/webauthn-lib",
-            "version": "5.3.10",
+            "version": "5.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-auth/webauthn-lib.git",
-                "reference": "894f6be8c8a47354a4dfd134a5979246e26d8639"
+                "reference": "c7aeeb1d35e39b7d32ab5146cce4b668f271a68e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/894f6be8c8a47354a4dfd134a5979246e26d8639",
-                "reference": "894f6be8c8a47354a4dfd134a5979246e26d8639",
+                "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/c7aeeb1d35e39b7d32ab5146cce4b668f271a68e",
+                "reference": "c7aeeb1d35e39b7d32ab5146cce4b668f271a68e",
                 "shasum": ""
             },
             "require": {
@@ -11352,7 +11352,7 @@
                 "webauthn"
             ],
             "support": {
-                "source": "https://github.com/web-auth/webauthn-lib/tree/5.3.10"
+                "source": "https://github.com/web-auth/webauthn-lib/tree/5.3.12"
             },
             "funding": [
                 {
@@ -11364,7 +11364,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-10-31T12:44:21+00:00"
+            "time": "2026-11-03T09:21:08+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -12417,12 +12417,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/yii2-adapter.git",
-                "reference": "b5ea4e6115fe9f59ab906f5d93aaf3cd8800f6f5"
+                "reference": "7837b8a6cc49745330632abad86d9c687bd5fa43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/b5ea4e6115fe9f59ab906f5d93aaf3cd8800f6f5",
-                "reference": "b5ea4e6115fe9f59ab906f5d93aaf3cd8800f6f5",
+                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/7837b8a6cc49745330632abad86d9c687bd5fa43",
+                "reference": "7837b8a6cc49745330632abad86d9c687bd5fa43",
                 "shasum": ""
             },
             "require": {
@@ -12521,7 +12521,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-11-02T18:59:17+00:00"
+            "time": "2026-11-03T12:34:03+00:00"
         },
         {
             "name": "creocoder/yii2-nested-sets",
