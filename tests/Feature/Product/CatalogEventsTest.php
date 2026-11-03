@@ -28,6 +28,9 @@ use CraftCms\Commerce\Shipping\Data\ShippingMethod;
 use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use yii\base\Event as YiiEvent;
 
+// These test the legacy craft\commerce event bridge, which needs the yii2 adapter.
+pest()->group('yii2-adapter');
+
 afterEach(function() {
     YiiEvent::offAll();
 });

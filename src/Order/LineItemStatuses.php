@@ -104,7 +104,7 @@ class LineItemStatuses
         $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle, $lineItemStatus->storeId);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {
-            $lineItemStatus->addError('handle', t('That handle is already in use', category: 'commerce'));
+            $lineItemStatus->errors()->add('handle', t('That handle is already in use', category: 'commerce'));
             return false;
         }
 

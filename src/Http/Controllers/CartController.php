@@ -234,7 +234,7 @@ class CartController
                         session()->put('commerce:anonymousCartWithCredentialedCustomer:' . $this->cart->number, true);
                     }
                 } catch (\Exception $e) {
-                    $this->cart->addError('email', $e->getMessage());
+                    $this->cart->errors()->add('email', $e->getMessage());
                 }
             }
         } else {
@@ -421,7 +421,7 @@ class CartController
         try {
             $lock->block(10);
         } catch (LockTimeoutException) {
-            $this->cart->addError('isComplete', t('Unable to complete order: another request is already in progress.', category: 'commerce'));
+            $this->cart->errors()->add('isComplete', t('Unable to complete order: another request is already in progress.', category: 'commerce'));
             return $this->returnCart($request);
         }
 
@@ -456,7 +456,9 @@ class CartController
         }
 
         if (!empty($errors)) {
-            $this->cart->addErrors($errors);
+            foreach ($errors as $attribute => $message) {
+                $this->cart->errors()->add($attribute, $message);
+            }
         }
 
         if (empty($errors)) {
@@ -467,7 +469,7 @@ class CartController
             }
 
             if (!$completedSuccess) {
-                $this->cart->addError('isComplete', t('Completing order failed.', category: 'commerce'));
+                $this->cart->errors()->add('isComplete', t('Completing order failed.', category: 'commerce'));
             }
         }
 

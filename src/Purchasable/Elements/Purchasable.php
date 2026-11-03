@@ -264,7 +264,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $localizePrice = function(string $attribute) {
             $price = $this->{$attribute};
-            if (empty($this->getErrors($attribute))) {
+            if (empty($this->errors()->get($attribute))) {
                 if ($price === null && $attribute === 'basePromotionalPrice') {
                     return null;
                 } elseif ($price === null) {

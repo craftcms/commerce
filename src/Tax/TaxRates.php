@@ -103,7 +103,7 @@ class TaxRates
             }
 
             if ($record->removeIncluded && !$taxZone->default) {
-                $model->addError('removeIncluded', t('Removable included tax rates are only allowed for the default tax zone.', category: 'commerce'));
+                $model->errors()->add('removeIncluded', t('Removable included tax rates are only allowed for the default tax zone.', category: 'commerce'));
 
                 return false;
             }
