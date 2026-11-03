@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Promotion;
 
 use Carbon\Carbon;
-use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\ElementCaches;
@@ -17,7 +16,7 @@ use CraftCms\Commerce\Promotion\Data\Sale;
 use CraftCms\Commerce\Promotion\Events\SaleEvent;
 use CraftCms\Commerce\Promotion\Events\SaleMatchEvent;
 use CraftCms\Commerce\Promotion\Models\Sale as SaleRecord;
-use CraftCms\Commerce\Promotion\Models\SaleCategory as SaleCategoryRecord;
+use CraftCms\Commerce\Promotion\Models\SaleEntry as SaleEntryRecord;
 use CraftCms\Commerce\Promotion\Models\SalePurchasable as SalePurchasableRecord;
 use CraftCms\Commerce\Promotion\Models\SaleUserGroup as SaleUserGroupRecord;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
@@ -82,18 +81,18 @@ class Sales
                 'sales.ignorePrevious',
                 'sales.allGroups',
                 'sales.allPurchasables',
-                'sales.allCategories',
+                'sales.allEntries',
                 'sales.sortOrder',
-                'sales.categoryRelationshipType',
+                'sales.entryRelationshipType',
                 'sales.enabled',
                 'sales.dateCreated',
                 'sales.dateUpdated',
                 'sp.purchasableId',
-                'spt.categoryId',
+                'spt.entryId',
                 'sug.userGroupId',
             ])
             ->leftJoin(Table::SALE_PURCHASABLES . ' as sp', 'sp.saleId', '=', 'sales.id')
-            ->leftJoin(Table::SALE_CATEGORIES . ' as spt', 'spt.saleId', '=', 'sales.id')
+            ->leftJoin(Table::SALE_ENTRIES . ' as spt', 'spt.saleId', '=', 'sales.id')
             ->leftJoin(Table::SALE_USERGROUPS . ' as sug', 'sug.saleId', '=', 'sales.id')
             ->orderBy('sales.sortOrder')
             ->get()
@@ -101,7 +100,7 @@ class Sales
 
         $allSalesById = [];
         $purchasables = [];
-        $categories = [];
+        $entries = [];
         $groups = [];
 
         foreach ($rows as $row) {
@@ -111,14 +110,14 @@ class Sales
             if ($row['purchasableId']) {
                 $purchasables[$id][] = $row['purchasableId'];
             }
-            if ($row['categoryId']) {
-                $categories[$id][] = $row['categoryId'];
+            if ($row['entryId']) {
+                $entries[$id][] = $row['entryId'];
             }
             if ($row['userGroupId']) {
                 $groups[$id][] = $row['userGroupId'];
             }
 
-            unset($row['purchasableId'], $row['userGroupId'], $row['categoryId']);
+            unset($row['purchasableId'], $row['userGroupId'], $row['entryId']);
 
             if (!isset($allSalesById[$id])) {
                 $allSalesById[$id] = new Sale($row);
@@ -127,7 +126,7 @@ class Sales
 
         foreach ($allSalesById as $id => $sale) {
             $sale->setPurchasableIds($purchasables[$id] ?? []);
-            $sale->setCategoryIds($categories[$id] ?? []);
+            $sale->setEntryIds($entries[$id] ?? []);
             $sale->setUserGroupIds($groups[$id] ?? []);
         }
 
@@ -170,15 +169,10 @@ class Sales
             foreach ($this->getAllSales() as $sale) {
                 $purchasableIds = $sale->getPurchasableIds();
 
-                $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-                $saleCategories = $sale->getCategoryIds();
+                $relatedTo = [$sale->entryRelationshipType => $purchasable->getPromotionRelationSource()];
+                $relatedEntries = Entry::find()->id($sale->getEntryIds())->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
 
-                // TODO: update Category element calls when migrated (Entry already uses the new element)
-                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
-                $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
-                $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
-
-                if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedEntries)) {
                     $sales[] = $sale;
                 }
             }
@@ -302,16 +296,11 @@ class Sales
             }
         }
 
-        if (!$sale->allCategories) {
-            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-            $saleCategories = $sale->getCategoryIds();
+        if (!$sale->allEntries) {
+            $relatedTo = [$sale->entryRelationshipType => $purchasable->getPromotionRelationSource()];
+            $relatedEntries = Entry::find()->id($sale->getEntryIds())->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
 
-            // TODO: update Category element calls when migrated (Entry already uses the new element)
-            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
-            $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->siteId($purchasable->siteId)->ids();
-            $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
-
-            if (empty($relatedCategoriesOrEntries)) {
+            if (empty($relatedEntries)) {
                 return false;
             }
         }
@@ -359,14 +348,14 @@ class Sales
         $record->applyAmount = $model->applyAmount;
         $record->stopProcessing = $model->stopProcessing;
         $record->ignorePrevious = $model->ignorePrevious;
-        $record->categoryRelationshipType = $model->categoryRelationshipType;
+        $record->entryRelationshipType = $model->entryRelationshipType;
         $record->enabled = $model->enabled;
 
         if ($record->allGroups = $model->allGroups) {
             $model->setUserGroupIds([]);
         }
-        if ($record->allCategories = $model->allCategories) {
-            $model->setCategoryIds([]);
+        if ($record->allEntries = $model->allEntries) {
+            $model->setEntryIds([]);
         }
         if ($record->allPurchasables = $model->allPurchasables) {
             $model->setPurchasableIds([]);
@@ -392,7 +381,7 @@ class Sales
 
             SaleUserGroupRecord::where('saleId', $model->id)->delete();
             SalePurchasableRecord::where('saleId', $model->id)->delete();
-            SaleCategoryRecord::where('saleId', $model->id)->delete();
+            SaleEntryRecord::where('saleId', $model->id)->delete();
 
             foreach ($model->getUserGroupIds() as $groupId) {
                 $relation = new SaleUserGroupRecord();
@@ -401,9 +390,9 @@ class Sales
                 $relation->save();
             }
 
-            foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new SaleCategoryRecord();
-                $relation->categoryId = $categoryId;
+            foreach ($model->getEntryIds() as $entryId) {
+                $relation = new SaleEntryRecord();
+                $relation->entryId = $entryId;
                 $relation->saleId = $model->id;
                 $relation->save();
             }

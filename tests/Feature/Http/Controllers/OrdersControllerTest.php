@@ -7,7 +7,7 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\Event;
 
@@ -149,8 +149,8 @@ it('includes a custom runtime shipping method registered via the shipping method
     $customMethod->shouldReceive('getPriceForOrder')->andReturn(0.0);
     $customMethod->shouldReceive('matchOrder')->andReturn(true);
 
-    Event::listen(RegisterAvailableShippingMethodsEvent::class, function(RegisterAvailableShippingMethodsEvent $event) use ($customMethod) {
-        $event->setShippingMethods($event->getShippingMethods()->push($customMethod));
+    Event::listen(ShippingMethodsResolving::class, function(ShippingMethodsResolving $event) use ($customMethod) {
+        $event->shippingMethods->push($customMethod);
     });
 
     $response = postJson(

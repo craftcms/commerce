@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Order\Elements;
 
 use Carbon\Carbon;
 use CommerceGuys\Addressing\AddressInterface;
-use craft\errors\MutexException;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
@@ -56,11 +55,18 @@ use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
-use CraftCms\Commerce\Order\Events\AddLineItemEvent;
-use CraftCms\Commerce\Order\Events\LineItemEvent;
-use CraftCms\Commerce\Order\Events\OrderEvent;
-use CraftCms\Commerce\Order\Events\OrderLineItemsRefreshEvent;
-use CraftCms\Commerce\Order\Events\OrderNoticeEvent;
+use CraftCms\Commerce\Order\Events\LineItemAddApplied;
+use CraftCms\Commerce\Order\Events\LineItemAdded;
+use CraftCms\Commerce\Order\Events\LineItemAdding;
+use CraftCms\Commerce\Order\Events\LineItemRemoveApplied;
+use CraftCms\Commerce\Order\Events\LineItemRemoved;
+use CraftCms\Commerce\Order\Events\LineItemsRefreshed;
+use CraftCms\Commerce\Order\Events\LineItemsRefreshing;
+use CraftCms\Commerce\Order\Events\OrderAuthorized;
+use CraftCms\Commerce\Order\Events\OrderCompleted;
+use CraftCms\Commerce\Order\Events\OrderCompleting;
+use CraftCms\Commerce\Order\Events\OrderNoticeSaving;
+use CraftCms\Commerce\Order\Events\OrderPaid;
 use CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException;
 use CraftCms\Commerce\Order\Exceptions\OrderAdjustmentNotFoundException;
 use CraftCms\Commerce\Order\Exceptions\OrderStatusException;
@@ -228,61 +234,85 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemAdding} instead.
      */
     public const EVENT_BEFORE_ADD_LINE_ITEM = 'beforeAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been applied to an order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemAddApplied} instead.
      */
     public const EVENT_AFTER_APPLY_ADD_LINE_ITEM = 'afterApplyAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemAdded} instead.
      */
     public const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemRemoved} instead.
      */
     public const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item removal has been applied to an order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemRemoveApplied} instead.
      */
     public const EVENT_AFTER_APPLY_REMOVE_LINE_ITEM = 'afterApplyRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered before an order is completed.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\OrderCompleting} instead.
      */
     public const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after an order is completed.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\OrderCompleted} instead.
      */
     public const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after an order is paid and completed.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\OrderPaid} instead.
      */
     public const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
 
     /**
      * @event \yii\base\Event The event that is triggered after an order is authorized in full and completed.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\OrderAuthorized} instead.
      */
     public const EVENT_AFTER_ORDER_AUTHORIZED = 'afterOrderAuthorized';
 
     /**
      * @event \yii\base\Event The event that is triggered before a notice has been added to the order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\OrderNoticeSaving} instead.
      */
     public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered before line items are refreshed during recalculation of an order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemsRefreshing} instead.
      */
     public const EVENT_BEFORE_LINE_ITEMS_REFRESHED = 'beforeLineItemsRefreshed';
 
     /**
      * @event \yii\base\Event The event that is triggered after line items are refreshed during recalculation of an order.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\LineItemsRefreshed} instead.
      */
     public const EVENT_AFTER_LINE_ITEMS_REFRESHED = 'afterLineItemsRefreshed';
 
@@ -1177,21 +1207,11 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($justPaid) {
-            $event = new OrderEvent(order: $this);
-            event($event);
-
-            if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-                $this->trigger(self::EVENT_AFTER_ORDER_PAID);
-            }
+            event(new OrderPaid($this));
         }
 
         if ($justAuthorized) {
-            $event = new OrderEvent(order: $this);
-            event($event);
-
-            if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_AUTHORIZED)) {
-                $this->trigger(self::EVENT_AFTER_ORDER_AUTHORIZED);
-            }
+            event(new OrderAuthorized($this));
         }
 
         // Restore the original recalculation mode, unless this call completed the order
@@ -1282,10 +1302,7 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        // Raising the 'beforeCompleteOrder' event
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_COMPLETE_ORDER)) {
-            $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
-        }
+        event(new OrderCompleting($this));
 
         // Completed orders should no longer recalculate anything by default
         $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
@@ -1327,10 +1344,7 @@ class Order extends Element implements HasStoreInterface
         // Persist any admin notices added by the handlers above.
         $this->_saveNotices();
 
-        // Raising the 'afterCompleteOrder' event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
-            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER);
-        }
+        event(new OrderCompleted($this));
     }
 
     /**
@@ -1346,14 +1360,7 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        $event = new LineItemEvent(
-            lineItem: $lineItem,
-        );
-        event($event);
-
-        if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
-            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, $event);
-        }
+        event(new LineItemRemoved($this, $lineItem));
     }
 
     /**
@@ -1365,12 +1372,7 @@ class Order extends Element implements HasStoreInterface
         $isNew = ($lineItem->id === null);
 
         if ($isNew) {
-            $lineItemEvent = new AddLineItemEvent(lineItem: $lineItem, isNew: $isNew);
-            event($lineItemEvent);
-
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
-            }
+            event($lineItemEvent = new LineItemAdding($this, $lineItem));
 
             if (!$lineItemEvent->isValid) {
                 return;
@@ -1391,16 +1393,7 @@ class Order extends Element implements HasStoreInterface
 
         $this->setLineItems($lineItems);
 
-        // Raising the 'afterAddLineItemToOrder' event
-        $event = new LineItemEvent(
-            lineItem: $lineItem,
-            isNew: !$replaced,
-        );
-        event($event);
-
-        if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
-            $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, $event);
-        }
+        event(new LineItemAdded($this, $lineItem, isNew: !$replaced));
     }
 
     /**
@@ -1465,15 +1458,7 @@ class Order extends Element implements HasStoreInterface
             }
 
             $recalculateOrder = false;
-            $event = new OrderLineItemsRefreshEvent(
-                lineItems: $this->getLineItems(),
-                recalculate: $recalculateOrder,
-            );
-            event($event);
-
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED)) {
-                $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
-            }
+            event($event = new LineItemsRefreshing($this, $this->getLineItems(), $recalculateOrder));
 
             $this->setLineItems($event->lineItems);
             $recalculateOrder = $event->recalculate;
@@ -1521,15 +1506,7 @@ class Order extends Element implements HasStoreInterface
                 $recalculateOrder = true;
             }
 
-            $event = new OrderLineItemsRefreshEvent(
-                lineItems: $this->getLineItems(),
-                recalculate: $recalculateOrder,
-            );
-            event($event);
-
-            if ($this->hasEventHandlers(self::EVENT_AFTER_LINE_ITEMS_REFRESHED)) {
-                $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
-            }
+            event($event = new LineItemsRefreshed($this, $this->getLineItems(), $recalculateOrder));
 
             $this->setLineItems($event->lineItems);
             $recalculateOrder = $event->recalculate;
@@ -1631,11 +1608,7 @@ class Order extends Element implements HasStoreInterface
     {
         $lockKey = "order-after-save:$this->number";
         $lock = Cache::lock($lockKey, 30);
-        try {
-            $lock->block(15);
-        } catch (LockTimeoutException) {
-            throw new MutexException($lockKey, 'Could not acquire a lock to save the order.');
-        }
+        $lock->block(15);
 
         try {
             // Make sure addresses are set before recalculation so that on the next page load
@@ -4132,16 +4105,7 @@ class Order extends Element implements HasStoreInterface
         // We are never updating a notice, just adding it or keeping it.
         foreach (array_merge($this->getNotices(), $this->getAdminNotices()) as $notice) {
             if ($notice->id === null) {
-                $orderNoticeEvent = new OrderNoticeEvent(
-                    orderNotice: $notice,
-                );
-
-                // Raising the 'beforeAddNoticeToOrder' event
-                event($orderNoticeEvent);
-
-                if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
-                    $this->trigger(self::EVENT_BEFORE_APPLY_ADD_NOTICE, $orderNoticeEvent);
-                }
+                event($orderNoticeEvent = new OrderNoticeSaving($this, $notice));
 
                 if ($orderNoticeEvent->isValid === false) {
                     continue;
@@ -4187,14 +4151,7 @@ class Order extends Element implements HasStoreInterface
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
                 DB::table(Table::LINEITEMS)->where('id', $previousLineItem->id)->delete();
 
-                $event = new LineItemEvent(
-                    lineItem: $previousLineItem,
-                );
-                event($event);
-
-                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
-                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, $event);
-                }
+                event(new LineItemRemoveApplied($this, $previousLineItem));
             }
         }
 
@@ -4215,16 +4172,7 @@ class Order extends Element implements HasStoreInterface
 
             // Is this a new line item?
             if ($originalId === null) {
-                // Raising the 'afterAddLineItemToOrder' event
-                $event = new LineItemEvent(
-                    lineItem: $lineItem,
-                    isNew: true,
-                );
-                event($event);
-
-                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
-                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, $event);
-                }
+                event(new LineItemAddApplied($this, $lineItem));
             }
 
             // Update any adjustments to this line item with the new line item ID.

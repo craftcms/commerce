@@ -24,8 +24,7 @@ use RuntimeException;
  * Builds a two-sale scenario: a "percentage" sale scoped to a single purchasable, and an
  * "all relationships" sale scoped to a purchasable and a user group.
  *
- * Neither sale is scoped to categories — category-based sale scoping is currently broken (see
- * COM-644/645/646/647) so it isn't exercised here.
+ * Entry-based sale matching is covered by `PromotionEntriesTest`.
  */
 class SalesFixture
 {
@@ -74,7 +73,7 @@ class SalesFixture
             'applyAmount' => -0.1000,
             'allGroups' => true,
             'allPurchasables' => false,
-            'allCategories' => true,
+            'allEntries' => true,
         ], purchasableIds: [$this->radHood->id]);
 
         $this->allRelationshipsSale = $this->createSale([
@@ -85,7 +84,7 @@ class SalesFixture
             'applyAmount' => -0.2000,
             'allGroups' => false,
             'allPurchasables' => false,
-            'allCategories' => true,
+            'allEntries' => true,
         ], purchasableIds: [$this->hctWhite->id], userGroupIds: [$this->group->id]);
     }
 

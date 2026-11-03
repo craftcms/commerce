@@ -18,16 +18,23 @@
 - Added `CraftCms\Commerce\Product\ProductType\Models\ProductTypeSite`.
 - Added `CraftCms\Commerce\Product\ProductType\ProductTypes`.
 - Added `CraftCms\Commerce\Support\Facades\ProductTypes`.
-- Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent`.
-- Added `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent`.
-- Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent`.
-- Added `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent`.
+- Added `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving`.
+- Added `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving`.
+- Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving`.
+- Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving`.
+- Added `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving`.
 - Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`.
 - Added `CraftCms\Commerce\Product\Events\ProductEvent`.
 - Added `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent`.
 - Added `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent`.
 - Deprecated `craft\commerce\elements\Product`. `CraftCms\Commerce\Product\Elements\Product` should be used instead.
+- Deprecated `craft\commerce\elements\Product::EVENT_DEFINE_PARENT_SELECTION_CRITERIA`. `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving` should be used instead.
 - Deprecated `craft\commerce\elements\Variant`. `CraftCms\Commerce\Product\Variant\Elements\Variant` should be used instead.
+- `CraftCms\Commerce\Product\Variant\Elements\Variant::getProduct()` is no longer deprecated.
+- Deprecated `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT`. `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
 - Deprecated `craft\commerce\elements\db\ProductQuery`. `CraftCms\Commerce\Product\Queries\ProductQuery` should be used instead.
 - Deprecated `craft\commerce\elements\db\VariantQuery`. `CraftCms\Commerce\Product\Variant\Queries\VariantQuery` should be used instead.
 - Deprecated `craft\commerce\records\Product`. `CraftCms\Commerce\Product\Models\Product` should be used instead.
@@ -39,13 +46,15 @@
 - Deprecated `craft\commerce\services\Products`. `CraftCms\Commerce\Product\Products` should be used instead.
 - Deprecated `craft\commerce\services\Variants`. `CraftCms\Commerce\Product\Variant\Variants` should be used instead.
 - Deprecated `craft\commerce\services\ProductTypes`. `CraftCms\Commerce\Product\ProductType\ProductTypes` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeProductSnapshotDataEvent`. `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent` should be used instead.
-- Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeProductSnapshotDataEvent`. `CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
+- Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
 - Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
 - Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Product\Events\ProductEvent` should be used instead.
-- Deprecated `craft\commerce\events\ProductTypeEvent`. `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent` should be used instead.
+- Deprecated `craft\commerce\events\ProductTypeEvent` in favor of the following new events:
+  - `craft\commerce\services\ProductTypes::EVENT_BEFORE_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving`
+  - `craft\commerce\services\ProductTypes::EVENT_AFTER_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaved`
 - Deprecated `craft\commerce\events\PurchaseVariantEvent`. `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent` should be used instead.
 - Removed `craft\commerce\records\ProductTypeShippingCategory` as it was unused.
 - Removed `craft\commerce\records\ProductTypeTaxCategory` as it was unused.
@@ -70,6 +79,8 @@
 - The products index is now an Inertia page built on core’s element index. Product type sources link to `commerce/products/{productTypeHandle}`.
 - `CraftCms\Commerce\Product\Elements\Product::getStore()` now falls back to the store of the product’s site when `storeId` isn’t set.
 - Removed `craft\commerce\web\assets\productindex\ProductIndexAsset`.
+- Commerce Products fields no longer support creating products inline.
+- Product indexes no longer have a “Copy reference tag” action. It’s still available from the product edit screen.
 - Added `CraftCms\Commerce\Http\Controllers\CreateProductController`, replacing `ProductsController::create()`. It also handles the `commerce/products/create` action, which returns the new draft as JSON.
 - New products now follow their product type’s “Enabled by default” site setting, rather than always being enabled.
 - The product edit screen is now an Inertia page (`commerce::products/Edit`), rendered by `CraftCms\Commerce\Http\Controllers\EditProductController` and `CraftCms\Commerce\Http\ViewModels\ProductEditViewModel`. Products save through `elements/save`.
@@ -116,11 +127,14 @@
 - `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
+- Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
+- Removed the `commerce/prices/*` templates.
 
 #### Controllers
 
 - Removed `craft\commerce\controllers\CatalogPricingRulesController`. `CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController` should be used instead.
 - Removed `craft\commerce\controllers\CatalogPricingController`. `CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController` should be used instead.
+- Removed the `commerce/catalog-pricing/filter`, `commerce/catalog-pricing/prices`, `commerce/catalog-pricing/queue-status`, and `commerce/catalog-pricing/get-catalog-prices` controller actions.
 
 ### Console
 
@@ -140,7 +154,7 @@
 - Removed `craft\commerce\controllers\BaseTaxSettingsController`.
 - Removed `craft\commerce\controllers\BaseShippingSettingsController`.
 - Removed `craft\commerce\controllers\SettingsController`. `CraftCms\Commerce\Http\Controllers\Settings\SettingsController` should be used instead.
-- Removed `craft\commerce\controllers\PromotionsController`. The `commerce/promotions` URL now redirects to `commerce/promotions/sales` via a plain route closure.
+- Removed `craft\commerce\controllers\PromotionsController`.
 - The control panel delete, archive and deactivate actions for gateways, stores, order statuses, line item statuses, product types, payment currencies, shipping zones, shipping methods, shipping rules, shipping categories, tax zones, tax categories, tax rates, discounts, catalog pricing rules, emails, PDFs and inventory locations now accept `DELETE` requests as well as `POST` requests.
 
 ### Customers
@@ -150,6 +164,7 @@
 - Added `CraftCms\Commerce\Customer\Records\Customer`.
 - Added `CraftCms\Commerce\Customer\Customers::afterSaveUserHandler()` and `afterSaveAddressHandler()`, listening for `CraftCms\Cms\Element\Events\ElementSaved` to persist primary billing/shipping addresses, primary payment sources, and order email syncing.
 - Deprecated `craft\commerce\services\Customers`. `CraftCms\Commerce\Customer\Customers` should be used instead.
+- Deprecated `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`. `CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated` should be used instead.
 - Removed `craft\commerce\behaviors\CustomerBehavior`. `User::getPrimaryBillingAddressId()`, `getPrimaryShippingAddressId()`, `getPrimaryPaymentSourceId()`, `getActiveCarts()`, `getInactiveCarts()`, and `getOrders()` are provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Removed `craft\commerce\behaviors\CustomerAddressBehavior`. `Address::getIsPrimaryBilling()` and `getIsPrimaryShipping()` are provided via a `Illuminate\Support\Traits\Macroable` macro instead.
 - Added `CraftCms\Commerce\Customer\Fields\IsPrimaryBillingField`, `IsPrimaryShippingField`, `PrimaryBillingAddressIdField`, and `PrimaryShippingAddressIdField`, opt-in read-only field types that expose the primary billing/shipping macros via `toArray()`/GraphQL.
@@ -165,6 +180,12 @@
 - Added `CraftCms\Commerce\Stats\Stat`.
 - Added `CraftCms\Commerce\Stats\Contracts\StatInterface`.
 - Added `CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait` trait.
+- Removed `craft\commerce\web\assets\chartjs\ChartJsAsset`.
+- Removed `craft\commerce\web\assets\deepmerge\DeepMergeAsset`.
+- Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
+- Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
+- Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
+- Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.
@@ -217,6 +238,9 @@
 
 ### Email
 
+> [!WARNING]
+> Order emails are now sent as Laravel mailables instead of `craft\mail\Message` objects. `CraftCms\Commerce\Email\Events\MailSending` and `CraftCms\Commerce\Email\Events\MailSent` listeners receive a `CraftCms\Commerce\Email\Mailables\OrderEmail` mailable in `$mailable` (previously `$craftEmail`), and the legacy `craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` and `EVENT_AFTER_SEND_MAIL` events are no longer triggered, even when `craftcms/yii2-adapter` is installed.
+
 - Added `CraftCms\Commerce\Email\Emails`.
 - Added `CraftCms\Commerce\Support\Facades\Emails`.
 - Added `CraftCms\Commerce\Email\Records\Email`.
@@ -224,13 +248,21 @@
 - Added `CraftCms\Commerce\Email\Exceptions\EmailException`.
 - Added `CraftCms\Commerce\Email\Events\EmailEvent`.
 - Added `CraftCms\Commerce\Email\Events\MailEvent`.
+- Added `CraftCms\Commerce\Email\Mailables\OrderEmail`.
 - Added `CraftCms\Commerce\Email\Jobs\SendEmailJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\SendEmail`. `CraftCms\Commerce\Email\Jobs\SendEmailJob` should be used instead.
 - Deprecated `craft\commerce\services\Emails`. `CraftCms\Commerce\Email\Emails` should be used instead.
 - Deprecated `craft\commerce\models\Email`. `CraftCms\Commerce\Email\Models\Email` should be used instead.
 - Deprecated `craft\commerce\errors\EmailException`. `CraftCms\Commerce\Email\Exceptions\EmailException` should be used instead.
-- Deprecated `craft\commerce\events\EmailEvent`. `CraftCms\Commerce\Email\Events\EmailEvent` should be used instead.
-- Deprecated `craft\commerce\events\MailEvent`. `CraftCms\Commerce\Email\Events\MailEvent` should be used instead.
+- Deprecated `craft\commerce\events\EmailEvent` in favor of the following new events:
+  - `craft\commerce\services\Emails::EVENT_BEFORE_SAVE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailSaving`
+  - `craft\commerce\services\Emails::EVENT_AFTER_SAVE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailSaved`
+  - `craft\commerce\services\Emails::EVENT_BEFORE_DELETE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailDeleting`
+  - `craft\commerce\services\Emails::EVENT_AFTER_DELETE_EMAIL` => `CraftCms\Commerce\Email\Events\EmailDeleted`
+- Deprecated `craft\commerce\events\MailEvent` in favor of the following new events:
+  - `craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` => `CraftCms\Commerce\Email\Events\MailSending`
+  - `craft\commerce\services\Emails::EVENT_AFTER_SEND_MAIL` => `CraftCms\Commerce\Email\Events\MailSent`
+- Order emails are now sent with the mailer configured for the email’s render site.
 - Removed `craft\commerce\records\Email`. `CraftCms\Commerce\Email\Records\Email` should be used instead.
 
 #### Controllers
@@ -249,12 +281,18 @@
 - Added `CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter`, replacing the per-action `yii\filters\RateLimiter` behavior used to throttle PDF download challenge requests.
 - Added `CraftCms\Commerce\Pdf\Events\PdfEvent`.
 - Added `CraftCms\Commerce\Pdf\Events\PdfRenderEvent`.
-- Added `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent`.
+- Added `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving`.
 - Deprecated `craft\commerce\services\Pdfs`. `CraftCms\Commerce\Pdf\Pdfs` should be used instead.
 - Deprecated `craft\commerce\models\Pdf`. `CraftCms\Commerce\Pdf\Models\Pdf` should be used instead.
-- Deprecated `craft\commerce\events\PdfEvent`. `CraftCms\Commerce\Pdf\Events\PdfEvent` should be used instead.
-- Deprecated `craft\commerce\events\PdfRenderEvent`. `CraftCms\Commerce\Pdf\Events\PdfRenderEvent` should be used instead.
-- Deprecated `craft\commerce\events\PdfRenderOptionsEvent`. `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent` should be used instead.
+- Deprecated `craft\commerce\events\PdfEvent` in favor of the following new events:
+  - `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` => `CraftCms\Commerce\Pdf\Events\PdfSaving`
+  - `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` => `CraftCms\Commerce\Pdf\Events\PdfSaved`
+  - `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF` => `CraftCms\Commerce\Pdf\Events\PdfDeleting`
+- Deprecated `craft\commerce\events\PdfRenderEvent` in favor of the following new events:
+  - `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` => `CraftCms\Commerce\Pdf\Events\PdfRendering`
+  - `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` => `CraftCms\Commerce\Pdf\Events\PdfRendered`
+- Deprecated `craft\commerce\events\PdfRenderOptionsEvent`. `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving` should be used instead.
+- Deprecated `craft\commerce\services\Pdfs::EVENT_MODIFY_RENDER_OPTIONS`. `CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving` should be used instead.
 - Removed `craft\commerce\records\Pdf`. `CraftCms\Commerce\Pdf\Records\Pdf` should be used instead.
 - Updated dompdf/dompdf to ^3.1.6 (from ^2.0.2).
 
@@ -359,9 +397,11 @@
 - Added `CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface`.
 - Added `CraftCms\Commerce\Inventory\Enums\InventoryTransactionType` enum.
 - Added `CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType` enum.
-- Added `CraftCms\Commerce\Inventory\Events\InventoryMovementEvent`.
-- Added `CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent`.
+- Added `CraftCms\Commerce\Inventory\Events\InventoryMoved`.
+- Added `CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated`.
 - Deprecated `craft\commerce\services\Inventory`. `CraftCms\Commerce\Inventory\Inventory` should be used instead.
+- Deprecated `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT`. `CraftCms\Commerce\Inventory\Events\InventoryMoved` should be used instead.
+- Deprecated `craft\commerce\services\Inventory::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL`. `CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated` should be used instead.
 - Deprecated `craft\commerce\services\InventoryLocations`. `CraftCms\Commerce\Inventory\InventoryLocations` should be used instead.
 - Deprecated `craft\commerce\collections\InventoryMovementCollection`. `CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection` should be used instead.
 - Deprecated `craft\commerce\collections\UpdateInventoryLevelCollection`. `CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection` should be used instead.
@@ -385,8 +425,8 @@
 - Deprecated `craft\commerce\base\InventoryMovementInterface`. `CraftCms\Commerce\Inventory\Contracts\InventoryMovementInterface` should be used instead.
 - Deprecated `craft\commerce\enums\InventoryTransactionType`. `CraftCms\Commerce\Inventory\Enums\InventoryTransactionType` should be used instead.
 - Deprecated `craft\commerce\enums\InventoryUpdateQuantityType`. `CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType` should be used instead.
-- Deprecated `craft\commerce\events\InventoryMovementEvent`. `CraftCms\Commerce\Inventory\Events\InventoryMovementEvent` should be used instead.
-- Deprecated `craft\commerce\events\UpdateInventoryLevelEvent`. `CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent` should be used instead.
+- Deprecated `craft\commerce\events\InventoryMovementEvent`. `CraftCms\Commerce\Inventory\Events\InventoryMoved` should be used instead.
+- Deprecated `craft\commerce\events\UpdateInventoryLevelEvent`. `CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated` should be used instead.
 - Removed `craft\commerce\records\InventoryItem`. `CraftCms\Commerce\Inventory\Records\InventoryItem` should be used instead.
 - Removed `craft\commerce\records\InventoryLocation`. `CraftCms\Commerce\Inventory\Records\InventoryLocation` should be used instead.
 - Removed `craft\commerce\web\assets\inventory\InventoryAsset`.
@@ -432,6 +472,8 @@
 - Added `CraftCms\Commerce\Support\Facades\Orders`.
 - Added `CraftCms\Commerce\Order\Carts`.
 - Added `CraftCms\Commerce\Support\Facades\Carts`.
+- Cart cookies are now encrypted and named after the `app.name` config value, so carts from Commerce 5 aren’t restored after upgrading.
+- Cart cookies now use the `session.domain`, `session.secure`, and `session.same_site` config values, rather than the `defaultCookieDomain`, `useSecureCookies`, and `sameSiteCookieValue` config settings.
 - Added `CraftCms\Commerce\Order\OrderNotices`.
 - Added `CraftCms\Commerce\Support\Facades\OrderNotices`.
 - Added `CraftCms\Commerce\Order\OrderHistories`.
@@ -457,19 +499,41 @@
 - Added `CraftCms\Commerce\Order\Exporters\OrderExport`.
 - Added `CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray`, a trait shared between `CartController` and `PaymentsController` for building a cart's array representation.
 - Added `CraftCms\Commerce\Http\RateLimiters\CartRateLimiter` and `CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter`.
-- Added `CraftCms\Commerce\Order\Events\AddLineItemEvent`.
 - Added `CraftCms\Commerce\Order\Events\CartEvent`.
-- Added `CraftCms\Commerce\Order\Events\CartPurgeEvent`.
-- Added `CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent`.
-- Added `CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent`.
+- Added `CraftCms\Commerce\Order\Events\InactiveCartsPurging`.
+- Added `CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving`.
+- Added `CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving`.
 - Added `CraftCms\Commerce\Order\Events\LineItemEvent`.
 - Added `CraftCms\Commerce\Order\Events\ModifyCartInfoEvent`.
-- Added `CraftCms\Commerce\Order\Events\OrderLineItemsRefreshEvent`.
-- Added `CraftCms\Commerce\Order\Events\OrderNoticeEvent`.
-- Added `CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent`.
-- Added `CraftCms\Commerce\Order\Events\OrderStatusEvent`.
+- Added `CraftCms\Commerce\Order\Events\LineItemAddApplied`.
+- Added `CraftCms\Commerce\Order\Events\LineItemAdded`.
+- Added `CraftCms\Commerce\Order\Events\LineItemAdding`.
+- Added `CraftCms\Commerce\Order\Events\LineItemRemoveApplied`.
+- Added `CraftCms\Commerce\Order\Events\LineItemRemoved`.
+- Added `CraftCms\Commerce\Order\Events\LineItemsRefreshed`.
+- Added `CraftCms\Commerce\Order\Events\LineItemsRefreshing`.
+- Added `CraftCms\Commerce\Order\Events\OrderAuthorized`.
+- Added `CraftCms\Commerce\Order\Events\OrderCompleted`.
+- Added `CraftCms\Commerce\Order\Events\OrderCompleting`.
+- Added `CraftCms\Commerce\Order\Events\OrderNoticeSaving`.
+- Added `CraftCms\Commerce\Order\Events\OrderPaid`.
+- Added `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving`.
+- Added `CraftCms\Commerce\Order\Events\OrderStatusChanged`.
 - Added `CraftCms\Commerce\Order\Events\PurgeAddressesEvent`.
 - Deprecated `craft\commerce\elements\Order`. `CraftCms\Commerce\Order\Elements\Order` should be used instead.
+- `CraftCms\Commerce\Order\Elements\Order` now throws `Illuminate\Contracts\Cache\LockTimeoutException` instead of `craft\errors\MutexException` when it can’t acquire its save lock.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`. `CraftCms\Commerce\Order\Events\OrderPaid` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`. `CraftCms\Commerce\Order\Events\OrderAuthorized` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_BEFORE_COMPLETE_ORDER`. `CraftCms\Commerce\Order\Events\OrderCompleting` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER`. `CraftCms\Commerce\Order\Events\OrderCompleted` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`. `CraftCms\Commerce\Order\Events\LineItemAdding` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ADD_LINE_ITEM`. `CraftCms\Commerce\Order\Events\LineItemAdded` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM`. `CraftCms\Commerce\Order\Events\LineItemRemoved` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. `CraftCms\Commerce\Order\Events\LineItemAddApplied` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. `CraftCms\Commerce\Order\Events\LineItemRemoveApplied` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED`. `CraftCms\Commerce\Order\Events\LineItemsRefreshing` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_AFTER_LINE_ITEMS_REFRESHED`. `CraftCms\Commerce\Order\Events\LineItemsRefreshed` should be used instead.
+- Deprecated `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. `CraftCms\Commerce\Order\Events\OrderNoticeSaving` should be used instead.
 - Deprecated `craft\commerce\elements\db\OrderQuery`. `CraftCms\Commerce\Order\Queries\OrderQuery` should be used instead.
 - Deprecated `craft\commerce\records\Order`. `CraftCms\Commerce\Order\Models\Order` should be used instead.
 - Deprecated `craft\commerce\models\OrderStatus`. `CraftCms\Commerce\Order\Models\OrderStatus` should be used instead.
@@ -483,14 +547,20 @@
 - Deprecated `craft\commerce\enums\LineItemType`. `CraftCms\Commerce\Order\LineItem\Enums\LineItemType` should be used instead.
 - Deprecated `craft\commerce\services\Orders`. `CraftCms\Commerce\Order\Orders` should be used instead.
 - Deprecated `craft\commerce\services\Carts`. `CraftCms\Commerce\Order\Carts` should be used instead.
+- Deprecated `craft\commerce\services\Carts::EVENT_BEFORE_PURGE_INACTIVE_CARTS`. `CraftCms\Commerce\Order\Events\InactiveCartsPurging` should be used instead.
 - Deprecated `craft\commerce\services\OrderNotices`. `CraftCms\Commerce\Order\OrderNotices` should be used instead.
 - Deprecated `craft\commerce\services\OrderHistories`. `CraftCms\Commerce\Order\OrderHistories` should be used instead.
+- Deprecated `craft\commerce\services\OrderHistories::EVENT_ORDER_STATUS_CHANGE`. `CraftCms\Commerce\Order\Events\OrderStatusChanged` should be used instead.
 - Deprecated `craft\commerce\services\OrderAdjustments`. `CraftCms\Commerce\Order\OrderAdjustments` should be used instead.
 - Deprecated `craft\commerce\services\OrderStatuses`. `CraftCms\Commerce\Order\OrderStatuses` should be used instead.
+- Deprecated `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving` should be used instead.
+- Deprecated `craft\commerce\services\OrderStatuses::EVENT_DEFAULT_ORDER_STATUS`. `CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving` should be used instead.
 - Deprecated `craft\commerce\services\LineItemStatuses`. `CraftCms\Commerce\Order\LineItemStatuses` should be used instead.
+- Deprecated `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`. `CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving` should be used instead.
 - Deprecated `craft\commerce\adjusters\Tax`. `CraftCms\Commerce\Order\Adjuster\Tax` should be used instead.
 - Deprecated `craft\commerce\adjusters\Shipping`. `CraftCms\Commerce\Order\Adjuster\Shipping` should be used instead.
 - Deprecated `craft\commerce\adjusters\Discount`. `CraftCms\Commerce\Order\Adjuster\Discount` should be used instead.
+- Deprecated `craft\commerce\adjusters\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`. `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated` should be used instead.
 - Deprecated `craft\commerce\base\AdjusterInterface`. `CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface` should be used instead.
 - Deprecated `craft\commerce\exports\Expanded`. `CraftCms\Commerce\Order\Exporters\Expanded` should be used instead.
 - Deprecated `craft\commerce\exports\LineItemExport`. `CraftCms\Commerce\Order\Exporters\LineItemExport` should be used instead.
@@ -500,18 +570,29 @@
 - Deprecated `craft\commerce\errors\LineItemNotFoundException`. `CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException` should be used instead.
 - Deprecated `craft\commerce\errors\OrderStatusException`. `CraftCms\Commerce\Order\Exceptions\OrderStatusException` should be used instead.
 - Deprecated `craft\commerce\errors\LineItemException`. `CraftCms\Commerce\Order\Exceptions\LineItemException` should be used instead.
-- Deprecated `craft\commerce\events\AddLineItemEvent`. `CraftCms\Commerce\Order\Events\AddLineItemEvent` should be used instead.
+- Deprecated `craft\commerce\events\AddLineItemEvent`. `CraftCms\Commerce\Order\Events\LineItemAdding` should be used instead.
 - Deprecated `craft\commerce\events\CartEvent`. `CraftCms\Commerce\Order\Events\CartEvent` should be used instead.
-- Deprecated `craft\commerce\events\CartPurgeEvent`. `CraftCms\Commerce\Order\Events\CartPurgeEvent` should be used instead.
-- Deprecated `craft\commerce\events\DefaultLineItemStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent` should be used instead.
-- Deprecated `craft\commerce\events\DefaultOrderStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent` should be used instead.
-- Deprecated `craft\commerce\events\LineItemEvent`. `CraftCms\Commerce\Order\Events\LineItemEvent` should be used instead.
+- Deprecated `craft\commerce\events\CartPurgeEvent`. `CraftCms\Commerce\Order\Events\InactiveCartsPurging` should be used instead.
+- Deprecated `craft\commerce\events\DefaultLineItemStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving` should be used instead.
+- Deprecated `craft\commerce\events\DefaultOrderStatusEvent`. `CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving` should be used instead.
+- Deprecated `craft\commerce\events\LineItemEvent` in favor of the following new events:
+  - `craft\commerce\elements\Order::EVENT_AFTER_ADD_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemAdded`
+  - `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemRemoved`
+  - `craft\commerce\elements\Order::EVENT_AFTER_APPLY_ADD_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemAddApplied`
+  - `craft\commerce\elements\Order::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemRemoveApplied`
+  - `craft\commerce\services\LineItems::EVENT_BEFORE_SAVE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemSaving`
+  - `craft\commerce\services\LineItems::EVENT_AFTER_SAVE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemSaved`
+  - `craft\commerce\services\LineItems::EVENT_CREATE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemCreated`
+  - `craft\commerce\services\LineItems::EVENT_POPULATE_LINE_ITEM` => `CraftCms\Commerce\Order\Events\LineItemPopulated`
 - Deprecated `craft\commerce\events\ModifyCartInfoEvent`. `CraftCms\Commerce\Order\Events\ModifyCartInfoEvent` should be used instead.
-- Deprecated `craft\commerce\events\OrderLineItemsRefreshEvent`. `CraftCms\Commerce\Order\Events\OrderLineItemsRefreshEvent` should be used instead.
-- Deprecated `craft\commerce\events\OrderNoticeEvent`. `CraftCms\Commerce\Order\Events\OrderNoticeEvent` should be used instead.
-- Deprecated `craft\commerce\events\OrderStatusEmailsEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent` should be used instead.
-- Deprecated `craft\commerce\events\OrderStatusEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEvent` should be used instead.
+- Deprecated `craft\commerce\events\OrderLineItemsRefreshEvent` in favor of the following new events:
+  - `craft\commerce\elements\Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED` => `CraftCms\Commerce\Order\Events\LineItemsRefreshing`
+  - `craft\commerce\elements\Order::EVENT_AFTER_LINE_ITEMS_REFRESHED` => `CraftCms\Commerce\Order\Events\LineItemsRefreshed`
+- Deprecated `craft\commerce\events\OrderNoticeEvent`. `CraftCms\Commerce\Order\Events\OrderNoticeSaving` should be used instead.
+- Deprecated `craft\commerce\events\OrderStatusEmailsEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving` should be used instead.
+- Deprecated `craft\commerce\events\OrderStatusEvent`. `CraftCms\Commerce\Order\Events\OrderStatusChanged` should be used instead.
 - Deprecated `craft\commerce\events\PurgeAddressesEvent`. `CraftCms\Commerce\Order\Events\PurgeAddressesEvent` should be used instead.
+- Event handlers registered with `yii\base\Event::on()` for Commerce’s legacy `craft\commerce\*` classes are now only triggered when `craftcms/yii2-adapter` is installed.
 - Removed `craft\commerce\records\OrderHistory`. `CraftCms\Commerce\Order\Records\OrderHistory` should be used instead.
 - Removed `craft\commerce\records\OrderAdjustment`. `CraftCms\Commerce\Order\Records\OrderAdjustment` should be used instead.
 - Removed `craft\commerce\records\LineItemStatus`. `CraftCms\Commerce\Order\Records\LineItemStatus` should be used instead.
@@ -549,6 +630,9 @@
 - Removed `craft\commerce\controllers\DownloadsController`. `CraftCms\Commerce\Http\Controllers\DownloadsController` should be used instead.
 
 ### Payments
+
+> [!WARNING]
+> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
 
 - Added `CraftCms\Commerce\Payment\Transactions`.
 - Added `CraftCms\Commerce\Support\Facades\Transactions`.
@@ -593,12 +677,12 @@
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
 - Added `CraftCms\Commerce\Helpers\PaymentForm`.
-- Added `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent`.
+- Added `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving`.
 - Added `CraftCms\Commerce\Payment\Events\PaymentSourceEvent`.
 - Added `CraftCms\Commerce\Payment\Events\ProcessPaymentEvent`.
 - Added `CraftCms\Commerce\Payment\Events\RefundTransactionEvent`.
 - Added `CraftCms\Commerce\Payment\Events\TransactionEvent`.
-- Added `CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent`.
+- Added `CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated`.
 - Added `CraftCms\Commerce\Payment\Events\WebhookEvent`.
 - Deprecated `craft\commerce\services\Transactions`. `CraftCms\Commerce\Payment\Transactions` should be used instead.
 - Deprecated `craft\commerce\services\PaymentSources`. `CraftCms\Commerce\Payment\PaymentSources` should be used instead.
@@ -613,6 +697,7 @@
 - Deprecated `craft\commerce\services\Webhooks`. `CraftCms\Commerce\Payment\Webhooks` should be used instead.
 - Deprecated `craft\commerce\services\Currencies`. `CraftCms\Commerce\Payment\Currencies` should be used instead.
 - Deprecated `craft\commerce\services\PaymentCurrencies`. `CraftCms\Commerce\Payment\PaymentCurrencies` should be used instead.
+- Deprecated `craft\commerce\services\PaymentCurrencies::EVENT_DEFINE_PAYMENT_CURRENCY_RATE`. `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving` should be used instead.
 - Deprecated `craft\commerce\models\Transaction`. `CraftCms\Commerce\Payment\Models\Transaction` should be used instead.
 - Deprecated `craft\commerce\models\PaymentSource`. `CraftCms\Commerce\Payment\Models\PaymentSource` should be used instead.
 - Deprecated `craft\commerce\models\PaymentCurrency`. `CraftCms\Commerce\Payment\Models\PaymentCurrency` should be used instead.
@@ -630,12 +715,29 @@
 - Deprecated `craft\commerce\errors\GatewayException`. `CraftCms\Commerce\Payment\Gateway\Exceptions\GatewayException` should be used instead.
 - Deprecated `craft\commerce\base\GatewayInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface` should be used instead.
 - Deprecated `craft\commerce\base\RequestResponseInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface` should be used instead.
-- Deprecated `craft\commerce\events\PaymentSourceEvent`. `CraftCms\Commerce\Payment\Events\PaymentSourceEvent` should be used instead.
-- Deprecated `craft\commerce\events\ProcessPaymentEvent`. `CraftCms\Commerce\Payment\Events\ProcessPaymentEvent` should be used instead.
-- Deprecated `craft\commerce\events\RefundTransactionEvent`. `CraftCms\Commerce\Payment\Events\RefundTransactionEvent` should be used instead.
-- Deprecated `craft\commerce\events\TransactionEvent`. `CraftCms\Commerce\Payment\Events\TransactionEvent` should be used instead.
-- Deprecated `craft\commerce\events\UpdatePrimaryPaymentSourceEvent`. `CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent` should be used instead.
-- Deprecated `craft\commerce\events\WebhookEvent`. `CraftCms\Commerce\Payment\Events\WebhookEvent` should be used instead.
+- Removed `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface::redirect()`.
+- Gateway redirects that use POST now return a page that submits the redirect data to the gateway (or the `gatewayPostRedirectTemplate` template), rather than calling the gateway response’s `redirect()` method.
+- Deprecated `craft\commerce\events\PaymentSourceEvent` in favor of the following new events:
+  - `craft\commerce\services\PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaving`
+  - `craft\commerce\services\PaymentSources::EVENT_AFTER_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaved`
+  - `craft\commerce\services\PaymentSources::EVENT_DELETE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceDeleting`
+- Deprecated `craft\commerce\events\ProcessPaymentEvent` in favor of the following new events:
+  - `craft\commerce\services\Payments::EVENT_BEFORE_PROCESS_PAYMENT` => `CraftCms\Commerce\Payment\Events\PaymentProcessing`
+  - `craft\commerce\services\Payments::EVENT_AFTER_PROCESS_PAYMENT` => `CraftCms\Commerce\Payment\Events\PaymentProcessed`
+- Deprecated `craft\commerce\events\RefundTransactionEvent` in favor of the following new events:
+  - `craft\commerce\services\Payments::EVENT_BEFORE_REFUND_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionRefunding`
+  - `craft\commerce\services\Payments::EVENT_AFTER_REFUND_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionRefunded`
+- Deprecated `craft\commerce\events\TransactionEvent` in favor of the following new events:
+  - `craft\commerce\services\Payments::EVENT_BEFORE_CAPTURE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionCapturing`
+  - `craft\commerce\services\Payments::EVENT_AFTER_CAPTURE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionCaptured`
+  - `craft\commerce\services\Payments::EVENT_AFTER_COMPLETE_PAYMENT` => `CraftCms\Commerce\Payment\Events\PaymentCompleted`
+  - `craft\commerce\services\Transactions::EVENT_AFTER_CREATE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionCreated`
+  - `craft\commerce\services\Transactions::EVENT_AFTER_SAVE_TRANSACTION` => `CraftCms\Commerce\Payment\Events\TransactionSaved`
+- Deprecated `craft\commerce\events\UpdatePrimaryPaymentSourceEvent`. `CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated` should be used instead.
+- Deprecated `craft\commerce\events\PaymentCurrencyRateEvent`. `CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving` should be used instead.
+- Deprecated `craft\commerce\events\WebhookEvent` in favor of the following new events:
+  - `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK` => `CraftCms\Commerce\Payment\Events\WebhookProcessing`
+  - `craft\commerce\services\Webhooks::EVENT_AFTER_PROCESS_WEBHOOK` => `CraftCms\Commerce\Payment\Events\WebhookProcessed`
 - Removed `craft\commerce\records\Transaction`. `CraftCms\Commerce\Payment\Records\Transaction` should be used instead.
 - Removed `craft\commerce\records\PaymentSource`. `CraftCms\Commerce\Payment\Records\PaymentSource` should be used instead.
 - Removed `craft\commerce\records\Gateway`. `CraftCms\Commerce\Payment\Gateway\Records\Gateway` should be used instead.
@@ -643,7 +745,7 @@
 - Removed `Gateways::getGatewayOverrides()`.
 - Removed `Transactions::deleteTransaction()`. `deleteTransactionById()` should be used instead.
 - Widened `RefundTransactionEvent::$amount` to `?float` to allow `null` for a full refund.
-- Widened `WebhookEvent::$response` to accept both `Illuminate\Http\Response` and `yii\web\Response`.
+- `craft\commerce\events\WebhookEvent::$response` is now an `Illuminate\Http\Response` rather than a `yii\web\Response`.
 - `craft\commerce\base\Gateway` now uses `CraftCms\Commerce\Order\Conditions\GatewayOrderCondition` and `CraftCms\Commerce\Address\Conditions\GatewayAddressCondition`.
 
 #### Controllers
@@ -658,6 +760,9 @@
 
 ### Promotions
 
+> [!WARNING]
+> Commerce 6 doesn’t support categories. Convert category groups to sections with Commerce 5’s `php craft entrify/categories` command before upgrading; the “Commerce 6 Ready” utility in Commerce 5 lists what needs to be converted. The upgrade stops if discounts, sales, or conditions still use categories. Category conditions are converted to entry conditions during the upgrade.
+
 - Added `CraftCms\Commerce\Promotion\Discounts`.
 - Added `CraftCms\Commerce\Support\Facades\Discounts`.
 - Added `CraftCms\Commerce\Promotion\Sales`.
@@ -668,16 +773,16 @@
 - Added `CraftCms\Commerce\Promotion\Models\Sale`.
 - Added `CraftCms\Commerce\Promotion\Models\Coupon`.
 - Added `CraftCms\Commerce\Promotion\Records\Discount`.
-- Added `CraftCms\Commerce\Promotion\Records\DiscountCategory`.
+- Added `CraftCms\Commerce\Promotion\Models\DiscountEntry`.
 - Added `CraftCms\Commerce\Promotion\Records\DiscountPurchasable`.
 - Added `CraftCms\Commerce\Promotion\Records\CustomerDiscountUse`.
 - Added `CraftCms\Commerce\Promotion\Records\EmailDiscountUse`.
 - Added `CraftCms\Commerce\Promotion\Records\Sale`.
-- Added `CraftCms\Commerce\Promotion\Records\SaleCategory`.
+- Added `CraftCms\Commerce\Promotion\Models\SaleEntry`.
 - Added `CraftCms\Commerce\Promotion\Records\SalePurchasable`.
 - Added `CraftCms\Commerce\Promotion\Records\SaleUserGroup`.
 - Added `CraftCms\Commerce\Promotion\Records\Coupon`.
-- Added `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent`.
+- Added `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated`.
 - Added `CraftCms\Commerce\Promotion\Events\DiscountEvent`.
 - Added `CraftCms\Commerce\Promotion\Events\MatchLineItemEvent`.
 - Added `CraftCms\Commerce\Promotion\Events\MatchOrderEvent`.
@@ -689,18 +794,24 @@
 - Deprecated `craft\commerce\models\Discount`. `CraftCms\Commerce\Promotion\Models\Discount` should be used instead.
 - Deprecated `craft\commerce\models\Sale`. `CraftCms\Commerce\Promotion\Models\Sale` should be used instead.
 - Deprecated `craft\commerce\models\Coupon`. `CraftCms\Commerce\Promotion\Models\Coupon` should be used instead.
-- Deprecated `craft\commerce\events\DiscountAdjustmentsEvent`. `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsEvent` should be used instead.
+- Deprecated `craft\commerce\events\DiscountAdjustmentsEvent`. `CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated` should be used instead.
 - Deprecated `craft\commerce\events\DiscountEvent`. `CraftCms\Commerce\Promotion\Events\DiscountEvent` should be used instead.
 - Deprecated `craft\commerce\events\MatchLineItemEvent`. `CraftCms\Commerce\Promotion\Events\MatchLineItemEvent` should be used instead.
 - Deprecated `craft\commerce\events\MatchOrderEvent`. `CraftCms\Commerce\Promotion\Events\MatchOrderEvent` should be used instead.
 - Deprecated `craft\commerce\events\SaleEvent`. `CraftCms\Commerce\Promotion\Events\SaleEvent` should be used instead.
 - Deprecated `craft\commerce\events\SaleMatchEvent`. `CraftCms\Commerce\Promotion\Events\SaleMatchEvent` should be used instead.
-- Removed `craft\commerce\records\DiscountCategory`. `CraftCms\Commerce\Promotion\Records\DiscountCategory` should be used instead.
+- Removed `craft\commerce\records\DiscountCategory`. `CraftCms\Commerce\Promotion\Models\DiscountEntry` should be used instead.
 - Removed `craft\commerce\records\DiscountPurchasable`. `CraftCms\Commerce\Promotion\Records\DiscountPurchasable` should be used instead.
 - Removed `craft\commerce\records\CustomerDiscountUse`. `CraftCms\Commerce\Promotion\Records\CustomerDiscountUse` should be used instead.
 - Removed `craft\commerce\records\EmailDiscountUse`. `CraftCms\Commerce\Promotion\Records\EmailDiscountUse` should be used instead.
 - Removed `craft\commerce\records\Sale`. `CraftCms\Commerce\Promotion\Records\Sale` should be used instead.
-- Removed `craft\commerce\records\SaleCategory`. `CraftCms\Commerce\Promotion\Records\SaleCategory` should be used instead.
+- Removed `craft\commerce\web\assets\coupons\CouponsAsset`.
+- Removed `craft\commerce\records\SaleCategory`. `CraftCms\Commerce\Promotion\Models\SaleEntry` should be used instead.
+- Removed category support from discounts and sales. Discounts and sales can be limited to purchasables related to entries.
+- Renamed the discount `allCategories`, `categoryIds`, and `categoryRelationshipType` properties and database columns to `allEntries`, `entryIds`, and `entryRelationshipType`.
+- Renamed the sale `allCategories` and `categoryRelationshipType` properties and database columns to `allEntries` and `entryRelationshipType`.
+- Renamed `getCategoryIds()` and `setCategoryIds()` on discounts and sales to `getEntryIds()` and `setEntryIds()`.
+- Renamed the `commerce_discount_categories` and `commerce_sale_categories` tables to `commerce_discount_entries` and `commerce_sale_entries`, and their `categoryId` columns to `entryId`.
 - Removed `craft\commerce\records\SalePurchasable`. `CraftCms\Commerce\Promotion\Records\SalePurchasable` should be used instead.
 - Removed `craft\commerce\records\SaleUserGroup`. `CraftCms\Commerce\Promotion\Records\SaleUserGroup` should be used instead.
 - Removed `craft\commerce\records\Discount`. `CraftCms\Commerce\Promotion\Records\Discount` should be used instead.
@@ -714,6 +825,10 @@
 - `CraftCms\Commerce\Promotion\Actions\CreateDiscount` now redirects to the new discount screen from `performAction()`, so it works from the element index’s bulk actions bar.
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
+- The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
+- Removed the `commerce/promotions/*` templates.
+- Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
+- Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
 #### Controllers
 
@@ -736,9 +851,9 @@
 - Added `CraftCms\Commerce\Purchasable\Purchasables`.
 - Added `CraftCms\Commerce\Support\Facades\Purchasables`.
 - Added `CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface`.
-- Added `CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent`.
-- Added `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent`.
-- Added `CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent`.
+- Added `CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving`.
+- Added `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving`.
+- Added `CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving`.
 - Added `CraftCms\Commerce\Purchasable\PurchasableTypes`, a `CraftCms\Cms\Component\TypeRegistry` for registering purchasable element types.
 - Added `CraftCms\Commerce\Support\Facades\PurchasableTypes`.
 - Deprecated `craft\commerce\services\Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES`. `CraftCms\Commerce\Purchasable\PurchasableTypes::register()` should be used instead.
@@ -748,18 +863,24 @@
 - Deprecated `craft\commerce\models\PurchasableStore`. `CraftCms\Commerce\Purchasable\Models\PurchasableStore` should be used instead.
 - Deprecated `craft\commerce\elements\db\DonationQuery`. `CraftCms\Commerce\Purchasable\Queries\DonationQuery` should be used instead.
 - Deprecated `craft\commerce\services\Purchasables`. `CraftCms\Commerce\Purchasable\Purchasables` should be used instead.
+- Deprecated `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`. `CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving` should be used instead.
+- Deprecated `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE`. `CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving` should be used instead.
+- Deprecated `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED`. `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving` should be used instead.
 - Deprecated `craft\commerce\base\PurchasableInterface`. `CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface` should be used instead.
-- Deprecated `craft\commerce\events\PurchasableAvailableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent` should be used instead.
-- Deprecated `craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent` should be used instead.
-- Deprecated `craft\commerce\events\PurchasableShippableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent` should be used instead.
+- Deprecated `craft\commerce\events\PurchasableAvailableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving` should be used instead.
+- Deprecated `craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving` should be used instead.
+- Deprecated `craft\commerce\events\PurchasableShippableEvent`. `CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving` should be used instead.
 - Removed `craft\commerce\records\Purchasable`. `CraftCms\Commerce\Purchasable\Records\Purchasable` should be used instead.
 - Removed `craft\commerce\records\PurchasableStore`. `CraftCms\Commerce\Purchasable\Records\PurchasableStore` should be used instead.
 - Removed `craft\commerce\elements\db\PurchasableQuery`. `CraftCms\Commerce\Purchasable\Queries\PurchasableQuery` should be used instead.
 - Removed `craft\commerce\records\OrderStatusEmail` as it was unused.
-- Added `CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`.
-- Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableCategoryConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
+- Added `CraftCms\Commerce\Purchasable\Conditions\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, `CatalogPricingRulePurchasableEntryConditionRule`, and `CatalogPricingRulePurchasableCondition`.
+- Deprecated `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`, `PurchasableTypeConditionRule`, `SkuConditionRule`, and `CatalogPricingRulePurchasableCondition`. The `CraftCms\Commerce\Purchasable\Conditions` equivalents should be used instead.
+- Deprecated `craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCategoryConditionRule`. `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableEntryConditionRule` should be used instead.
+- The “Purchasable Categories” catalog pricing rule condition has been replaced by “Purchasable Entries”.
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
+- Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.
 
 #### Controllers
@@ -794,8 +915,9 @@
 - Added `CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface`.
 - Added `CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface`.
 - Added `CraftCms\Commerce\Shipping\Exceptions\ShippingMethodException`.
-- Added `CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent`.
+- Added `CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving`.
 - Deprecated `craft\commerce\services\ShippingMethods`. `CraftCms\Commerce\Shipping\ShippingMethods` should be used instead.
+- Deprecated `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS`. `CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving` should be used instead.
 - Deprecated `craft\commerce\services\ShippingRules`. `CraftCms\Commerce\Shipping\ShippingRules` should be used instead.
 - Deprecated `craft\commerce\services\ShippingRuleCategories`. `CraftCms\Commerce\Shipping\ShippingRuleCategories` should be used instead.
 - Deprecated `craft\commerce\services\ShippingCategories`. `CraftCms\Commerce\Shipping\ShippingCategories` should be used instead.
@@ -810,7 +932,7 @@
 - Deprecated `craft\commerce\base\ShippingMethodInterface`. `CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface` should be used instead.
 - Deprecated `craft\commerce\base\ShippingRuleInterface`. `CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface` should be used instead.
 - Deprecated `craft\commerce\errors\ShippingMethodException`. `CraftCms\Commerce\Shipping\Exceptions\ShippingMethodException` should be used instead.
-- Deprecated `craft\commerce\events\RegisterAvailableShippingMethodsEvent`. `CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent` should be used instead.
+- Deprecated `craft\commerce\events\RegisterAvailableShippingMethodsEvent`. `CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving` should be used instead.
 - Removed `craft\commerce\records\ShippingZone`. `CraftCms\Commerce\Shipping\Records\ShippingZone` should be used instead.
 - Removed `craft\commerce\records\ShippingMethod`. `CraftCms\Commerce\Shipping\Records\ShippingMethod` should be used instead.
 - Removed `craft\commerce\records\ShippingRule`. `CraftCms\Commerce\Shipping\Records\ShippingRule` should be used instead.
@@ -855,8 +977,13 @@
 - Deprecated `craft\commerce\base\StoreTrait`. `CraftCms\Commerce\Store\Concerns\StoreTrait` should be used instead.
 - Deprecated `craft\commerce\base\HasStoreInterface`. `CraftCms\Commerce\Store\Contracts\HasStoreInterface` should be used instead.
 - Deprecated `craft\commerce\errors\StoreNotFoundException`. `CraftCms\Commerce\Store\Exceptions\StoreNotFoundException` should be used instead.
-- Deprecated `craft\commerce\events\DeleteStoreEvent`. `CraftCms\Commerce\Store\Events\DeleteStoreEvent` should be used instead.
-- Deprecated `craft\commerce\events\StoreEvent`. `CraftCms\Commerce\Store\Events\StoreEvent` should be used instead.
+- Deprecated `craft\commerce\events\DeleteStoreEvent` in favor of the following new events:
+  - `craft\commerce\services\Stores::EVENT_BEFORE_DELETE_STORE` => `CraftCms\Commerce\Store\Events\StoreDeleting`
+  - `craft\commerce\services\Stores::EVENT_BEFORE_APPLY_STORE_DELETE` => `CraftCms\Commerce\Store\Events\StoreDeleteApplying`
+  - `craft\commerce\services\Stores::EVENT_AFTER_DELETE_STORE` => `CraftCms\Commerce\Store\Events\StoreDeleted`
+- Deprecated `craft\commerce\events\StoreEvent` in favor of the following new events:
+  - `craft\commerce\services\Stores::EVENT_BEFORE_SAVE_STORE` => `CraftCms\Commerce\Store\Events\StoreSaving`
+  - `craft\commerce\services\Stores::EVENT_AFTER_SAVE_STORE` => `CraftCms\Commerce\Store\Events\StoreSaved`
 - Removed `craft\commerce\services\Store`. `CraftCms\Commerce\Store\Stores` should be used instead.
 - Removed `craft\commerce\models\Store::setCountries()`, `getCountries()`, `getCountriesList()`, `getAdministrativeAreasListByCountryCode()`, and `getMarketAddressCondition()`. `Store::getSettings()` (returning `CraftCms\Commerce\Store\Models\StoreSettings`) should be used instead.
 - Removed `craft\commerce\records\SiteStore`. `CraftCms\Commerce\Store\Records\SiteStore` should be used instead.
@@ -920,8 +1047,8 @@
 - Added `CraftCms\Commerce\Tax\Models\TaxCategory`.
 - Added `CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface`.
 - Added `CraftCms\Commerce\Tax\Contracts\TaxEngineInterface`.
-- Added `CraftCms\Commerce\Tax\Events\TaxEngineEvent`.
-- Added `CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent`.
+- Added `CraftCms\Commerce\Tax\Events\TaxEngineResolving`.
+- Added `CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving`.
 - Deprecated `craft\commerce\services\TaxCategories`. `CraftCms\Commerce\Tax\TaxCategories` should be used instead.
 - Deprecated `craft\commerce\services\TaxZones`. `CraftCms\Commerce\Tax\TaxZones` should be used instead.
 - Deprecated `craft\commerce\models\TaxRate`. `CraftCms\Commerce\Tax\Models\TaxRate` should be used instead.
@@ -929,8 +1056,10 @@
 - Deprecated `craft\commerce\models\TaxCategory`. `CraftCms\Commerce\Tax\Models\TaxCategory` should be used instead.
 - Deprecated `craft\commerce\base\TaxIdValidatorInterface`. `CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface` should be used instead.
 - Deprecated `craft\commerce\base\TaxEngineInterface`. `CraftCms\Commerce\Tax\Contracts\TaxEngineInterface` should be used instead.
-- Deprecated `craft\commerce\events\TaxEngineEvent`. `CraftCms\Commerce\Tax\Events\TaxEngineEvent` should be used instead.
-- Deprecated `craft\commerce\events\TaxIdValidatorsEvent`. `CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent` should be used instead.
+- Deprecated `craft\commerce\services\Taxes::EVENT_REGISTER_TAX_ENGINE`. `CraftCms\Commerce\Tax\Events\TaxEngineResolving` should be used instead.
+- Deprecated `craft\commerce\services\Taxes::EVENT_REGISTER_TAX_ID_VALIDATORS`. `CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving` should be used instead.
+- Deprecated `craft\commerce\events\TaxEngineEvent`. `CraftCms\Commerce\Tax\Events\TaxEngineResolving` should be used instead.
+- Deprecated `craft\commerce\events\TaxIdValidatorsEvent`. `CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving` should be used instead.
 - Removed `craft\commerce\records\TaxZone`. `CraftCms\Commerce\Tax\Records\TaxZone` should be used instead.
 - Removed `craft\commerce\records\TaxRate`. `CraftCms\Commerce\Tax\Records\TaxRate` should be used instead.
 - Removed `craft\commerce\records\TaxCategory`. `CraftCms\Commerce\Tax\Records\TaxCategory` should be used instead.

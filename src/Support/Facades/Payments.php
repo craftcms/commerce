@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Facade;
 use Override;
 
 /**
- * @method static void processPayment(\CraftCms\Commerce\Order\Elements\Order $order, \CraftCms\Commerce\Payment\Forms\BasePaymentForm $form, string|null $redirect, \CraftCms\Commerce\Payment\Data\Transaction|null $transaction, array|null $redirectData = [])
+ * @method static void processPayment(\CraftCms\Commerce\Order\Elements\Order $order, \CraftCms\Commerce\Payment\Forms\BasePaymentForm $form, string|null $redirect, \CraftCms\Commerce\Payment\Data\Transaction|null $transaction, array|null $redirectData = [], \Symfony\Component\HttpFoundation\Response|null $redirectResponse = null)
  * @method static \CraftCms\Commerce\Payment\Data\Transaction captureTransaction(\CraftCms\Commerce\Payment\Data\Transaction $transaction)
  * @method static \CraftCms\Commerce\Payment\Data\Transaction refundTransaction(\CraftCms\Commerce\Payment\Data\Transaction $transaction, float|null $amount = null, string $note = '')
- * @method static bool completePayment(\CraftCms\Commerce\Payment\Data\Transaction $transaction, string|null $customError)
+ * @method static bool completePayment(\CraftCms\Commerce\Payment\Data\Transaction $transaction, string|null $customError, string|null $redirect = null, \Symfony\Component\HttpFoundation\Response|null $redirectResponse = null)
  *
  * @see \CraftCms\Commerce\Payment\Payments
  */

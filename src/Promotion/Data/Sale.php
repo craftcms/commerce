@@ -36,9 +36,9 @@ class Sale extends Component
 
     public bool $allPurchasables = false;
 
-    public bool $allCategories = false;
+    public bool $allEntries = false;
 
-    public string $categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
+    public string $entryRelationshipType = SaleRecord::ENTRY_RELATIONSHIP_TYPE_BOTH;
 
     public bool $enabled = true;
 
@@ -50,7 +50,7 @@ class Sale extends Component
 
     private ?array $_purchasableIds = null;
 
-    private ?array $_categoryIds = null;
+    private ?array $_entryIds = null;
 
     private ?array $_userGroupIds = null;
 
@@ -59,16 +59,16 @@ class Sale extends Component
     {
         return [
             'apply' => ['required', 'in:toPercent,toFlat,byPercent,byFlat'],
-            'categoryRelationshipType' => ['required', 'in:' . implode(',', [
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+            'entryRelationshipType' => ['required', 'in:' . implode(',', [
+                SaleRecord::ENTRY_RELATIONSHIP_TYPE_SOURCE,
+                SaleRecord::ENTRY_RELATIONSHIP_TYPE_TARGET,
+                SaleRecord::ENTRY_RELATIONSHIP_TYPE_BOTH,
             ])],
             'enabled' => ['boolean'],
             'name' => ['required', 'string'],
             'allGroups' => ['required', 'boolean'],
             'allPurchasables' => ['required', 'boolean'],
-            'allCategories' => ['required', 'boolean'],
+            'allEntries' => ['required', 'boolean'],
         ];
     }
 
@@ -88,23 +88,23 @@ class Sale extends Component
         return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
     }
 
-    public function getCategoryIds(): array
+    public function getEntryIds(): array
     {
-        if (!isset($this->_categoryIds)) {
-            $categoryIds = [];
+        if (!isset($this->_entryIds)) {
+            $entryIds = [];
             if ($this->id) {
-                $categoryIds = array_filter(
+                $entryIds = array_filter(
                     DB::table(Table::SALES . ' sales')
-                        ->leftJoin(Table::SALE_CATEGORIES . ' spt', 'spt.saleId', '=', 'sales.id')
+                        ->leftJoin(Table::SALE_ENTRIES . ' spt', 'spt.saleId', '=', 'sales.id')
                         ->where('sales.id', $this->id)
-                        ->pluck('spt.categoryId')
+                        ->pluck('spt.entryId')
                         ->all()
                 );
             }
-            $this->_categoryIds = $categoryIds;
+            $this->_entryIds = $entryIds;
         }
 
-        return $this->_categoryIds;
+        return $this->_entryIds;
     }
 
     public function getPurchasableIds(): array
@@ -145,9 +145,9 @@ class Sale extends Component
         return $this->_userGroupIds;
     }
 
-    public function setCategoryIds(array $ids): void
+    public function setEntryIds(array $ids): void
     {
-        $this->_categoryIds = array_unique($ids);
+        $this->_entryIds = array_unique($ids);
     }
 
     public function setPurchasableIds(array $purchasableIds): void

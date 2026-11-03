@@ -2,13 +2,18 @@
 
 namespace craft\commerce\services;
 
-use CraftCms\Commerce\Order\Elements\Order;
+use craft\commerce\events\DiscountAdjustmentsEvent;
 use CraftCms\Commerce\Order\Adjuster\AdjusterTypes;
 use CraftCms\Commerce\Order\Adjuster\Contracts\AdjusterInterface;
+use CraftCms\Commerce\Order\Adjuster\Discount;
 use CraftCms\Commerce\Order\Adjuster\DiscountAdjusterTypes;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Promotion\Events\DiscountAdjustmentsCreated;
 use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
+use yii\base\Event as YiiEvent;
 
 /**
  * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Order\OrderAdjustments::class)` instead.
@@ -75,6 +80,30 @@ class OrderAdjustments extends Component
     }
 
     /** @internal */
+    /**
+     * Bridges the discount adjuster's Laravel event to the legacy `Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED` Yii event.
+     */
+    public static function registerEvents(): void
+    {
+        Event::listen(DiscountAdjustmentsCreated::class, static function(DiscountAdjustmentsCreated $event) {
+            $legacyEvent = new DiscountAdjustmentsEvent([
+                'order' => $event->order,
+                'discount' => $event->discount,
+                'adjustments' => $event->adjustments,
+            ]);
+
+            // Yii matches class handlers by name, so handlers on the alias and on the new class are triggered separately.
+            foreach ([\craft\commerce\adjusters\Discount::class, Discount::class] as $class) {
+                if (!$legacyEvent->handled && YiiEvent::hasHandlers($class, Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED)) {
+                    YiiEvent::trigger($class, Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $legacyEvent);
+                }
+            }
+
+            $event->adjustments = $legacyEvent->adjustments;
+            $event->isValid = $event->isValid && $legacyEvent->isValid;
+        });
+    }
+
     public static function finalizeRegistrationEvents(): void
     {
         $plugin = \craft\commerce\Plugin::getInstance()->getOrderAdjustments();

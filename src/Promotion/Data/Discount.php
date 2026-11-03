@@ -66,11 +66,9 @@ class Discount extends Component implements HasStoreInterface
     public bool $hasFreeShippingForMatchingItems = false;
     public bool $hasFreeShippingForOrder = false;
     public bool $allPurchasables = false;
-    /** TODO: Rename to $allEntries in 6.0 */
-    public bool $allCategories = false;
+    public bool $allEntries = false;
 
-    /** TODO: Rename to $entryRelationshipType in 6.0 */
-    public string $categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
+    public string $entryRelationshipType = DiscountRecord::ENTRY_RELATIONSHIP_TYPE_BOTH;
 
     public bool $enabled = true;
     public bool $stopProcessing = false;
@@ -83,7 +81,7 @@ class Discount extends Component implements HasStoreInterface
     /** @var int[] */
     private array $_purchasableIds;
     /** @var int[] */
-    private array $_categoryIds;
+    private array $_entryIds;
     /** @var Coupon[]|null */
     private ?array $_coupons = null;
 
@@ -92,7 +90,7 @@ class Discount extends Component implements HasStoreInterface
     {
         $fields = parent::extraFields();
         $fields[] = 'purchasableIds';
-        $fields[] = 'categoryIds';
+        $fields[] = 'entryIds';
         $fields[] = 'percentDiscountAsPercent';
 
         return $fields;
@@ -266,13 +264,13 @@ class Discount extends Component implements HasStoreInterface
     /**
      * @return int[]
      */
-    public function getCategoryIds(): array
+    public function getEntryIds(): array
     {
-        if (!isset($this->_categoryIds)) {
-            $this->_loadCategoryRelations();
+        if (!isset($this->_entryIds)) {
+            $this->_loadEntryRelations();
         }
 
-        return $this->_categoryIds;
+        return $this->_entryIds;
     }
 
     /**
@@ -288,11 +286,11 @@ class Discount extends Component implements HasStoreInterface
     }
 
     /**
-     * @param int[] $categoryIds
+     * @param int[] $entryIds
      */
-    public function setCategoryIds(array $categoryIds): void
+    public function setEntryIds(array $entryIds): void
     {
-        $this->_categoryIds = array_unique($categoryIds);
+        $this->_entryIds = array_unique($entryIds);
     }
 
     /**
@@ -353,10 +351,10 @@ class Discount extends Component implements HasStoreInterface
             'baseDiscount' => ['numeric'],
             'perItemDiscount' => ['numeric'],
             'percentDiscount' => ['numeric'],
-            'categoryRelationshipType' => [Rule::in([
-                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+            'entryRelationshipType' => [Rule::in([
+                DiscountRecord::ENTRY_RELATIONSHIP_TYPE_SOURCE,
+                DiscountRecord::ENTRY_RELATIONSHIP_TYPE_TARGET,
+                DiscountRecord::ENTRY_RELATIONSHIP_TYPE_BOTH,
             ])],
             'appliedTo' => [Rule::in([
                 DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS,
@@ -459,14 +457,14 @@ class Discount extends Component implements HasStoreInterface
         $this->setPurchasableIds($purchasableIds);
     }
 
-    private function _loadCategoryRelations(): void
+    private function _loadEntryRelations(): void
     {
-        $categoryIds = DB::table(Table::DISCOUNTS . ' as discounts')
-            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' as dpt', 'dpt.discountId', '=', 'discounts.id')
+        $entryIds = DB::table(Table::DISCOUNTS . ' as discounts')
+            ->leftJoin(Table::DISCOUNT_ENTRIES . ' as dpt', 'dpt.discountId', '=', 'discounts.id')
             ->where('discounts.id', $this->id)
-            ->pluck('dpt.categoryId')
+            ->pluck('dpt.entryId')
             ->all();
 
-        $this->setCategoryIds($categoryIds);
+        $this->setEntryIds($entryIds);
     }
 }

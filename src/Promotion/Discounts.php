@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Promotion;
 
-use craft\elements\Category;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -27,7 +26,7 @@ use CraftCms\Commerce\Promotion\Events\MatchOrderEvent;
 use CraftCms\Commerce\Promotion\Models\Coupon as CouponRecord;
 use CraftCms\Commerce\Promotion\Models\CustomerDiscountUse;
 use CraftCms\Commerce\Promotion\Models\Discount as DiscountRecord;
-use CraftCms\Commerce\Promotion\Models\DiscountCategory as DiscountCategoryRecord;
+use CraftCms\Commerce\Promotion\Models\DiscountEntry as DiscountEntryRecord;
 use CraftCms\Commerce\Promotion\Models\DiscountPurchasable as DiscountPurchasableRecord;
 use CraftCms\Commerce\Promotion\Models\EmailDiscountUse as EmailDiscountUseRecord;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
@@ -50,7 +49,7 @@ class Discounts
     private ?array $activeDiscountsByKey = null;
 
     /** @var array<string, bool>|null */
-    private ?array $matchingLineItemCategoryCondition = null;
+    private ?array $matchingLineItemEntryCondition = null;
 
     public function getDiscountById(int $id, ?int $storeId = null): ?Discount
     {
@@ -159,10 +158,10 @@ class Discounts
             $discountQuery->where(function($q) use ($order) {
                 $q->where('purchaseTotal', 0)
                   ->orWhere(function($q2) use ($order) {
-                      $q2->where('allPurchasables', true)->where('allCategories', true)->where('purchaseTotal', '<=', $order->getItemSubtotal());
+                      $q2->where('allPurchasables', true)->where('allEntries', true)->where('purchaseTotal', '<=', $order->getItemSubtotal());
                   })
                   ->orWhere('allPurchasables', false)
-                  ->orWhere('allCategories', false);
+                  ->orWhere('allEntries', false);
             });
 
             $discountQuery->where(function($q) use ($order) {
@@ -170,20 +169,20 @@ class Discounts
                     $q2->where('purchaseQty', 0)->where('maxPurchaseQty', 0);
                 })
                   ->orWhere(function($q2) use ($order) {
-                      $q2->where('allPurchasables', true)->where('allCategories', true)
+                      $q2->where('allPurchasables', true)->where('allEntries', true)
                          ->where('purchaseQty', '>', 0)->where('maxPurchaseQty', 0)->where('purchaseQty', '<=', $order->getTotalQty());
                   })
                   ->orWhere(function($q2) use ($order) {
-                      $q2->where('allPurchasables', true)->where('allCategories', true)
+                      $q2->where('allPurchasables', true)->where('allEntries', true)
                          ->where('maxPurchaseQty', '>', 0)->where('purchaseQty', 0)->where('maxPurchaseQty', '>=', $order->getTotalQty());
                   })
                   ->orWhere(function($q2) use ($order) {
-                      $q2->where('allPurchasables', true)->where('allCategories', true)
+                      $q2->where('allPurchasables', true)->where('allEntries', true)
                          ->where('maxPurchaseQty', '>', 0)->where('purchaseQty', '>', 0)
                          ->where('purchaseQty', '<=', $order->getTotalQty())->where('maxPurchaseQty', '>=', $order->getTotalQty());
                   })
                   ->orWhere('allPurchasables', false)
-                  ->orWhere('allCategories', false);
+                  ->orWhere('allEntries', false);
             });
         }
 
@@ -351,14 +350,10 @@ class Discounts
                 $purchasableIds = $discount->getPurchasableIds();
                 $id = $purchasable->getId();
 
-                // TODO: update Category element calls when migrated (Entry already uses the new element)
-                $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-                $categoryIds = $discount->getCategoryIds();
-                $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
-                $relatedEntries = Entry::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
-                $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+                $relatedTo = [$discount->entryRelationshipType => $purchasable->getPromotionRelationSource()];
+                $relatedEntries = Entry::find()->id($discount->getEntryIds())->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedEntries)) {
                     $discounts[$discount->id] = $discount;
                 }
             }
@@ -390,24 +385,20 @@ class Discounts
                 return false;
             }
 
-            if (!$discount->allCategories) {
-                $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
+            if (!$discount->allEntries) {
+                $key = 'relationshipType:' . $discount->entryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':entryIds:' . implode('|', $discount->getEntryIds());
 
-                if (!isset($this->matchingLineItemCategoryCondition[$key])) {
-                    $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+                if (!isset($this->matchingLineItemEntryCondition[$key])) {
+                    $relatedTo = [$discount->entryRelationshipType => $purchasable->getPromotionRelationSource()];
 
-                    // TODO: update Category element calls when migrated (Entry already uses the new element)
                     $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
-                    $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
+                    $purchasableIsRelated = (bool) array_intersect($relatedEntries, $discount->getEntryIds());
 
-                    $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
-                    $purchasableIsRelated = (bool) array_intersect($relatedCategoriesOrEntries, $discount->getCategoryIds());
-
-                    $this->matchingLineItemCategoryCondition[$key] = $purchasableIsRelated;
+                    $this->matchingLineItemEntryCondition[$key] = $purchasableIsRelated;
                     if (!$purchasableIsRelated) {
                         return false;
                     }
-                } elseif ($this->matchingLineItemCategoryCondition[$key] === false) {
+                } elseif ($this->matchingLineItemEntryCondition[$key] === false) {
                     return false;
                 }
             }
@@ -469,7 +460,7 @@ class Discounts
             return false;
         }
 
-        $allItemsMatch = ($discount->allPurchasables && $discount->allCategories);
+        $allItemsMatch = ($discount->allPurchasables && $discount->allEntries);
 
         if ($allItemsMatch && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
             return false;
@@ -483,7 +474,7 @@ class Discounts
             return false;
         }
 
-        if (!$discount->allPurchasables || !$discount->allCategories) {
+        if (!$discount->allPurchasables || !$discount->allEntries) {
             $matchingItems = collect($order->getLineItems())
                 ->filter(fn($item) => $this->matchLineItem($item, $discount));
 
@@ -569,14 +560,14 @@ class Discounts
         $record->ignorePromotions = $model->ignorePromotions;
         $record->appliedTo = $model->appliedTo;
         $record->purchasableIds = $model->getPurchasableIds();
-        $record->categoryIds = $model->getCategoryIds();
+        $record->entryIds = $model->getEntryIds();
         $record->sortOrder = $record->sortOrder ?: 0;
         $record->couponFormat = $model->couponFormat;
-        $record->categoryRelationshipType = $model->categoryRelationshipType;
+        $record->entryRelationshipType = $model->entryRelationshipType;
 
-        if ($record->allCategories = $model->allCategories) {
-            $model->setCategoryIds([]);
-            $record->categoryIds = null;
+        if ($record->allEntries = $model->allEntries) {
+            $model->setEntryIds([]);
+            $record->entryIds = null;
         }
         if ($record->allPurchasables = $model->allPurchasables) {
             $model->setPurchasableIds([]);
@@ -595,13 +586,13 @@ class Discounts
             $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
 
             DiscountPurchasableRecord::where('discountId', $model->id)->delete();
-            DiscountCategoryRecord::where('discountId', $model->id)->delete();
+            DiscountEntryRecord::where('discountId', $model->id)->delete();
 
             $siteIds = $model->getStore()->getSites()->pluck('id')->all();
 
-            foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new DiscountCategoryRecord();
-                $relation->categoryId = $categoryId;
+            foreach ($model->getEntryIds() as $entryId) {
+                $relation = new DiscountEntryRecord();
+                $relation->entryId = $entryId;
                 $relation->discountId = $model->id;
                 $relation->save();
             }
@@ -1021,7 +1012,7 @@ class Discounts
     {
         $this->allDiscounts = null;
         $this->activeDiscountsByKey = null;
-        $this->matchingLineItemCategoryCondition = null;
+        $this->matchingLineItemEntryCondition = null;
     }
 
     /**
@@ -1034,7 +1025,7 @@ class Discounts
         foreach ($rows as $row) {
             $data = (array) $row;
             $data['purchasableIds'] = !empty($data['purchasableIds']) ? json_decode($data['purchasableIds'], true) : [];
-            $data['categoryIds'] = !empty($data['categoryIds']) ? json_decode($data['categoryIds'], true) : [];
+            $data['entryIds'] = !empty($data['entryIds']) ? json_decode($data['entryIds'], true) : [];
             $data['orderCondition'] ??= '';
             $data['customerCondition'] ??= '';
             $data['billingAddressCondition'] ??= '';
@@ -1050,11 +1041,11 @@ class Discounts
     {
         return DB::table(Table::DISCOUNTS . ' as discounts')
             ->select([
-                'discounts.allCategories',
+                'discounts.allEntries',
                 'discounts.allPurchasables',
                 'discounts.appliedTo',
                 'discounts.baseDiscount',
-                'discounts.categoryRelationshipType',
+                'discounts.entryRelationshipType',
                 'discounts.couponFormat',
                 'discounts.dateCreated',
                 'discounts.dateFrom',
@@ -1088,10 +1079,10 @@ class Discounts
                 'discounts.shippingAddressCondition',
                 'discounts.billingAddressCondition',
                 'discounts.purchasableIds',
-                'discounts.categoryIds',
+                'discounts.entryIds',
             ])
             ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' as dp', 'dp.discountId', '=', 'discounts.id')
-            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' as dpt', 'dpt.discountId', '=', 'discounts.id')
+            ->leftJoin(Table::DISCOUNT_ENTRIES . ' as dpt', 'dpt.discountId', '=', 'discounts.id')
             ->groupBy('discounts.id')
             ->orderBy('discounts.sortOrder');
     }

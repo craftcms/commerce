@@ -2,7 +2,11 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\base\LegacyElementEvents;
+use craft\events\ElementCriteriaEvent;
 use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -10,6 +14,19 @@ use yii\base\Component;
  */
 class Products extends Component
 {
+    /**
+     * Bridges the product's Laravel events to the legacy `Product::EVENT_*` Yii events.
+     */
+    public static function registerEvents(): void
+    {
+        Event::listen(ProductParentSelectionCriteriaResolving::class, static function(ProductParentSelectionCriteriaResolving $event) {
+            $legacyEvent = LegacyElementEvents::trigger($event->product, \craft\commerce\elements\Product::class, Product::EVENT_DEFINE_PARENT_SELECTION_CRITERIA, new ElementCriteriaEvent([
+                'criteria' => $event->criteria,
+            ]));
+            $event->criteria = $legacyEvent->criteria;
+        });
+    }
+
     /**
      * @param array|int|string|null $siteId
      */

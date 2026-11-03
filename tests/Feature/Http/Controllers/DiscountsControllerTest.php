@@ -94,7 +94,7 @@ it('does not move another discount’s coupon onto this one', function() {
     $other = $fixture->discountWithCoupon;
     $otherCoupon = app(Coupons::class)->getCouponsByDiscountId($other->id)[0];
 
-    $discount = new Discount(['name' => 'Second', 'storeId' => $other->storeId, 'allPurchasables' => true, 'allCategories' => true]);
+    $discount = new Discount(['name' => 'Second', 'storeId' => $other->storeId, 'allPurchasables' => true, 'allEntries' => true]);
     app(Discounts::class)->saveDiscount($discount);
 
     postJson(Url::actionUrl('commerce/discounts/save'), discountSaveBody($discount, [
@@ -108,7 +108,7 @@ it('does not move another discount’s coupon onto this one', function() {
 it('rejects invalid coupon codes without saving the discount', function(array $codes, string $message) {
     $discount = DiscountsFixture::seed()->discountWithCoupon;
 
-    $second = new Discount(['name' => 'Second', 'storeId' => $discount->storeId, 'allPurchasables' => true, 'allCategories' => true]);
+    $second = new Discount(['name' => 'Second', 'storeId' => $discount->storeId, 'allPurchasables' => true, 'allEntries' => true]);
     app(Discounts::class)->saveDiscount($second);
 
     postJson(Url::actionUrl('commerce/discounts/save'), discountSaveBody($second, array_map(

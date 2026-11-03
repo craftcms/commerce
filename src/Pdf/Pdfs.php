@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Pdf;
 
-use craft\helpers\Db as CraftDb;
-use craft\helpers\FileHelper;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\RouteToken\RouteTokens;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\Path;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Template;
@@ -16,14 +15,13 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateResolver;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Events\PdfDeleting;
 use CraftCms\Commerce\Pdf\Events\PdfRendered;
 use CraftCms\Commerce\Pdf\Events\PdfRendering;
-use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
+use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving;
 use CraftCms\Commerce\Pdf\Events\PdfSaved;
 use CraftCms\Commerce\Pdf\Events\PdfSaving;
 use CraftCms\Commerce\Pdf\Models\Pdf as PdfRecord;
@@ -148,7 +146,7 @@ class Pdfs
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewPdf) {
-            $pdf->id = CraftDb::idByUid(Table::PDFS, $pdf->uid);
+            $pdf->id = DB::table(Table::PDFS)->idByUid($pdf->uid);
         }
 
         return true;
@@ -356,28 +354,21 @@ class Pdfs
         $variables['order'] = $event->order;
         $variables['option'] = $event->option;
 
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLanguage = \Craft::$app->formattingLocale;
-        $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
-
-        Locale::switchAppLanguage($pdfLanguage);
-
         if (!$event->template || !app(TemplateResolver::class)->exists($event->template, TemplateMode::Site)) {
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
             throw new \Exception('PDF template file does not exist.');
         }
 
         try {
-            $html = Template::renderTemplate($event->template, $variables, TemplateMode::Site);
+            $html = I18N::withLocale(
+                $pdf?->getRenderLanguage($order) ?? app()->getLocale(),
+                null,
+                fn() => Template::renderTemplate($event->template, $variables, TemplateMode::Site),
+            );
         } catch (\Exception $e) {
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
             // Set the pdf html to the render error.
             Log::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage(), ['exception' => $e]);
             $html = t('An error occurred while generating this PDF.', category: 'commerce');
         }
-
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
         // Set the config options
         $dompdfTempDir = Path::temp() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
@@ -388,15 +379,15 @@ class Pdfs
         File::makeDirectory($dompdfTempDir);
         File::makeDirectory($dompdfFontCache);
 
-        if (!FileHelper::isWritable($dompdfLogFile)) {
+        if (!$this->isWritable($dompdfLogFile)) {
             throw new \ErrorException("Unable to write to file: $dompdfLogFile");
         }
 
-        if (!FileHelper::isWritable($dompdfFontCache)) {
+        if (!$this->isWritable($dompdfFontCache)) {
             throw new \ErrorException("Unable to write to folder: $dompdfFontCache");
         }
 
-        if (!FileHelper::isWritable($dompdfTempDir)) {
+        if (!$this->isWritable($dompdfTempDir)) {
             throw new \ErrorException("Unable to write to folder: $dompdfTempDir");
         }
 
@@ -413,7 +404,7 @@ class Pdfs
             $options->setDefaultPaperSize($pdf->paperSize);
         }
 
-        $renderOptionsEvent = new PdfRenderOptionsEvent(
+        $renderOptionsEvent = new PdfRenderOptionsResolving(
             options: $options,
         );
 
@@ -476,5 +467,18 @@ class Pdfs
             ->orderBy('sortOrder');
 
         return $query;
+    }
+
+    /**
+     * Whether a file or directory can be written to. A file that doesn't exist yet is
+     * writable if it can be created.
+     */
+    private function isWritable(string $path): bool
+    {
+        if (is_dir($path)) {
+            return is_writable($path);
+        }
+
+        return file_exists($path) ? is_writable($path) : is_writable(dirname($path));
     }
 }

@@ -10,7 +10,7 @@ use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Contracts\ShippingRuleInterface;
 use CraftCms\Commerce\Shipping\Data\BaseShippingMethod;
 use CraftCms\Commerce\Shipping\Data\ShippingMethod;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Shipping\Models\ShippingMethod as ShippingMethodRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
@@ -64,20 +64,17 @@ class ShippingMethods
     /**
      * Returns all shipping methods that match the given order, sorted by price.
      *
-     * @return array<string, ShippingMethod>
+     * @return array<string, ShippingMethodInterface>
      */
     public function getMatchingShippingMethods(Order $order): array
     {
+        /** @var Collection<array-key, ShippingMethodInterface> $methods */
         $methods = $this->getAllShippingMethods($order->storeId);
 
-        $event = new RegisterAvailableShippingMethodsEvent(
-            order: $order,
-        );
-        $event->setShippingMethods($methods);
-        event($event);
+        event($event = new ShippingMethodsResolving($order, $methods));
 
         $matchingMethods = [];
-        foreach ($event->getShippingMethods() as $method) {
+        foreach ($event->shippingMethods as $method) {
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
                 // Now we know the method matches, let's get the price
                 $totalPrice = $method->getPriceForOrder($order);

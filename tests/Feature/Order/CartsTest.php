@@ -223,3 +223,11 @@ test('peekCart returns null when there is no cart cookie', function() {
 
     expect(app(Carts::class)->peekCart())->toBeNull();
 });
+
+test('the cart cookie name is unique to the app name and the current store', function() {
+    config(['app.name' => 'Cart Cookie Test']);
+    $storeHandle = app(Stores::class)->getCurrentStore()->handle;
+
+    expect(app(Carts::class)->cartCookie['name'])
+        ->toBe(md5(sprintf('Craft.%s.%s.%s', Carts::class, 'Cart Cookie Test', $storeHandle)) . '_commerce_cart');
+});

@@ -16,18 +16,9 @@ use Override;
 
 use function CraftCms\Cms\t;
 
-/**
- * @todo the legacy `inputTemplateVariables()` hook this field used to register `CommerceCpAsset`/
- * `ProductIndexAsset` and pass a `jsSettings.productTypeId` setting to `Craft.Commerce.ProductSelectInput`
- * (auto-scoping the element-select modal to the field's configured product type source) doesn't exist
- * on the new `uiControl()`-based rendering pipeline. Revisit once that pipeline exposes an equivalent
- * extension point.
- */
+// TODO: restore inline product creation (scoped to the field's product type source) once the CMS ElementSelect control supports creating elements, as Entries fields will need too.
 class Products extends BaseRelationField
 {
-    #[Override]
-    protected ?string $inputJsClass = 'Craft.Commerce.ProductSelectInput';
-
     /** @param array<string, mixed> $config */
     public function __construct(array $config = [])
     {

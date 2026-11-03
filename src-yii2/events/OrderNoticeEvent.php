@@ -1,4 +1,17 @@
 <?php
 
-/** @deprecated use {@see \CraftCms\Commerce\Order\Events\OrderNoticeEvent} */
-class_alias(\CraftCms\Commerce\Order\Events\OrderNoticeEvent::class, 'craft\commerce\events\OrderNoticeEvent');
+namespace craft\commerce\events;
+
+use craft\events\CancelableEvent;
+use CraftCms\Commerce\Order\Data\OrderNotice;
+
+/**
+ * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Order\Events\OrderNoticeSaving} instead.
+ */
+class OrderNoticeEvent extends CancelableEvent
+{
+    /**
+     * @var OrderNotice The order notice model.
+     */
+    public $orderNotice;
+}

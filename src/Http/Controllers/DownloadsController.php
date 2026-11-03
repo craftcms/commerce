@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\RouteToken\RouteTokens;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Pdf\Pdfs;
@@ -87,15 +87,11 @@ readonly class DownloadsController
 
         abort_if(!$pdf, 500, 'Can not find a PDF to render.');
 
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLocale = \Craft::$app->formattingLocale;
-
-        $language = $pdf->getRenderLanguage($order);
-        Locale::switchAppLanguage($language);
-
-        $renderedPdf = app(Pdfs::class)->renderPdfForOrder($order, $option, null, [], $pdf);
-
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
+        $renderedPdf = I18N::withLocale(
+            $pdf->getRenderLanguage($order),
+            null,
+            fn() => app(Pdfs::class)->renderPdfForOrder($order, $option, null, [], $pdf),
+        );
 
         $fileName = renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order, $order->getObjectTemplateVariables()) ?: ($pdf->handle . '-' . $order->number);
 

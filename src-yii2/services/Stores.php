@@ -2,18 +2,20 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\DeleteStoreEvent;
+use craft\commerce\events\StoreEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Store\Events\StoreDeleteApplying;
-use CraftCms\Commerce\Store\Events\StoreDeleted;
-use CraftCms\Commerce\Store\Events\StoreDeleting;
-use CraftCms\Commerce\Store\Events\StoreSaved;
-use CraftCms\Commerce\Store\Events\StoreSaving;
-use Illuminate\Support\Facades\Event;
-
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Store\Data\SiteStore;
 use CraftCms\Commerce\Store\Data\Store;
+use CraftCms\Commerce\Store\Events\StoreDeleteApplying;
+use CraftCms\Commerce\Store\Events\StoreDeleted;
+use CraftCms\Commerce\Store\Events\StoreDeleting;
+
+use CraftCms\Commerce\Store\Events\StoreSaved;
+use CraftCms\Commerce\Store\Events\StoreSaving;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 use yii\base\Component;
 
@@ -184,35 +186,60 @@ class Stores extends Component
         Event::listen(StoreSaving::class, static function(StoreSaving $event) {
             $legacy = Plugin::getInstance()->getStores();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_STORE)) {
-                $legacy->trigger(self::EVENT_BEFORE_SAVE_STORE, $event);
+                $legacyEvent = new StoreEvent([
+                    'store' => $event->store,
+                    'isNew' => $event->isNew,
+                ]);
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_STORE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
 
         Event::listen(StoreSaved::class, static function(StoreSaved $event) {
             $legacy = Plugin::getInstance()->getStores();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_STORE)) {
-                $legacy->trigger(self::EVENT_AFTER_SAVE_STORE, $event);
+                $legacyEvent = new StoreEvent([
+                    'store' => $event->store,
+                    'isNew' => $event->isNew,
+                ]);
+                $legacy->trigger(self::EVENT_AFTER_SAVE_STORE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
 
         Event::listen(StoreDeleting::class, static function(StoreDeleting $event) {
             $legacy = Plugin::getInstance()->getStores();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_DELETE_STORE)) {
-                $legacy->trigger(self::EVENT_BEFORE_DELETE_STORE, $event);
+                $legacyEvent = new DeleteStoreEvent([
+                    'store' => $event->store,
+                    'isNew' => $event->isNew,
+                ]);
+                $legacy->trigger(self::EVENT_BEFORE_DELETE_STORE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
 
         Event::listen(StoreDeleteApplying::class, static function(StoreDeleteApplying $event) {
             $legacy = Plugin::getInstance()->getStores();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_APPLY_STORE_DELETE)) {
-                $legacy->trigger(self::EVENT_BEFORE_APPLY_STORE_DELETE, $event);
+                $legacyEvent = new DeleteStoreEvent([
+                    'store' => $event->store,
+                    'isNew' => $event->isNew,
+                ]);
+                $legacy->trigger(self::EVENT_BEFORE_APPLY_STORE_DELETE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
 
         Event::listen(StoreDeleted::class, static function(StoreDeleted $event) {
             $legacy = Plugin::getInstance()->getStores();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_DELETE_STORE)) {
-                $legacy->trigger(self::EVENT_AFTER_DELETE_STORE, $event);
+                $legacyEvent = new DeleteStoreEvent([
+                    'store' => $event->store,
+                    'isNew' => $event->isNew,
+                ]);
+                $legacy->trigger(self::EVENT_AFTER_DELETE_STORE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
     }

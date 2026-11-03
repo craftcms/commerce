@@ -2,12 +2,13 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Order\Events\OrderStatusEvent;
-use Illuminate\Support\Facades\Event;
-
-use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Data\OrderHistory;
+use CraftCms\Commerce\Order\Elements\Order;
+
+use CraftCms\Commerce\Order\Events\OrderStatusChanged;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -47,10 +48,13 @@ class OrderHistories extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(OrderStatusEvent::class, static function(OrderStatusEvent $event) {
+        Event::listen(OrderStatusChanged::class, static function(OrderStatusChanged $event) {
             $legacy = Plugin::getInstance()->getOrderHistories();
             if ($legacy->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
-                $legacy->trigger(self::EVENT_ORDER_STATUS_CHANGE, $event);
+                $legacy->trigger(self::EVENT_ORDER_STATUS_CHANGE, new OrderStatusEvent([
+                    'orderHistory' => $event->orderHistory,
+                    'order' => $event->order,
+                ]));
             }
         });
     }

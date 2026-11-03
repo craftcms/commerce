@@ -18,7 +18,7 @@ class Variant extends ElementArguments
     #[Override]
     public static function getArguments(): array
     {
-        return array_merge(parent::getArguments(), self::getContentArguments(), [
+        $arguments = array_merge(parent::getArguments(), self::getContentArguments(), [
             'promotable' => [
                 'name' => 'promotable',
                 'type' => Type::boolean(),
@@ -125,27 +125,21 @@ class Variant extends ElementArguments
                 'description' => 'Narrows the query results based on the variant\'s weight dimension.',
             ],
         ]);
-    }
-
-    #[Override]
-    public static function getContentArguments(): array
-    {
-        return array_merge(parent::getContentArguments(), app(Variants::class)->getVariantGqlContentArguments());
-    }
-
-    #[Override]
-    public static function getStatusArguments(): array
-    {
-        $statusArguments = parent::getStatusArguments();
 
         if (Gql::canQueryInactiveElements()) {
-            $statusArguments['productStatus'] = [
+            $arguments['productStatus'] = [
                 'name' => 'productStatus',
                 'type' => Type::listOf(Type::string()),
                 'description' => 'Narrows the query results based on the variants\' product\'s statuses.',
             ];
         }
 
-        return $statusArguments;
+        return $arguments;
+    }
+
+    #[Override]
+    public static function getContentArguments(): array
+    {
+        return array_merge(parent::getContentArguments(), app(Variants::class)->getVariantGqlContentArguments());
     }
 }

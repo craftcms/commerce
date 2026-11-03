@@ -374,6 +374,7 @@ readonly class PaymentsController
 
         $redirect = '';
         $redirectData = [];
+        $redirectResponse = null;
         $transaction = null;
         $paymentForm->validate();
 
@@ -422,7 +423,7 @@ readonly class PaymentsController
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
-                app(Payments::class)->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
+                app(Payments::class)->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData, $redirectResponse);
                 $success = true;
             } catch (PaymentException $exception) {
                 $error = $exception->getMessage();
@@ -479,7 +480,7 @@ readonly class PaymentsController
             );
         }
 
-        return redirect($redirect);
+        return $redirectResponse ?? redirect($redirect);
     }
 
     public function complete(Request $request): Response
@@ -491,7 +492,9 @@ readonly class PaymentsController
         abort_unless($transaction !== null, 400, t('Can not complete payment for missing transaction.', category: 'commerce'));
 
         $error = '';
-        $success = app(Payments::class)->completePayment($transaction, $error);
+        $redirect = null;
+        $redirectResponse = null;
+        $success = app(Payments::class)->completePayment($transaction, $error, $redirect, $redirectResponse);
 
         if (!$success) {
             $errorMessage = t('Payment error: {message}', ['message' => $error], category: 'commerce');
@@ -507,9 +510,13 @@ readonly class PaymentsController
             return redirect($transaction->order->cancelUrl);
         }
 
+        if ($redirect && !$request->expectsJson()) {
+            return $redirectResponse ?? redirect($redirect);
+        }
+
         if ($request->expectsJson()) {
             return $this->asSuccess(data: [
-                'url' => $transaction->order->returnUrl,
+                'url' => $redirect ?: $transaction->order->returnUrl,
             ]);
         }
 

@@ -17,7 +17,7 @@ readonly class Table
 
     public const CUSTOMERS = 'commerce_customers';
 
-    public const DISCOUNT_CATEGORIES = 'commerce_discount_categories';
+    public const DISCOUNT_ENTRIES = 'commerce_discount_entries';
 
     public const DISCOUNT_PURCHASABLES = 'commerce_discount_purchasables';
 
@@ -67,7 +67,7 @@ readonly class Table
 
     public const PURCHASABLES = 'commerce_purchasables';
 
-    public const SALE_CATEGORIES = 'commerce_sale_categories';
+    public const SALE_ENTRIES = 'commerce_sale_entries';
 
     public const SALE_PURCHASABLES = 'commerce_sale_purchasables';
 

@@ -53,6 +53,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "CraftCms\\Cms\\Database\\Factories\\": "vendor/craftcms/cms/database/Factories/",
       "CraftCms\\Commerce\\Tests\\": "tests/",
       "Workbench\\App\\": "workbench/app/",
       "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"

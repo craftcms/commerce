@@ -16,17 +16,20 @@ use craft\commerce\services\LineItems as LegacyLineItems;
 use craft\commerce\services\LineItemStatuses as LegacyLineItemStatuses;
 use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
 use craft\commerce\services\OrderHistories as LegacyOrderHistories;
+use craft\commerce\services\Orders as LegacyOrders;
 use craft\commerce\services\OrderStatuses as LegacyOrderStatuses;
 use craft\commerce\services\PaymentCurrencies as LegacyPaymentCurrencies;
 use craft\commerce\services\Payments as LegacyPayments;
 use craft\commerce\services\PaymentSources as LegacyPaymentSources;
 use craft\commerce\services\Pdfs as LegacyPdfs;
+use craft\commerce\services\Products as LegacyProducts;
 use craft\commerce\services\ProductTypes as LegacyProductTypes;
 use craft\commerce\services\Purchasables as LegacyPurchasables;
 use craft\commerce\services\ShippingMethods as LegacyShippingMethods;
 use craft\commerce\services\Stores as LegacyStores;
 use craft\commerce\services\Taxes as LegacyTaxes;
 use craft\commerce\services\Transactions as LegacyTransactions;
+use craft\commerce\services\Variants as LegacyVariants;
 use craft\commerce\services\Webhooks as LegacyWebhooks;
 use craft\fixfks\controllers\RestoreController as RestoreFksController;
 use CraftCms\Cms\Cms;
@@ -35,6 +38,7 @@ use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Yii2Adapter\Yii2ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
 use function CraftCms\Cms\t;
@@ -44,9 +48,17 @@ use function CraftCms\Cms\t;
  */
 trait HasLegacyBridges
 {
+    /**
+     * Whether the project has installed `craftcms/yii2-adapter`, which the legacy `craft\commerce\*` classes require.
+     */
+    private static function hasYii2Adapter(): bool
+    {
+        return class_exists(Yii2ServiceProvider::class);
+    }
+
     private function registerCKEditorLinkOptions(): void
     {
-        if (!class_exists(CKEditorField::class)) {
+        if (!self::hasYii2Adapter() || !class_exists(CKEditorField::class)) {
             return;
         }
 
@@ -95,7 +107,7 @@ trait HasLegacyBridges
 
     private function registerForeignKeysRestore(): void
     {
-        if (!class_exists(RestoreFksController::class)) {
+        if (!self::hasYii2Adapter() || !class_exists(RestoreFksController::class)) {
             return;
         }
 
@@ -111,24 +123,32 @@ trait HasLegacyBridges
      */
     private function registerLegacyEventBridges(): void
     {
+        if (!self::hasYii2Adapter()) {
+            return;
+        }
+
         LegacyCarts::registerEvents();
         LegacyCustomers::registerEvents();
         LegacyEmails::registerEvents();
         LegacyInventory::registerEvents();
         LegacyLineItems::registerEvents();
         LegacyLineItemStatuses::registerEvents();
+        LegacyOrderAdjustments::registerEvents();
         LegacyOrderHistories::registerEvents();
+        LegacyOrders::registerEvents();
         LegacyOrderStatuses::registerEvents();
         LegacyPaymentCurrencies::registerEvents();
         LegacyPayments::registerEvents();
         LegacyPaymentSources::registerEvents();
         LegacyPdfs::registerEvents();
+        LegacyProducts::registerEvents();
         LegacyProductTypes::registerEvents();
         LegacyPurchasables::registerEvents();
         LegacyShippingMethods::registerEvents();
         LegacyStores::registerEvents();
         LegacyTaxes::registerEvents();
         LegacyTransactions::registerEvents();
+        LegacyVariants::registerEvents();
         LegacyWebhooks::registerEvents();
     }
 
@@ -138,6 +158,10 @@ trait HasLegacyBridges
      */
     private function finalizeLegacyRegistrationEvents(): void
     {
+        if (!self::hasYii2Adapter()) {
+            return;
+        }
+
         $this->app->booted(function() {
             if (!Cms::isInstalled(strict: true)) {
                 return;

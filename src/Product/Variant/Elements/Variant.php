@@ -6,7 +6,7 @@ namespace CraftCms\Commerce\Product\Variant\Elements;
 
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
-use CraftCms\Cms\Element\Actions\Copy;
+use CraftCms\Cms\Element\Actions\ClientAction;
 use CraftCms\Cms\Element\Actions\Restore;
 use CraftCms\Cms\Element\Concerns\NestedElement;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
@@ -26,14 +26,14 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Product\Elements\Product;
-use CraftCms\Commerce\Product\Events\CustomizeProductSnapshotDataEvent;
-use CraftCms\Commerce\Product\Events\CustomizeProductSnapshotFieldsEvent;
+use CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving;
+use CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Actions\SetDefaultVariant;
 use CraftCms\Commerce\Product\Variant\Conditions\VariantCondition;
-use CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotDataEvent;
-use CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent;
+use CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving;
+use CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving;
 use CraftCms\Commerce\Product\Variant\Models\Variant as VariantRecord;
 use CraftCms\Commerce\Product\Variant\Queries\VariantQuery;
 use CraftCms\Commerce\Product\Variant\Validation\VariantRules;
@@ -79,35 +79,31 @@ class Variant extends Purchasable implements NestedElementInterface
      * This example adds every custom field to the variant snapshot:
      *
      * ```php
-     * use CraftCms\Commerce\Product\Variant\Elements\Variant;
-     * use CraftCms\Commerce\Product\Variant\Events\CustomizeVariantSnapshotFieldsEvent;
-     * use yii\base\Event;
+     * use CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving;
+     * use Illuminate\Support\Facades\Event;
      *
-     * Event::on(
-     *     Variant::class,
-     *     Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT,
-     *     function(CustomizeVariantSnapshotFieldsEvent $event) {
-     *         // @var Variant $variant
-     *         $variant = $event->variant;
-     *         // @var array|null $fields
-     *         $fields = $event->fields;
+     * Event::listen(function(VariantSnapshotFieldsResolving $event) {
+     *     $fields = $event->fields;
      *
-     *         // Add every custom field to the snapshot
-     *         if (($fieldLayout = $variant->getFieldLayout()) !== null) {
-     *             foreach ($fieldLayout->getFields() as $field) {
-     *                 $fields[] = $field->handle;
-     *             }
+     *     // Add every custom field to the snapshot
+     *     if (($fieldLayout = $event->variant->getFieldLayout()) !== null) {
+     *         foreach ($fieldLayout->getFields() as $field) {
+     *             $fields[] = $field->handle;
      *         }
-     *
-     *         $event->fields = $fields;
      *     }
-     * );
+     *
+     *     $event->fields = $fields;
+     * });
      * ```
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving} instead.
      */
     public const string EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
 
     /**
      * @event CustomizeVariantSnapshotDataEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving} instead.
      */
     public const string EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT = 'afterCaptureVariantSnapshot';
 
@@ -117,11 +113,15 @@ class Variant extends Purchasable implements NestedElementInterface
      * ::: warning
      * Add with care! A huge amount of custom fields/data will increase your database size.
      * :::
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving} instead.
      */
     public const string EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT = 'beforeCaptureProductSnapshot';
 
     /**
      * @event CustomizeProductSnapshotDataEvent The event that is triggered after a product’s field data is captured, which can be used to customize, extend, or redact the data to be persisted on the product instance.
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving} instead.
      */
     public const string EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
 
@@ -409,7 +409,6 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Returns the product associated with this variant.
      */
-    #[\Deprecated(message: 'in 5.0.0. Use [[getOwner()]] instead.')]
     public function getProduct(): ?Product
     {
         /** @var Product|null */
@@ -595,17 +594,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // Default Product custom field handles
         $productFields = [];
-        $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent(
-            product: $this->getOwner(),
-            fields: $productFields,
-        );
-
-        // Allow plugins to modify Product fields to be fetched
-        event($productFieldsEvent);
-
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT)) {
-            $this->trigger(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, $productFieldsEvent);
-        }
+        event($productFieldsEvent = new ProductSnapshotFieldsResolving($this, $this->getOwner(), $productFields));
 
         // Product Attributes
         if ($product = $this->getOwner()) {
@@ -631,39 +620,18 @@ class Variant extends Purchasable implements NestedElementInterface
 
             $data['product'] = $product->toArray($productAttributes, [], false);
 
-            $productDataEvent = new CustomizeProductSnapshotDataEvent(
-                product: $product,
-                fieldData: $data['product'],
-            );
+            $productDataEvent = new ProductSnapshotDataResolving($this, $product, $data['product']);
         } else {
-            $productDataEvent = new CustomizeProductSnapshotDataEvent(
-                product: $this->getOwner(),
-                fieldData: [],
-            );
+            $productDataEvent = new ProductSnapshotDataResolving($this, $this->getOwner(), []);
         }
 
-        // Allow plugins to modify captured Product data
         event($productDataEvent);
-
-        if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT)) {
-            $this->trigger(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, $productDataEvent);
-        }
 
         $data['product'] = $productDataEvent->fieldData;
 
         // Default Variant custom field handles
         $variantFields = [];
-        $variantFieldsEvent = new CustomizeVariantSnapshotFieldsEvent(
-            variant: $this,
-            fields: $variantFields,
-        );
-
-        // Allow plugins to modify fields to be fetched
-        event($variantFieldsEvent);
-
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT)) {
-            $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
-        }
+        event($variantFieldsEvent = new VariantSnapshotFieldsResolving($this, $variantFields));
 
         // See the matching `ruleset` exclusion above for product attributes: it holds a
         // back-reference to its subject (this variant), which would crash JSON encoding.
@@ -686,17 +654,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         $variantData = $this->toArray($variantAttributes, [], false);
 
-        $variantDataEvent = new CustomizeVariantSnapshotDataEvent(
-            variant: $this,
-            fieldData: $variantData,
-        );
-
-        // Allow plugins to modify captured Variant data
-        event($variantDataEvent);
-
-        if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT)) {
-            $this->trigger(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, $variantDataEvent);
-        }
+        event($variantDataEvent = new VariantSnapshotDataResolving($this, $variantData));
 
         return array_merge($variantDataEvent->fieldData, $data);
     }
@@ -1158,7 +1116,7 @@ class Variant extends Purchasable implements NestedElementInterface
             $actions[] = ['type' => SetDefaultVariant::class];
         }
 
-        $actions[] = ['type' => Copy::class];
+        $actions[] = ClientAction::copy();
 
         return $actions;
     }
