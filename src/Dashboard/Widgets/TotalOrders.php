@@ -9,25 +9,19 @@ use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Controls\Lightswitch;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TotalOrders as TotalOrdersStat;
 use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class TotalOrders extends Widget
 {
@@ -105,37 +99,38 @@ class TotalOrders extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return $this->showChart ? 'commerce:widget-chart' : 'commerce:widget-number-stat';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $showChart = $this->showChart;
-        $stats = $this->stat->get();
+        $stats = $this->stat->get() ?: [];
 
-        if (empty($stats)) {
-            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
+        if ($this->showChart) {
+            $chart = $stats['chart'] ?? [];
+
+            return [
+                'type' => 'line',
+                'labels' => $this->chartDateLabels(Arr::pluck($chart, 'datekey'), $this->stat->getDateRangeInterval()),
+                'interval' => $this->stat->getDateRangeInterval(),
+                'currency' => app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso(),
+                'showLegend' => false,
+                'datasets' => [
+                    ['label' => t('Order count', category: 'commerce'), 'data' => array_map(intval(...), Arr::pluck($chart, 'total')), 'format' => 'number'],
+                ],
+            ];
         }
 
-        $number = $stats['total'] ?? 0;
-        $chart = $stats['chart'] ?? [];
+        $total = $stats['total'] ?? 0;
 
-        $labels = Arr::pluck($chart, 'datekey');
-        $data = Arr::pluck($chart, 'total');
-
-        $timeFrame = $this->stat->getDateRangeWording();
-        $number = I18N::getFormatter()->asInteger($number);
-
-        $id = 'total-orders' . Str::random();
-        $namespaceId = InputNamespace::namespaceId($id);
-
-        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
-
-        return ['html' => template('commerce/_components/widgets/orders/total/body', compact(
-            'namespaceId',
-            'number',
-            'timeFrame',
-            'labels',
-            'data',
-            'showChart',
-        ), TemplateMode::Cp)];
+        return [
+            'value' => I18N::getFormatter()->asInteger($total),
+            'label' => t($total == 1 ? 'order' : 'orders', category: 'commerce'),
+            'timeFrame' => $this->stat->getDateRangeWording(),
+        ];
     }
 
     #[\Override]

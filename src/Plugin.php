@@ -192,12 +192,6 @@ class Plugin extends BasePlugin
         'resources/js/cp.ts',
     ];
 
-    /** Legacy JS and CSS used by the dashboard widgets, published to `vendor/craftcms/commerce/legacy/*`. */
-    protected array $publishables = [
-        __DIR__ . '/../src-yii2/web/assets/chartjs/dist' => 'legacy/chartjs',
-        __DIR__ . '/../src-yii2/web/assets/deepmerge/dist' => 'legacy/deepmerge',
-        __DIR__ . '/../src-yii2/web/assets/statwidgets/dist' => 'legacy/statwidgets',
-    ];
 
     protected array $commands = [
         ResaveProductsCommand::class,

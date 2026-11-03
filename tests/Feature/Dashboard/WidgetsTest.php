@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use CraftCms\Cms\View\HtmlStack;
 use CraftCms\Commerce\Dashboard\Widgets\AverageOrderTotal;
 use CraftCms\Commerce\Dashboard\Widgets\NewCustomers;
 use CraftCms\Commerce\Dashboard\Widgets\Orders;
@@ -14,54 +13,49 @@ use CraftCms\Commerce\Dashboard\Widgets\TopPurchasables;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
-use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
-test('dashboard widgets render with the assets their charts and tables need', function(string $class, array $config) {
+test('dashboard widgets render through Commerce widget components', function(string $class, array $config, string $component) {
     OrdersFixture::seed();
 
     $widget = new $class(['dateRange' => StatInterface::DATE_RANGE_ALL, ...$config]);
+    $props = $widget->props();
 
-    // The dashboard renders widgets the same way: assets registered while rendering are captured with the HTML.
-    $fragment = app(HtmlStack::class)->capture(fn() => $widget->props()['html'] ?? '');
-    $assets = $fragment->headHtml . $fragment->bodyHtml;
-
-    expect($fragment->html)->not->toBeEmpty()
+    expect($widget->component())->toBe($component)
         ->and(file_exists($widget::icon()))->toBeTrue()
-        ->and($widget->settingsUi())->not->toBeNull();
+        ->and($widget->settingsUi())->not->toBeNull()
+        ->and(json_encode($props, JSON_THROW_ON_ERROR))->toBeString();
 
-    if (str_contains($fragment->html, '<canvas')) {
-        expect($assets)
-            ->toContain('vendor/craftcms/commerce/legacy/statwidgets/CommerceChart.js')
-            ->toContain('vendor/craftcms/commerce/legacy/chartjs/Chart.bundle.min.js')
-            ->toContain('vendor/craftcms/commerce/legacy/deepmerge/umd.js')
-            ->toContain('window.commerceCurrency');
-    }
-
-    if (str_contains($assets, 'Craft.VueAdminTable')) {
-        expect($assets)->toContain('legacy/admintable/dist/js/app.js');
-    }
+    match ($component) {
+        'commerce:widget-number-stat' => expect($props)->toHaveKeys(['value', 'label', 'timeFrame'])
+            ->and($props['value'])->toBeString()->not->toBeEmpty(),
+        'commerce:widget-table' => expect($props['columns'])->not->toBeEmpty()
+            ->and($props['columns'][0]['key'])->toBe('title')
+            ->and($props['rows'])->toBeArray()
+            ->each(fn($row) => $row->toHaveKey('title')),
+        'commerce:widget-chart' => expect($props)->toHaveKeys(['type', 'labels', 'interval', 'currency', 'showLegend', 'datasets'])
+            ->and($props['datasets'])->not->toBeEmpty()
+            ->each(fn($dataset) => $dataset->data->toHaveCount(count($props['labels']))),
+    };
 })->with([
-    'average order total' => [AverageOrderTotal::class, []],
-    'new customers' => [NewCustomers::class, []],
-    'recent orders' => [Orders::class, []],
-    'repeat customers' => [RepeatCustomers::class, []],
-    'top customers' => [TopCustomers::class, []],
-    'top products' => [TopProducts::class, []],
-    'top product types' => [TopProductTypes::class, []],
-    'top purchasables' => [TopPurchasables::class, []],
-    'total orders' => [TotalOrders::class, ['showChart' => true]],
-    'total orders by country' => [TotalOrdersByCountry::class, []],
-    'total revenue' => [TotalRevenue::class, []],
+    'average order total' => [AverageOrderTotal::class, [], 'commerce:widget-number-stat'],
+    'new customers' => [NewCustomers::class, [], 'commerce:widget-number-stat'],
+    'recent orders' => [Orders::class, [], 'commerce:widget-table'],
+    'repeat customers' => [RepeatCustomers::class, [], 'commerce:widget-number-stat'],
+    'top customers' => [TopCustomers::class, [], 'commerce:widget-table'],
+    'top products' => [TopProducts::class, [], 'commerce:widget-table'],
+    'top product types' => [TopProductTypes::class, [], 'commerce:widget-table'],
+    'top purchasables' => [TopPurchasables::class, [], 'commerce:widget-table'],
+    'total orders' => [TotalOrders::class, [], 'commerce:widget-number-stat'],
+    'total orders chart' => [TotalOrders::class, ['showChart' => true], 'commerce:widget-chart'],
+    'total orders by country' => [TotalOrdersByCountry::class, [], 'commerce:widget-chart'],
+    'total revenue' => [TotalRevenue::class, ['showOrderCount' => true], 'commerce:widget-chart'],
 ]);
 
-test('the dashboard widget assets are published from directories that exist', function() {
-    $publishables = (new ReflectionProperty(Plugin::class, 'publishables'))->getValue(Plugin::getInstance());
+test('monthly chart date keys are normalized to ISO dates', function() {
+    $widget = new TotalRevenue(['dateRange' => StatInterface::DATE_RANGE_ALL]);
+    $labels = (fn() => $this->chartDateLabels(['2026-1', '2026-11'], 'month'))->call($widget);
 
-    expect($publishables)->not->toBeEmpty();
-
-    foreach (array_keys($publishables) as $source) {
-        expect(is_dir($source))->toBeTrue("$source is missing");
-    }
+    expect($labels)->toBe(['2026-01-01', '2026-11-01']);
 });

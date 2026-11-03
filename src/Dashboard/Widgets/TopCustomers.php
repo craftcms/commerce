@@ -7,16 +7,10 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\LegacyAssets\AdminTableAsset;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
@@ -25,7 +19,6 @@ use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class TopCustomers extends Widget
 {
@@ -106,23 +99,26 @@ class TopCustomers extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return 'commerce:widget-table';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $stats = $this->stat->get();
-
-        if (empty($stats)) {
-            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
-        }
-
-        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
-        app(InternalAssetRegistry::class)->register(AdminTableAsset::class);
-
-        return ['html' => template('commerce/_components/widgets/customers/top/body', [
-            'stats' => $stats,
-            'type' => $this->type,
-            'typeLabel' => $this->typeOptions[$this->type] ?? '',
-            'id' => 'top-customers' . Str::random(),
-        ], TemplateMode::Cp)];
+        return [
+            'columns' => [
+                ['key' => 'title', 'label' => t('Email', category: 'commerce')],
+                ['key' => $this->type, 'label' => $this->typeOptions[$this->type] ?? ''],
+            ],
+            'rows' => array_map(fn(array $stat) => [
+                'title' => $stat['email'],
+                'url' => ($stat['customer'] ?? null)?->getCpEditUrl(),
+                'total' => $this->formatCurrency($stat['total']),
+                'average' => $this->formatCurrency($stat['average']),
+            ], $this->stat->get() ?: []),
+        ];
     }
 
     #[\Override]

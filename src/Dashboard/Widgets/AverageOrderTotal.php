@@ -9,9 +9,6 @@ use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\AverageOrderTotal as AverageOrderTotalStat;
@@ -19,7 +16,6 @@ use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class AverageOrderTotal extends Widget
 {
@@ -75,14 +71,19 @@ class AverageOrderTotal extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return 'commerce:widget-number-stat';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $number = $this->stat->get();
-        $timeFrame = $this->stat->getDateRangeWording();
-
-        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
-
-        return ['html' => template('commerce/_components/widgets/orders/average/body', compact('number', 'timeFrame'), TemplateMode::Cp)];
+        return [
+            'value' => $this->formatCurrency($this->stat->get()),
+            'label' => t('average order total', category: 'commerce'),
+            'timeFrame' => $this->stat->getDateRangeWording(),
+        ];
     }
 
     #[\Override]

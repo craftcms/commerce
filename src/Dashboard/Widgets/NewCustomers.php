@@ -7,11 +7,9 @@ namespace CraftCms\Commerce\Dashboard\Widgets;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\NewCustomers as NewCustomersStat;
@@ -19,7 +17,6 @@ use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class NewCustomers extends Widget
 {
@@ -75,14 +72,19 @@ class NewCustomers extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return 'commerce:widget-number-stat';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $number = $this->stat->get();
-        $timeFrame = $this->stat->getDateRangeWording();
-
-        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
-
-        return ['html' => template('commerce/_components/widgets/customers/new/body', compact('number', 'timeFrame'), TemplateMode::Cp)];
+        return [
+            'value' => I18N::getFormatter()->asInteger($this->stat->get() ?: 0),
+            'label' => t('new customers', category: 'commerce'),
+            'timeFrame' => $this->stat->getDateRangeWording(),
+        ];
     }
 
     #[\Override]

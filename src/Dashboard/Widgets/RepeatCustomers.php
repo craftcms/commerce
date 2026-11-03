@@ -9,9 +9,6 @@ use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Dashboard\Assets\StatWidgetsAsset;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
@@ -20,7 +17,6 @@ use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class RepeatCustomers extends Widget
 {
@@ -78,14 +74,19 @@ class RepeatCustomers extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return 'commerce:widget-number-stat';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $numbers = $this->stat->get();
-        $timeFrame = $this->stat->getDateRangeWording();
-
-        app(InternalAssetRegistry::class)->register(StatWidgetsAsset::class);
-
-        return ['html' => template('commerce/_components/widgets/customers/repeat/body', compact('numbers', 'timeFrame'), TemplateMode::Cp)];
+        return [
+            'value' => ($this->stat->get()['percentage'] ?? 0) . '%',
+            'label' => t('repeat customers', category: 'commerce'),
+            'timeFrame' => $this->stat->getDateRangeWording(),
+        ];
     }
 
     #[\Override]
