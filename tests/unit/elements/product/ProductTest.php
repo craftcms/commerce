@@ -386,6 +386,27 @@ class ProductTest extends Unit
     /**
      * @group Product
      */
+    public function testDeletingVariantsOneByOneKeepsTheLastVariant(): void
+    {
+        $user = User::find()->admin()->one();
+        $elements = Craft::$app->getElements();
+        // Variants deleted in one request can share an owner whose variants were loaded before any were deleted
+        $product = Variant::find()->sku('hct-white')->one()->getOwner();
+        [$white, $blue] = $product->getVariants(true)->all();
+
+        self::assertTrue($elements->canDelete($white, $user));
+        self::assertTrue($elements->deleteElement($white));
+        self::assertFalse($elements->canDelete($blue, $user));
+
+        // The trashed variant can still be deleted permanently
+        $trashed = Variant::find()->id($white->id)->trashed()->status(null)->one();
+        self::assertNotNull($trashed);
+        self::assertTrue($elements->canDelete($trashed, $user));
+    }
+
+    /**
+     * @group Product
+     */
     public function testSkuFormatGeneratesSkuWhenEmpty(): void
     {
         $this->setProductTypeSkuFormat(2001, 'generated-sku-from-format');

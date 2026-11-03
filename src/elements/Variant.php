@@ -382,10 +382,17 @@ class Variant extends Purchasable implements NestedElementInterface
         if (
             $product instanceof Product &&
             $product->enabled &&
-            !ElementHelper::isDraftOrRevision($this) &&
-            $product->getVariants(true)->count() <= 1
+            !$this->trashed &&
+            !ElementHelper::isDraftOrRevision($this)
         ) {
-            return false;
+            // Count the variants fresh, as the product’s variants may be memoized from before others were deleted
+            $variantCount = $product->id
+                ? self::find()->ownerId($product->id)->siteId($product->siteId)->status(null)->count()
+                : $product->getVariants(true)->count();
+
+            if ($variantCount <= 1) {
+                return false;
+            }
         }
 
         if (parent::canDelete($user)) {
