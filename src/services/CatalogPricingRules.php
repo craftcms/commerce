@@ -324,6 +324,16 @@ class CatalogPricingRules extends Component
     }
 
     /**
+     * Clears the memoized catalog pricing rules.
+     *
+     * @since 5.7.8
+     */
+    public function clearCaches(): void
+    {
+        $this->_clearCaches();
+    }
+
+    /**
      * Delete a catalog pricing rule by its id.
      *
      * @param int $id

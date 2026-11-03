@@ -17,6 +17,7 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use craft\db\Connection;
 use craft\db\Query;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
@@ -46,6 +47,20 @@ class CatalogPricing extends Component
      * @var array|null
      */
     private ?array $_allCatalogPrices = null;
+
+    /**
+     * @var array<string, array{storeId: int|null, type: string, ids: int[]|null}>
+     */
+    private array $_bufferedQueueIds = [];
+
+    /**
+     * @var array<string, array{storeId: int|null, type: string, ids: int[]|null, priority: int|null}>
+     */
+    private array $_retryQueueIds = [];
+
+    private ?int $_bufferedPriority = null;
+
+    private bool $_flushHooked = false;
 
     /**
      * @param Queue|QueueInterface|null $queue
@@ -195,109 +210,125 @@ class CatalogPricing extends Component
             Console::stdout(PHP_EOL . 'Created ' . count($catalogPricing) . ' rule price data in ' . round($cprExecutionLength, 2) . ' seconds' . PHP_EOL);
         }
 
-        $this->setQueueProgress($queue, 40, 'Clearing existing catalog prices');
-        $transaction = Craft::$app->getDb()->beginTransaction();
-        // Truncate the catalog pricing table
-        if (!$isAllPurchasables || !empty($catalogPricingRules)) {
-            // If purchasable IDs are passed in or catalog pricing rules are passed in
-            // only delete the rows for those purchasable IDs and catalog pricing rules
-            foreach (array_chunk($purchasableIds, 1000) as $purchasableIdsChunk) {
-                $where = ['purchasableId' => $purchasableIdsChunk];
+        $mutex = Craft::$app->getMutex();
 
-                // If passing catalog pricing rules only delete the rows for those rules
-                if (!empty($catalogPricingRules)) {
-                    $where['catalogPricingRuleId'] = ArrayHelper::getColumn($catalogPricingRules, 'id');
-                }
-
-                Craft::$app->getDb()->createCommand()
-                    ->delete(Table::CATALOG_PRICING, $where)
-                    ->execute();
-            }
-        } else {
-            Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
+        if (!$mutex->acquire('catalogpricinggenerate', 60)) {
+            throw new \RuntimeException('Unable to acquire the catalog pricing generation mutex.');
         }
 
-        // If there are no specific catalog pricing rules passed in then copy the base prices into the catalog pricing table
-        if (empty($catalogPricingRules)) {
-            $this->setQueueProgress($queue, 60, 'Copying base prices to catalog pricing');
-            $total = count($purchasableIds);
-            $baseStateTime = microtime(true);
-            $count = 1;
-            // Copy base prices into the catalog pricing table with a query for speed
-            // Batch through the purchasable IDs as we don't know what is passed in and don't want to hit the int limit in the where clause
-            foreach (array_chunk($purchasableIds, $chunkSize) as $purchasableIdsChunk) {
-                $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
-                $toCount = ($count + ($chunkSize - 1)) > count($purchasableIds) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($purchasableIdsChunk) - 1, 0);
+        $transaction = null;
+
+        try {
+            $this->setQueueProgress($queue, 40, 'Clearing existing catalog prices');
+            $transaction = Craft::$app->getDb()->beginTransaction();
+            // Truncate the catalog pricing table
+            if (!$isAllPurchasables || !empty($catalogPricingRules)) {
+                // If purchasable IDs are passed in or catalog pricing rules are passed in
+                // only delete the rows for those purchasable IDs and catalog pricing rules
+                foreach (array_chunk($purchasableIds, 1000) as $purchasableIdsChunk) {
+                    $where = ['purchasableId' => $purchasableIdsChunk];
+
+                    // If passing catalog pricing rules only delete the rows for those rules
+                    if (!empty($catalogPricingRules)) {
+                        $where['catalogPricingRuleId'] = ArrayHelper::getColumn($catalogPricingRules, 'id');
+                    }
+
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(Table::CATALOG_PRICING, $where)
+                        ->execute();
+                }
+            } else {
+                Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
+            }
+
+            // If there are no specific catalog pricing rules passed in then copy the base prices into the catalog pricing table
+            if (empty($catalogPricingRules)) {
+                $this->setQueueProgress($queue, 60, 'Copying base prices to catalog pricing');
+                $total = count($purchasableIds);
+                $baseStateTime = microtime(true);
+                $count = 1;
+                // Copy base prices into the catalog pricing table with a query for speed
+                // Batch through the purchasable IDs as we don't know what is passed in and don't want to hit the int limit in the where clause
+                foreach (array_chunk($purchasableIds, $chunkSize) as $purchasableIdsChunk) {
+                    $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
+                    $toCount = ($count + ($chunkSize - 1)) > count($purchasableIds) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($purchasableIdsChunk) - 1, 0);
+                    if ($showConsoleOutput) {
+                        Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
+                    }
+
+                    $uuidFunction = Craft::$app->getDb()->getIsPgsql() ? 'gen_random_uuid()' : 'UUID()';
+
+                    $schema = Craft::$app->getDb()->getSchema();
+                    $catalogPricingTable = $schema->getRawTableName(Table::CATALOG_PRICING);
+                    $commercePurchasablesStoresTable = $schema->getRawTableName(Table::PURCHASABLES_STORES);
+
+                    $insert = Craft::$app->getDb()->createCommand()->setSql('
+        INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
+        SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
+        WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+                    ');
+                    $insert->execute();
+
+                    $insert = Craft::$app->getDb()->createCommand()->setSql('
+        INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
+        SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], true, ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
+        WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+                    ');
+                    $insert->execute();
+
+                    if ($showConsoleOutput) {
+                        Console::stdout('done!');
+                    }
+                    $count += $chunkSize;
+                }
+                $baseExecutionLength = microtime(true) - $baseStateTime;
                 if ($showConsoleOutput) {
-                    Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
+                    Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
+                }
+            }
+
+            $this->setQueueProgress($queue, 80, 'Inserting catalog pricing');
+            // Batch through `$catalogPricing` and insert into the catalog pricing table
+            if (!empty($catalogPricing)) {
+                $count = 1;
+                $startTime = microtime(true);
+                $total = Craft::$app->getFormatter()->asDecimal(count($catalogPricing), 0);
+                foreach (array_chunk($catalogPricing, $chunkSize) as $catalogPricingChunk) {
+                    $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
+                    $toCount = ($count + ($chunkSize - 1)) > count($catalogPricing) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($catalogPricingChunk) - 1, 0);
+                    if ($showConsoleOutput) {
+                        Console::stdout(PHP_EOL . sprintf('Inserting catalog pricing rule prices rows %s to %s of %s... ', $fromCount, $toCount, $total));
+                    }
+                    Craft::$app->getDb()->createCommand()->batchInsert(Table::CATALOG_PRICING, [
+                        'purchasableId',
+                        'price',
+                        'storeId',
+                        'isPromotionalPrice',
+                        'catalogPricingRuleId',
+                        'dateFrom',
+                        'dateTo',
+                        'hasUpdatePending',
+                    ], $catalogPricingChunk)->execute();
+                    $count += $chunkSize;
+                    if ($showConsoleOutput) {
+                        Console::stdout('done!');
+                    }
                 }
 
-                $uuidFunction = Craft::$app->getDb()->getIsPgsql() ? 'gen_random_uuid()' : 'UUID()';
-
-                $schema = Craft::$app->getDb()->getSchema();
-                $catalogPricingTable = $schema->getRawTableName(Table::CATALOG_PRICING);
-                $commercePurchasablesStoresTable = $schema->getRawTableName(Table::PURCHASABLES_STORES);
-
-                $insert = Craft::$app->getDb()->createCommand()->setSql('
-    INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
-    WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
-                ');
-                $insert->execute();
-
-                $insert = Craft::$app->getDb()->createCommand()->setSql('
-    INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], true, ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
-    WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
-                ');
-                $insert->execute();
-
+                $executionLength = microtime(true) - $startTime;
                 if ($showConsoleOutput) {
-                    Console::stdout('done!');
+                    Console::stdout(PHP_EOL . 'Generated ' . $total . ' prices in ' . round($executionLength, 2) . ' seconds' . PHP_EOL);
                 }
-                $count += $chunkSize;
             }
-            $baseExecutionLength = microtime(true) - $baseStateTime;
-            if ($showConsoleOutput) {
-                Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
-            }
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction?->rollBack();
+
+            throw $e;
+        } finally {
+            $mutex->release('catalogpricinggenerate');
         }
-
-        $this->setQueueProgress($queue, 80, 'Inserting catalog pricing');
-        // Batch through `$catalogPricing` and insert into the catalog pricing table
-        if (!empty($catalogPricing)) {
-            $count = 1;
-            $startTime = microtime(true);
-            $total = Craft::$app->getFormatter()->asDecimal(count($catalogPricing), 0);
-            foreach (array_chunk($catalogPricing, $chunkSize) as $catalogPricingChunk) {
-                $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
-                $toCount = ($count + ($chunkSize - 1)) > count($catalogPricing) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($catalogPricingChunk) - 1, 0);
-                if ($showConsoleOutput) {
-                    Console::stdout(PHP_EOL . sprintf('Inserting catalog pricing rule prices rows %s to %s of %s... ', $fromCount, $toCount, $total));
-                }
-                Craft::$app->getDb()->createCommand()->batchInsert(Table::CATALOG_PRICING, [
-                    'purchasableId',
-                    'price',
-                    'storeId',
-                    'isPromotionalPrice',
-                    'catalogPricingRuleId',
-                    'dateFrom',
-                    'dateTo',
-                    'hasUpdatePending',
-                ], $catalogPricingChunk)->execute();
-                $count += $chunkSize;
-                if ($showConsoleOutput) {
-                    Console::stdout('done!');
-                }
-            }
-
-            $executionLength = microtime(true) - $startTime;
-            if ($showConsoleOutput) {
-                Console::stdout(PHP_EOL . 'Generated ' . $total . ' prices in ' . round($executionLength, 2) . ' seconds' . PHP_EOL);
-            }
-        }
-
-        $transaction->commit();
         $this->setQueueProgress($queue, 100);
     }
 
@@ -518,14 +549,215 @@ class CatalogPricing extends Component
 
         if (!empty($purchasableIds) || ($purchasableIds === null && empty($catalogPricingRuleIds))) {
             // Specific purchasable IDs: these will be regenerated against all applicable rules
-            $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
+            $this->_bufferQueueIds($storeId, CatalogPricingQueueRecord::TYPE_PURCHASABLE, $purchasableIds);
         }
 
         if (!empty($catalogPricingRuleIds)) {
-            $this->_queueCatalogPricingIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
+            $this->_bufferQueueIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
-        QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
+        $this->_bufferedPriority = min($this->_bufferedPriority ?? $priority, $priority);
+
+        $db = Craft::$app->getDb();
+
+        if ($db->getTransaction() === null) {
+            $this->flushBufferedCatalogPricingIds();
+            return;
+        }
+
+        $this->_hookFlush();
+    }
+
+    /**
+     * Writes any buffered catalog pricing IDs to the queue table and pushes a single queue job.
+     *
+     * Called once the outermost database transaction commits, so the queue mutex is only held briefly
+     * and never for the duration of an element save.
+     *
+     * Failures are logged and never thrown. If a row can't be written, a job carrying the IDs is pushed instead,
+     * unless the IDs are null or belong to a rule with no store. Those entries, and any whose job push also fails,
+     * are retried on the next flush in the same process only. If the final job push fails, the rows stay queued
+     * until the next job is pushed. Running `commerce/pricing-catalog/generate` regenerates prices directly, but
+     * doesn't drain the queued rows.
+     *
+     * @return void
+     * @since 5.7.8
+     */
+    public function flushBufferedCatalogPricingIds(): void
+    {
+        $buffered = $this->_bufferedQueueIds;
+        $retry = $this->_retryQueueIds;
+        $priorities = $this->_bufferedPriority !== null ? [$this->_bufferedPriority] : [];
+        $this->_bufferedQueueIds = [];
+        $this->_retryQueueIds = [];
+        $this->_bufferedPriority = null;
+
+        foreach ($retry as $entry) {
+            $this->_mergeQueueIds($buffered, $entry['storeId'], $entry['type'], $entry['ids']);
+
+            if ($entry['priority'] !== null) {
+                $priorities[] = $entry['priority'];
+            }
+        }
+
+        $priority = $priorities ? min($priorities) : 100;
+
+        if (empty($buffered)) {
+            return;
+        }
+
+        $pushJob = false;
+
+        foreach ($buffered as $entry) {
+            if ($this->_queueCatalogPricingIdsWithRetry($entry['storeId'], $entry['type'], $entry['ids'])) {
+                $pushJob = true;
+                continue;
+            }
+
+            if (!$this->_pushJobWithIds($entry, $priority)) {
+                $this->_mergeQueueIds($this->_retryQueueIds, $entry['storeId'], $entry['type'], $entry['ids'], $priority);
+            }
+        }
+
+        if (!$pushJob) {
+            return;
+        }
+
+        try {
+            QueueHelper::push(Craft::createObject(CatalogPricingJob::class, [['priority' => $priority]]), $priority);
+        } catch (\Throwable $e) {
+            Craft::error('Unable to push the catalog pricing job: ' . $e->getMessage(), __METHOD__);
+            Craft::$app->getErrorHandler()->logException($e);
+        }
+    }
+
+    /**
+     * Pushes a job that carries its IDs directly, for when the queue table can't be written to.
+     *
+     * @param array{storeId: int|null, type: string, ids: int[]|null} $entry
+     * @param int $priority
+     * @return bool whether the job was pushed
+     */
+    private function _pushJobWithIds(array $entry, int $priority): bool
+    {
+        $isRule = $entry['type'] === CatalogPricingQueueRecord::TYPE_RULE;
+
+        if ($entry['ids'] === null || ($isRule && $entry['storeId'] === null)) {
+            return false;
+        }
+
+        $config = ['storeId' => $entry['storeId']];
+        $config[$isRule ? 'catalogPricingRuleIds' : 'purchasableIds'] = $entry['ids'];
+
+        try {
+            QueueHelper::push(Craft::createObject(CatalogPricingJob::class, [$config]), $priority);
+            return true;
+        } catch (\Throwable $e) {
+            Craft::error('Unable to push the catalog pricing job: ' . $e->getMessage(), __METHOD__);
+            Craft::$app->getErrorHandler()->logException($e);
+            return false;
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function _hookFlush(): void
+    {
+        if ($this->_flushHooked) {
+            return;
+        }
+
+        $this->_flushHooked = true;
+        $db = Craft::$app->getDb();
+
+        $onFinish = function(bool $commit) use ($db, &$onCommit, &$onRollback) {
+            if ($db->getTransaction() !== null) {
+                return;
+            }
+
+            $db->off(Connection::EVENT_COMMIT_TRANSACTION, $onCommit);
+            $db->off(Connection::EVENT_ROLLBACK_TRANSACTION, $onRollback);
+            $this->_flushHooked = false;
+
+            if ($commit) {
+                $this->flushBufferedCatalogPricingIds();
+            } else {
+                $this->_bufferedQueueIds = [];
+                $this->_bufferedPriority = null;
+            }
+        };
+
+        $onCommit = fn() => $onFinish(true);
+        $onRollback = fn() => $onFinish(false);
+
+        $db->on(Connection::EVENT_COMMIT_TRANSACTION, $onCommit);
+        $db->on(Connection::EVENT_ROLLBACK_TRANSACTION, $onRollback);
+    }
+
+    /**
+     * @param int|null $storeId
+     * @param string $type
+     * @param int[]|null $ids
+     * @return void
+     */
+    private function _bufferQueueIds(?int $storeId, string $type, ?array $ids): void
+    {
+        $this->_mergeQueueIds($this->_bufferedQueueIds, $storeId, $type, $ids);
+    }
+
+    /**
+     * @param array<string, array{storeId: int|null, type: string, ids: int[]|null, priority?: int|null}> $entries
+     * @param int|null $storeId
+     * @param string $type
+     * @param int[]|null $ids
+     * @param int|null $priority
+     * @return void
+     */
+    private function _mergeQueueIds(array &$entries, ?int $storeId, string $type, ?array $ids, ?int $priority = null): void
+    {
+        $key = ($storeId ?? 'null') . '|' . $type;
+
+        if (!isset($entries[$key])) {
+            $entries[$key] = ['storeId' => $storeId, 'type' => $type, 'ids' => $ids, 'priority' => $priority];
+            return;
+        }
+
+        $priorities = array_filter([$entries[$key]['priority'] ?? null, $priority], fn($p) => $p !== null);
+        $entries[$key]['priority'] = $priorities ? min($priorities) : null;
+
+        $existing = $entries[$key]['ids'];
+        $entries[$key]['ids'] = ($existing === null || $ids === null)
+            ? null
+            : $this->_normalizeIds(array_merge($existing, $ids));
+    }
+
+    /**
+     * Writes IDs to the queue table, retrying briefly on lock contention. The surrounding save has already
+     * committed, so a failure is logged and reported to the caller rather than thrown.
+     *
+     * @param int|null $storeId
+     * @param string $type
+     * @param int[]|null $ids
+     * @return bool whether the IDs were written to the queue table
+     */
+    private function _queueCatalogPricingIdsWithRetry(?int $storeId, string $type, ?array $ids): bool
+    {
+        try {
+            $this->_queueCatalogPricingIds($storeId, $type, $ids);
+            return true;
+        } catch (\Throwable) {
+            usleep(250000);
+        }
+
+        try {
+            $this->_queueCatalogPricingIds($storeId, $type, $ids);
+            return true;
+        } catch (\Throwable $e) {
+            Craft::error('Unable to queue catalog pricing regeneration: ' . $e->getMessage(), __METHOD__);
+            Craft::$app->getErrorHandler()->logException($e);
+            return false;
+        }
     }
 
     /**
@@ -535,6 +767,20 @@ class CatalogPricing extends Component
     {
         return (new Query())
             ->from(Table::CATALOG_PRICING_QUEUE)
+            ->exists();
+    }
+
+    /**
+     * Returns whether any queue rows are waiting to be reserved.
+     *
+     * @return bool
+     * @since 5.7.8
+     */
+    public function hasUnreservedCatalogPricingQueueRows(): bool
+    {
+        return (new Query())
+            ->from(Table::CATALOG_PRICING_QUEUE)
+            ->where(['reserved' => false])
             ->exists();
     }
 
@@ -549,9 +795,9 @@ class CatalogPricing extends Component
         $mutex = Craft::$app->getMutex();
 
         // Use the same lock as the write methods so that reservation and inserts/merges are fully serialised.
-        // Non-blocking: if a write operation is currently holding the lock, return null and let the next
+        // Waits briefly for a write operation to finish, otherwise returns null and lets the next
         // queue job execution pick up the row instead.
-        if (!$mutex->acquire('catalogpricingqueue', 0)) {
+        if (!$mutex->acquire('catalogpricingqueue', 2)) {
             return null;
         }
 
@@ -623,7 +869,7 @@ class CatalogPricing extends Component
     {
         $mutex = Craft::$app->getMutex();
 
-        if (!$mutex->acquire('catalogpricingqueue', 5)) {
+        if (!$mutex->acquire('catalogpricingqueue', 2)) {
             throw new \RuntimeException('Unable to acquire the catalog pricing queue mutex.');
         }
 
