@@ -4,40 +4,27 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Support\Facades\Conditions;
-use CraftCms\Cms\Support\Facades\HtmlStack;
-use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Json;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Money;
 use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\Enums\FieldWidth;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Nodes\Group;
-use CraftCms\Cms\View\Enums\Position;
-use CraftCms\Cms\View\LegacyAssets\InternalAssetRegistry;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\Ui\Nodes\Table;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
-use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
-use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingPurchasableConditionRule;
-use CraftCms\Commerce\Helpers\Currency;
-use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\CatalogPricing\Data\CatalogPricing as CatalogPricingData;
 use CraftCms\Commerce\Promotion\Data\Sale;
 use CraftCms\Commerce\Promotion\Sales;
-use CraftCms\Commerce\Purchasable\Assets\PurchasablePriceFieldAsset;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;
 
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class PurchasablePriceField extends BaseNativeField
 {
@@ -100,7 +87,7 @@ class PurchasablePriceField extends BaseNativeField
                 );
         }
 
-        return Group::make($this->uid, $fields)
+        return Group::make($this->uid, [...$fields, ...$this->priceNodes($element, $static)])
             ->asField()
             ->label($this->showLabel() ? $this->label() : null)
             ->instructions($this->instructionsText($element, $static))
@@ -112,176 +99,57 @@ class PurchasablePriceField extends BaseNativeField
             ->width($this->width);
     }
 
-    protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
+    /**
+     * The catalog prices (or, while sales are still in use, the related sales) for an existing purchasable.
+     *
+     * @return list<Node>
+     */
+    private function priceNodes(Purchasable $element, bool $static): array
     {
-        app(InternalAssetRegistry::class)->register(PurchasablePriceFieldAsset::class);
-
-        if (!$element instanceof Purchasable) {
-            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        if (!$element->id || $element->getIsDraft()) {
+            return [];
         }
 
-        $basePrice = $element->basePrice;
-        if (empty($element->errors()->get('basePrice'))) {
-            if ($basePrice === null) {
-                $basePrice = 0;
+        if (app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {
+            if (app(CatalogPricingRules::class)->getAllCatalogPricingRulesByPurchasableId($element->id, $element->storeId)->isEmpty()) {
+                return [];
             }
 
-            $basePrice = I18N::getFormatter()->asDecimal($basePrice);
-        }
+            $table = Table::make($this->uid . '-catalog-prices')
+                ->columns([
+                    ['key' => 'rule', 'label' => t('Catalog Pricing Rule', category: 'commerce')],
+                    ['key' => 'price', 'label' => t('Price', category: 'commerce')],
+                ])
+                ->rows(app(CatalogPricing::class)->getCatalogPricesByPurchasableId($element->id, $element->storeId)
+                    ->map(fn(CatalogPricingData $price) => [
+                        'rule' => ($rule = $price->getCatalogPricingRule())
+                            ? ['label' => $rule->name, 'url' => $rule->getCpEditUrl()]
+                            : ($price->isPromotionalPrice ? t('Base Promotional Price', category: 'commerce') : t('Base Price', category: 'commerce')),
+                        'price' => $price->getPriceAsCurrency(),
+                    ])
+                    ->values()
+                    ->all());
 
-        $basePromotionalPrice = $element->basePromotionalPrice;
-        if (empty($element->errors()->get('basePromotionalPrice')) && $basePromotionalPrice !== null) {
-            $basePromotionalPrice = I18N::getFormatter()->asDecimal($basePromotionalPrice);
-        }
-
-        $id = InputNamespace::namespaceId('commerce-purchasable-price-field');
-        $priceNamespace = InputNamespace::namespaceInputName('basePrice');
-        $promotionalPriceNamespace = InputNamespace::namespaceInputName('basePromotionalPrice');
-
-        /** @var CatalogPricingCondition $catalogPricingCondition */
-        $catalogPricingCondition = Conditions::createCondition([
-            'class' => CatalogPricingCondition::class,
-            'allPrices' => true,
-        ]);
-
-        $purchasableConditionRule = Conditions::createConditionRule([
-            'class' => CatalogPricingPurchasableConditionRule::class,
-            'elementIds' => [$element::class => [$element->id]],
-        ]);
-        $catalogPricingCondition->addConditionRule($purchasableConditionRule);
-        $conditionBuilderConfig = Json::encode($catalogPricingCondition->getConfig());
-
-        $js = <<<JS
-(() => {
-    new Craft.Commerce.PurchasablePriceField('$id', {
-        siteId: $element->siteId,
-        conditionBuilderConfig: $conditionBuilderConfig,
-        fieldNames: {
-            price: '$priceNamespace',
-            promotionalPrice: '$promotionalPriceNamespace',
-        }
-    });
-})();
-JS;
-        HtmlStack::js($js, Position::BodyEnd);
-
-        $canUseCatalogPricingRules = app(CatalogPricingRules::class)->canUseCatalogPricingRules();
-        $toggleTitle = t('Show related sales', category: 'commerce');
-        $toggleAttributes = ['class' => 'js-purchasable-toggle-container', 'style' => ['position' => 'relative']];
-        $toggleContent = null;
-
-        if ($canUseCatalogPricingRules) {
-            $toggleTitle = t('Show all prices', category: 'commerce');
-            $toggleAttributes['data-init-prices'] = 'true';
-            $toggleContent = PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
-                Html::beginTag('div', ['class' => 'flex']) .
-                    // New catalog price button
-                    Html::button(t('Add catalog price', category: 'commerce'), [
-                        'class' => 'btn icon add js-cpr-slideout',
-                        'data-icon' => 'plus',
-                        'data-store-id' => $element->storeId,
-                        'data-store-handle' => $element->getStore()->handle,
-                        'data-purchasable-id' => $element->id,
-                    ]) .
-                    template('commerce/prices/_status', [
-                        'areCatalogPricingJobsRunning' => app(CatalogPricing::class)->areCatalogPricingJobsRunning(),
-                    ], TemplateMode::Cp) .
-                Html::endTag('div');
-        } else {
-            /** @var Sale[] $relatedSales */
-            $relatedSales = app(Sales::class)->getSalesRelatedToPurchasable($element);
-
-            if (!empty($relatedSales)) {
-                $salesTags = [];
-                foreach ($relatedSales as $sale) {
-                    $salesTags[] = Html::a($sale->name, $sale->getCpEditUrl());
-                }
-
-                $toggleContent = Html::tag('div', implode(', ', $salesTags));
+            if (!$static) {
+                $table->createAction(
+                    t('Add catalog price', category: 'commerce'),
+                    Url::urlWithParams($element->getStore()->getStoreSettingsUrl('pricing-rules/new'), ['n' => $element->id]),
+                );
             }
+
+            return [$table];
         }
 
-        $toggleContent = $static ? null : $toggleContent;
+        $sales = app(Sales::class)->getSalesRelatedToPurchasable($element);
 
-        $currency = $element->getStore()->getCurrency();
+        if (empty($sales)) {
+            return [];
+        }
 
-        return Html::beginTag('div', [
-                'id' => 'commerce-purchasable-price-field',
-                'class' => 'js-purchasable-price-field',
-            ]) .
-            Html::beginTag('div', ['class' => 'flex']) .
-                FormFields::fieldHtml(Currency::moneyInputHtml($basePrice, [
-                    'id' => 'base-price',
-                    'name' => 'basePrice',
-                    'currency' => $currency->getCode(),
-                    'currencyLabel' => $currency->getCode(),
-                    'required' => true,
-                    'errors' => $element->errors()->get('basePrice'),
-                    'disabled' => $static,
-                    'size' => 12,
-                ]), [
-                    'id' => 'base-price',
-                    'required' => true,
-                    'label' => t('Price', category: 'commerce'),
-                ]) .
-
-                // Don't show base promotional price field if the system is still using sales
-                ($canUseCatalogPricingRules ?
-                    FormFields::fieldHtml(Currency::moneyInputHtml($basePromotionalPrice, [
-                        'id' => 'base-promotional-price',
-                        'name' => 'basePromotionalPrice',
-                        'currency' => $currency->getCode(),
-                        'currencyLabel' => $currency->getCode(),
-                        'errors' => $element->errors()->get('basePromotionalPrice'),
-                        'disabled' => $static,
-                        'size' => 12,
-                    ]), [
-                        'id' => 'promotional-price',
-                        'label' => t('Promotional Price', category: 'commerce'),
-                    ]) : '') .
-
-            Html::endTag('div') .
-
-            // Hide the prices table if the element is a draft
-            ($toggleContent ? Html::beginTag('div', ['class' => $element->getIsDraft() ? 'hidden' : '']) .
-                Html::tag('div',
-                    Html::tag('a', $toggleTitle, ['class' => 'fieldtoggle', 'data-target' => 'purchasable-toggle']) .
-                    Html::beginTag('div', $toggleAttributes) .
-                    Html::tag(
-                        'div',
-                        // Prices table
-                        $toggleContent,
-                        [
-                            'id' => 'purchasable-toggle',
-                            'class' => 'hidden',
-                        ]
-                    ) .
-                    Html::tag('div', '', [
-                        'class' => 'js-purchasable-toggle-loading hidden',
-                        'style' => [
-                            'position' => 'absolute',
-                            'top' => 0,
-                            'left' => 0,
-                            'width' => '100%',
-                            'height' => '100%',
-                            'background-color' => 'rgba(255, 255, 255, 0.5)',
-                        ],
-                    ]) .
-                    Html::tag('div', Html::tag('span', '', ['class' => 'spinner']), [
-                        'class' => 'js-purchasable-toggle-loading flex hidden',
-                        'style' => [
-                            'position' => 'absolute',
-                            'top' => 0,
-                            'left' => 0,
-                            'width' => '100%',
-                            'height' => '100%',
-                            'align-items' => 'center',
-                            'justify-content' => 'center',
-                        ],
-                    ]) .
-                    Html::endTag('div')
-                ) .
-            Html::endTag('div') : '') .
-        Html::endTag('div');
+        return [
+            Table::make($this->uid . '-sales')
+                ->columns([['key' => 'sale', 'label' => t('Sales', category: 'commerce')]])
+                ->rows(array_map(fn(Sale $sale) => ['sale' => ['label' => $sale->name, 'url' => $sale->getCpEditUrl()]], $sales)),
+        ];
     }
 }

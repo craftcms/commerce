@@ -79,6 +79,7 @@
 - The products index is now an Inertia page built on core’s element index. Product type sources link to `commerce/products/{productTypeHandle}`.
 - `CraftCms\Commerce\Product\Elements\Product::getStore()` now falls back to the store of the product’s site when `storeId` isn’t set.
 - Removed `craft\commerce\web\assets\productindex\ProductIndexAsset`.
+- Commerce Products fields no longer support creating products inline.
 - Added `CraftCms\Commerce\Http\Controllers\CreateProductController`, replacing `ProductsController::create()`. It also handles the `commerce/products/create` action, which returns the new draft as JSON.
 - New products now follow their product type’s “Enabled by default” site setting, rather than always being enabled.
 - The product edit screen is now an Inertia page (`commerce::products/Edit`), rendered by `CraftCms\Commerce\Http\Controllers\EditProductController` and `CraftCms\Commerce\Http\ViewModels\ProductEditViewModel`. Products save through `elements/save`.
@@ -125,11 +126,15 @@
 - `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
+- The Prices page is now rendered by a Vue component instead of Twig templates.
+- Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
+- Removed the `commerce/prices/*` templates.
 
 #### Controllers
 
 - Removed `craft\commerce\controllers\CatalogPricingRulesController`. `CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingRulesController` should be used instead.
 - Removed `craft\commerce\controllers\CatalogPricingController`. `CraftCms\Commerce\Http\Controllers\Settings\CatalogPricingController` should be used instead.
+- Removed the `commerce/catalog-pricing/filter`, `commerce/catalog-pricing/prices`, `commerce/catalog-pricing/queue-status`, and `commerce/catalog-pricing/get-catalog-prices` controller actions.
 
 ### Console
 
@@ -800,6 +805,7 @@
 - Removed `craft\commerce\records\CustomerDiscountUse`. `CraftCms\Commerce\Promotion\Records\CustomerDiscountUse` should be used instead.
 - Removed `craft\commerce\records\EmailDiscountUse`. `CraftCms\Commerce\Promotion\Records\EmailDiscountUse` should be used instead.
 - Removed `craft\commerce\records\Sale`. `CraftCms\Commerce\Promotion\Records\Sale` should be used instead.
+- Removed `craft\commerce\web\assets\coupons\CouponsAsset`.
 - Removed `craft\commerce\records\SaleCategory`. `CraftCms\Commerce\Promotion\Models\SaleEntry` should be used instead.
 - Removed category support from discounts and sales. Discounts and sales can be limited to purchasables related to entries.
 - Renamed the discount `allCategories`, `categoryIds`, and `categoryRelationshipType` properties and database columns to `allEntries`, `entryIds`, and `entryRelationshipType`.
@@ -870,6 +876,7 @@
 - The “Purchasable Categories” catalog pricing rule condition has been replaced by “Purchasable Entries”.
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
+- Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.
 
 #### Controllers
