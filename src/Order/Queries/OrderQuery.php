@@ -158,7 +158,6 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
-    /** @phpstan-ignore-next-line method.childParameterType, method.childReturnType (this query only ever hydrates Order elements; narrowing Collection<array-key, ElementInterface> to Collection<array-key, Order> is safe here even though the interface's Collection generics are invariant to PHPStan) */
     #[Override]
     public function afterHydrate(Collection $elements): Collection
     {
