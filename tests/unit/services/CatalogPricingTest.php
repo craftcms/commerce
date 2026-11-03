@@ -297,6 +297,23 @@ class CatalogPricingTest extends Unit
         self::assertSame(0, (int)CatalogPricingQueueRecord::find()->count());
     }
 
+    /**
+     * Test that the job drops the memoized rules before processing a row, so rules and their purchasable IDs are fresh.
+     */
+    public function testJobClearsMemoizedRulesBeforeProcessingARow(): void
+    {
+        $rule = $this->_createRule($this->_percentOffRuleConfig('10% off'));
+        $rulesService = Plugin::getInstance()->getCatalogPricingRules();
+
+        $cached = $rulesService->getAllCatalogPricingRules($rule->storeId)->firstWhere('id', $rule->id);
+        self::assertNotNull($cached);
+        self::assertSame($cached, $rulesService->getAllCatalogPricingRules($rule->storeId)->firstWhere('id', $rule->id));
+
+        (new CatalogPricingJob())->execute(Craft::$app->getQueue());
+
+        self::assertNotSame($cached, $rulesService->getAllCatalogPricingRules($rule->storeId)->firstWhere('id', $rule->id));
+    }
+
     public function testJobForPartiallyDeletedRulesRegeneratesRemainingRules(): void
     {
         $untouchedRule = $this->_createRule($this->_percentOffRuleConfig('10% off'));

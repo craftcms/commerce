@@ -53,7 +53,12 @@ class CatalogPricing extends Component
      */
     private array $_bufferedQueueIds = [];
 
-    private int $_bufferedPriority = 100;
+    /**
+     * @var array<string, array{storeId: int|null, type: string, ids: int[]|null, priority: int|null}>
+     */
+    private array $_retryQueueIds = [];
+
+    private ?int $_bufferedPriority = null;
 
     private bool $_flushHooked = false;
 
@@ -551,7 +556,7 @@ class CatalogPricing extends Component
             $this->_bufferQueueIds($storeId, CatalogPricingQueueRecord::TYPE_RULE, $catalogPricingRuleIds);
         }
 
-        $this->_bufferedPriority = min($this->_bufferedPriority, $priority);
+        $this->_bufferedPriority = min($this->_bufferedPriority ?? $priority, $priority);
 
         $db = Craft::$app->getDb();
 
@@ -581,9 +586,21 @@ class CatalogPricing extends Component
     public function flushBufferedCatalogPricingIds(): void
     {
         $buffered = $this->_bufferedQueueIds;
-        $priority = $this->_bufferedPriority;
+        $retry = $this->_retryQueueIds;
+        $priorities = $this->_bufferedPriority !== null ? [$this->_bufferedPriority] : [];
         $this->_bufferedQueueIds = [];
-        $this->_bufferedPriority = 100;
+        $this->_retryQueueIds = [];
+        $this->_bufferedPriority = null;
+
+        foreach ($retry as $entry) {
+            $this->_mergeQueueIds($buffered, $entry['storeId'], $entry['type'], $entry['ids']);
+
+            if ($entry['priority'] !== null) {
+                $priorities[] = $entry['priority'];
+            }
+        }
+
+        $priority = $priorities ? min($priorities) : 100;
 
         if (empty($buffered)) {
             return;
@@ -598,8 +615,7 @@ class CatalogPricing extends Component
             }
 
             if (!$this->_pushJobWithIds($entry, $priority)) {
-                $this->_bufferQueueIds($entry['storeId'], $entry['type'], $entry['ids']);
-                $this->_bufferedPriority = min($this->_bufferedPriority, $priority);
+                $this->_mergeQueueIds($this->_retryQueueIds, $entry['storeId'], $entry['type'], $entry['ids'], $priority);
             }
         }
 
@@ -608,7 +624,7 @@ class CatalogPricing extends Component
         }
 
         try {
-            QueueHelper::push(Craft::createObject(CatalogPricingJob::class), $priority);
+            QueueHelper::push(Craft::createObject(CatalogPricingJob::class, [['priority' => $priority]]), $priority);
         } catch (\Throwable $e) {
             Craft::error('Unable to push the catalog pricing job: ' . $e->getMessage(), __METHOD__);
             Craft::$app->getErrorHandler()->logException($e);
@@ -668,7 +684,7 @@ class CatalogPricing extends Component
                 $this->flushBufferedCatalogPricingIds();
             } else {
                 $this->_bufferedQueueIds = [];
-                $this->_bufferedPriority = 100;
+                $this->_bufferedPriority = null;
             }
         };
 
@@ -687,17 +703,33 @@ class CatalogPricing extends Component
      */
     private function _bufferQueueIds(?int $storeId, string $type, ?array $ids): void
     {
+        $this->_mergeQueueIds($this->_bufferedQueueIds, $storeId, $type, $ids);
+    }
+
+    /**
+     * @param array<string, array{storeId: int|null, type: string, ids: int[]|null, priority?: int|null}> $entries
+     * @param int|null $storeId
+     * @param string $type
+     * @param int[]|null $ids
+     * @param int|null $priority
+     * @return void
+     */
+    private function _mergeQueueIds(array &$entries, ?int $storeId, string $type, ?array $ids, ?int $priority = null): void
+    {
         $key = ($storeId ?? 'null') . '|' . $type;
 
-        if (!isset($this->_bufferedQueueIds[$key])) {
-            $this->_bufferedQueueIds[$key] = ['storeId' => $storeId, 'type' => $type, 'ids' => $ids];
+        if (!isset($entries[$key])) {
+            $entries[$key] = ['storeId' => $storeId, 'type' => $type, 'ids' => $ids, 'priority' => $priority];
             return;
         }
 
-        $buffered = $this->_bufferedQueueIds[$key]['ids'];
-        $this->_bufferedQueueIds[$key]['ids'] = ($buffered === null || $ids === null)
+        $priorities = array_filter([$entries[$key]['priority'] ?? null, $priority], fn($p) => $p !== null);
+        $entries[$key]['priority'] = $priorities ? min($priorities) : null;
+
+        $existing = $entries[$key]['ids'];
+        $entries[$key]['ids'] = ($existing === null || $ids === null)
             ? null
-            : $this->_normalizeIds(array_merge($buffered, $ids));
+            : $this->_normalizeIds(array_merge($existing, $ids));
     }
 
     /**

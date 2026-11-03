@@ -33,6 +33,12 @@ class CatalogPricing extends BaseJob implements RetryableJobInterface
      */
     public ?int $storeId = null;
 
+    /**
+     * @var int|null The priority the job was queued with, carried over to any follow-up job
+     * @since 5.7.8
+     */
+    public ?int $priority = null;
+
     public function execute($queue): void
     {
         $catalogPricingService = Plugin::getInstance()->getCatalogPricing();
@@ -45,7 +51,9 @@ class CatalogPricing extends BaseJob implements RetryableJobInterface
         }
 
         // New method of processing catalog pricing via queue table: reserve each pending row in turn and process based on its type and IDs
-        while ($reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow()) {
+        $reservedRecord = $catalogPricingService->reserveCatalogPricingQueueRow();
+
+        if ($reservedRecord) {
             $purchasableIds = null;
             $catalogPricingRuleIds = null;
 
@@ -59,12 +67,13 @@ class CatalogPricing extends BaseJob implements RetryableJobInterface
                 throw new \UnexpectedValueException("Unrecognized catalog pricing queue row type: {$reservedRecord->type}");
             }
 
+            Plugin::getInstance()->getCatalogPricingRules()->clearCaches();
             $this->_process($queue, $reservedRecord->storeId, $purchasableIds, $catalogPricingRuleIds, $reservedRecord->id);
         }
 
         if ($catalogPricingService->hasUnreservedCatalogPricingQueueRows()) {
             try {
-                QueueHelper::push(Craft::createObject(self::class));
+                QueueHelper::push(Craft::createObject(self::class, [['priority' => $this->priority]]), $this->priority);
             } catch (\Throwable $e) {
                 Craft::error('Unable to re-queue the catalog pricing job: ' . $e->getMessage(), __METHOD__);
                 Craft::$app->getErrorHandler()->logException($e);

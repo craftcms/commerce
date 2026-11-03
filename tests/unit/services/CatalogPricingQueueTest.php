@@ -10,8 +10,12 @@ namespace unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingQueue as CatalogPricingQueueRecord;
+use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craftcommercetests\fixtures\StoreFixture;
+use ReflectionProperty;
 use UnitTester;
 
 /**
@@ -56,6 +60,23 @@ class CatalogPricingQueueTest extends Unit
         CatalogPricingQueueRecord::deleteAll();
     }
 
+    private function _lastQueueJobId(): int
+    {
+        return (int)(new Query())->from(CraftTable::QUEUE)->max('[[id]]');
+    }
+
+    /**
+     * @return array<int, array{id: int|string, priority: int|string}>
+     */
+    private function _queueJobsSince(int $id): array
+    {
+        return (new Query())
+            ->select(['id', 'priority'])
+            ->from(CraftTable::QUEUE)
+            ->where(['>', 'id', $id])
+            ->all();
+    }
+
     private function _createJob(array $config): void
     {
         $service = Plugin::getInstance()->getCatalogPricing();
@@ -93,6 +114,8 @@ class CatalogPricingQueueTest extends Unit
         $service = Plugin::getInstance()->getCatalogPricing();
         $db = \Craft::$app->getDb();
         $db->getTransaction()?->rollBack();
+        CatalogPricingQueueRecord::deleteAll();
+        $lastJobId = $this->_lastQueueJobId();
 
         try {
             $transaction = $db->beginTransaction();
@@ -115,7 +138,150 @@ class CatalogPricingQueueTest extends Unit
             self::assertCount(0, CatalogPricingQueueRecord::find()->all());
         } finally {
             CatalogPricingQueueRecord::deleteAll();
+            $db->createCommand()->delete(CraftTable::QUEUE, ['>', 'id', $lastJobId])->execute();
         }
+    }
+
+    /**
+     * Test that a rollback discards only the current transaction's IDs and keeps earlier committed retry IDs.
+     */
+    public function testRollbackKeepsEarlierRetryIds(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $db = \Craft::$app->getDb();
+        $db->getTransaction()?->rollBack();
+        CatalogPricingQueueRecord::deleteAll();
+        $lastJobId = $this->_lastQueueJobId();
+
+        $retryIds = new ReflectionProperty($service, '_retryQueueIds');
+        $retryIds->setValue($service, ['null|purchasable' => ['storeId' => null, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE, 'ids' => [9], 'priority' => null]]);
+
+        try {
+            $transaction = $db->beginTransaction();
+            $service->createCatalogPricingJob(['purchasableIds' => [3]]);
+            $transaction->rollBack();
+
+            self::assertCount(0, CatalogPricingQueueRecord::find()->all());
+
+            $service->flushBufferedCatalogPricingIds();
+
+            $rows = CatalogPricingQueueRecord::find()->all();
+            self::assertCount(1, $rows);
+            self::assertSame([9], $rows[0]->getIds());
+        } finally {
+            $retryIds->setValue($service, []);
+            CatalogPricingQueueRecord::deleteAll();
+            $db->createCommand()->delete(CraftTable::QUEUE, ['>', 'id', $lastJobId])->execute();
+        }
+    }
+
+    /**
+     * Test that a priority above the default is kept rather than promoted to the default.
+     */
+    public function testPriorityAboveDefaultIsPreserved(): void
+    {
+        $lastJobId = $this->_lastQueueJobId();
+
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $service->createCatalogPricingJob(['purchasableIds' => [1], 'storeId' => $this->_storeId], 500);
+        $service->flushBufferedCatalogPricingIds();
+
+        $jobs = $this->_queueJobsSince($lastJobId);
+        self::assertCount(1, $jobs);
+        self::assertSame(500, (int)$jobs[0]['priority']);
+    }
+
+    /**
+     * Test that failed work being retried keeps the priority it was originally requested with.
+     */
+    public function testRetryEntriesKeepTheirPriority(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $retryIds = new ReflectionProperty($service, '_retryQueueIds');
+        $retryIds->setValue($service, ['1|purchasable' => ['storeId' => $this->_storeId, 'type' => CatalogPricingQueueRecord::TYPE_PURCHASABLE, 'ids' => [9], 'priority' => 500]]);
+        $lastJobId = $this->_lastQueueJobId();
+
+        $service->flushBufferedCatalogPricingIds();
+
+        $jobs = $this->_queueJobsSince($lastJobId);
+        self::assertCount(1, $jobs);
+        self::assertSame(500, (int)$jobs[0]['priority']);
+        self::assertSame([9], CatalogPricingQueueRecord::find()->one()->getIds());
+    }
+
+    /**
+     * Test that the lowest requested priority wins when calls are merged.
+     */
+    public function testLowestPriorityWinsWhenMerged(): void
+    {
+        $lastJobId = $this->_lastQueueJobId();
+
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $service->createCatalogPricingJob(['purchasableIds' => [1], 'storeId' => $this->_storeId], 500);
+        $service->createCatalogPricingJob(['purchasableIds' => [2], 'storeId' => $this->_storeId], 50);
+        $service->flushBufferedCatalogPricingIds();
+
+        $jobs = $this->_queueJobsSince($lastJobId);
+        self::assertCount(1, $jobs);
+        self::assertSame(50, (int)$jobs[0]['priority']);
+    }
+
+    /**
+     * Test that a job processes exactly one row and queues a follow-up job while more rows are waiting.
+     */
+    public function testJobProcessesOneRowAndRequeuesWhileMoreAreWaiting(): void
+    {
+        $service = Plugin::getInstance()->getCatalogPricing();
+        $beforeId = $this->_lastQueueJobId();
+        $service->createCatalogPricingJob(['purchasableIds' => [1], 'storeId' => $this->_storeId, 'catalogPricingRuleIds' => [2]], 50);
+        $service->flushBufferedCatalogPricingIds();
+        self::assertCount(2, CatalogPricingQueueRecord::find()->all());
+        $jobs = $this->_queueJobsSince($beforeId);
+        self::assertCount(1, $jobs);
+        self::assertSame(50, (int)$jobs[0]['priority']);
+        $lastJobId = $this->_lastQueueJobId();
+
+        (new CatalogPricingJob(['priority' => 50]))->execute(\Craft::$app->getQueue());
+
+        self::assertCount(1, CatalogPricingQueueRecord::find()->all());
+        $followUps = $this->_queueJobsSince($lastJobId);
+        self::assertCount(1, $followUps);
+        self::assertSame(50, (int)$followUps[0]['priority']);
+    }
+
+    /**
+     * Test that a job doesn't queue a follow-up once the last row is processed.
+     */
+    public function testJobDoesNotRequeueWhenNoRowsAreLeft(): void
+    {
+        $this->_createJob(['purchasableIds' => [1], 'storeId' => $this->_storeId]);
+        $lastJobId = $this->_lastQueueJobId();
+
+        (new CatalogPricingJob())->execute(\Craft::$app->getQueue());
+
+        self::assertCount(0, CatalogPricingQueueRecord::find()->all());
+        self::assertCount(0, $this->_queueJobsSince($lastJobId));
+    }
+
+    /**
+     * Test that the job reports the queue's configured TTR and allows two retries.
+     */
+    public function testJobUsesQueueTtrAndLimitsRetries(): void
+    {
+        $queue = \Craft::$app->getQueue();
+        $originalTtr = $queue->ttr;
+        $queue->ttr = 900;
+
+        try {
+            $job = new CatalogPricingJob();
+            self::assertSame(900, $job->getTtr());
+        } finally {
+            $queue->ttr = $originalTtr;
+        }
+
+        self::assertTrue($job->canRetry(1, new \Exception()));
+        self::assertTrue($job->canRetry(2, new \Exception()));
+        self::assertFalse($job->canRetry(3, new \Exception()));
     }
 
     /**
