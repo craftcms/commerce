@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\Cp\Settings as CpSettings;
-use CraftCms\Cms\Support\File;
 use CraftCms\Commerce\Plugin;
 use Override;
 
@@ -34,7 +33,7 @@ trait HasCpSettings
             $setting = fn() => [
                 'label' => $label(),
                 'url' => cp_url("commerce/settings/$handle"),
-                'icon' => File::get(dirname($this->getBasePath()) . "/resources/icons/light/$icon.svg"),
+                'iconName' => $icon,
             ];
 
             app(CpSettings::class)->registerSetting('Commerce', $handle, $setting);
