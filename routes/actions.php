@@ -170,6 +170,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
 
     Route::middleware('can:commerce-managePromotions')->group(function () {
         Route::post('sales/save', [SalesController::class, 'store']);
+        Route::post('sales/render-ui', [SalesController::class, 'renderUi']);
         Route::post('sales/reorder', [SalesController::class, 'reorder']);
         Route::post('sales/delete', [SalesController::class, 'destroy']);
         Route::match(['get', 'post'], 'sales/get-all-sales', [SalesController::class, 'list']);

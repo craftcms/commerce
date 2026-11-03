@@ -126,7 +126,6 @@
 - `CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule` now uses `CraftCms\Commerce\Customer\Conditions\CatalogPricingRuleCustomerCondition`, `CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingRuleProductCondition`, `CatalogPricingRuleVariantCondition`, and `CraftCms\Commerce\Purchasable\Conditions\CatalogPricingRulePurchasableCondition`.
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
-- The Prices page is now rendered by a Vue component instead of Twig templates.
 - Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
 - Removed the `commerce/prices/*` templates.
 
@@ -154,7 +153,7 @@
 - Removed `craft\commerce\controllers\BaseTaxSettingsController`.
 - Removed `craft\commerce\controllers\BaseShippingSettingsController`.
 - Removed `craft\commerce\controllers\SettingsController`. `CraftCms\Commerce\Http\Controllers\Settings\SettingsController` should be used instead.
-- Removed `craft\commerce\controllers\PromotionsController`. The `commerce/promotions` URL now redirects to `commerce/promotions/sales` via a plain route closure.
+- Removed `craft\commerce\controllers\PromotionsController`.
 - The control panel delete, archive and deactivate actions for gateways, stores, order statuses, line item statuses, product types, payment currencies, shipping zones, shipping methods, shipping rules, shipping categories, tax zones, tax categories, tax rates, discounts, catalog pricing rules, emails, PDFs and inventory locations now accept `DELETE` requests as well as `POST` requests.
 
 ### Customers
@@ -185,7 +184,6 @@
 - Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
 - Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
 - Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
-- Commerce dashboard widgets are now rendered by Vue components instead of Twig templates.
 - Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
@@ -825,6 +823,10 @@
 - `CraftCms\Commerce\Promotion\Actions\CreateDiscount` now redirects to the new discount screen from `performAction()`, so it works from the element index’s bulk actions bar.
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
+- The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
+- Removed the `commerce/promotions/*` templates.
+- Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
+- Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
 #### Controllers
 
