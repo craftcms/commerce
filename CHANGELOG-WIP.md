@@ -175,6 +175,13 @@
 - Added `CraftCms\Commerce\Stats\Stat`.
 - Added `CraftCms\Commerce\Stats\Contracts\StatInterface`.
 - Added `CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait` trait.
+- Removed `craft\commerce\web\assets\chartjs\ChartJsAsset`.
+- Removed `craft\commerce\web\assets\deepmerge\DeepMergeAsset`.
+- Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
+- Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
+- Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
+- Commerce dashboard widgets are now rendered by Vue components instead of Twig templates.
+- Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.

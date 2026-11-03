@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\Cp;
-use craft\web\assets\admintable\AdminTableAsset;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TopProducts as TopProductsStat;
@@ -24,10 +19,10 @@ use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class TopProducts extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     /**
@@ -60,7 +55,7 @@ class TopProducts extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->typeOptions = [
@@ -110,12 +105,6 @@ class TopProducts extends Widget
     }
 
     #[\Override]
-    public static function icon(): ?string
-    {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
-    }
-
-    #[\Override]
     public function getTitle(): ?string
     {
         return $this->title;
@@ -128,17 +117,14 @@ class TopProducts extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return 'commerce:widget-table';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $stats = $this->stat->get();
-
-        if (empty($stats)) {
-            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
-        }
-
-        \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
-        \Craft::$app->getView()->registerAssetBundle(AdminTableAsset::class);
-
         $defaultRevenueOptions = [
             TopProductsStat::REVENUE_OPTION_DISCOUNT,
             TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
@@ -150,20 +136,23 @@ class TopProducts extends Widget
             $revenueColumnHandle = 'revenue_custom';
         }
 
-        return ['html' => template('commerce/_components/widgets/products/top/body', [
-            'stats' => $stats,
-            'revenueColumnHandle' => $revenueColumnHandle,
-            'type' => $this->type,
-            'typeLabel' => $this->typeOptions[$this->type] ?? '',
-            'id' => 'top-products' . Str::random(),
-        ], TemplateMode::Cp)];
+        return [
+            'columns' => [
+                ['key' => 'title', 'label' => t('Name', category: 'commerce')],
+                ['key' => $this->type, 'label' => $this->typeOptions[$this->type] ?? ''],
+            ],
+            'rows' => array_map(fn(array $stat) => [
+                'title' => isset($stat['product']) ? $stat['product']->title : $stat['title'],
+                'url' => ($stat['product'] ?? null)?->getCpEditUrl(),
+                'qty' => $stat['qty'],
+                'revenue' => $this->formatCurrency($stat[$revenueColumnHandle] ?? $stat['revenue']),
+            ], $this->stat->get() ?: []),
+        ];
     }
 
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Type', category: 'commerce'))
                 ->control(Choice::make('type')->value($this->type)->options(

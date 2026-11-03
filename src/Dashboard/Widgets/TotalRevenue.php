@@ -4,23 +4,19 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Controls\Lightswitch;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TotalRevenue as TotalRevenueStat;
 use CraftCms\Commerce\Store\Stores;
@@ -28,10 +24,10 @@ use Illuminate\Validation\Rule;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class TotalRevenue extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     public string $type = TotalRevenueStat::TYPE_TOTAL;
@@ -47,7 +43,7 @@ class TotalRevenue extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->dateRange = $this->dateRange ?: StatInterface::DATE_RANGE_TODAY;
@@ -105,63 +101,38 @@ class TotalRevenue extends Widget
     }
 
     #[\Override]
-    public static function icon(): ?string
+    public function component(): ?string
     {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
+        return 'commerce:widget-chart';
     }
 
     #[\Override]
     public function props(): array
     {
-        $stats = $this->stat->get();
-        $timeFrame = $this->stat->getDateRangeWording();
-        $chartInterval = $this->stat->getDateRangeInterval();
+        $stats = $this->stat->get() ?: [];
+        $interval = $this->stat->getDateRangeInterval();
 
-        \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
+        $datasets = [
+            ['label' => t('Revenue', category: 'commerce'), 'data' => array_map(floatval(...), Arr::pluck($stats, 'revenue')), 'format' => 'currency'],
+        ];
 
-        $id = 'total-revenue' . Str::random();
-        $namespaceId = InputNamespace::namespaceId($id);
-
-        if (empty($stats)) {
-            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
+        if ($this->showOrderCount) {
+            array_unshift($datasets, ['label' => t('Order count', category: 'commerce'), 'data' => array_map(intval(...), Arr::pluck($stats, 'count')), 'format' => 'number']);
         }
 
-        $labels = Arr::pluck($stats, 'datekey');
-        if ($chartInterval == 'month') {
-            $labels = array_map(static function($label) {
-                [$year, $month] = explode('-', $label);
-                $month = $month < 10 ? '0' . $month : $month;
-                return implode('-', [$year, $month, '01']);
-            }, $labels);
-        } elseif ($chartInterval == 'week') {
-            $labels = array_map(static function($label) {
-                $year = substr($label, 0, 4);
-                $week = substr($label, -2);
-                return $year . 'W' . $week;
-            }, $labels);
-        }
-
-        $revenue = Arr::pluck($stats, 'revenue');
-        $orderCount = Arr::pluck($stats, 'count');
-        $widget = $this;
-
-        return ['html' => template('commerce/_components/widgets/orders/revenue/body', compact(
-            'widget',
-            'stats',
-            'timeFrame',
-            'namespaceId',
-            'labels',
-            'revenue',
-            'orderCount',
-            'chartInterval',
-        ), TemplateMode::Cp)];
+        return [
+            'type' => 'line',
+            'labels' => $this->chartDateLabels(Arr::pluck($stats, 'datekey'), $interval),
+            'interval' => $interval,
+            'currency' => app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso(),
+            'showLegend' => $this->showOrderCount,
+            'datasets' => $datasets,
+        ];
     }
 
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Type', category: 'commerce'))
                 ->control(Choice::make('type')->value($this->type)->options([

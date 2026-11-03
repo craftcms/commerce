@@ -9,13 +9,17 @@
  */
 
 interface CpComponentRegistration {
-  // A plain Vue component, or (matching `cms`'s own registry) an async loader
-  // returning one — only the plain-component shape is used here.
+  // A plain Vue component.
   [key: string]: unknown;
 }
 
 interface CpComponentRegistry {
-  register(name: string, component: CpComponentRegistration): void;
+  // Takes a plain component, or (matching `cms`'s own registry) an async
+  // loader resolving to one.
+  register(
+    name: string,
+    component: CpComponentRegistration | (() => Promise<unknown>)
+  ): void;
 }
 
 interface InertiaPageRegistry {
