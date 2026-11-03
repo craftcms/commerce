@@ -116,7 +116,7 @@ readonly class OrderManagement
     public function recalculate(User $actor, int $orderId): Order
     {
         $this->find($actor, $orderId, 'save');
-        return Mutation::run("commerce:order-management:$orderId", function() use ($actor, $orderId): Order {
+        return Mutation::run(["commerce:order-management:$orderId", "orderComplete:$orderId"], function() use ($actor, $orderId): Order {
             $order = $this->find($actor, $orderId, 'save');
             $order->setRecalculationMode($order->isCompleted ? Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY : Order::RECALCULATION_MODE_ALL);
             return $this->save($actor, $order);

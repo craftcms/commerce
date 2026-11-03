@@ -740,13 +740,15 @@ class CommerceTest extends TestCase
     }
 
     /** @dataProvider cartUpdateOperations */
-    public function testCustomerEditsCannotReopenACartDuringCheckout(string $operation): void
+    public function testCartWritesCannotReopenAnOrderDuringCheckout(string $operation): void
     {
         $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         $cart = $this->ok('elements.create', ['type' => 'orders', 'attributes' => ['storeId' => $storeId, 'email' => 'customer3@crafttest.com']])['element'];
         $variant = Variant::find()->sku('hct-blue')->one();
         $this->ok('commerce.orders.set-line-item', ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 2]);
-        $this->asUser('customer3@crafttest.com', []);
+        if ($operation !== 'commerce.orders.recalculate') {
+            $this->asUser('customer3@crafttest.com', []);
+        }
         Craft::$app->get('mcp')->tokenScopes = [Mcp::SCOPE_WRITE];
         $attempted = false;
         $completed = false;
@@ -756,7 +758,7 @@ class CommerceTest extends TestCase
             }
             $attempted = true;
             try {
-                // Native checkout races after the MCP owner check, before the stale cart is saved.
+                // Native checkout races after the MCP reload, before the stale cart is saved.
                 $completed = Order::find()->id($cart['id'])->status(null)->one()->markAsComplete();
             } catch (\Exception) {
                 // A serialized checkout can be retried after this edit finishes.
@@ -765,9 +767,11 @@ class CommerceTest extends TestCase
         $elements = Craft::$app->getElements();
         $elements->on(\craft\services\Elements::EVENT_BEFORE_SAVE_ELEMENT, $listener);
         try {
-            $this->ok($operation, $operation === 'elements.update'
-                ? ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]]
-                : ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 3]);
+            $this->ok($operation, match ($operation) {
+                'elements.update' => ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]],
+                'commerce.orders.recalculate' => ['orderId' => $cart['id']],
+                default => ['orderId' => $cart['id'], 'purchasableId' => $variant->id, 'quantity' => 3],
+            });
         } finally {
             $elements->off(\craft\services\Elements::EVENT_BEFORE_SAVE_ELEMENT, $listener);
         }
@@ -778,12 +782,13 @@ class CommerceTest extends TestCase
         } else {
             self::assertTrue($saved->markAsComplete());
         }
+        $this->asUser('customer3@crafttest.com', []);
         $this->denied('elements.update', ['type' => 'orders', 'id' => $cart['id'], 'attributes' => ['couponCode' => null]]);
     }
 
     public static function cartUpdateOperations(): array
     {
-        return [['elements.update'], ['commerce.orders.set-line-item']];
+        return [['elements.update'], ['commerce.orders.set-line-item'], ['commerce.orders.recalculate']];
     }
 
     /** @dataProvider competingInventoryWrites */
