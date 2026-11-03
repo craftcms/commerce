@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Elements;
 
-use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Element\Actions\ClientAction;
 use CraftCms\Cms\Element\Actions\Delete;
 use CraftCms\Cms\Element\Actions\Duplicate;
 use CraftCms\Cms\Element\Actions\Restore;
@@ -24,9 +24,6 @@ use CraftCms\Cms\Element\Enums\ElementActionContext;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\NestedElementManager;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Entry\Actions\NewChild;
-use CraftCms\Cms\Entry\Actions\NewSiblingAfter;
-use CraftCms\Cms\Entry\Actions\NewSiblingBefore;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\Http\Controllers\NestedElementsController;
@@ -428,11 +425,6 @@ class Product extends Element implements HasStoreInterface
 
         $actions = [];
 
-        // Copy Reference Tag
-        $actions[] = ElementActions::createAction([
-            'type' => CopyReferenceTag::class,
-        ], static::class);
-
         // Restore
         $actions[] = ElementActions::createAction([
             'type' => Restore::class,
@@ -482,28 +474,37 @@ class Product extends Element implements HasStoreInterface
                         ];
                     }
 
-                    $newProductUrl = 'commerce/products/' . $productType->handle . '/new';
+                    $newProductUrl = Url::cpUrl(
+                        'commerce/products/' . $productType->handle . '/new',
+                        Sites::isMultiSite() ? ['site' => $site->handle] : [],
+                    );
+                    $type = static::lowerDisplayName();
 
-                    if (Sites::isMultiSite()) {
-                        $newProductUrl .= '?site=' . $site->handle;
-                    }
+                    $actions[] = new ClientAction(
+                        key: 'new-sibling-before',
+                        label: t('Create a new {type} before', ['type' => $type]),
+                        event: 'craft:new-element',
+                        detail: ['url' => $newProductUrl, 'param' => 'before'],
+                        bulk: false,
+                    );
 
-                    $actions[] = ElementActions::createAction([
-                        'type' => NewSiblingBefore::class,
-                        'newSiblingUrl' => $newProductUrl,
-                    ], static::class);
-
-                    $actions[] = ElementActions::createAction([
-                        'type' => NewSiblingAfter::class,
-                        'newSiblingUrl' => $newProductUrl,
-                    ], static::class);
+                    $actions[] = new ClientAction(
+                        key: 'new-sibling-after',
+                        label: t('Create a new {type} after', ['type' => $type]),
+                        event: 'craft:new-element',
+                        detail: ['url' => $newProductUrl, 'param' => 'after'],
+                        bulk: false,
+                    );
 
                     if ($productType->maxLevels != 1) {
-                        $actions[] = ElementActions::createAction([
-                            'type' => NewChild::class,
-                            'maxLevels' => $productType->maxLevels,
-                            'newChildUrl' => $newProductUrl,
-                        ], static::class);
+                        $actions[] = new ClientAction(
+                            key: 'new-child',
+                            label: t('Create a new child {type}', ['type' => $type]),
+                            event: 'craft:new-element',
+                            detail: ['url' => $newProductUrl, 'param' => 'parentId'],
+                            bulk: false,
+                            selectionAttribute: 'acceptsChildren',
+                        );
                     }
                 }
             }

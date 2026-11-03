@@ -7,9 +7,6 @@ use CraftCms\Cms\Element\Actions\Delete;
 use CraftCms\Cms\Element\Actions\Duplicate;
 use CraftCms\Cms\Element\Actions\SetStatus;
 use CraftCms\Cms\Element\ElementSources;
-use CraftCms\Cms\Entry\Actions\NewChild;
-use CraftCms\Cms\Entry\Actions\NewSiblingAfter;
-use CraftCms\Cms\Entry\Actions\NewSiblingBefore;
 use CraftCms\Cms\Http\Controllers\Elements\ElementIndex\ElementIndexController;
 use CraftCms\Cms\Http\Controllers\Elements\ElementSelectorModalController;
 use CraftCms\Cms\Http\Controllers\Elements\PerformElementActionController;
@@ -63,7 +60,7 @@ function productIndexTestPerform(string $source, string $actionClass, array $ele
 }
 
 it('renders product rows with their price and SKU', function() {
-    get($this->indexPath . '/hoodies')
+    get($this->indexPath . '/hoodies?viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->has('data', 1)
@@ -74,7 +71,7 @@ it('renders product rows with their price and SKU', function() {
 });
 
 it('renders the variants column with element chips', function() {
-    get($this->indexPath . '/hoodies?columns[]=variants')
+    get($this->indexPath . '/hoodies?viewMode=table&columns[]=variants')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page->where(
             'data.0.variants',
@@ -147,15 +144,15 @@ it('offers structure actions on a structured product type', function() {
             $page->where('source.structureId', $structureId);
 
             expect(productIndexTestActionKeys($page))->toContain(
-                NewSiblingBefore::class,
-                NewSiblingAfter::class,
-                NewChild::class,
+                'new-sibling-before',
+                'new-sibling-after',
+                'new-child',
             );
         });
 });
 
 it('filters products by variant SKU', function() {
-    get($this->indexPath . '?' . http_build_query(['condition' => [
+    get($this->indexPath . '?' . http_build_query(['viewMode' => 'table', 'condition' => [
         'class' => ProductCondition::class,
         'elementType' => Product::class,
         'conditionRules' => [[
@@ -195,6 +192,7 @@ it('lists products in the element select modal', function() {
     $response = postJson(action(ElementSelectorModalController::class), [
         'context' => ElementSources::CONTEXT_MODAL,
         'elementType' => Product::class,
+        'viewMode' => 'table',
     ])->assertOk();
 
     expect($response->json('props.context'))->toBe(ElementSources::CONTEXT_MODAL)

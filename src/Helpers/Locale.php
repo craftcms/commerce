@@ -12,6 +12,7 @@ use function CraftCms\Cms\t;
 
 class Locale
 {
+    // TODO: remove once OrdersController::sendEmail() renders with I18N::withLocale() when the order edit page is migrated
     public static function switchAppLanguage(string $toLanguage, ?string $formattingLocale = null): void
     {
         // These Craft::$app property assignments are Yii2-layer calls that still work

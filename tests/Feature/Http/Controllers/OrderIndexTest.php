@@ -46,7 +46,7 @@ beforeEach(function() {
 });
 
 it('renders the orders index page', function() {
-    get($this->indexPath)
+    get($this->indexPath . '?viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->component('commerce::orders/Index', false)
@@ -80,7 +80,7 @@ it('links cart sources by their handle', function() {
 });
 
 it('selects an order status source from the handle segment', function() {
-    get($this->indexPath . '/shipped')
+    get($this->indexPath . '/shipped?viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->where('orderStatusHandle', 'shipped')
@@ -105,7 +105,7 @@ it('falls back to all orders for an unknown handle', function() {
 });
 
 it('limits orders to a date range preset', function() {
-    get($this->indexPath . '?dateRange=today')
+    get($this->indexPath . '?viewMode=table&dateRange=today')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => expect(orderIndexTestRowIds($page))
             ->toHaveCount(2)
@@ -116,7 +116,7 @@ it('limits orders to a date range preset', function() {
 it('limits orders to a custom date range including its end date', function() {
     $yesterday = $this->fixture->orders['completed-new-past']->dateOrdered->format('Y-m-d');
 
-    get($this->indexPath . "?dateRange=range&dateFrom=$yesterday&dateTo=$yesterday")
+    get($this->indexPath . "?viewMode=table&dateRange=range&dateFrom=$yesterday&dateTo=$yesterday")
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => expect(orderIndexTestRowIds($page))
             ->toBe([$this->fixture->orders['completed-new-past']->id]));
@@ -131,7 +131,7 @@ it('keeps the date range when switching sources', function() {
 });
 
 it('ignores an unknown date range', function() {
-    get($this->indexPath . '?dateRange=before&dateFrom=nope')
+    get($this->indexPath . '?viewMode=table&dateRange=before&dateFrom=nope')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->where('dateRange', ['type' => null, 'from' => null, 'to' => null])
