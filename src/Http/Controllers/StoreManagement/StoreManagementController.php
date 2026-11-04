@@ -56,7 +56,6 @@ readonly class StoreManagementController extends BaseStoreManagementController
     public function index(): Response|CpScreenResponse
     {
         $site = app(RequestedSite::class)->get();
-        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $store = $site->getStore();
 
         if (currentUser()?->can('commerce-manageGeneralStoreSettings')) {
@@ -94,7 +93,6 @@ readonly class StoreManagementController extends BaseStoreManagementController
 
         if (!$storeHandle) {
             $site = app(RequestedSite::class)->get();
-            /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             return redirect($site->getStore()->getStoreSettingsUrl());
         }
 

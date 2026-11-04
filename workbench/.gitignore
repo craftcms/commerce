@@ -9,3 +9,5 @@
 /storage
 /cms
 /public/cpresources
+/craft
+/config/craft/*.php

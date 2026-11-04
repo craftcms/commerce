@@ -28,7 +28,6 @@ readonly class CatalogPricingController
         abort_unless(app(CatalogPricingRules::class)->canUseCatalogPricingRules(), 403, 'Unable to use catalog pricing rules while sales exist.');
 
         $site = $this->site($request);
-        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $storeId = $site->getStore()->id;
         $condition = $this->condition($request);
         $search = $request->search() ?: null;
