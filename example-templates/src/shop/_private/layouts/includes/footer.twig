@@ -8,11 +8,9 @@ Outputs the global site footer.
   <div class="md:col-span-2">
     <p class="font-semibold text-gray-900">{{ 'Example templates'|t }}</p>
     <p class="mt-2 max-w-prose">
-      {{ 'These Craft Commerce {version} example templates use <a href="{url}" class="{classes}">Tailwind CSS</a> and native JavaScript. You’re running the {edition} edition of Craft Commerce.'|t({
+      {{ 'These Craft Commerce example templates use <a href="{url}" class="{classes}">Tailwind CSS</a> and native JavaScript.'|t({
         url: 'https://tailwindcss.com',
         classes: '[[classes.a]]',
-        edition: craft.commerce.edition|upper,
-        version: craft.commerce.version,
       })|raw }}
     </p>
     <p class="mt-4">
