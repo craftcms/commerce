@@ -31,7 +31,6 @@ class Extension extends AbstractExtension implements GlobalsInterface
 
     public function getGlobals(): array
     {
-        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $currentStore = Sites::getCurrentSite()->getStore();
 
         return [

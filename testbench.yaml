@@ -8,17 +8,23 @@ providers:
   - CraftCms\Cms\Providers\CraftServiceProvider
   - CraftCms\Yii2Adapter\Yii2ServiceProvider
 
+seeders:
+  - Workbench\Database\Seeders\DatabaseSeeder
+
 workbench:
-  user: 1
   start: /admin
-  install: false
+  install: false # DatabaseSeeder installs Craft and Commerce
+  user: 1
+  sync:
+    - from: vendor/craftcms/cms-assets/resources
+      to: public/vendor/craft
+    - from: public/build
+      to: public/vendor/craftcms/commerce/build
   build:
-    - vendor-publish:
-        --tag: craftcms-assets
-        --force: true
     - db-seed:
         --class: Workbench\Database\Seeders\DatabaseSeeder
         --force: true
   discovers:
     web: true
+    commands: true
     config: true

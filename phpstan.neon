@@ -16,6 +16,8 @@ parameters:
         - src
     scanDirectories:
         - src-yii2
+    bootstrapFiles:
+        - stubs/macros.php
     scanFiles:
         - vendor/craftcms/yii2-adapter/legacy/Craft.php
         - vendor/craftcms/yii2-adapter/lib/yii2/Yii.php

@@ -24,7 +24,3 @@ if (!$files->exists(__DIR__ . '/.env')) {
     $environment = str_replace('APP_KEY=', 'APP_KEY=base64:' . base64_encode(random_bytes(32)), $environment);
     $files->put(__DIR__ . '/.env', $environment);
 }
-
-if (!$files->exists(__DIR__ . '/database/database.sqlite')) {
-    $files->put(__DIR__ . '/database/database.sqlite', '');
-}

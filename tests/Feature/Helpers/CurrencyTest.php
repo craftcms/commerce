@@ -45,5 +45,6 @@ test('formatAsCurrency formats negative amounts', function(string $currency, str
     'EUR-US' => ['EUR', 'en-US', '-€1,234.56'],
     'EUR-GB' => ['EUR', 'en-GB', '-€1,234.56'],
     'EUR-FR' => ['EUR', 'fr-FR', "-1\u{202F}234,56\u{A0}€"],
-    'CHF-DE-CH' => ['CHF', 'de-CH', "CHF-1\u{2019}234.56"],
+    // ICU 77 changed the de-CH grouping separator from ’ to ', so take it from the installed ICU.
+    'CHF-DE-CH' => ['CHF', 'de-CH', 'CHF-1' . (new NumberFormatter('de-CH', NumberFormatter::CURRENCY))->getSymbol(NumberFormatter::GROUPING_SEPARATOR_SYMBOL) . '234.56'],
 ]);
