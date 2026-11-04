@@ -133,7 +133,7 @@ class PurchasableStockField extends BaseNativeField
             ->rows($inventoryLevels->map(fn(InventoryLevel $inventoryLevel) => [
                 'location' => $inventoryLevel->getInventoryLocation()->getUiLabel(),
                 'available' => $inventoryLevel->availableTotal,
-                ...($manageUrl ? ['manage' => ['label' => t('Manage', category: 'commerce'), 'url' => $manageUrl, 'slideout' => true]] : []),
+                ...($manageUrl ? ['manage' => ['label' => t('Manage', category: 'commerce'), 'url' => $manageUrl, 'slideout' => true, 'refreshOnClose' => true]] : []),
             ])->values()->all())
             ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'));
 

@@ -60,6 +60,7 @@ it('shows the stock available at each location with a manage link that opens a s
                 'label' => 'Manage',
                 'url' => Url::cpUrl('commerce/inventory/item/' . $this->variant->inventoryItemId),
                 'slideout' => true,
+                'refreshOnClose' => true,
             ],
         ])
         ->and($props['createUrl'])->toBeNull();
