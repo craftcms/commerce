@@ -44,7 +44,7 @@ function stockFieldChildren(PurchasableStockField $field, Variant $variant, Cont
     return $field->uiNode(new FieldLayoutElementContext($variant, new UiContext(), $mode))->children();
 }
 
-it('shows the stock available at each location with a manage stock slideout', function() {
+it('shows the stock available at each location with a manage link that opens a slideout', function() {
     $children = stockFieldChildren($this->field, $this->variant);
 
     /** @var Table $table */
@@ -52,31 +52,39 @@ it('shows the stock available at each location with a manage stock slideout', fu
     $props = $table->props();
 
     expect($table->uid())->toBe('stock-field-inventory-levels')
-        ->and(array_column($props['columns'], 'key'))->toBe(['location', 'available'])
-        ->and($props['rows'])->toContain(['location' => $this->location->getUiLabel(), 'available' => 4])
-        ->and($props['createLabel'])->toBe('Manage stock')
-        ->and($props['createUrl'])->toBe(Url::cpUrl('commerce/inventory/item/' . $this->variant->inventoryItemId))
-        ->and($props['createSlideout'])->toBeTrue();
+        ->and(array_column($props['columns'], 'key'))->toBe(['location', 'available', 'manage'])
+        ->and($props['rows'])->toContain([
+            'location' => $this->location->getUiLabel(),
+            'available' => 4,
+            'manage' => [
+                'label' => 'Manage',
+                'url' => Url::cpUrl('commerce/inventory/item/' . $this->variant->inventoryItemId),
+                'slideout' => true,
+            ],
+        ])
+        ->and($props['createUrl'])->toBeNull();
 
     $summary = collect($children)->first(fn($child) => $child instanceof MarkdownContent && $child->uid() === 'stock-field-inventory-total');
 
     expect($summary->props()['html'])->toContain('saleable across ' . count($props['rows']));
 });
 
-it('hides the manage stock action when the field is read-only', function() {
+it('hides the manage links when the field is read-only', function() {
     $table = collect(stockFieldChildren($this->field, $this->variant, ControlMode::ReadOnly))
         ->first(fn($child) => $child instanceof Table);
 
-    expect($table->props()['createUrl'])->toBeNull();
+    expect(array_column($table->props()['columns'], 'key'))->toBe(['location', 'available'])
+        ->and(array_column($table->props()['rows'], 'manage'))->toBe([]);
 });
 
-it('hides the manage stock action without the manage inventory stock levels permission', function() {
+it('hides the manage links without the manage inventory stock levels permission', function() {
     Gate::before(fn($user, $ability) => $ability === 'commerce-manageInventoryStockLevels' ? false : null);
 
     $table = collect(stockFieldChildren($this->field, $this->variant))
         ->first(fn($child) => $child instanceof Table);
 
-    expect($table->props()['createUrl'])->toBeNull();
+    expect(array_column($table->props()['columns'], 'key'))->toBe(['location', 'available'])
+        ->and(array_column($table->props()['rows'], 'manage'))->toBe([]);
 });
 
 it('doesn’t show inventory when it isn’t tracked', function() {

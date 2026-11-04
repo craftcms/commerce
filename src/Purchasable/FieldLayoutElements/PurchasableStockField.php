@@ -105,7 +105,7 @@ class PurchasableStockField extends BaseNativeField
 
     /**
      * A read-only summary of the purchasable's available stock at each inventory location, with a
-     * “Manage stock” action that opens its inventory item in a slideout.
+     * “Manage” link on each row that opens its inventory item in a slideout.
      *
      * @return list<Node>
      */
@@ -120,25 +120,22 @@ class PurchasableStockField extends BaseNativeField
         }
 
         $inventoryLevels = app(Inventory::class)->getInventoryLevelsForPurchasable($purchasable);
+        $manageUrl = !$static && currentUser()?->can('commerce-manageInventoryStockLevels')
+            ? Url::cpUrl('commerce/inventory/item/' . $purchasable->inventoryItemId)
+            : null;
 
         $table = Table::make($this->uid . '-inventory-levels')
             ->columns([
                 ['key' => 'location', 'label' => t('Location', category: 'commerce')],
                 ['key' => 'available', 'label' => t('Available', category: 'commerce')],
+                ...($manageUrl ? [['key' => 'manage', 'label' => '']] : []),
             ])
             ->rows($inventoryLevels->map(fn(InventoryLevel $inventoryLevel) => [
                 'location' => $inventoryLevel->getInventoryLocation()->getUiLabel(),
                 'available' => $inventoryLevel->availableTotal,
+                ...($manageUrl ? ['manage' => ['label' => t('Manage', category: 'commerce'), 'url' => $manageUrl, 'slideout' => true]] : []),
             ])->values()->all())
             ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'));
-
-        if (!$static && currentUser()?->can('commerce-manageInventoryStockLevels')) {
-            $table->createAction(
-                t('Manage stock', category: 'commerce'),
-                Url::cpUrl('commerce/inventory/item/' . $purchasable->inventoryItemId),
-                slideout: true,
-            );
-        }
 
         return [
             $table,
