@@ -519,7 +519,6 @@
 - Added `CraftCms\Commerce\Order\Events\OrderPaid`.
 - Added `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving`.
 - Added `CraftCms\Commerce\Order\Events\OrderStatusChanged`.
-- Added `CraftCms\Commerce\Order\Events\PurgeAddressesEvent`.
 - Deprecated `craft\commerce\elements\Order`. `CraftCms\Commerce\Order\Elements\Order` should be used instead.
 - `CraftCms\Commerce\Order\Elements\Order` now throws `Illuminate\Contracts\Cache\LockTimeoutException` instead of `craft\errors\MutexException` when it can’t acquire its save lock.
 - Deprecated `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`. `CraftCms\Commerce\Order\Events\OrderPaid` should be used instead.
@@ -591,7 +590,7 @@
 - Deprecated `craft\commerce\events\OrderNoticeEvent`. `CraftCms\Commerce\Order\Events\OrderNoticeSaving` should be used instead.
 - Deprecated `craft\commerce\events\OrderStatusEmailsEvent`. `CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving` should be used instead.
 - Deprecated `craft\commerce\events\OrderStatusEvent`. `CraftCms\Commerce\Order\Events\OrderStatusChanged` should be used instead.
-- Deprecated `craft\commerce\events\PurgeAddressesEvent`. `CraftCms\Commerce\Order\Events\PurgeAddressesEvent` should be used instead.
+- Removed `craft\commerce\events\PurgeAddressesEvent` as it was unused.
 - Event handlers registered with `yii\base\Event::on()` for Commerce’s legacy `craft\commerce\*` classes are now only triggered when `craftcms/yii2-adapter` is installed.
 - Removed `craft\commerce\records\OrderHistory`. `CraftCms\Commerce\Order\Records\OrderHistory` should be used instead.
 - Removed `craft\commerce\records\OrderAdjustment`. `CraftCms\Commerce\Order\Records\OrderAdjustment` should be used instead.
