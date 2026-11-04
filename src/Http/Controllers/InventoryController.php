@@ -31,6 +31,7 @@ use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryItem;
+use CraftCms\Commerce\Inventory\Data\InventoryLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryManualMovement;
 use CraftCms\Commerce\Inventory\Data\InventoryTransaction;
@@ -40,6 +41,7 @@ use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -211,6 +213,50 @@ readonly class InventoryController
                 'prev_page_url' => null,
                 'from' => $total ? ($page - 1) * $perPage + 1 : 0,
                 'to' => min($total, $page * $perPage),
+            ],
+        ]);
+    }
+
+    /**
+     * One inventory item's stock levels at each of its store's inventory locations, for the
+     * Inventory tab of {@see editItem()}.
+     */
+    public function itemTableData(Request $request): JsonResponse
+    {
+        $request->validate([
+            'inventoryItemId' => ['required', 'integer'],
+        ]);
+
+        $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
+
+        $rows = $this->itemInventoryLevels($inventoryItem)->map(function(InventoryLevel $inventoryLevel) use ($inventoryItem) {
+            $inventoryLocation = $inventoryLevel->getInventoryLocation();
+            $row = [
+                'id' => $inventoryLocation->id,
+                'location' => $inventoryLocation->getUiLabel(),
+            ];
+
+            foreach (self::LEVEL_COLUMNS as $type => $totalColumn) {
+                $quantity = $inventoryLevel->$totalColumn;
+                $items = $this->levelActions($inventoryLocation, $inventoryItem->id, $type, $quantity);
+
+                $row[$type] = $items ? ['label' => (string)$quantity, 'items' => $items] : $quantity;
+            }
+
+            return $row;
+        })->values()->all();
+
+        return new JsonResponse([
+            'data' => TableNode::prepareRows($rows),
+            'pagination' => [
+                'total' => count($rows),
+                'per_page' => max(1, count($rows)),
+                'current_page' => 1,
+                'last_page' => 1,
+                'next_page_url' => null,
+                'prev_page_url' => null,
+                'from' => $rows ? 1 : 0,
+                'to' => count($rows),
             ],
         ]);
     }
@@ -542,6 +588,9 @@ readonly class InventoryController
         $inventoryItem = $this->resolveInventoryItem($inventoryItemId);
 
         $ui = Ui::make([
+            Tab::make('inventory', t('Inventory', category: 'commerce'), [
+                $this->itemLevelsTable($inventoryItem),
+            ]),
             Tab::make('details', t('Details', category: 'commerce'), [
                 HiddenField::make('inventoryItemId'),
                 Field::make(t('Country Code of Origin', category: 'commerce'), Text::make('countryCodeOfOrigin')),
@@ -618,6 +667,45 @@ readonly class InventoryController
             $locationCrumb,
             ...($current !== null ? [new ActionItem()->label($current)] : []),
         ];
+    }
+
+    /**
+     * The inventory item's levels table: one row per inventory location, with the same stock
+     * level actions as the inventory screen.
+     */
+    private function itemLevelsTable(InventoryItem $inventoryItem): TableNode
+    {
+        return TableNode::make('inventory-item-levels')
+            ->columns([
+                ['key' => 'location', 'label' => t('Location', category: 'commerce')],
+                ...array_map(fn(string $type) => [
+                    'key' => $type,
+                    'label' => $this->levelLabel($type),
+                ], array_keys(self::LEVEL_COLUMNS)),
+            ])
+            ->dataUrl(action([self::class, 'itemTableData'], ['inventoryItemId' => $inventoryItem->id]))
+            ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'))
+            ->appearance(TableAppearance::Raised);
+    }
+
+    /**
+     * The item's level at each of its store's inventory locations, or at every location when it
+     * no longer has a purchasable.
+     *
+     * @return Collection<int, InventoryLevel>
+     */
+    private function itemInventoryLevels(InventoryItem $inventoryItem): Collection
+    {
+        $purchasable = $inventoryItem->getPurchasable('*');
+
+        if ($purchasable instanceof Purchasable) {
+            return app(Inventory::class)->getInventoryLevelsForPurchasable($purchasable);
+        }
+
+        return app(InventoryLocations::class)->getAllInventoryLocations()
+            ->map(fn(InventoryLocation $location) => app(Inventory::class)->getInventoryLevel($inventoryItem->id, $location->id))
+            ->filter()
+            ->values();
     }
 
     /**
@@ -705,7 +793,8 @@ readonly class InventoryController
     }
 
     /**
-     * Each location's transactions for the item, newest first.
+     * Each location's transactions for the item, newest first. A movement's transactions are
+     * grouped together, with its date shown once on the first of them.
      *
      * @return list<Heading|TableNode>
      */
@@ -716,6 +805,7 @@ readonly class InventoryController
 
         foreach (app(InventoryLocations::class)->getAllInventoryLocations() as $location) {
             $transactions = app(Inventory::class)->getInventoryTransactions($inventoryItem, $location);
+            $previousMovementHash = null;
 
             $nodes[] = Heading::make("history-heading-$location->id", $location->getUiLabel());
             $nodes[] = TableNode::make("history-$location->id")
@@ -726,11 +816,16 @@ readonly class InventoryController
                     ['key' => 'order', 'label' => t('Order', category: 'commerce')],
                     ['key' => 'note', 'label' => t('Note', category: 'commerce')],
                 ])
-                ->rows($transactions->map(function(InventoryTransaction $transaction) use ($formatter) {
+                ->rows($transactions->sortBy([
+                    fn(InventoryTransaction $a, InventoryTransaction $b) => $b->dateCreated <=> $a->dateCreated,
+                    fn(InventoryTransaction $a, InventoryTransaction $b) => strcmp($a->movementHash, $b->movementHash),
+                ])->values()->map(function(InventoryTransaction $transaction, int $index) use ($formatter, &$previousMovementHash) {
                     $order = $transaction->getOrder();
+                    $continuesMovement = $index > 0 && $transaction->movementHash !== '' && $transaction->movementHash === $previousMovementHash;
+                    $previousMovementHash = $transaction->movementHash;
 
                     return [
-                        'date' => $transaction->dateCreated ? $formatter->asDateTime($transaction->dateCreated, 'short') : '',
+                        'date' => !$continuesMovement && $transaction->dateCreated ? $formatter->asDateTime($transaction->dateCreated, 'short') : '',
                         'type' => InventoryTransactionType::tryFrom($transaction->type)?->typeAsLabel() ?? $transaction->type,
                         'quantity' => $transaction->quantity,
                         'order' => $order ? ['label' => (string)($order->reference ?: $order->getShortNumber()), 'url' => $order->getCpEditUrl()] : '',

@@ -356,11 +356,61 @@ it('renders the inventory item page with its history', function() {
             ->where('title', $this->fixture->blueVariant->getSku())
             ->where('submit.url', Url::actionUrl('commerce/inventory/item-save'))
             ->where('ui.values.inventoryItemId', $this->inventoryItem->id)
-            ->where('ui.nodes.0.props.label', 'Details')
-            ->where('ui.nodes.1.props.label', 'History')
-            ->where('ui.nodes.1.children.1.props.rows.0.quantity', 7)
-            ->where('ui.nodes.1.children.1.props.rows.0.type', 'Available')
+            ->where('ui.nodes.0.props.label', 'Inventory')
+            ->where('ui.nodes.0.children.0.props.dataUrl', Url::actionUrl('commerce/inventory/item-levels-table-data', ['inventoryItemId' => $this->inventoryItem->id]))
+            ->where('ui.nodes.1.props.label', 'Details')
+            ->where('ui.nodes.2.props.label', 'History')
+            ->where('ui.nodes.2.children.1.props.rows.0.quantity', 7)
+            ->where('ui.nodes.2.children.1.props.rows.0.type', 'Available')
         );
+});
+
+it('returns an inventory item’s stock levels at each location with their actions', function() {
+    setInventoryLevelForController($this->inventoryItem->id, $this->location->id, 'available', 5);
+
+    $rows = postJson(Url::actionUrl('commerce/inventory/item-levels-table-data'), [
+        'inventoryItemId' => $this->inventoryItem->id,
+    ])->assertOk()->json('data');
+
+    $row = collect($rows)->firstWhere('id', $this->location->id);
+
+    expect($row['location'])->toBe($this->location->getUiLabel())
+        ->and($row['available']['label'])->toBe('5')
+        ->and(array_column($row['available']['items'], 'label'))->toContain('Set Quantity', 'Adjust Quantity', 'Move Inventory')
+        ->and($row['available']['items'][0]['params'])->toMatchArray([
+            'inventoryLocationId' => $this->location->id,
+            'inventoryItemId' => $this->inventoryItem->id,
+            'type' => 'available',
+        ]);
+});
+
+it('groups a movement’s transactions together in the inventory item’s history', function() {
+    setInventoryLevelForController($this->inventoryItem->id, $this->location->id, 'available', 10);
+    $this->travel(1)->minutes();
+
+    postJson(Url::actionUrl('commerce/inventory/save-inventory-movement'), [
+        'inventoryMovement' => [
+            'inventoryItemId' => $this->inventoryItem->id,
+            'fromInventoryLocationId' => $this->location->id,
+            'toInventoryLocationId' => $this->location->id,
+            'fromInventoryTransactionType' => 'available',
+            'toInventoryTransactionType' => 'damaged',
+            'quantity' => 2,
+        ],
+    ])->assertOk();
+
+    get(Url::cpUrl('commerce/inventory/item/' . $this->inventoryItem->id))
+        ->assertOk()
+        ->assertInertia(function(AssertableInertia $page) {
+            $rows = $page->toArray()['props']['ui']['nodes'][2]['children'][1]['props']['rows'];
+
+            // The movement's two transactions come first, dated once; the earlier set has its own date.
+            expect($rows)->toHaveCount(3)
+                ->and($rows[0]['date'])->not->toBe('')
+                ->and($rows[1]['date'])->toBe('')
+                ->and(collect([$rows[0], $rows[1]])->pluck('type')->sort()->values()->all())->toBe(['Available', 'Damaged'])
+                ->and($rows[2]['date'])->not->toBe('');
+        });
 });
 
 it('renders the inventory item screen for a slideout', function() {
