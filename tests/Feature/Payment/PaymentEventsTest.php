@@ -33,6 +33,9 @@ use CraftCms\Commerce\Payment\Gateway\Types\Dummy;
 use Illuminate\Http\Response;
 use yii\base\Event as YiiEvent;
 
+// These test the legacy craft\commerce event bridge, which needs the yii2 adapter.
+pest()->group('yii2-adapter');
+
 afterEach(function() {
     YiiEvent::offAll();
 });

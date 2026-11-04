@@ -143,7 +143,7 @@ class Gateways
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
-            $gateway->addError('handle', t('That handle is already in use.', category: 'commerce'));
+            $gateway->errors()->add('handle', t('That handle is already in use.', category: 'commerce'));
 
             return false;
         }

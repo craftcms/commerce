@@ -55,7 +55,7 @@ readonly class PaymentSourcesController
                 $paymentForm,
                 t('Could not create the payment source.', category: 'commerce'),
                 'paymentForm',
-                ['paymentFormErrors' => $paymentForm->getErrors()]
+                ['paymentFormErrors' => $paymentForm->errors()->getMessages()]
             );
         }
 

@@ -18,6 +18,9 @@ use CraftCms\Commerce\Pdf\Events\PdfSaved;
 use Dompdf\Options;
 use yii\base\Event as YiiEvent;
 
+// These test the legacy craft\commerce event bridge, which needs the yii2 adapter.
+pest()->group('yii2-adapter');
+
 afterEach(function() {
     YiiEvent::offAll();
 });

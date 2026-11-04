@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Tests;
 
-use Craft;
 use CraftCms\Cms\Database\Migrations\Install;
 use CraftCms\Cms\Database\Migrator;
 use CraftCms\Cms\Element\Element;
@@ -141,11 +140,9 @@ class TestCase extends Orchestra
                 $migrator->getRepository()->log($migrator->getMigrationName($file), 1);
             }
 
-            // Install Commerce via its Yii2 plugin system
-            Craft::$app->plugins->installPlugin('commerce');
+            app(\CraftCms\Cms\Plugin\Plugins::class)->installPlugin('commerce');
 
-            // `Craft::$app->plugins->installPlugin()` is a thin proxy to `CraftCms\Cms\Plugin\Plugins`
-            // (the actual, shared plugin manager — there's only one). Its own `installPlugin()` calls
+            // `Plugins::installPlugin()` calls
             // `loadPlugins()` as its first line, which runs *before* Commerce has a row in the `plugins`
             // table yet, so it finds nothing to register and sets its internal `pluginsLoaded` flag to
             // `true`. Since `Plugins` is a container singleton, that flag then permanently short-circuits

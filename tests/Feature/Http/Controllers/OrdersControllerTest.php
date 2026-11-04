@@ -61,7 +61,7 @@ it('lists purchasables for the order edit purchasable table', function() {
     }
 
     expect($purchasable['sku'])->toBe('hct-blue');
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('sorts the purchasable table by the requested column', function() {
     OrdersFixture::seed();
@@ -74,7 +74,7 @@ it('sorts the purchasable table by the requested column', function() {
     $purchasable = collect($response->json('data'))->last();
 
     expect($purchasable['sku'])->toBe('hct-blue');
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('searches for customers by email', function() {
     OrdersFixture::seed();
@@ -111,7 +111,7 @@ it('returns order counts per status for the index source badges', function() {
 
     $shippedCount = collect($counts)->firstWhere('handle', 'shipped');
     expect($shippedCount['orderCount'])->toBe(1);
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('returns matching shipping method options for an order', function() {
     $fixture = OrdersFixture::seed();

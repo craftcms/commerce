@@ -440,7 +440,7 @@ class Customers
                      * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
                      * therefore we are unable to simply set the `isPrimaryBilling` property when specifying the new attributes during duplication.
                      */
-                    if (!$newBillingAddress->hasErrors()) {
+                    if (!$newBillingAddress->errors()->isNotEmpty()) {
                         $this->savePrimaryBillingAddressId($user, $newBillingAddress->id);
 
                         if ($order->hasMatchingAddresses()) {
@@ -456,13 +456,13 @@ class Customers
                      * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
                      * therefore we are unable to simply set the `isPrimaryShipping` property when specifying the new attributes during duplication.
                      */
-                    if (!$newShippingAddress->hasErrors()) {
+                    if (!$newShippingAddress->errors()->isNotEmpty()) {
                         $this->savePrimaryShippingAddressId($user, $newShippingAddress->id);
                     }
                 }
             }
         } else {
-            $errors = $user->getErrors();
+            $errors = $user->errors()->getMessages();
             Log::warning('Could not create user on order completion.', ['errors' => $errors]);
         }
     }

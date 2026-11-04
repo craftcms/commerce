@@ -10,14 +10,14 @@ test('validate reports incomplete address attributes, and passes once they are f
     $order->setShippingAddress(['addressLine1' => '1 Main Street']);
 
     expect($order->validate())->toBeFalse();
-    expect($order->getErrors())->not->toBeEmpty();
-    expect($order->getErrors())->toHaveKey('billingAddress.administrativeArea');
-    expect($order->getErrors())->toHaveKey('billingAddress.locality');
-    expect($order->getErrors())->toHaveKey('billingAddress.postalCode');
-    expect($order->getErrors())->toHaveKey('billingAddress.addressLine1');
-    expect($order->getErrors())->toHaveKey('shippingAddress.administrativeArea');
-    expect($order->getErrors())->toHaveKey('shippingAddress.locality');
-    expect($order->getErrors())->toHaveKey('shippingAddress.postalCode');
+    expect($order->errors()->getMessages())->not->toBeEmpty();
+    expect($order->errors()->getMessages())->toHaveKey('billingAddress.administrativeArea');
+    expect($order->errors()->getMessages())->toHaveKey('billingAddress.locality');
+    expect($order->errors()->getMessages())->toHaveKey('billingAddress.postalCode');
+    expect($order->errors()->getMessages())->toHaveKey('billingAddress.addressLine1');
+    expect($order->errors()->getMessages())->toHaveKey('shippingAddress.administrativeArea');
+    expect($order->errors()->getMessages())->toHaveKey('shippingAddress.locality');
+    expect($order->errors()->getMessages())->toHaveKey('shippingAddress.postalCode');
 
     $order->setBillingAddress([
         'addressLine1' => 'Downtown',
@@ -33,5 +33,5 @@ test('validate reports incomplete address attributes, and passes once they are f
     ]);
 
     expect($order->validate())->toBeTrue();
-    expect($order->getErrors())->toBeEmpty();
+    expect($order->errors()->getMessages())->toBeEmpty();
 });

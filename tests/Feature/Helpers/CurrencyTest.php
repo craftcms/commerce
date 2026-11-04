@@ -2,17 +2,11 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Helpers\Currency;
-use CraftCms\Commerce\Helpers\Locale;
-
-afterEach(function() {
-    Locale::switchAppLanguage('en-US');
-});
 
 test('formatAsCurrency', function(string $currency, string $language, string $expected) {
-    Locale::switchAppLanguage($language);
-
-    expect(Currency::formatAsCurrency(1234.56, $currency))->toBe($expected);
+    expect(I18N::withLocale($language, null, fn() => Currency::formatAsCurrency(1234.56, $currency)))->toBe($expected);
 })->with([
     'USD-US' => ['USD', 'en-US', '$1,234.56'],
     'USD-GB' => ['USD', 'en-GB', 'US$1,234.56'],
@@ -23,9 +17,7 @@ test('formatAsCurrency', function(string $currency, string $language, string $ex
 ]);
 
 test('formatAsCurrency strips trailing zeros when requested', function(string $currency, string $language, float $amount, bool $stripZeros, string $expected) {
-    Locale::switchAppLanguage($language);
-
-    expect(Currency::formatAsCurrency($amount, $currency, stripZeros: $stripZeros))->toBe($expected);
+    expect(I18N::withLocale($language, null, fn() => Currency::formatAsCurrency($amount, $currency, stripZeros: $stripZeros)))->toBe($expected);
 })->with([
     'USD-US' => ['USD', 'en-US', 1234.56, true, '$1,234.56'],
     'USD-US-strip' => ['USD', 'en-US', 1234.00, true, '$1,234'],
@@ -45,9 +37,7 @@ test('formatAsCurrency strips trailing zeros when requested', function(string $c
 ]);
 
 test('formatAsCurrency formats negative amounts', function(string $currency, string $language, string $expected) {
-    Locale::switchAppLanguage($language);
-
-    expect(Currency::formatAsCurrency(-1234.56, $currency))->toBe($expected);
+    expect(I18N::withLocale($language, null, fn() => Currency::formatAsCurrency(-1234.56, $currency)))->toBe($expected);
 })->with([
     'USD-US' => ['USD', 'en-US', '-$1,234.56'],
     'USD-GB' => ['USD', 'en-GB', '-US$1,234.56'],

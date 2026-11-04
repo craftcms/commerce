@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Event;
 use yii\base\Event as YiiEvent;
 
 afterEach(function() {
-    YiiEvent::offAll();
+    if (class_exists(YiiEvent::class)) {
+        YiiEvent::offAll();
+    }
 });
 
 test('adding a line item dispatches LineItemAdding and LineItemAdded with the order', function() {
@@ -77,7 +79,7 @@ test('legacy listeners registered on the craft\commerce\elements\Order alias rec
     event(new OrderCompleted($order));
 
     expect($received)->toBe($order);
-});
+})->group('yii2-adapter');
 
 test('legacy listeners registered on the order instance and on the new class receive order events', function() {
     $order = new Order();
@@ -93,7 +95,7 @@ test('legacy listeners registered on the order instance and on the new class rec
     $order->addLineItem(new LineItem());
 
     expect($received)->toBe(['instance', 'class']);
-});
+})->group('yii2-adapter');
 
 test('a legacy listener can prevent a line item from being added', function() {
     $order = new Order();
@@ -105,7 +107,7 @@ test('a legacy listener can prevent a line item from being added', function() {
     $order->addLineItem(new LineItem());
 
     expect($order->getLineItems())->toBe([]);
-});
+})->group('yii2-adapter');
 
 test('legacy line item refresh listeners can change the line items and request a recalculation', function() {
     $order = new Order();
@@ -120,4 +122,4 @@ test('legacy line item refresh listeners can change the line items and request a
 
     expect($event->lineItems)->toBe([$lineItem])
         ->and($event->recalculate)->toBeTrue();
-});
+})->group('yii2-adapter');
