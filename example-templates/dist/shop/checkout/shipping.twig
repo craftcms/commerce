@@ -48,7 +48,7 @@
                 </label>
               </div>
             {% endfor %}
-            <span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>
+            <span class="flash">{{ errors.get('shippingMethodHandle')|join }}</span>
 
             <div class="mt-6 text-right">
               {{ tag('button', {

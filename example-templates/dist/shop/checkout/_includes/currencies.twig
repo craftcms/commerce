@@ -3,9 +3,9 @@
 Outputs radio inputs for currency selection.
 #}
 
-{# @var currencies \craft\commerce\models\Currency[] #}
+{# @var currencies \CraftCms\Commerce\Payment\Data\PaymentCurrency[] #}
 {% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
-{# @var cart \craft\commerce\elements\Order #}
+{# @var cart \CraftCms\Commerce\Order\Elements\Order #}
 {% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
 
 {% if currencies|length > 1 %}
@@ -21,7 +21,7 @@ Outputs radio inputs for currency selection.
           }) }}
         </span>
         <span>
-          <strong>{{ currency.name }} {{ currency.iso }}</strong><br>
+          <strong>{{ currency.iso }}</strong><br>
           <span class="text-gray-600">{{ cart.outstandingBalance|commerceCurrency(currency.iso,convert=true) }}</span>
         </span>
       </span>

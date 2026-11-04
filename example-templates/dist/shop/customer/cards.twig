@@ -4,7 +4,7 @@
 
 {% extends 'shop/_private/layouts' %}
 
-{# @var gateways \craft\commerce\base\GatewayInterface[] #}
+{# @var gateways \CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface[] #}
 {% set gateways = craft.commerce.gateways.allCustomerEnabledGateways %}
 
 {% block main %}

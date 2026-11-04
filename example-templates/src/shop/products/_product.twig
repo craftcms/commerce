@@ -1,6 +1,6 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
-{# @var product \craft\commerce\elements\Product #}
+{# @var product \CraftCms\Commerce\Product\Elements\Product #}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
@@ -15,7 +15,7 @@
       </div>
       <div class="w-full md:w-1/2 p-3">
         <h1 class="text-3xl block sm:inline">
-          {{- product.defaultVariant.title -}}
+          {{- product.title -}}
         </h1>
 
         <h4 class="text-gray-500 mt-3">

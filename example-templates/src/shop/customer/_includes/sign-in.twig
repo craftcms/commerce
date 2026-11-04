@@ -8,7 +8,7 @@
       {{- 'Email / Username'|t -}}
     </label>
     <div class="mt-1">
-      {{ input('text', 'loginName', craft.app.user.getRememberedUsername(), {
+      {{ input('text', 'loginName', old('loginName', AuthMethods.getRememberedUsername()), {
         id: 'loginName',
         placeholder: 'email@site.com',
         required: true,

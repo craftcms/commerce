@@ -3,9 +3,10 @@
   {{ actionInput('users/save-user') }}
   {{ redirectInput(redirectUrl) }}
 
-  {% macro errorList(errors) %}
-    {% if errors %}
-      {{ ul(errors, { class: 'errors text-red-500' }) }}
+  {# A failed registration redirects back with the user's errors in the `errors` bag #}
+  {% macro errorList(key) %}
+    {% if session().get('modelName') == 'user' and errors.has(key) %}
+      {{ ul(errors.get(key), { class: 'errors text-red-500' }) }}
     {% endif %}
   {% endmacro %}
 
@@ -16,13 +17,11 @@
       {{- 'Username'|t -}}
     </label>
     <div class="mt-1">
-      {{ input('text', 'username', user is defined ? user.username : '', {
+      {{ input('text', 'username', old('username'), {
         id: 'username',
         class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
       }) }}
-      {% if user is defined %}
-        {{ errorList(user.getErrors('username')) }}
-      {% endif %}
+      {{ errorList('username') }}
     </div>
   </div>
 
@@ -31,13 +30,11 @@
       {{- 'Email'|t -}}
     </label>
     <div class="mt-1">
-      {{ input('email', 'email', user.email ?? cart.email ?? null, {
+      {{ input('email', 'email', old('email', cart.email ?? null), {
         id: 'email',
         class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
       }) }}
-      {% if user is defined %}
-        {{ errorList(user.getErrors('email')) }}
-      {% endif %}
+      {{ errorList('email') }}
     </div>
   </div>
 
@@ -50,9 +47,7 @@
         id: 'savePassword',
         class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
       }) }}
-      {% if user is defined %}
-        {{ errorList(user.getErrors('password')) }}
-      {% endif %}
+      {{ errorList('password') }}
     </div>
   </div>
 

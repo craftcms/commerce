@@ -6,9 +6,9 @@
 
 {% block main %}
 
-    {% set addressId = craft.app.request.queryParam('addressId') %}
-    {% set redirect = craft.app.request.queryParam('redirect') %}
-    {% set countryCode = craft.app.request.queryParam('countryCode') %}
+    {% set addressId = Request.query('addressId') %}
+    {% set redirect = Request.query('redirect') %}
+    {% set countryCode = Request.query('countryCode') %}
 
     {% if not address is defined %}
         {% if addressId %}
@@ -18,7 +18,7 @@
             {% endif %}
         {% else %}
             {% set address = create({
-                class: 'craft\\elements\\Address',
+                class: 'CraftCms\\Cms\\Address\\Elements\\Address',
                 ownerId: currentUser.id,
                 countryCode: countryCode ?? 'US'
             }) %}

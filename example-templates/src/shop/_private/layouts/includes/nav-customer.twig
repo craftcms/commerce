@@ -2,8 +2,8 @@
 {#
 Outputs the site’s global main navigation based on path and included `pages` array.
 
-@var cart        \craft\commerce\elements\Order
-@var currentUser \craft\elements\User
+@var cart        \CraftCms\Commerce\Order\Elements\Order
+@var currentUser \CraftCms\Cms\User\Elements\User
 #}
 {% set pages = [
   {
@@ -19,7 +19,7 @@ Outputs the site’s global main navigation based on path and included `pages` a
     url: '[[folderName]]/customer/cards'
   }
 ] %}
-{% set currentPath = craft.app.request.pathInfo %}
+{% set currentPath = Request.path() %}
 {# Show the nav if we in a customers page #}
 {% if currentPath in pages|column('url') %}
 {% set activeClasses = 'bg-gray-200' %}

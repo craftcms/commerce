@@ -4,9 +4,9 @@
   {% exit 404 %}
 {% endif %}
 
-{# @var primaryBillingAddress \craft\commerce\models\Address #}
+{# @var primaryBillingAddress \CraftCms\Cms\Address\Elements\Address #}
 {% set primaryBillingAddress = currentUser.getPrimaryBillingAddress() %}
-{# @var primaryShippingAddress \craft\commerce\models\Address #}
+{# @var primaryShippingAddress \CraftCms\Cms\Address\Elements\Address #}
 {% set primaryShippingAddress = currentUser.getPrimaryShippingAddress() %}
 
 {% block main %}

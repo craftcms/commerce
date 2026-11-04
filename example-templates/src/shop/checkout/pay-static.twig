@@ -6,23 +6,23 @@
 {% endset %}
 
 {# @var number string #}
-{% set number = craft.app.request.getParam('number') %}
+{% set number = Request.get('number') %}
 {# @var email string #}
-{% set email = craft.app.request.getParam('email') %}
+{% set email = Request.get('email') %}
 {# @var paymentMethod string #}
-{% set paymentMethod = craft.app.request.getParam('paymentMethod') %}
+{% set paymentMethod = Request.get('paymentMethod') %}
 {# @var gatewayId string #}
-{% set gatewayId = craft.app.request.getParam('gatewayId') %}
+{% set gatewayId = Request.get('gatewayId') %}
 {# @var paymentSourceId string #}
-{% set paymentSourceId = craft.app.request.getParam('paymentSourceId') %}
+{% set paymentSourceId = Request.get('paymentSourceId') %}
 {# @var paymentCurrency string #}
-{% set paymentCurrency = craft.app.request.getParam('paymentCurrency') %}
+{% set paymentCurrency = Request.get('paymentCurrency') %}
 {# @var url string #}
 {% set url = '[[folderName]]/checkout/pay-static' %}
 
 {% set cart = null %}
 {% if number and email %}
-  {# @var cart \craft\commerce\elements\Order #}
+  {# @var cart \CraftCms\Commerce\Order\Elements\Order #}
   {% set cart = craft.orders()
     .number(number)
     .email(email)
@@ -145,14 +145,14 @@
               {{ csrfInput() }}
               {{ hiddenInput('action', 'commerce/payments/pay') }}
               {{ redirectInput('[[folderName]]/customer/order?number=' ~ cart.number ~ '&success=true') }}
-              {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
+              {{ hiddenInput('cancelUrl', Request.getRequestUri()|hash) }}
               {{ hiddenInput('email', email) }}
               {{ hiddenInput('number', cart.number) }}
               {{ hiddenInput('paymentCurrency', finalPaymentCurrency) }}
 
               <fieldset>
                 {% if gatewayId %}
-                  {# @var gateway \craft\commerce\base\GatewayInterface #}
+                  {# @var gateway \CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface #}
                   {% set gateway = craft.commerce.gateways.getGatewayById(gatewayId) ?? null %}
 
                   {% if not gateway %}

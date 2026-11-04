@@ -2,8 +2,8 @@
 {#
 Outputs the site’s global main navigation based on path and included `pages` array.
 
-@var cart        \craft\commerce\elements\Order
-@var currentUser \craft\elements\User
+@var cart        \CraftCms\Commerce\Order\Elements\Order
+@var currentUser \CraftCms\Cms\User\Elements\User
 #}
 {% set pages = [
   {
@@ -15,7 +15,7 @@ Outputs the site’s global main navigation based on path and included `pages` a
     url: 'shop/donations'
   }
 ] %}
-{% set currentPath = craft.app.request.pathInfo %}
+{% set currentPath = Request.path() %}
 {% set activeClasses = 'bg-white' %}
 {# Show the nav if we are not in a checkout page #}
 {% if 'checkout' not in currentPath %}

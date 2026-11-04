@@ -2,10 +2,10 @@
 {#
 Outputs a form for collecting an order’s shipping and billing address.
 
-@var cart \craft\commerce\elements\Order
+@var cart \CraftCms\Commerce\Order\Elements\Order
 #}
 
-{# @var addresses \craft\commerce\models\Address[] #}
+{# @var addresses \CraftCms\Cms\Address\Elements\Address[] #}
 {% set addresses = currentUser ? currentUser.getAddresses() : [] %}
 
 {% block main %}
@@ -26,12 +26,12 @@ Outputs a form for collecting an order’s shipping and billing address.
           {% if not cart.email %}
             <div class="mb-6">
               <label for="email">{{ 'Email'|t }}</label>
-              {{ input('email', 'email', cart.email, {
+              {{ input('email', 'email', old('email', cart.email), {
                 id: 'email',
                 placeholder: 'email@site.com',
                 class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
               }) }}
-              <span class="flash">{{ cart.getErrors('email')|join }}</span>
+              <span class="flash">{{ errors.get('email')|join }}</span>
             </div>
           {% endif %}
 
@@ -174,7 +174,7 @@ Outputs a form for collecting an order’s shipping and billing address.
   {% endjs %}
 
   {% js %}
-    {% if not cart.hasMatchingAddresses() or (cart.billingAddress and cart.billingAddress.hasErrors() and not cart.hasMatchingAddresses()) %}
+    {% if not cart.hasMatchingAddresses() or (errors.has('billingAddress.*') and not cart.hasMatchingAddresses()) %}
       $billingSameAs.click();
     {% endif %}
   {% endjs %}

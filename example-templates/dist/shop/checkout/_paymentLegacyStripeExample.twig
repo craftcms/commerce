@@ -1,6 +1,6 @@
 {% extends 'shop/_private/layouts' %}
 
-{# @var cart \craft\commerce\elements\Order #}
+{# @var cart \CraftCms\Commerce\Order\Elements\Order #}
 
 {% block main %}
 
@@ -10,7 +10,7 @@
 
   <div class="md:flex md:-mx-8">
     <div class="md:w-2/3 md:px-8">
-      {% if craft.commerce.settings.allowCheckoutWithoutPayment %}
+      {% if cart.store.allowCheckoutWithoutPayment %}
         <div class="border-b border-gray-300 pb-10 mb-10">
           <h1 class="font-bold text-xl">
             {{- 'Pay Later'|t -}}
@@ -43,14 +43,15 @@
       </h1>
 
       {% if cart.gatewayId or cart.paymentSourceId %}
-        {% if paymentForm is defined %}
-          {% for key, errors in paymentForm.getErrors() %}
-            {% for error in errors %}
-              {% if loop.first %}<ul>{% endif %}
-                <li class="text-red-600"><strong>{{ key }}</strong> {{ error }}</li>
-              {% if loop.last %}</ul>{% endif %}
+        {# A failed payment redirects back with the payment form's errors in the `errors` bag #}
+        {% if session().get('modelName') == 'paymentForm' and errors.any() %}
+          <ul>
+            {% for key, messages in errors.getMessages() %}
+              {% for message in messages %}
+                <li class="text-red-600"><strong>{{ key }}</strong> {{ message }}</li>
+              {% endfor %}
             {% endfor %}
-          {% endfor %}
+          </ul>
         {% endif %}
 
         <div class="mt-3">

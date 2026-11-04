@@ -48,7 +48,7 @@
       </h4>
       {% if cart.shippingAddress %}
         <div class="js-address-select border-0">
-          {{ craft.app.addresses.formatAddress(cart.shippingAddress)|raw }}
+          {{ Addresses.formatAddress(cart.shippingAddress)|raw }}
         </div>
       {% else %}
         <p>{{ 'No shipping address selected.'|t }}</p>

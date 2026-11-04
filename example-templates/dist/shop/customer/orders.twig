@@ -20,7 +20,7 @@
       {{- 'My Orders'|t -}}
     </h1>
   </div>
-  {# @var orders \craft\commerce\elements\Order[] #}
+  {# @var orders \CraftCms\Commerce\Order\Elements\Order[] #}
   {% set orders = craft.orders()
     .customer(currentUser)
     .isCompleted(true)

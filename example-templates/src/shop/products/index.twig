@@ -1,6 +1,6 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
-{% set searchTerm = craft.app.request.getQueryParam('search', null) %}
+{% set searchTerm = Request.query('search') %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->

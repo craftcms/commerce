@@ -2,10 +2,10 @@
 {#
 Outputs a form for collecting shipping estimate address details if an address doesn’t yet exist on the cart.
 
-@var cart \craft\commerce\elements\Cart
+@var cart \CraftCms\Commerce\Order\Elements\Order
 #}
 {% if not cart.getShippingAddress() %}
-  {% set countries = craft.app.addresses.getCountryRepository().getList() %}
+  {% set countries = Addresses.getCountryRepository().getList() %}
   {% set states = [] %}
 {#  {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}#}
 

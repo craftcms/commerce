@@ -39,7 +39,7 @@ Outputs the checkout progress navigation using the request path and included `ch
   {% set width = 0 %}
 {% endif %}
 
-{% set currentPath = craft.app.request.pathInfo %}
+{% set currentPath = Request.path() %}
 
 {% if currentPath in checkoutSteps|column('url') %}
   <div class="container mx-auto justify-between items-center p-6 text-center text-sm text-gray-600">

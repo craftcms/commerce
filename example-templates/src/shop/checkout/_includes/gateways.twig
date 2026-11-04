@@ -2,8 +2,8 @@
 {#
 Outputs radio selection inputs for payment sources and/or gateways.
 
-@var availableGateways \craft\commerce\base\GatewayInterface[]  Available payment gateways
-@var paymentSources    \craft\commerce\models\PaymentSource[]   Available payment sources
+@var availableGateways \CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface[]  Available payment gateways
+@var paymentSources    \CraftCms\Commerce\Payment\Data\PaymentSource[]   Available payment sources
 #}
 
 {% set paymentSources = paymentSources ?? [] %}

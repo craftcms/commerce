@@ -3,16 +3,19 @@
 Outputs address form fields for editing an address.
 #}
 {% set showPrimaryCheckboxes = showPrimaryCheckboxes is defined ? showPrimaryCheckboxes : false %}
-{% set addressFieldLayout = craft.app.getAddresses().getFieldLayout() %}
-{% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'craft\\fields\\PlainText') %}
-{# @var address \craft\elements\Address #}
+{% set addressFieldLayout = Addresses.getFieldLayout() %}
+{% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'CraftCms\\Cms\\Field\\PlainText') %}
+{# @var address \CraftCms\Cms\Address\Elements\Address #}
 {% set addressName = addressName is defined ? addressName : '' %}
 {% set showLabelField = showLabelField is defined ? showLabelField : false %}
 
+{# A failed save redirects back with each field's errors in the `errors` bag, and what was submitted in `old()` #}
+{% set errorPrefix = addressName ? addressName ~ '.' : '' %}
+
 {# Define a simple a Twig macro for outputting validation errors and making template less redundant #}
-{% macro displayErrors(address, fieldName) %}
-  {% if address and address.getErrors(fieldName) %}
-    <div class="text-red-700">{{ address.getErrors(fieldName)|join }}</div>
+{% macro displayErrors(key) %}
+  {% if errors.has(key) %}
+    <div class="text-red-700">{{ errors.get(key)|join }}</div>
   {% endif %}
 {% endmacro %}
 
@@ -20,16 +23,16 @@ Outputs address form fields for editing an address.
   {# First and last name fields #}
   <div class="my-2 {{ not showLabelField ? 'hidden' : '' }}">
     <label for="title">
-      {{- 'Address Label (Work, School, etc)'|t -}}
+      {{- 'Address Label (Work, School, etc)'|t }}{{ addressFieldLayout.getField('title').required ? ' *' -}}
     </label>
-    {{ input('text', 'title', address ? address.title : '', {
+    {{ input('text', 'title', old(errorPrefix ~ 'title', address ? address.title : ''), {
       id: 'title',
       class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
     }) }}
-    {{ _self.displayErrors(address, 'title') }}
+    {{ _self.displayErrors(errorPrefix ~ 'title') }}
   </div>
   {% set countries = cart.store.settings.getCountriesList() %}
-  {% set countryCode = address.countryCode ?? null %}
+  {% set countryCode = old(errorPrefix ~ 'countryCode', address.countryCode ?? null) %}
 
   <div class="my-2">
     <label for="countryCode">
@@ -55,40 +58,40 @@ Outputs address form fields for editing an address.
         }) }}
       {% endfor %}
     {% endtag %}
-    {{ _self.displayErrors(address, 'countryCode') }}
+    {{ _self.displayErrors(errorPrefix ~ 'countryCode') }}
   </div>
 
   <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
     <label for="fullName">
       {{- 'Full Name'|t -}}
     </label>
-    {{ input('text', 'fullName', address.fullName ?? '', {
+    {{ input('text', 'fullName', old(errorPrefix ~ 'fullName', address.fullName ?? ''), {
       id: 'fullName',
       class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
     }) }}
-    {{ _self.displayErrors(address, 'fullName') }}
+    {{ _self.displayErrors(errorPrefix ~ 'fullName') }}
   </div>
 
   <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
     <label for="addressLine1">
       {{- 'Address 1'|t -}}
     </label>
-    {{ input('text', 'addressLine1', address.addressLine1 ?? '', {
+    {{ input('text', 'addressLine1', old(errorPrefix ~ 'addressLine1', address.addressLine1 ?? ''), {
       id: 'addressLine1',
       class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
     }) }}
-    {{ _self.displayErrors(address, 'addressLine1') }}
+    {{ _self.displayErrors(errorPrefix ~ 'addressLine1') }}
   </div>
 
   <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
     <label for="addressLine2">
       {{- 'Address 2'|t -}}
     </label>
-    {{ input('text', 'addressLine2', address ? address.addressLine2 : '', {
+    {{ input('text', 'addressLine2', old(errorPrefix ~ 'addressLine2', address ? address.addressLine2 : ''), {
       id: 'addressLine2',
       class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
     }) }}
-    {{ _self.displayErrors(address, 'addressLine2') }}
+    {{ _self.displayErrors(errorPrefix ~ 'addressLine2') }}
   </div>
 
   {# City, state, and postal code fields #}
@@ -97,11 +100,11 @@ Outputs address form fields for editing an address.
       <label for="locality">
         {{- 'City'|t -}}
       </label>
-      {{ input('text', 'locality', address.locality ?? '', {
+      {{ input('text', 'locality', old(errorPrefix ~ 'locality', address.locality ?? ''), {
         id: 'locality',
         class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
       }) }}
-      {{ _self.displayErrors(address, 'locality') }}
+      {{ _self.displayErrors(errorPrefix ~ 'locality') }}
     </div>
     <div class="md:w-1/3 md:mx-4 my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
       <label for="state">
@@ -115,7 +118,7 @@ Outputs address form fields for editing an address.
         name: 'administrativeArea',
         class: ['w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'],
         data: {
-          'selected': address.administrativeArea ?? null
+          'selected': old(errorPrefix ~ 'administrativeArea', address.administrativeArea ?? null)
         }
       } %}
         {{ tag('option', {
@@ -126,11 +129,11 @@ Outputs address form fields for editing an address.
         }) }}
       {% endtag %}
 
-      {{ input('text', 'administrativeArea', address.administrativeArea ?? '', {
+      {{ input('text', 'administrativeArea', old(errorPrefix ~ 'administrativeArea', address.administrativeArea ?? ''), {
         id: 'administrativeArea',
         class: ['w-full hidden', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
       }) }}
-      {{ _self.displayErrors(address, 'administrativeArea') }}
+      {{ _self.displayErrors(errorPrefix ~ 'administrativeArea') }}
     </div>
 
     <div class="md:w-1/3 md:mx-4 my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
@@ -138,11 +141,11 @@ Outputs address form fields for editing an address.
       <label for="zipCode">
         {{- 'Postal Code'|t -}}
       </label>
-      {{ input('text', 'postalCode', address.postalCode ?? '', {
+      {{ input('text', 'postalCode', old(errorPrefix ~ 'postalCode', address.postalCode ?? ''), {
         id: 'postalCode',
         class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
       }) }}
-      {{ _self.displayErrors(address, 'postalCode') }}
+      {{ _self.displayErrors(errorPrefix ~ 'postalCode') }}
     </div>
   </div>
 
@@ -150,11 +153,11 @@ Outputs address form fields for editing an address.
     <label for="organization">
       {{- 'Organization'|t -}}
     </label>
-    {{ input('text', 'organization', address ? address.organization : '', {
+    {{ input('text', 'organization', old(errorPrefix ~ 'organization', address ? address.organization : ''), {
       id: 'organization',
       class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
     }) }}
-    {{ _self.displayErrors(address, 'organization') }}
+    {{ _self.displayErrors(errorPrefix ~ 'organization') }}
   </div>
 
   <div class="{{ 'js-address-field'|namespaceInputId(addressName) }}">
@@ -163,11 +166,11 @@ Outputs address form fields for editing an address.
         <label for="organizationTaxId">
           {{- 'Organization Tax ID'|t -}}
         </label>
-        {{ input('text', 'organizationTaxId', address ? address.organizationTaxId : '', {
+        {{ input('text', 'organizationTaxId', old(errorPrefix ~ 'organizationTaxId', address ? address.organizationTaxId : ''), {
           id: 'organizationTaxId',
           class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
         }) }}
-        {{ _self.displayErrors(address, 'organizationTaxId') }}
+        {{ _self.displayErrors(errorPrefix ~ 'organizationTaxId') }}
       </div>
     </div>
   </div>
@@ -185,11 +188,11 @@ Outputs address form fields for editing an address.
           <label for="custom-field-{{ customField.handle }}">
             {{ customField.name }}
           </label>
-          {{ input('text', 'fields[' ~ customField.handle ~ ']', address ? address[customField.handle] : '', {
+          {{ input('text', 'fields[' ~ customField.handle ~ ']', old(errorPrefix ~ 'fields.' ~ customField.handle, address ? address[customField.handle] : ''), {
             id: 'custom-field-' ~ customField.handle,
             class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
           }) }}
-          {{ _self.displayErrors(address, customField.handle) }}
+          {{ _self.displayErrors(errorPrefix ~ customField.handle) }}
         </div>
       {% endfor %}
     </div>

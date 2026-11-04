@@ -1,5 +1,5 @@
 <!-- Template: {{ _self }}.twig -->
-{# @var products \craft\commerce\elements\Product[] #}
+{# @var products \CraftCms\Commerce\Product\Elements\Product[] #}
 <div class="my-6">
   <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {% for product in products %}
@@ -41,7 +41,7 @@
 
             <div style="overflow-y: scroll; max-height: 6rem;">
               {% for variant in product.getVariants() %}
-                {# @var variant \craft\commerce\elements\Variant #}
+                {# @var variant \CraftCms\Commerce\Product\Variant\Elements\Variant #}
                 <label class="flex w-full items-center">
                   {{ tag('input', {
                     name: 'purchasableId',

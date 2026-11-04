@@ -1,8 +1,11 @@
 {% extends 'shop/_private/layouts' %}
 
-{% set number = craft.app.request.getRequiredParam('number') %}
+{% set number = Request.get('number') %}
+{% if not number %}
+  {% exit 400 %}
+{% endif %}
 
-{# @var order \craft\commerce\elements\Order #}
+{# @var order \CraftCms\Commerce\Order\Elements\Order #}
 {% set order = craft.orders()
   .number(number)
   .one() %}
@@ -73,7 +76,7 @@
             {{- 'Shipping Address'|t -}}
           </h2>
           {% if order.shippingAddress %}
-            {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
+            {{ Addresses.formatAddress(order.shippingAddress)|raw }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}
@@ -83,7 +86,7 @@
             {{- 'Billing Address'|t -}}
           </h2>
           {% if order.billingAddress %}
-            {{ craft.app.addresses.formatAddress(order.billingAddress)|raw }}
+            {{ Addresses.formatAddress(order.billingAddress)|raw }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}

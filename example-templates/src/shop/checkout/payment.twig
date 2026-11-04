@@ -1,6 +1,6 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
-{# @var cart \craft\commerce\elements\Order #}
+{# @var cart \CraftCms\Commerce\Order\Elements\Order #}
 
 {% block main %}
 
@@ -43,14 +43,15 @@
       </h1>
 
       {% if cart.gatewayId or cart.paymentSourceId %}
-        {% if paymentForm is defined %}
-          {% for key, errors in paymentForm.getErrors() %}
-            {% for error in errors %}
-              {% if loop.first %}<ul>{% endif %}
-                <li class="text-red-600"><strong>{{ key }}</strong> {{ error }}</li>
-              {% if loop.last %}</ul>{% endif %}
+        {# A failed payment redirects back with the payment form's errors in the `errors` bag #}
+        {% if session().get('modelName') == 'paymentForm' and errors.any() %}
+          <ul>
+            {% for key, messages in errors.getMessages() %}
+              {% for message in messages %}
+                <li class="text-red-600"><strong>{{ key }}</strong> {{ message }}</li>
+              {% endfor %}
             {% endfor %}
-          {% endfor %}
+          </ul>
         {% endif %}
 
         <div class="mt-3">
