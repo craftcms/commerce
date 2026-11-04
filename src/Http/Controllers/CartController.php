@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -540,6 +541,7 @@ class CartController
         abort_if(!$cart, 404, 'Cart not found');
 
         return pageTemplate('commerce/_cart/email-sent', [
+            ...$this->challengePageVariables(),
             'email' => $cart->getMaskedEmail(),
         ], TemplateMode::Cp);
     }
@@ -782,8 +784,23 @@ class CartController
     private function renderCartEmailChallenge(Order $cart, string $cartNumber): string
     {
         return pageTemplate('commerce/_cart/email-challenge', [
+            ...$this->challengePageVariables(),
             'cart' => $cart,
             'cartNumber' => $cartNumber,
         ], TemplateMode::Cp);
+    }
+
+    /**
+     * The logo, system name and error message the email challenge pages show.
+     *
+     * @return array{logoUrl: ?string, systemName: string, error: mixed}
+     */
+    private function challengePageVariables(): array
+    {
+        return [
+            'logoUrl' => Cms::config()->cpLogoUrl,
+            'systemName' => Cms::systemName(),
+            'error' => session('error'),
+        ];
     }
 }

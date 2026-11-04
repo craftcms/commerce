@@ -2,23 +2,16 @@
 {% set title = "Email Sent"|t('app') %}
 {% set bodyClass = 'login' %}
 
-{% set hasLogo = CraftEdition >= CraftPro and craft.rebrand.isLogoUploaded %}
-
-{% if hasLogo %}
-    {% set logo = craft.rebrand.logo %}
-{% endif %}
 
 {% block body %}
     <main>
         <div id="emailsent">
-            {% if hasLogo %}
+            {% if logoUrl %}
                 <h1>
                     {{ tag('img', {
                         id: 'login-logo',
-                        src: logo.url,
+                        src: logoUrl,
                         alt: systemName,
-                        width: logo.width,
-                        height: logo.height,
                     }) }}
                 </h1>
             {% endif %}

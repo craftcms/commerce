@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Url;
@@ -179,6 +180,7 @@ readonly class DownloadsController
         abort_if(!$order, 404, 'Order not found');
 
         return pageTemplate('commerce/_downloads/email-sent', [
+            ...$this->challengePageVariables(),
             'email' => $order->getMaskedEmail(),
         ], TemplateMode::Cp);
     }
@@ -191,11 +193,26 @@ readonly class DownloadsController
         bool $inline,
     ): string {
         return pageTemplate('commerce/_downloads/email-challenge', [
+            ...$this->challengePageVariables(),
             'order' => $order,
             'orderNumber' => $orderNumber,
             'pdfHandle' => $pdfHandle,
             'option' => $option,
             'inline' => $inline,
         ], TemplateMode::Cp);
+    }
+
+    /**
+     * The logo, system name and error message the email challenge pages show.
+     *
+     * @return array{logoUrl: ?string, systemName: string, error: mixed}
+     */
+    private function challengePageVariables(): array
+    {
+        return [
+            'logoUrl' => Cms::config()->cpLogoUrl,
+            'systemName' => Cms::systemName(),
+            'error' => session('error'),
+        ];
     }
 }
