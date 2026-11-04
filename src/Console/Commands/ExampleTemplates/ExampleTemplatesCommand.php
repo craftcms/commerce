@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Console\Commands\ExampleTemplates;
 use CraftCms\Cms\Console\CraftCommand;
 use CraftCms\Cms\Support\Facades\Path;
 use CraftCms\Cms\Support\File as FileHelper;
+use CraftCms\Commerce\Plugin;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -44,7 +45,8 @@ class ExampleTemplatesCommand extends Command
             $overwrite = true;
         }
 
-        $exampleTemplatesSource = FileHelper::normalizePath(Path::vendor('craftcms/commerce/example-templates/src/shop'));
+        $exampleTemplatesPath = dirname(app(Plugin::class)->getBasePath()) . '/example-templates';
+        $exampleTemplatesSource = FileHelper::normalizePath($exampleTemplatesPath . '/src/shop');
 
         if ($folderName === '') {
             $this->line('A folder will be copied to your templates directory.');
@@ -90,7 +92,7 @@ class ExampleTemplatesCommand extends Command
         }
 
         if ($devBuild) {
-            $destination = FileHelper::normalizePath(Path::vendor('craftcms/commerce/example-templates/dist/' . $folderName));
+            $destination = FileHelper::normalizePath($exampleTemplatesPath . '/dist/' . $folderName);
         } else {
             $templatesPath = Path::siteTemplates();
 
@@ -99,6 +101,8 @@ class ExampleTemplatesCommand extends Command
 
                 return self::FAILURE;
             }
+
+            File::ensureDirectoryExists($templatesPath);
 
             if (!File::isWritable($templatesPath)) {
                 $this->components->error('Site template path is not writable.');
