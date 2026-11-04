@@ -1,5 +1,11 @@
 # Craft Commerce agent guidance
 
+## Commit messages
+
+For commits touching only genuinely inconsequential, nonfunctional files, put `[ci skip]` at the end of the extended commit message, in the commit body rather than the subject. Judge eligibility by the actual effect of the full commit, not filenames alone. Code, dependencies, executable configuration, workflows, and behavior-changing generated artifacts are not eligible.
+
+Skip markers can leave required checks pending and do not establish green CI. Never use them to evade required checks, required merged-result verification, or merge queues. If a skip marker would prevent satisfying those requirements, stop and ask how to proceed instead of skipping CI.
+
 ## Merging pull requests
 
 When explicitly instructed to merge a PR targeting `5.x` or `5.8`, resolve conflicts limited to inconsequential, nonfunctional files such as `CHANGELOG.md` in the final merge commit on the PR's actual target branch. Do not merge the target into the PR or rebase and push the PR just to resolve those conflicts and rerun PR CI.
