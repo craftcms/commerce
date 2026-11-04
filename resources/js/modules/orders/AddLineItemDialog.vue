@@ -190,8 +190,8 @@
             cell: ({row}) =>
                 row.original.isAvailable
                     ? props.labels.available
-                    : (row.original.unavailableReason ??
-                      props.labels.unavailable),
+                    : row.original.unavailableReason ??
+                      props.labels.unavailable,
         }),
         columnHelper.display({
             id: 'qty',
@@ -215,9 +215,11 @@
                     onModelValueChanged: (event: Event) =>
                         setQty(
                             row.original,
-                            (event.target as HTMLInputElement & {
-                                modelValue?: unknown;
-                            }).modelValue
+                            (
+                                event.target as HTMLInputElement & {
+                                    modelValue?: unknown;
+                                }
+                            ).modelValue
                         ),
                 });
             },
@@ -320,11 +322,10 @@
         pagination.value = {...pagination.value, pageIndex: 0};
     });
 
-    watch(
-        [appliedSearch, typeFilter, sorting, pagination],
-        () => void load(),
-        {immediate: true, deep: true}
-    );
+    watch([appliedSearch, typeFilter, sorting, pagination], () => void load(), {
+        immediate: true,
+        deep: true,
+    });
 
     onBeforeUnmount(() => clearTimeout(searchTimer));
 
@@ -395,7 +396,7 @@
         rowErrors.value = errors;
         submitError.value = Object.keys(errors).length
             ? props.labels.fixItems
-            : (data.message ?? props.labels.failed);
+            : data.message ?? props.labels.failed;
     }
 </script>
 
@@ -496,8 +497,46 @@
     }
 
     .add-line-item__body {
-        max-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        block-size: min(60vh, 34rem);
+    }
+
+    .add-line-item__body :deep(.admin-table) {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-block-size: 0;
+    }
+
+    .add-line-item__body :deep(.admin-table__body) {
+        flex: 1;
+        min-block-size: 0;
         overflow: auto;
+    }
+
+    .add-line-item__body :deep(.admin-table__footer) {
+        margin-block-start: auto;
+    }
+
+    /* Tables strip the border and padding from their inputs so they fill a cell. The quantity box
+       is a field in its own right, so it keeps the chrome of any other input. */
+    .add-line-item__body :deep(.cp-table input.form-control) {
+        border-width: var(
+            --c-input-border-width,
+            var(--c-form-control-border-width)
+        );
+        border-style: var(
+            --c-input-border-style,
+            var(--c-form-control-border-style)
+        );
+        border-color: var(
+            --c-input-border-color,
+            var(--c-form-control-border-color)
+        );
+        padding-block: 0;
+        padding-inline: var(--c-input-spacing-inline, 0.5rem);
+        height: auto;
     }
 
     .add-line-item__controls {
