@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Order\Edit\Operations;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use Throwable;
@@ -98,6 +99,16 @@ final readonly class AddLineItem extends OrderOperation
             throw new OperationNotApplicableException($exception->getMessage(), previous: $exception);
         }
 
+        $purchasable = $lineItem->getPurchasable();
+
+        if (!$purchasable || !app(Purchasables::class)->isPurchasableAvailable($purchasable, $order)) {
+            throw new OperationNotApplicableException(t('{description} is not available.', ['description' => $lineItem->getDescription()], category: 'commerce'));
+        }
+
         $order->addLineItem($lineItem);
+
+        if (!collect($order->getLineItems())->contains(fn(LineItem $item) => $item->uid === $this->uid)) {
+            throw new OperationNotApplicableException(t('{description} could not be added to the order.', ['description' => $lineItem->getDescription()], category: 'commerce'));
+        }
     }
 }

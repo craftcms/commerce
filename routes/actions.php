@@ -6,6 +6,7 @@ use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrderActionsController;
+use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
@@ -233,6 +234,8 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
 
     Route::middleware('can:commerce-editOrders')->group(function () {
         Route::post('orders/apply', [OrderEditController::class, 'apply']);
+        Route::get('orders/customers/search', [OrderCustomersController::class, 'search']);
+        Route::post('orders/customers/create', [OrderCustomersController::class, 'create']);
         Route::get('orders/edit/form', [OrderEditController::class, 'showForm']);
         Route::post('orders/edit/form', [OrderEditController::class, 'submitForm']);
         Route::get('orders/edit/fields', [OrderEditController::class, 'fieldsScreen']);

@@ -15,14 +15,17 @@ use CraftCms\Commerce\Order\Edit\OrderEdit;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\Events\LineItemAdding;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\LineItemStatuses;
+use CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use CraftCms\Commerce\Tests\Support\StoresFixture;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -203,6 +206,31 @@ describe('applying', function() {
 });
 
 describe('line items', function() {
+    it('rejects a purchasable that is not available to the order', function() {
+        $fixture = OrdersFixture::seed();
+        $order = $fixture->orders['completed-new'];
+        $count = count($order->getLineItems());
+
+        Event::listen(PurchasableAvailabilityResolving::class, fn(PurchasableAvailabilityResolving $event) => $event->isAvailable = false);
+
+        expectNotApplicable(fn() => applyOrderOperations($order, [
+            ['type' => 'addLineItem', 'uid' => (string)Str::uuid(), 'purchasableId' => $fixture->white->id],
+        ]), 0);
+
+        expect($order->getLineItems())->toHaveCount($count);
+    });
+
+    it('rejects a line item that a listener refuses to add', function() {
+        $fixture = OrdersFixture::seed();
+        $order = $fixture->orders['completed-new'];
+
+        Event::listen(LineItemAdding::class, fn(LineItemAdding $event) => $event->isValid = false);
+
+        expectNotApplicable(fn() => applyOrderOperations($order, [
+            ['type' => 'addLineItem', 'uid' => (string)Str::uuid(), 'purchasableId' => $fixture->white->id],
+        ]), 0);
+    });
+
     it('keeps a manual price on a completed order', function() {
         $order = OrdersFixture::seed()->orders['completed-new'];
         $lineItem = $order->getLineItems()[0];

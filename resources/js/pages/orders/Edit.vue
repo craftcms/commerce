@@ -22,6 +22,7 @@
         watch,
         type CSSProperties,
     } from 'vue';
+    import CustomerField from '../../modules/orders/CustomerField.vue';
     import ComboboxFieldPopover, {
         type ComboboxFieldOption,
     } from '../../modules/orders/ComboboxFieldPopover.vue';
@@ -162,8 +163,7 @@
         orderSiteOptions: ComboboxFieldOption[];
         reference: string | null;
         shippingMethodOptions: ComboboxFieldOption[];
-        customer: {chipHtml: string; email: string | null} | null;
-        email: string | null;
+        customer: {chipHtml: string} | null;
         shippingAddressHtml: string | null;
         billingAddressHtml: string | null;
         details: Array<{
@@ -562,6 +562,10 @@
                 shippingMethodName: handle ? option?.data?.name : null,
             },
         ]);
+    }
+
+    function selectCustomer(customerId: number | null): void {
+        void apply([{type: 'setCustomer', customerId}]);
     }
 
     function changeStatus(): void {
@@ -1485,29 +1489,16 @@
                 :status-label="labels.fieldModified"
             >
                 <span slot="label">{{ labels.customer }}</span>
-                <div slot="input" class="flex items-center gap-2">
-                    <template v-if="customer">
-                        <span v-html="customer.chipHtml" />
-                    </template>
-                    <template v-else>{{ email ?? labels.noCustomer }}</template>
-                    <craft-button
-                        v-if="editable"
-                        type="button"
-                        icon
-                        size="small"
-                        @click="openForm('setCustomer')"
-                    >
-                        <craft-icon
-                            name="pencil"
-                            :label="
-                                labels.editItem.replace(
-                                    '{item}',
-                                    labels.customer
-                                )
-                            "
-                        />
-                    </craft-button>
-                </div>
+                <CustomerField
+                    slot="input"
+                    :customer="customer"
+                    :editable="editable"
+                    :completed="isCompleted"
+                    :search-url="editUrls.customerSearch"
+                    :create-url="editUrls.customerCreate"
+                    :labels="labels"
+                    @select="selectCustomer"
+                />
             </craft-field>
             <craft-field v-if="orderStatusHtml">
                 <span slot="label">{{ labels.status }}</span>

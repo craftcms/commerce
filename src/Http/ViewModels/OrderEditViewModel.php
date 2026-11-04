@@ -28,6 +28,7 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Http\Controllers\OrderActionsController;
+use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
@@ -275,6 +276,8 @@ class OrderEditViewModel extends ViewModel
             'complete' => action([OrderLifecycleController::class, 'complete']),
             'address' => action([OrderEditController::class, 'addressScreen']),
             'snapshot' => action([OrderEditController::class, 'snapshot']),
+            'customerSearch' => action([OrderCustomersController::class, 'search']),
+            'customerCreate' => action([OrderCustomersController::class, 'create']),
             'fulfillmentForm' => action([OrderActionsController::class, 'fulfillmentForm']),
             'fulfill' => action([OrderActionsController::class, 'fulfill']),
             'emailForm' => action([OrderActionsController::class, 'emailForm']),
@@ -705,7 +708,7 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * @return array{chipHtml: string, email: string|null}|null
+     * @return array{chipHtml: string}|null
      */
     public function customer(): ?array
     {
@@ -717,13 +720,7 @@ class OrderEditViewModel extends ViewModel
 
         return [
             'chipHtml' => app(ElementHtml::class)->elementChipHtml($customer, ['hyperlink' => true]),
-            'email' => $customer->email,
         ];
-    }
-
-    public function email(): ?string
-    {
-        return $this->order->getEmail();
     }
 
     public function shippingAddressHtml(): ?string
@@ -966,6 +963,12 @@ class OrderEditViewModel extends ViewModel
             'options' => t('Options', category: 'commerce'),
             'viewPurchasable' => t('View Purchasable', category: 'commerce'),
             'addresses' => t('Addresses', category: 'commerce'),
+            'searchCustomers' => t('Search or enter customer email…', category: 'commerce'),
+            'removeCustomer' => t('Remove customer', category: 'commerce'),
+            'changeCustomer' => t('Change Customer', category: 'commerce'),
+            'customerSearching' => t('Searching…', category: 'commerce'),
+            'noCustomersFound' => t('No customers found. Enter an email address to create one.', category: 'commerce'),
+            'createCustomerFor' => t('Create customer: “{email}”', category: 'commerce'),
             'location' => t('Location', category: 'commerce'),
             'committed' => t('Committed', category: 'commerce'),
             'fulfilledHeading' => t('Fulfilled', category: 'commerce'),

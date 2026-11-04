@@ -37,7 +37,6 @@ class OrderOperationForms extends TypeRegistry
         SetReferenceForm::class,
         SetOrderSiteForm::class,
         AddLineItemForm::class,
-        SetCustomerForm::class,
         SetAddressForm::class,
         SetFieldValuesForm::class,
         AddAdjustmentForm::class,

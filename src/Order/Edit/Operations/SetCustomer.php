@@ -16,7 +16,8 @@ use Throwable;
 use function CraftCms\Cms\t;
 
 /**
- * Sets or removes the order's customer.
+ * Sets or removes the order's customer. A completed order can be given another customer but not
+ * left without one.
  *
  * A cart given a new customer takes that customer's primary addresses, when its store auto-sets
  * new cart addresses.
@@ -70,6 +71,10 @@ final readonly class SetCustomer extends OrderOperation
 
         if ($this->customerId !== null && !$customer) {
             throw new OperationNotApplicableException(t('The customer no longer exists.', category: 'commerce'));
+        }
+
+        if ($this->customerId === null && $order->isCompleted) {
+            throw new OperationNotApplicableException(t('A completed order needs a customer.', category: 'commerce'));
         }
 
         $customerChanged = $order->getCustomerId() !== $this->customerId;

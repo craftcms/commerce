@@ -234,23 +234,39 @@ it('adds a purchasable chosen with the element selector', function() {
     editFormsSubmit($cart, 'addLineItem', ['qty' => '1'])->assertStatus(422)->assertJsonValidationErrors(['purchasableId']);
 });
 
-it('sets, creates and removes the customer', function() {
+it('adds a purchasable to a completed order’s edit session without saving it', function() {
+    $fixture = OrdersFixture::seed();
+    $order = $fixture->orders['completed-new'];
+    $count = count($order->getLineItems());
+
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+
+    editFormsSubmit($order, 'addLineItem', ['purchasableId' => $fixture->blue->id, 'qty' => '2'])
+        ->assertOk()
+        ->assertJsonPath('message', 'Change added.')
+        ->assertJsonPath('session.edit.operations.0.type', 'addLineItem');
+
+    expect(Order::find()->id($order->id)->one()->getLineItems())->toHaveCount($count);
+});
+
+function editFormsSetCustomer(Order $cart, ?int $customerId): Illuminate\Testing\TestResponse
+{
+    return postJson(Url::actionUrl('commerce/orders/apply'), [
+        'orderId' => $cart->id,
+        'dateUpdated' => $cart->dateUpdated->format(DATE_ATOM),
+        'operations' => [['type' => 'setCustomer', 'customerId' => $customerId]],
+    ]);
+}
+
+it('sets and removes a cart’s customer', function() {
     $fixture = OrdersFixture::seed();
     $cart = editFormsCart($fixture, false);
 
-    editFormsSubmit($cart, 'setCustomer', ['customerId' => $fixture->customer->id])->assertOk();
+    editFormsSetCustomer($cart, $fixture->customer->id)->assertOk();
     $cart = Order::find()->id($cart->id)->one();
     expect($cart->getCustomerId())->toBe($fixture->customer->id);
 
-    editFormsSubmit($cart, 'setCustomer', ['email' => 'new-customer@example.com'])->assertOk();
-    $cart = Order::find()->id($cart->id)->one();
-    expect($cart->getCustomer()->email)->toBe('new-customer@example.com');
-
-    editFormsSubmit($cart, 'setCustomer', ['email' => 'not an email'])
-        ->assertStatus(422)
-        ->assertJsonValidationErrors(['email']);
-
-    editFormsSubmit($cart, 'setCustomer', [])->assertOk();
+    editFormsSetCustomer($cart, null)->assertOk();
     expect(Order::find()->id($cart->id)->one()->getCustomerId())->toBeNull();
 });
 
@@ -285,7 +301,7 @@ it('edits an address from its own fields', function() {
 it('copies one of the customer’s addresses', function() {
     $fixture = OrdersFixture::seed();
     $cart = editFormsCart($fixture, false);
-    editFormsSubmit($cart, 'setCustomer', ['customerId' => $fixture->customer->id])->assertOk();
+    editFormsSetCustomer($cart, $fixture->customer->id)->assertOk();
     $cart = Order::find()->id($cart->id)->one();
 
     $address = new CraftCms\Cms\Address\Elements\Address([
