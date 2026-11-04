@@ -655,8 +655,8 @@ class CartController
         $estimatedBillingAddress = $request->input('estimatedBillingAddress');
 
         // Use an address ID from the customer address book to populate the address
-        $shippingAddressId = $request->input('shippingAddressId');
-        $billingAddressId = $request->input('billingAddressId');
+        $shippingAddressId = $request->integer('shippingAddressId') ?: null;
+        $billingAddressId = $request->integer('billingAddressId') ?: null;
 
         if ($setShippingAddress) {
             // Shipping address
