@@ -1,0 +1,51 @@
+<!-- Template: {{ _self }}.twig -->
+{#
+Outputs an order’s cost breakdown and total.
+
+@var order \CraftCms\Commerce\Order\Elements\Order
+#}
+<dl class="space-y-3 text-sm">
+  <div class="flex items-center justify-between">
+    <dt class="text-gray-600">{{ 'Subtotal'|t }}</dt>
+    <dd class="font-medium tabular-nums">{{ order.itemSubtotal|commerceCurrency(order.currency) }}</dd>
+  </div>
+  {% if order.totalDiscount %}
+    <div class="flex items-center justify-between">
+      <dt class="text-gray-600">{{ 'Discount'|t }}</dt>
+      <dd class="font-medium tabular-nums text-green-700">{{ order.totalDiscount|commerceCurrency(order.currency) }}</dd>
+    </div>
+  {% endif %}
+  <div class="flex items-center justify-between">
+    <dt class="text-gray-600">
+      {{- 'Shipping'|t -}}
+      {% if order.shippingMethodName %}<span class="text-gray-400"> · {{ order.shippingMethodName }}</span>{% endif %}
+    </dt>
+    <dd class="font-medium tabular-nums">{{ order.totalShippingCost|commerceCurrency(order.currency) }}</dd>
+  </div>
+  <div class="flex items-center justify-between">
+    <dt class="text-gray-600">{{ 'Tax'|t }}</dt>
+    <dd class="font-medium tabular-nums">{{ order.totalTax|commerceCurrency(order.currency) }}</dd>
+  </div>
+  {% if order.totalTaxIncluded %}
+    <div class="flex items-center justify-between">
+      <dt class="text-gray-600">{{ 'Tax (included)'|t }}</dt>
+      <dd class="font-medium tabular-nums">{{ order.totalTaxIncluded|commerceCurrency(order.currency) }}</dd>
+    </div>
+  {% endif %}
+  <div class="flex items-center justify-between border-t border-gray-200 pt-3 text-base">
+    <dt class="font-semibold">{{ 'Total'|t }}</dt>
+    <dd class="font-semibold tabular-nums">{{ order.totalPrice|commerceCurrency(order.currency) }}</dd>
+  </div>
+  {% if order.currency != order.paymentCurrency and order.totalPrice == order.getOutstandingBalance() %}
+    <div class="flex items-center justify-between text-gray-600">
+      <dt>{{ 'Payment in {currency}'|t({ currency: order.paymentCurrency }) }}</dt>
+      <dd class="tabular-nums">{{ order.totalPrice|commerceCurrency(order.paymentCurrency, convert=true) }}</dd>
+    </div>
+  {% endif %}
+  {% if order.hasOutstandingBalance and order.totalPrice != order.getOutstandingBalance() %}
+    <div class="flex items-center justify-between font-semibold">
+      <dt>{{ 'Outstanding balance ({currency})'|t({ currency: order.paymentCurrency }) }}</dt>
+      <dd class="tabular-nums">{{ order.outstandingBalance|commerceCurrency(order.paymentCurrency, convert=true) }}</dd>
+    </div>
+  {% endif %}
+</dl>

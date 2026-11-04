@@ -4,180 +4,175 @@
 
 {% extends 'shop/_private/layouts' %}
 
-{# @var gateways \craft\commerce\base\GatewayInterface[] #}
+{# @var gateways \CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface[] #}
 {% set gateways = craft.commerce.gateways.allCustomerEnabledGateways %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block">
-    {{- 'Manage Stored Cards'|t -}}
-  </h1>
+  <h1 class="text-3xl font-bold tracking-tight">{{ 'Saved cards'|t }}</h1>
+  <p class="mt-1 text-sm text-gray-500">{{ 'Cards you save are available for faster checkout.'|t }}</p>
 
-  {% for gateway in gateways %}
-    {% set gatewayPaymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id, gateway.id) %}
+  <div class="mt-8 grid gap-10 lg:grid-cols-12">
+    <div class="space-y-8 lg:col-span-7">
+      {% for gateway in gateways %}
+        {% set gatewayPaymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id, gateway.id) %}
 
-    <h2 class="text-xl block mt-4">{{ gateway.name }}</h2>
+        <section>
+          <h2 class="text-sm font-medium text-gray-500">{{ gateway.name }}</h2>
 
-    <div class="mt-3 flex flex-wrap -mx-2">
-      {% for paymentSource in gatewayPaymentSources %}
-        <div class="w-full mt-3 md:w-1/2 lg:w-1/3 px-2">
-          <div class="card bg-gray-100 border-blue-300 border-b-2 p-6">
-            <div class="my-3">
-              <strong>{{ paymentSource.description }} {% if paymentSource.id == currentUser.primaryPaymentSourceId %}<span class="text-red-500">{{ 'Primary'|t }}</span>{% endif %}</strong>
-              {% if paymentSource.gateway %}
-                <div class="text-sm text-grey-dark">{{ paymentSource.gateway.name }} ({{ paymentSource.token }})</div>
-              {% endif %}
-            </div>
+          {% if gatewayPaymentSources|length %}
+            <ul class="mt-3 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
+              {% for paymentSource in gatewayPaymentSources %}
+                <li class="flex flex-wrap items-center justify-between gap-4 p-4">
+                  <div class="flex items-center gap-4">
+                    <span class="flex h-8 w-12 items-center justify-center rounded-md bg-gray-100 text-gray-400" aria-hidden="true">
+                      <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg>
+                    </span>
+                    <div class="text-sm">
+                      <p class="font-medium">
+                        {{ paymentSource.description }}
+                        {% if paymentSource.id == currentUser.primaryPaymentSourceId %}
+                          <span class="ml-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">{{ 'Default'|t }}</span>
+                        {% endif %}
+                      </p>
+                      {% if paymentSource.gateway %}
+                        <p class="text-gray-500">{{ paymentSource.gateway.name }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
 
-            <div>
-              {% if paymentSource.id != currentUser.primaryPaymentSourceId %}
-                <form method="post" action="">
-                  {{ csrfInput() }}
-                  {{ redirectInput('shop/customer/cards') }}
-                  {{ actionInput('commerce/payment-sources/set-primary-payment-source') }}
-                  {{ hiddenInput('id', paymentSource.id) }}
-                  {{ tag('button', {
-                    type: 'submit',
-                    class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
-                    text: 'Set as primary'|t
-                  }) }}
-                </form>
-              {% endif %}
-              <form method="post" action="">
-                {{ csrfInput() }}
-                {{ redirectInput('shop/customer/cards') }}
-                {{ actionInput('commerce/payment-sources/delete') }}
-                {{ hiddenInput('id', paymentSource.id) }}
-                {{ tag('button', {
-                  type: 'submit',
-                  class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
-                  text: 'Delete card'|t
-                }) }}
-              </form>
-            </div>
-          </div>
-        </div>
-      {% else %}
-        <div class="w-full px-2">
-          <p class="bg-gray-100 p-4">{{ 'You don’t have any payment sources for this gateway. Add one, below.'|t }}</p>
-        </div>
+                  <div class="flex gap-2">
+                    {% if paymentSource.id != currentUser.primaryPaymentSourceId %}
+                      <form method="post" action="">
+                        {{ csrfInput() }}
+                        {{ redirectInput('shop/customer/cards') }}
+                        {{ actionInput('commerce/payment-sources/set-primary-payment-source') }}
+                        {{ hiddenInput('id', paymentSource.id) }}
+                        {{ tag('button', {
+                          type: 'submit',
+                          class: 'inline-flex cursor-pointer items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold shadow-xs transition bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50',
+                          text: 'Make default'|t
+                        }) }}
+                      </form>
+                    {% endif %}
+                    <form method="post" action="">
+                      {{ csrfInput() }}
+                      {{ redirectInput('shop/customer/cards') }}
+                      {{ actionInput('commerce/payment-sources/delete') }}
+                      {{ hiddenInput('id', paymentSource.id) }}
+                      {{ tag('button', {
+                        type: 'submit',
+                        class: 'inline-flex cursor-pointer items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold shadow-xs transition bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 text-red-600',
+                        text: 'Remove'|t
+                      }) }}
+                    </form>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mt-3 rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">{{ 'No saved cards for this gateway yet.'|t }}</p>
+          {% endif %}
+
+          {# Provide a management link for Stripe-provided payment sources: #}
+          {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' and gateway['billingPortalUrl'] is defined %}
+            <a class="mt-2 inline-block text-sm font-medium text-blue-600 hover:text-blue-500" href="{{ gateway.getBillingPortalUrl(currentUser) }}">{{ 'Manage on Stripe'|t }} &rarr;</a>
+          {% endif %}
+        </section>
       {% endfor %}
     </div>
 
-    {# Provide a management link for Stripe-provided payment sources: #}
-    {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' and gateway['billingPortalUrl'] is defined %}
-      <div class="mt-2">
-        <a class="text-blue-500 hover:text-blue-600" href="{{ gateway.getBillingPortalUrl(currentUser) }}">Manage on Stripe &rarr;</a>
-      </div>
-    {% endif %}
-  {% endfor %}
+    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-xs lg:col-span-5 lg:self-start" aria-labelledby="add-card-heading">
+      <h2 id="add-card-heading" class="text-lg font-semibold">{{ 'Add a card'|t }}</h2>
 
-  <h2 class="text-2xl block mt-6">
-    {{- 'Add a Card'|t -}}
-  </h2>
+      <label for="gatewayId" class="mt-4 block text-sm font-medium text-gray-700">{{ 'Payment gateway'|t }}</label>
+      {% tag 'select' with {
+        id: 'gatewayId',
+        class: ['mt-1', 'w-full', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
+      } %}
+        {{ tag('option', {
+          value: '',
+          disabled: true,
+          selected: true,
+          text: 'Select a gateway…'|t
+        }) }}
+        {% for gateway in gateways %}
+          {% if gateway.supportsPaymentSources() %}
+            {{ tag('option', {
+              value: gateway.id,
+              text: gateway.name
+            }) }}
+          {% endif %}
+        {% endfor %}
+      {% endtag %}
 
-  <div class="max-w-md">
-    <div>
-      <div class="field">
-        <label for="gatewayId" class="block">
-          {{- 'Payment Gateway'|t -}}
-        </label>
-        {% tag 'select' with {
-          id: 'gatewayId',
-          class: ['w-full', 'h-9', 'max-w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
-        } %}
-          {{ tag('option', {
-            value: '',
-            disabled: true,
-            selected: true,
-            text: 'Select gateway'|t ~ '...'
-          }) }}
-          {% for gateway in gateways %}
-            {% if gateway.supportsPaymentSources() %}
-              {{ tag('option', {
-                value: gateway.id,
-                text: gateway.name
-              }) }}
-            {% endif %}
-          {% endfor %}
-        {% endtag %}
-      </div>
-    </div>
-    <div class="mt-3">
       {% for gateway in gateways %}
         {% if gateway.supportsPaymentSources() %}
-        <div id="fields-{{ gateway.id }}"
-             class="js-gateway-fields hidden pt-3 mt-3 border-t border-gray-300 border-dashed"
-        >
-          <form id="gateway-{{ gateway.id }}"
-                method="post"
-                action=""
-                class="form-horizontal max-w-md"
-          >
-            {{ csrfInput() }}
-            {{ actionInput('commerce/payment-sources/add') }}
-            {{ hiddenInput('gatewayId', gateway.id) }}
-            {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
-            {{ hiddenInput('cancelUrl', 'shop/customer/cards'|hash) }}
-            {{ redirectInput('shop/customer/cards') }}
+          <div id="fields-{{ gateway.id }}" class="js-gateway-fields mt-6 hidden border-t border-gray-200 pt-6">
+            <form id="gateway-{{ gateway.id }}" method="post" action="" class="space-y-5">
+              {{ csrfInput() }}
+              {{ actionInput('commerce/payment-sources/add') }}
+              {{ hiddenInput('gatewayId', gateway.id) }}
+              {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
+              {{ hiddenInput('cancelUrl', 'shop/customer/cards'|hash) }}
+              {{ redirectInput('shop/customer/cards') }}
 
-            {% set params = {} %}
+              {% set params = {} %}
 
-            {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
-              {% set params = {
-                paymentFormType: 'elements',
-                appearance: {
-                  theme: 'stripe'
-                },
-                elementOptions: {
-                  layout: {
-                    type: 'accordion',
-                    defaultCollapsed: false,
-                    radios: false,
-                    spacedAccordionItems: false
-                  }
-                },
-                submitButtonClasses: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white my-2',
-                submitButtonText: 'Create',
-                errorMessageClasses: 'bg-red-200 text-red-600 my-2 p-2 rounded',
-              } %}
-            {% endif %}
+              {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
+                {% set params = {
+                  paymentFormType: 'elements',
+                  appearance: {
+                    theme: 'stripe'
+                  },
+                  elementOptions: {
+                    layout: {
+                      type: 'accordion',
+                      defaultCollapsed: false,
+                      radios: false,
+                      spacedAccordionItems: false
+                    }
+                  },
+                  submitButtonClasses: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                  submitButtonText: 'Save card',
+                  errorMessageClasses: 'rounded-md bg-red-50 p-3 text-sm text-red-700',
+                } %}
+              {% endif %}
 
-            <div>
-              {{ input('text', 'description', '', {
-                maxlength: 70,
-                autocomplete: 'off',
-                placeholder: 'Payment source description'|t,
-                class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
-              }) }}
-            </div>
-
-            <div class="mt-4">
-              <label>
-                {{ 'Set as primary payment source?'|t }} {{ input('checkbox', 'isPrimaryPaymentSource', 1) }}
-              </label>
-            </div>
-
-            <div class="gateway-payment-form max-w-3/4">
-              {% namespace gateway.handle|commercePaymentFormNamespace %}
-                {{ gateway.getPaymentFormHtml(params)|raw }}
-              {% endnamespace %}
-            </div>
-
-            {% if gateway.showPaymentFormSubmitButton() %}
-              <div class="mt-4 text-right">
-                {{ tag('button', {
-                  type: 'submit',
-                  class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-                  text: 'Add card'|t
+              <div>
+                <label for="description-{{ gateway.id }}" class="block text-sm font-medium text-gray-700">{{ 'Card nickname'|t }}</label>
+                {{ input('text', 'description', '', {
+                  id: 'description-' ~ gateway.id,
+                  maxlength: 70,
+                  autocomplete: 'off',
+                  placeholder: 'e.g. Work card'|t,
+                  class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
                 }) }}
               </div>
-            {% endif %}
-          </form>
-        </div>
+
+              <div class="gateway-payment-form space-y-4 [&_craft-input]:block [&_fieldset]:space-y-1 [&_legend]:mb-1 [&_legend]:text-sm [&_legend]:font-medium [&_legend]:text-gray-700 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:block [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:w-full [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:rounded-md [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:bg-white [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:px-3 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:py-2 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:text-sm [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:outline-1 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:-outline-offset-1 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:outline-gray-300 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:focus:outline-2 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:focus:outline-blue-600">
+                {% namespace gateway.handle|commercePaymentFormNamespace %}
+                  {{ gateway.getPaymentFormHtml(params)|raw }}
+                {% endnamespace %}
+              </div>
+
+              <label class="flex items-center gap-2 text-sm text-gray-700">
+                {{ input('checkbox', 'isPrimaryPaymentSource', 1, { class: 'size-4' }) }}
+                {{ 'Make this my default card'|t }}
+              </label>
+
+              {% if gateway.showPaymentFormSubmitButton() %}
+                {{ tag('button', {
+                  type: 'submit',
+                  class: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                  text: 'Save card'|t
+                }) }}
+              {% endif %}
+            </form>
+          </div>
         {% endif %}
       {% endfor %}
-    </div>
+    </section>
   </div>
 
   {% js %}

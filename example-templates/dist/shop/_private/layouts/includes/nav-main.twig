@@ -1,9 +1,9 @@
 <!-- Template: {{ _self }}.twig -->
 {#
-Outputs the site’s global main navigation based on path and included `pages` array.
+Outputs the main navigation, plus account and cart links, based on the current path and the `pages` array.
 
-@var cart        \craft\commerce\elements\Order
-@var currentUser \craft\elements\User
+@var cart        \CraftCms\Commerce\Order\Elements\Order
+@var currentUser \CraftCms\Cms\User\Elements\User
 #}
 {% set pages = [
   {
@@ -15,47 +15,36 @@ Outputs the site’s global main navigation based on path and included `pages` a
     url: 'shop/donations'
   }
 ] %}
-{% set currentPath = craft.app.request.pathInfo %}
-{% set activeClasses = 'bg-white' %}
-{# Show the nav if we are not in a checkout page #}
-{% if 'checkout' not in currentPath %}
-  <div class="bg-gray-100">
-    <div class="container mx-auto justify-between items-center p-6 relative">
-      <nav class="-ml-4"
-           role="navigation"
-           aria-label="Main">
-        {% for page in pages %}
-          <a href="{{ url(page.url) }}"
-             class="mx-2 px-2 py-1 rounded{% if page.url in currentPath %} {{ activeClasses }}{% endif %}">
-            {{- page.label|t -}}
-          </a>
-        {% endfor %}
-        <div class="absolute right-2 top-0">
-          {% if currentUser %}
-            <a href="{{ url('shop/customer') }}"
-               class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
-                👤&nbsp;My Account
-            </a>
-          {% else %}
-            <a href="{{ url('shop/customer/sign-in') }}"
-               class="mx-2 px-2 py-1 rounded">
-              {{- 'Sign In'|t -}}
-            </a>
-          {% endif %}
-          <a href="{{ url('shop/cart') }}"
-             class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
-              <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full text-white text-xs bg-blue-800">
-                {% if cart.totalQty %}
-                  {{- cart.totalQty -}}
-                {% else %}
-                  Empty
-                {% endif %}
-              </span>
+{% set currentPath = Request.path() %}
 
-            <span aria-label="{{ 'View Cart'|t }}">🛒 Cart</span>
-          </a>
-        </div>
-      </nav>
-    </div>
-  </div>
-{% endif %}
+<nav class="flex items-center gap-1" aria-label="{{ 'Main'|t }}">
+  {% for page in pages %}
+    {% set isActive = page.url in currentPath %}
+    <a href="{{ url(page.url) }}"
+       class="rounded-md px-3 py-2 text-sm font-medium {{ isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+       {% if isActive %}aria-current="page"{% endif %}>
+      {{- page.label|t -}}
+    </a>
+  {% endfor %}
+</nav>
+
+<div class="ml-auto flex items-center gap-2">
+  {% if currentUser %}
+    <a href="{{ url('shop/customer') }}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+      {{- 'My account'|t -}}
+    </a>
+  {% else %}
+    <a href="{{ url('shop/customer/sign-in') }}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+      {{- 'Sign in'|t -}}
+    </a>
+  {% endif %}
+
+  <a href="{{ url('shop/cart') }}" class="group relative inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+    <svg class="size-5 text-gray-400 group-hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+    <span>{{ 'Cart'|t }}</span>
+    <span class="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white {{ cart.totalQty ? '' : 'hidden' }}">
+      {{- cart.totalQty -}}
+    </span>
+    <span class="sr-only">{{ '{count} items in cart'|t({ count: cart.totalQty }) }}</span>
+  </a>
+</div>

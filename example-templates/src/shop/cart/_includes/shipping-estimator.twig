@@ -2,26 +2,27 @@
 {#
 Outputs a form for collecting shipping estimate address details if an address doesn’t yet exist on the cart.
 
-@var cart \craft\commerce\elements\Cart
+@var cart \CraftCms\Commerce\Order\Elements\Order
 #}
 {% if not cart.getShippingAddress() %}
-  {% set countries = craft.app.addresses.getCountryRepository().getList() %}
+  {% set countries = Addresses.getCountryRepository().getList() %}
   {% set states = [] %}
 {#  {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}#}
 
   <div class="[[classes.box.base]]">
-    <h5 class="mt-0 font-bold">
-      {{- 'Shipping Estimate'|t -}}
-    </h5>
+    <h2 class="text-base font-semibold">
+      {{- 'Estimate shipping'|t -}}
+    </h2>
+    <p class="mt-1 text-sm text-gray-500">{{ 'Enter your location to see shipping options and costs.'|t }}</p>
 
     <div class="js-estimate-fields">
-      <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryCode">
+      <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedShippingAddress-countryCode">
         {{- 'Country'|t -}}
       </label>
       {% tag 'select' with {
         name: 'estimatedShippingAddress[countryCode]',
         'data-modelname': 'estimatedShippingAddress',
-        class: ['js-address-country', 'js-estimate-country', 'w-full', 'h-9', 'max-w-full', '[[classes.input]]']
+        class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', '[[classes.select]]']
       } %}
         {{ tag('option', {
           value: '',
@@ -39,10 +40,10 @@ Outputs a form for collecting shipping estimate address details if an address do
         {% endfor %}
       {% endtag %}
 
-      <div class="lg:flex lg:-mx-2">
-        <div class="lg:w-1/2 lg:mx-2 my-2">
+      <div class="mt-1 grid gap-x-3 sm:grid-cols-2">
+        <div class="">
           <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
-            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">
+            <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedShippingAddress-state">
               {{- 'State'|t -}}
             </label>
             {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryCode] is defined ?
@@ -52,7 +53,7 @@ Outputs a form for collecting shipping estimate address details if an address do
               name: 'estimatedShippingAddress[stateValue]',
               id: 'estimatedShippingAddress-stateId',
               'data-modelname': 'estimatedShippingAddress',
-              class: ['js-address-stateId', 'max-w-full', 'h-9', options|length == 0 ? 'hidden' : '', '[[classes.input]]']
+              class: ['js-address-stateId', 'max-w-full', options|length == 0 ? 'hidden' : '', '[[classes.select]]']
             } %}
               {{ tag('option', {
                 value: '',
@@ -77,8 +78,8 @@ Outputs a form for collecting shipping estimate address details if an address do
             }) }}
           </div>
         </div>
-        <div class="lg:w-1/2 lg:mx-2 my-2">
-          <label class="mb-0 mt-2 block" for="estimatedShippingAddress-postalCode">
+        <div class="">
+          <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedShippingAddress-postalCode">
             {{- 'Postal Code'|t -}}
           </label>
           {{ input('text', 'estimatedShippingAddress[postalCode]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.postalCode : '', {
@@ -90,26 +91,27 @@ Outputs a form for collecting shipping estimate address details if an address do
       </div>
 
       <div class="mt-4">
-        <label class="m-0">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
           {{ input('checkbox', 'estimatedBillingAddressSameAsShipping', 1, {
-            checked: cart.estimatedShippingAddressId == cart.estimatedBillingAddressId
+            checked: cart.estimatedShippingAddressId == cart.estimatedBillingAddressId,
+            class: 'size-4 accent-[[color]]-600'
           }) }}
-          {{ 'Billing Same as Shipping'|t }}
+          {{ 'Use the same address for tax'|t }}
         </label>
       </div>
 
 
       <div class="js-estimate-billing mt-6">
-        <h5 class="mt-0 font-bold">
-          {{- 'Tax Estimate'|t -}}
-        </h5>
-        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryCode">
+        <h2 class="text-base font-semibold">
+          {{- 'Estimate tax'|t -}}
+        </h2>
+        <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedBillingAddress-countryCode">
           {{- 'Country'|t -}}
         </label>
         {% tag 'select' with {
           name: 'estimatedBillingAddress[countryCode]',
           'data-modelname': 'estimatedBillingAddress',
-          class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', 'h-9', '[[classes.input]]']
+          class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', '[[classes.select]]']
         } %}
           {{ tag('option', {
             value: '',
@@ -127,10 +129,10 @@ Outputs a form for collecting shipping estimate address details if an address do
           {% endfor %}
         {% endtag %}
 
-        <div class="lg:flex lg:-mx-2">
-          <div class="lg:w-1/2 lg:mx-2 my-2">
+        <div class="mt-1 grid gap-x-3 sm:grid-cols-2">
+          <div class="">
             <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
-              <label class="mb-0 block" for="estimatedBillingAddress-state">
+              <label class="block text-sm font-medium text-gray-700" for="estimatedBillingAddress-state">
                 {{- 'State'|t -}}
               </label>
               {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryCode] is defined ?
@@ -140,7 +142,7 @@ Outputs a form for collecting shipping estimate address details if an address do
                 name: 'estimatedBillingAddress[stateValue]',
                 id: 'estimatedBillingAddress-stateId',
                 'data-modelname': 'estimatedBillingAddress',
-                class: ['js-address-stateId', 'w-full', 'max-w-full', 'h-9', options|length == 0 ? 'hidden', '[[classes.input]]']
+                class: ['js-address-stateId', 'w-full', 'max-w-full', options|length == 0 ? 'hidden', '[[classes.select]]']
               } %}
                 {{ tag('option', {
                   value: '',
@@ -164,8 +166,8 @@ Outputs a form for collecting shipping estimate address details if an address do
               }) }}
             </div>
           </div>
-          <div class="lg:w-1/2 lg:mx-2 my-2">
-            <label class="mb-0 block" for="estimatedBillingAddress-postalCode">
+          <div class="">
+            <label class="block text-sm font-medium text-gray-700" for="estimatedBillingAddress-postalCode">
               {{- 'Postal Code' -}}
             </label>
             {{ input('text', options|length == 0 ? 'estimatedBillingAddress[postalCode]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.postalCode : '', {
@@ -180,19 +182,22 @@ Outputs a form for collecting shipping estimate address details if an address do
     <div class="js-estimate-shipping-methods">
       {% if cart.availableShippingMethodOptions|length and cart.estimatedShippingAddressId %}
         <div class="mt-3">
-          {% for handle, method in cart.availableShippingMethodOptions %}
-            <div class="js-shipping-select">
-              <label>
-                {{ input('radio', 'shippingMethodHandle', handle, {
-                  checked: handle == cart.shippingMethodHandle
-                }) }}
-                {{ method.name }}
-                <span title="{{ method.priceForOrder(cart) }}">
-                  {{- method.priceForOrder(cart)|commerceCurrency(cart.currency) -}}
-                </span>
-              </label>
-            </div>
-          {% endfor %}
+          <div class="space-y-2">
+            {% for handle, method in cart.availableShippingMethodOptions %}
+              <div class="js-shipping-select">
+                <label class="flex items-center gap-3 [[classes.box.selection]]">
+                  {{ input('radio', 'shippingMethodHandle', handle, {
+                    checked: handle == cart.shippingMethodHandle,
+                    class: 'size-4 accent-[[color]]-600'
+                  }) }}
+                  <span class="flex-1 text-sm font-medium">{{ method.name }}</span>
+                  <span class="text-sm tabular-nums" title="{{ method.priceForOrder(cart) }}">
+                    {{- method.priceForOrder(cart)|commerceCurrency(cart.currency) -}}
+                  </span>
+                </label>
+              </div>
+            {% endfor %}
+          </div>
         </div>
         <div class="mt-4">
           <a class="[[classes.a]] js-estimate-show-fields" href="#">

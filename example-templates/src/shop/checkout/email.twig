@@ -6,37 +6,39 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-xl font-bold">
-    {{- 'Let’s grab your email to get started'|t -}}
-  </h1>
+  <div class="mx-auto max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
+    <h1 class="text-xl font-semibold">{{ 'Contact information'|t }}</h1>
+    <p class="mt-1 text-sm text-gray-500">{{ 'We’ll send your order confirmation to this email address.'|t }}</p>
 
-  <div class="flex -mx-8 mt-6">
-    <div class="w-full max-w-xl px-8">
-      <form method="post" action="">
-        {{ csrfInput() }}
-        {{ actionInput('commerce/cart/update') }}
-        {{ redirectInput('[[folderName]]/checkout/register-signin') }}
-        {{ successMessageInput('Email address updated.') }}
+    <form method="post" action="" class="mt-6 space-y-6">
+      {{ csrfInput() }}
+      {{ actionInput('commerce/cart/update') }}
+      {{ redirectInput('[[folderName]]/checkout/register-signin') }}
+      {{ successMessageInput('Email address updated.') }}
 
-        <div class="field">
-          <label for="email">
-            {{- 'Email'|t -}}
-          </label>
-          {{ input('text', 'email', cart.email, {
-            id: 'email',
-            placeholder: 'email@site.com',
-            class: ['w-full', '[[classes.input]]']
-          }) }}
-        </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">{{ 'Email address'|t }}</label>
+        {{ input('email', 'email', old('email', cart.email), {
+          id: 'email',
+          autocomplete: 'email',
+          placeholder: 'email@site.com',
+          class: 'mt-1 w-full [[classes.input]]'
+        }) }}
+        {% if errors.has('email') %}
+          <p class="mt-2 text-sm text-[[dangerColor]]-600">{{ errors.first('email') }}</p>
+        {% endif %}
+      </div>
 
-        <div class="mt-3">
-          {{ tag('button', {
-            type: 'submit',
-            class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-            text: 'Continue'|t
-          }) }}
-        </div>
-      </form>
-    </div>
+      {{ tag('button', {
+        type: 'submit',
+        class: 'w-full [[classes.btn.base]] [[classes.btn.mainColor]]',
+        text: 'Continue'|t
+      }) }}
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-500">
+      {{ 'Already have an account?'|t }}
+      <a href="{{ url('[[folderName]]/customer/sign-in') }}" class="[[classes.a]]">{{ 'Sign in'|t }}</a>
+    </p>
   </div>
 {% endblock %}

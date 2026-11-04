@@ -1,18 +1,28 @@
-<div class="bg-gray-900">
-  <div class="container mx-auto p-6 md:flex justify-content-between align-content-center">
-    <h1 class="text-3xl">
-      <a href="{{ siteUrl('shop') }}" class="text-white">
-        {{- siteName ~ ' Shop' -}}
-      </a>
-    </h1>
-    {% if craft.app.sites.getAllSites()|length > 1 %}
-      <div class="ml-auto">
-        <select name="site" id="js-site-selector" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-          {% for site in craft.app.sites.getAllSites() %}
-            <option value="{{ siteUrl(craft.app.request.absoluteUrl|replace(currentSite.getBaseUrl(), ''), null, null, site.id) }}" {% if site.handle == currentSite.handle %}selected{% endif %}>{{ site.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    {% endif %}
-  </div>
+<!-- Template: {{ _self }}.twig -->
+{#
+Outputs the site header: the shop name, main navigation, account and cart links, and a site selector when there’s more than one site.
+#}
+{% set isCheckout = 'checkout' in Request.path() %}
+<div class="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8">
+  <a href="{{ siteUrl('shop') }}" class="text-lg font-semibold tracking-tight text-gray-900">
+    {{- siteName -}}
+  </a>
+
+  {% if isCheckout %}
+    <span class="ml-auto inline-flex items-center gap-2 text-sm text-gray-500">
+      <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>
+      {{- 'Secure checkout'|t -}}
+    </span>
+    <a href="{{ url('shop/cart') }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">{{ 'Back to cart'|t }}</a>
+  {% else %}
+    {{ include('shop/_private/layouts/includes/nav-main') }}
+  {% endif %}
+
+  {% if Sites.getAllSites()|length > 1 %}
+    <select name="site" id="js-site-selector" aria-label="{{ 'Site'|t }}" class="{{ isCheckout ? '' : 'ml-2' }} w-auto block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600">
+      {% for site in Sites.getAllSites() %}
+        <option value="{{ siteUrl(Request.fullUrl()|replace(currentSite.getBaseUrl(), ''), null, null, site.id) }}" {% if site.handle == currentSite.handle %}selected{% endif %}>{{ site.name }}</option>
+      {% endfor %}
+    </select>
+  {% endif %}
 </div>

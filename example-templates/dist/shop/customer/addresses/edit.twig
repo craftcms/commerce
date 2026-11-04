@@ -6,9 +6,9 @@
 
 {% block main %}
 
-    {% set addressId = craft.app.request.queryParam('addressId') %}
-    {% set redirect = craft.app.request.queryParam('redirect') %}
-    {% set countryCode = craft.app.request.queryParam('countryCode') %}
+    {% set addressId = Request.query('addressId') %}
+    {% set redirect = Request.query('redirect') %}
+    {% set countryCode = Request.query('countryCode') %}
 
     {% if not address is defined %}
         {% if addressId %}
@@ -18,55 +18,45 @@
             {% endif %}
         {% else %}
             {% set address = create({
-                class: 'craft\\elements\\Address',
+                class: 'CraftCms\\Cms\\Address\\Elements\\Address',
                 ownerId: currentUser.id,
                 countryCode: countryCode ?? 'US'
             }) %}
         {% endif %}
     {% endif %}
 
-    <!-- Template: {{ _self }}.twig -->
+  <!-- Template: {{ _self }}.twig -->
+  <div class="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
     <h1 class="text-xl font-semibold">
-        {% if addressId %}
-            {{- 'Edit address'|t -}}
-        {% else %}
-            {{- 'Add a new address'|t -}}
-        {% endif %}
+      {{- addressId ? 'Edit address'|t : 'Add an address'|t -}}
     </h1>
 
-    <form method="post" action="">
-        {{ csrfInput() }}
-        {{ actionInput('users/save-address') }}
-        {{ redirectInput(redirect ?: 'shop/customer/addresses') }}
+    <form method="post" action="" class="mt-6">
+      {{ csrfInput() }}
+      {{ actionInput('users/save-address') }}
+      {{ redirectInput(redirect ?: 'shop/customer/addresses') }}
 
-        {% if addressId %}
-            {{ hiddenInput('addressId', addressId) }}
-        {% endif %}
+      {% if addressId %}
+        {{ hiddenInput('addressId', addressId) }}
+      {% endif %}
 
-        {{ include('shop/_private/address/fields', {
-            address: address,
-            showLabelField: true,
-            showPrimaryCheckboxes: true,
+      {{ include('shop/_private/address/fields', {
+        address: address,
+        showLabelField: true,
+        showPrimaryCheckboxes: true,
+      }) }}
+      {{ hiddenInput('ownerId', currentUser.id) }}
+
+      <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
+        <a href="{{ redirect ? '/' ~ redirect : url('shop/customer/addresses') }}" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+          {{- 'Cancel'|t -}}
+        </a>
+        {{ tag('button', {
+          type: 'submit',
+          class: 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+          text: 'Save address'|t
         }) }}
-        {{ hiddenInput('ownerId', currentUser.id) }}
-
-        <hr class="my-3"/>
-
-        <div class="mt-6 flex justify-between">
-            <div>
-                <a href="{{ redirect ? '/' ~ redirect : url('shop/customer/addresses') }}"
-                   class="text-blue-500 hover:text-blue-600"
-                >
-                    {{- 'Cancel'|t -}}
-                </a>
-            </div>
-            <div>
-                {{ tag('button', {
-                    type: 'submit',
-                    class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-                    text: 'Save Address'|t
-                }) }}
-            </div>
-        </div>
+      </div>
     </form>
+  </div>
 {% endblock %}

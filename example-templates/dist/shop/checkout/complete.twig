@@ -5,12 +5,13 @@
     {% redirect 'shop/checkout/payment-method' %}
   {% endif %}
 
-  <div class="flex -mx-8">
-    <div class="w-2/3 px-8">
-      <h1 class="font-bold text-xl">
+  <div class="mx-auto max-w-md">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
+      <h1 class="text-xl font-semibold">
         {{- 'Commit to buy'|t -}}
       </h1>
-      <div class="mt-1">
+      <p class="mt-1 text-sm text-gray-500">{{ 'Place your order now and pay for it later.'|t }}</p>
+      <div class="mt-6">
         <form id="completeForm"
               method="post"
               action=""
@@ -23,8 +24,8 @@
           })) }}
           {{ tag('button', {
             type: 'submit',
-            class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-            text: 'Submit'|t
+            class: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+            text: 'Place order'|t
           }) }}
         </form>
       </div>

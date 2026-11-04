@@ -110,7 +110,7 @@ class CartController
         }
 
         // Can clear notices when updating the cart
-        if ($request->input('clearNotices') !== null) {
+        if ($request->has('clearNotices')) {
             $this->cart->clearNotices();
         }
 
@@ -622,20 +622,20 @@ class CartController
     private function setAddresses(Request $request, ?User $currentUser): void
     {
         $setShippingAddress = true;
-        if ($request->input('clearShippingAddress') !== null) {
+        if ($request->has('clearShippingAddress')) {
             $this->cart->setShippingAddress(null);
             $this->cart->sourceShippingAddressId = null;
             $setShippingAddress = false;
         }
 
         $setBillingAddress = true;
-        if ($request->input('clearBillingAddress') !== null) {
+        if ($request->has('clearBillingAddress')) {
             $this->cart->setBillingAddress(null);
             $this->cart->sourceBillingAddressId = null;
             $setBillingAddress = false;
         }
 
-        if ($request->input('clearAddresses') !== null) {
+        if ($request->has('clearAddresses')) {
             $this->cart->setShippingAddress(null);
             $this->cart->sourceShippingAddressId = null;
             $this->cart->setBillingAddress(null);
@@ -655,8 +655,8 @@ class CartController
         $estimatedBillingAddress = $request->input('estimatedBillingAddress');
 
         // Use an address ID from the customer address book to populate the address
-        $shippingAddressId = $request->input('shippingAddressId');
-        $billingAddressId = $request->input('billingAddressId');
+        $shippingAddressId = $request->integer('shippingAddressId') ?: null;
+        $billingAddressId = $request->integer('billingAddressId') ?: null;
 
         if ($setShippingAddress) {
             // Shipping address
