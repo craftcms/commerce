@@ -129,8 +129,9 @@ class Donation extends Purchasable
     public function populateLineItem(LineItem $lineItem): void
     {
         $options = $lineItem->getOptions();
-        if (isset($options['donationAmount'])) {
-            $lineItem->price = $options['donationAmount'];
+        // A non-numeric amount is left for validateLineItem() to reject.
+        if (isset($options['donationAmount']) && is_numeric($options['donationAmount'])) {
+            $lineItem->price = (float)$options['donationAmount'];
         }
     }
 
