@@ -225,11 +225,24 @@ readonly class InventoryController
     {
         $request->validate([
             'inventoryItemId' => ['required', 'integer'],
+            'sort' => ['nullable', 'array'],
         ]);
 
         $inventoryItem = $this->resolveInventoryItem($request->integer('inventoryItemId'));
+        $inventoryLevels = $this->itemInventoryLevels($inventoryItem);
 
-        $rows = $this->itemInventoryLevels($inventoryItem)->map(function(InventoryLevel $inventoryLevel) use ($inventoryItem) {
+        $sortField = (string)$request->input('sort.0.field');
+        $sortDirection = $request->input('sort.0.direction');
+        if (in_array($sortDirection, ['asc', 'desc'], true)) {
+            if ($sortField === 'location') {
+                $inventoryLevels = $inventoryLevels->sortBy(fn(InventoryLevel $inventoryLevel) => $inventoryLevel->getInventoryLocation()->getUiLabel(), SORT_NATURAL | SORT_FLAG_CASE, $sortDirection === 'desc');
+            } elseif (isset(self::LEVEL_COLUMNS[$sortField])) {
+                $totalColumn = self::LEVEL_COLUMNS[$sortField];
+                $inventoryLevels = $inventoryLevels->sortBy(fn(InventoryLevel $inventoryLevel) => $inventoryLevel->$totalColumn, descending: $sortDirection === 'desc');
+            }
+        }
+
+        $rows = $inventoryLevels->map(function(InventoryLevel $inventoryLevel) use ($inventoryItem) {
             $inventoryLocation = $inventoryLevel->getInventoryLocation();
             $row = [
                 'id' => $inventoryLocation->id,
@@ -250,7 +263,7 @@ readonly class InventoryController
             'data' => TableNode::prepareRows($rows),
             'pagination' => [
                 'total' => count($rows),
-                'per_page' => max(1, count($rows)),
+                'per_page' => max(50, count($rows)),
                 'current_page' => 1,
                 'last_page' => 1,
                 'next_page_url' => null,
@@ -677,15 +690,17 @@ readonly class InventoryController
     {
         return TableNode::make('inventory-item-levels')
             ->columns([
-                ['key' => 'location', 'label' => t('Location', category: 'commerce')],
+                ['key' => 'location', 'label' => t('Location', category: 'commerce'), 'sortable' => true],
                 ...array_map(fn(string $type) => [
                     'key' => $type,
                     'label' => $this->levelLabel($type),
+                    'sortable' => true,
                 ], array_keys(self::LEVEL_COLUMNS)),
             ])
             ->dataUrl(action([self::class, 'itemTableData'], ['inventoryItemId' => $inventoryItem->id]))
-            ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'))
-            ->appearance(TableAppearance::Raised);
+            ->perPage(50)
+            ->toggleableColumns()
+            ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'));
     }
 
     /**

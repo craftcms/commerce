@@ -73,7 +73,7 @@ class PurchasableStockField extends BaseNativeField
 
         return Group::make($this->uid, [
             Field::make(t('Track Inventory', category: 'commerce'))
-                ->width(FieldWidth::Half)
+                ->width(FieldWidth::Full)
                 ->control(
                     Lightswitch::make('inventoryTracked')
                         ->size('small')
@@ -81,9 +81,10 @@ class PurchasableStockField extends BaseNativeField
                         ->mode($context->mode)
                         ->reactive(),
                 ),
+            ...($inventoryTracked ? $this->inventoryNodes($element, $static) : []),
             Field::make(t('Allow out of stock purchases', category: 'commerce'))
                 ->visible($inventoryTracked)
-                ->width(FieldWidth::Half)
+                ->width(FieldWidth::Full)
                 ->control(
                     Lightswitch::make('allowOutOfStockPurchases')
                         ->size('small')
@@ -91,7 +92,6 @@ class PurchasableStockField extends BaseNativeField
                         ->mode($context->mode)
                         ->reactive(),
                 ),
-            ...($inventoryTracked ? $this->inventoryNodes($element, $static) : []),
         ])
             ->asField()
             ->label($this->label !== null && $this->label !== $this->defaultLabel() ? $this->label() : null)

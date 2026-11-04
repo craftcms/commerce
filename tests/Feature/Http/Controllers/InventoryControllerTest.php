@@ -5,11 +5,13 @@ declare(strict_types=1);
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Plugin;
+use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\VariantQueryFixture;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
@@ -358,6 +360,8 @@ it('renders the inventory item page with its history', function() {
             ->where('ui.values.inventoryItemId', $this->inventoryItem->id)
             ->where('ui.nodes.0.props.label', 'Inventory')
             ->where('ui.nodes.0.children.0.props.dataUrl', Url::actionUrl('commerce/inventory/item-levels-table-data', ['inventoryItemId' => $this->inventoryItem->id]))
+            ->where('ui.nodes.0.children.0.props.columnsToggleable', true)
+            ->where('ui.nodes.0.children.0.props.columns.0.sortable', true)
             ->where('ui.nodes.1.props.label', 'Details')
             ->where('ui.nodes.2.props.label', 'History')
             ->where('ui.nodes.2.children.1.props.rows.0.quantity', 7)
@@ -382,6 +386,27 @@ it('returns an inventory item’s stock levels at each location with their actio
             'inventoryItemId' => $this->inventoryItem->id,
             'type' => 'available',
         ]);
+});
+
+it('sorts an inventory item’s stock levels', function() {
+    $warehouse = new InventoryLocation(['name' => 'Warehouse', 'handle' => 'warehouse']);
+    expect(app(InventoryLocations::class)->saveInventoryLocation($warehouse))->toBeTrue();
+    app(InventoryLocations::class)->saveStoreInventoryLocations(
+        app(Stores::class)->getPrimaryStore(),
+        app(InventoryLocations::class)->getAllInventoryLocations()->pluck('id')->all(),
+    );
+
+    setInventoryLevelForController($this->inventoryItem->id, $this->location->id, 'available', 5);
+    setInventoryLevelForController($this->inventoryItem->id, $warehouse->id, 'available', 9);
+
+    $locationIds = fn(string $field, string $direction) => array_column(postJson(Url::actionUrl('commerce/inventory/item-levels-table-data'), [
+        'inventoryItemId' => $this->inventoryItem->id,
+        'sort' => [['field' => $field, 'direction' => $direction]],
+    ])->assertOk()->json('data'), 'id');
+
+    expect($locationIds('available', 'desc'))->toBe([$warehouse->id, $this->location->id])
+        ->and($locationIds('available', 'asc'))->toBe([$this->location->id, $warehouse->id])
+        ->and($locationIds('location', 'desc'))->toBe([$warehouse->id, $this->location->id]);
 });
 
 it('groups a movement’s transactions together in the inventory item’s history', function() {
