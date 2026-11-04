@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateEvent;
+use CraftCms\Commerce\Payment\Events\PaymentCurrencyRateResolving;
 use CraftCms\Commerce\Payment\Models\PaymentCurrency as PaymentCurrencyRecord;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Tests\Support\PaymentCurrenciesFixture;
@@ -76,7 +76,7 @@ test('getRateFor returns the event-overridden rate, leaving other currencies alo
     $fixture = PaymentCurrenciesFixture::seed();
     $pc = app(PaymentCurrencies::class);
 
-    Event::listen(PaymentCurrencyRateEvent::class, function(PaymentCurrencyRateEvent $event) {
+    Event::listen(PaymentCurrencyRateResolving::class, function(PaymentCurrencyRateResolving $event) {
         if ($event->paymentCurrency->iso === 'EUR') {
             $event->rate = 0.25;
         }
@@ -90,7 +90,7 @@ test('convertCurrency uses the event-overridden rate', function() {
     PaymentCurrenciesFixture::seed();
     $pc = app(PaymentCurrencies::class);
 
-    Event::listen(PaymentCurrencyRateEvent::class, function(PaymentCurrencyRateEvent $event) {
+    Event::listen(PaymentCurrencyRateResolving::class, function(PaymentCurrencyRateResolving $event) {
         if ($event->paymentCurrency->iso === 'EUR') {
             $event->rate = 0.25;
         }
@@ -105,7 +105,7 @@ test('convertAmount uses the event-overridden rate', function() {
     PaymentCurrenciesFixture::seed();
     $pc = app(PaymentCurrencies::class);
 
-    Event::listen(PaymentCurrencyRateEvent::class, function(PaymentCurrencyRateEvent $event) {
+    Event::listen(PaymentCurrencyRateResolving::class, function(PaymentCurrencyRateResolving $event) {
         if ($event->paymentCurrency->iso === 'EUR') {
             $event->rate = 0.25;
         }
@@ -122,7 +122,7 @@ test('savePaymentCurrency persists the raw admin-entered rate, not an event-over
     $fixture = PaymentCurrenciesFixture::seed();
     $pc = app(PaymentCurrencies::class);
 
-    Event::listen(PaymentCurrencyRateEvent::class, function(PaymentCurrencyRateEvent $event) {
+    Event::listen(PaymentCurrencyRateResolving::class, function(PaymentCurrencyRateResolving $event) {
         $event->rate = 999.0;
     });
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Localization;
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Money;
@@ -430,7 +430,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
             ];
             $shippingRule->$moneyInput = (float)Money::toDecimal(Money::toMoney($input));
         }
-        $shippingRule->percentageRate = (float)Localization::normalizeNumber($defaultRates['percentageRate'] ?? 0);
+        $shippingRule->percentageRate = (float)I18N::normalizeNumber($defaultRates['percentageRate'] ?? 0);
 
         $shippingRule->setOrderCondition($request->input('orderCondition'));
         $shippingRule->setCustomerCondition($request->input('customerCondition'));
@@ -459,7 +459,7 @@ readonly class ShippingRulesController extends BaseStoreManagementController
                     : Money::toDecimal(Money::toMoney(array_merge([
                         'currency' => $shippingRule->getStore()->getCurrency(),
                     ], $weightRate))),
-                'percentageRate' => (!isset($percentageRate) || trim((string)$percentageRate) === '') ? null : Localization::normalizeNumber($percentageRate),
+                'percentageRate' => (!isset($percentageRate) || trim((string)$percentageRate) === '') ? null : I18N::normalizeNumber($percentageRate),
             ];
 
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);

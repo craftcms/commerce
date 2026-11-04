@@ -6,7 +6,9 @@ namespace CraftCms\Commerce\Dashboard\Widgets\Concerns;
 
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 
 use CraftCms\Commerce\Store\Concerns\StoreTrait;
@@ -25,9 +27,31 @@ trait StatWidgetTrait
 
     public ?array $orderStatuses = null;
 
-    public function component(): ?string
+    /**
+     * Normalizes stat date keys (`Y-m-d` for days, `Y-n` for months) to ISO dates for charts.
+     *
+     * @param string[] $dateKeys
+     * @return string[]
+     */
+    protected function chartDateLabels(array $dateKeys, string $interval): array
     {
-        return 'craft:html-widget';
+        if ($interval !== 'month') {
+            return array_values($dateKeys);
+        }
+
+        return array_map(static function(string $key): string {
+            [$year, $month] = explode('-', $key);
+
+            return sprintf('%s-%02d-01', $year, $month);
+        }, array_values($dateKeys));
+    }
+
+    /**
+     * Formats an amount in the primary payment currency for display in a widget.
+     */
+    protected function formatCurrency(float|int|string|null $amount): string
+    {
+        return Currency::formatAsCurrency($amount ?? 0, app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso());
     }
 
     /**

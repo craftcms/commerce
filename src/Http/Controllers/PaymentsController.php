@@ -170,7 +170,7 @@ readonly class PaymentsController
             } catch (CurrencyException $exception) {
                 Log::error($exception->getMessage(), ['exception' => $exception]);
 
-                $order->addError('paymentCurrency', $exception->getMessage());
+                $order->errors()->add('paymentCurrency', $exception->getMessage());
 
                 return $this->asFailure($exception->getMessage(), data: [
                     $cartVariableName => $this->cartArray($order),
@@ -211,11 +211,11 @@ readonly class PaymentsController
             $error = t('There is no gateway or payment source available for use with this order.', category: 'commerce');
 
             if ($order->gatewayId) {
-                $order->addError('gatewayId', $error);
+                $order->errors()->add('gatewayId', $error);
             }
 
             if ($order->paymentSourceId) {
-                $order->addError('paymentSourceId', $error);
+                $order->errors()->add('paymentSourceId', $error);
             }
 
             return $this->asFailure($error, data: [
@@ -276,7 +276,7 @@ readonly class PaymentsController
                         'paymentForm',
                         [
                             $cartVariableName => $this->cartArray($order),
-                            'paymentFormErrors' => $paymentForm->getErrors(),
+                            'paymentFormErrors' => $paymentForm->errors()->getMessages(),
                         ],
                     );
                 }
@@ -301,7 +301,7 @@ readonly class PaymentsController
                 'paymentForm',
                 [
                     $cartVariableName => $this->cartArray($order),
-                    'paymentFormErrors' => $paymentForm->getErrors(),
+                    'paymentFormErrors' => $paymentForm->errors()->getMessages(),
                 ],
             );
         }
@@ -345,15 +345,15 @@ readonly class PaymentsController
             // Has the order changed in a significant way?
             if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
                 if ($totalPriceChanged) {
-                    $order->addError('totalPrice', t('The total price of the order changed.', category: 'commerce'));
+                    $order->errors()->add('totalPrice', t('The total price of the order changed.', category: 'commerce'));
                 }
 
                 if ($totalQtyChanged) {
-                    $order->addError('totalQty', t('The total quantity of items within the order changed.', category: 'commerce'));
+                    $order->errors()->add('totalQty', t('The total quantity of items within the order changed.', category: 'commerce'));
                 }
 
                 if ($totalAdjustmentsChanged) {
-                    $order->addError('totalAdjustments', t('The total number of order adjustments changed.', category: 'commerce'));
+                    $order->errors()->add('totalAdjustments', t('The total number of order adjustments changed.', category: 'commerce'));
                 }
 
                 $mutex?->release();
@@ -364,7 +364,7 @@ readonly class PaymentsController
                     'paymentForm',
                     [
                         $cartVariableName => $this->cartArray($order),
-                        'paymentFormErrors' => $paymentForm->getErrors(),
+                        'paymentFormErrors' => $paymentForm->errors()->getMessages(),
                     ],
                 );
             }
@@ -374,6 +374,7 @@ readonly class PaymentsController
 
         $redirect = '';
         $redirectData = [];
+        $redirectResponse = null;
         $transaction = null;
         $paymentForm->validate();
 
@@ -413,16 +414,16 @@ readonly class PaymentsController
                 'paymentForm',
                 [
                     $cartVariableName => $this->cartArray($order),
-                    'paymentFormErrors' => $paymentForm->getErrors(),
+                    'paymentFormErrors' => $paymentForm->errors()->getMessages(),
                 ],
             );
         }
 
         $error = '';
 
-        if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
+        if (!$paymentForm->errors()->isNotEmpty() && !$order->errors()->isNotEmpty()) {
             try {
-                app(Payments::class)->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
+                app(Payments::class)->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData, $redirectResponse);
                 $success = true;
             } catch (PaymentException $exception) {
                 $error = $exception->getMessage();
@@ -440,7 +441,7 @@ readonly class PaymentsController
             }
 
             // Keep old paymentFormErrors as is.
-            $originalPaymentFormErrors = $paymentForm->getErrors();
+            $originalPaymentFormErrors = $paymentForm->errors()->getMessages();
 
             // Adds the order errors to the payment form errors.
             $paymentForm->addModelErrors($order, $cartVariableName);
@@ -479,7 +480,7 @@ readonly class PaymentsController
             );
         }
 
-        return redirect($redirect);
+        return $redirectResponse ?? redirect($redirect);
     }
 
     public function complete(Request $request): Response
@@ -491,7 +492,9 @@ readonly class PaymentsController
         abort_unless($transaction !== null, 400, t('Can not complete payment for missing transaction.', category: 'commerce'));
 
         $error = '';
-        $success = app(Payments::class)->completePayment($transaction, $error);
+        $redirect = null;
+        $redirectResponse = null;
+        $success = app(Payments::class)->completePayment($transaction, $error, $redirect, $redirectResponse);
 
         if (!$success) {
             $errorMessage = t('Payment error: {message}', ['message' => $error], category: 'commerce');
@@ -507,9 +510,13 @@ readonly class PaymentsController
             return redirect($transaction->order->cancelUrl);
         }
 
+        if ($redirect && !$request->expectsJson()) {
+            return $redirectResponse ?? redirect($redirect);
+        }
+
         if ($request->expectsJson()) {
             return $this->asSuccess(data: [
-                'url' => $transaction->order->returnUrl,
+                'url' => $redirect ?: $transaction->order->returnUrl,
             ]);
         }
 

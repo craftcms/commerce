@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order;
 
 use Carbon\Carbon;
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
-use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
+use CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\Models\LineItemStatus as LineItemStatusRecord;
 use CraftCms\Commerce\Store\Stores;
@@ -72,7 +71,7 @@ class LineItemStatuses
 
         $lineItemStatus = $this->getDefaultLineItemStatus($order->getStore()->id);
 
-        $event = new DefaultLineItemStatusEvent(
+        $event = new DefaultLineItemStatusResolving(
             lineItem: $lineItem,
             lineItemStatus: $lineItemStatus,
         );
@@ -98,14 +97,14 @@ class LineItemStatuses
         if ($isNewStatus) {
             $statusUid = Str::uuid()->toString();
         } else {
-            $statusUid = CraftDb::uidById(Table::LINEITEMSTATUSES, $lineItemStatus->id);
+            $statusUid = DB::table(Table::LINEITEMSTATUSES)->uidById($lineItemStatus->id);
         }
 
         // Make sure no statuses that are not archived share the handle
         $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle, $lineItemStatus->storeId);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {
-            $lineItemStatus->addError('handle', t('That handle is already in use', category: 'commerce'));
+            $lineItemStatus->errors()->add('handle', t('That handle is already in use', category: 'commerce'));
             return false;
         }
 
@@ -115,7 +114,7 @@ class LineItemStatuses
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewStatus) {
-            $lineItemStatus->id = CraftDb::idByUid(Table::LINEITEMSTATUSES, $statusUid);
+            $lineItemStatus->id = DB::table(Table::LINEITEMSTATUSES)->idByUid($statusUid);
         }
 
         $this->clearCaches();
@@ -248,7 +247,7 @@ class LineItemStatuses
      */
     public function reorderLineItemStatuses(array $ids): bool
     {
-        $uidsByIds = CraftDb::uidsByIds(Table::LINEITEMSTATUSES, $ids);
+        $uidsByIds = DB::table(Table::LINEITEMSTATUSES)->uidsByIds($ids);
 
         foreach ($ids as $lineItemStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {

@@ -4,31 +4,27 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Html;
-use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
 use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class TotalOrdersByCountry extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     /**
@@ -50,7 +46,7 @@ class TotalOrdersByCountry extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
 
         $this->typeOptions = [
@@ -105,41 +101,31 @@ class TotalOrdersByCountry extends Widget
     }
 
     #[\Override]
-    public static function icon(): ?string
+    public function component(): ?string
     {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
+        return 'commerce:widget-chart';
     }
 
     #[\Override]
     public function props(): array
     {
-        $stats = $this->stat->get();
+        $stats = $this->stat->get() ?: [];
 
-        if (empty($stats)) {
-            return ['html' => Html::tag('p', t('No stats available.', category: 'commerce'), ['class' => 'zilch'])];
-        }
-
-        \Craft::$app->getView()->registerAssetBundle(StatWidgetsAsset::class);
-
-        $id = 'total-orders-by-country' . Str::random();
-        $namespaceId = InputNamespace::namespaceId($id);
-
-        $labels = Arr::pluck($stats, 'name');
-        $totalOrders = Arr::pluck($stats, 'total');
-
-        return ['html' => template('commerce/_components/widgets/orders/country/body', compact(
-            'stats',
-            'namespaceId',
-            'labels',
-            'totalOrders',
-        ), TemplateMode::Cp)];
+        return [
+            'type' => 'doughnut',
+            'labels' => Arr::pluck($stats, 'name'),
+            'interval' => null,
+            'currency' => app(PaymentCurrencies::class)->getPrimaryPaymentCurrencyIso(),
+            'showLegend' => true,
+            'datasets' => [
+                ['label' => t('Order count', category: 'commerce'), 'data' => array_map(intval(...), Arr::pluck($stats, 'total')), 'format' => 'number'],
+            ],
+        ];
     }
 
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Type', category: 'commerce'))
                 ->control(Choice::make('type')->value($this->type)->options(

@@ -1,4 +1,17 @@
 <?php
 
-/** @deprecated use {@see \CraftCms\Commerce\Payment\Events\PaymentSourceEvent} */
-class_alias(\CraftCms\Commerce\Payment\Events\PaymentSourceEvent::class, 'craft\commerce\events\PaymentSourceEvent');
+namespace craft\commerce\events;
+
+use craft\events\CancelableEvent;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
+
+/**
+ * @deprecated 6.0.0
+ */
+class PaymentSourceEvent extends CancelableEvent
+{
+    /**
+     * @var PaymentSource The payment source
+     */
+    public PaymentSource $paymentSource;
+}

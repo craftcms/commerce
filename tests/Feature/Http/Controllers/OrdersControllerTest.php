@@ -7,7 +7,7 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\Event;
 
@@ -61,7 +61,7 @@ it('lists purchasables for the order edit purchasable table', function() {
     }
 
     expect($purchasable['sku'])->toBe('hct-blue');
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('sorts the purchasable table by the requested column', function() {
     OrdersFixture::seed();
@@ -74,7 +74,7 @@ it('sorts the purchasable table by the requested column', function() {
     $purchasable = collect($response->json('data'))->last();
 
     expect($purchasable['sku'])->toBe('hct-blue');
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('searches for customers by email', function() {
     OrdersFixture::seed();
@@ -111,7 +111,7 @@ it('returns order counts per status for the index source badges', function() {
 
     $shippedCount = collect($counts)->firstWhere('handle', 'shipped');
     expect($shippedCount['orderCount'])->toBe(1);
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('returns matching shipping method options for an order', function() {
     $fixture = OrdersFixture::seed();
@@ -149,8 +149,8 @@ it('includes a custom runtime shipping method registered via the shipping method
     $customMethod->shouldReceive('getPriceForOrder')->andReturn(0.0);
     $customMethod->shouldReceive('matchOrder')->andReturn(true);
 
-    Event::listen(RegisterAvailableShippingMethodsEvent::class, function(RegisterAvailableShippingMethodsEvent $event) use ($customMethod) {
-        $event->setShippingMethods($event->getShippingMethods()->push($customMethod));
+    Event::listen(ShippingMethodsResolving::class, function(ShippingMethodsResolving $event) use ($customMethod) {
+        $event->shippingMethods->push($customMethod);
     });
 
     $response = postJson(

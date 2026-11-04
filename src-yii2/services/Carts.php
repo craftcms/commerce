@@ -2,11 +2,13 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\CartPurgeEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Order\Events\CartPurgeEvent;
-use Illuminate\Support\Facades\Event;
-
+use craft\db\Query;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Events\InactiveCartsPurging;
+
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -94,11 +96,29 @@ class Carts extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(CartPurgeEvent::class, static function(CartPurgeEvent $event) {
+        Event::listen(InactiveCartsPurging::class, static function(InactiveCartsPurging $event) {
             $legacy = Plugin::getInstance()->getCarts();
-            if ($legacy->hasEventHandlers(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS)) {
-                $legacy->trigger(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS, $event);
+            if (!$legacy->hasEventHandlers(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS)) {
+                return;
             }
+
+            // Legacy handlers get a Yii query for the same carts. Whatever it still selects afterward
+            // narrows the Laravel query.
+            $legacyEvent = new CartPurgeEvent([
+                'inactiveCartsQuery' => new Query()
+                    ->select(['orders.id'])
+                    ->from(['orders' => \CraftCms\Commerce\Database\Table::ORDERS])
+                    ->where(['orders.id' => (clone $event->inactiveCartsQuery)->pluck('id')->all()]),
+            ]);
+            $legacy->trigger(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS, $legacyEvent);
+
+            if (!$legacyEvent->isValid) {
+                $event->isValid = false;
+
+                return;
+            }
+
+            $event->inactiveCartsQuery->whereIn('orders.id', $legacyEvent->inactiveCartsQuery->column());
         });
     }
 }

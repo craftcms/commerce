@@ -2,13 +2,14 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\TransactionEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Payment\Events\TransactionCreated;
-use CraftCms\Commerce\Payment\Events\TransactionSaved;
-use Illuminate\Support\Facades\Event;
-
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
+use CraftCms\Commerce\Payment\Events\TransactionCreated;
+
+use CraftCms\Commerce\Payment\Events\TransactionSaved;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -113,14 +114,18 @@ class Transactions extends Component
         Event::listen(TransactionCreated::class, static function(TransactionCreated $event) {
             $legacy = Plugin::getInstance()->getTransactions();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
-                $legacy->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, $event);
+                $legacy->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, new TransactionEvent([
+                    'transaction' => $event->transaction,
+                ]));
             }
         });
 
         Event::listen(TransactionSaved::class, static function(TransactionSaved $event) {
             $legacy = Plugin::getInstance()->getTransactions();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
-                $legacy->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, $event);
+                $legacy->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
+                    'transaction' => $event->transaction,
+                ]));
             }
         });
     }

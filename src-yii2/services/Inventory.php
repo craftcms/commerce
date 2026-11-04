@@ -2,22 +2,24 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\Plugin;
-use CraftCms\Commerce\Inventory\Events\InventoryMovementEvent;
-use CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent;
-use Illuminate\Support\Facades\Event;
-
 use craft\commerce\base\Purchasable;
+use craft\commerce\events\InventoryMovementEvent;
+use craft\commerce\events\UpdateInventoryLevelEvent;
+use craft\commerce\Plugin;
 use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
-use CraftCms\Commerce\Order\Elements\Order;
+
 use CraftCms\Commerce\Inventory\Data\InventoryFulfillmentLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryItem;
 use CraftCms\Commerce\Inventory\Data\InventoryLevel;
 use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\InventoryTransaction;
+use CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated;
+use CraftCms\Commerce\Inventory\Events\InventoryMoved;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -159,17 +161,17 @@ class Inventory extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(UpdateInventoryLevelEvent::class, static function(UpdateInventoryLevelEvent $event) {
+        Event::listen(InventoryLevelUpdated::class, static function(InventoryLevelUpdated $event) {
             $legacy = Plugin::getInstance()->getInventory();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL)) {
-                $legacy->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, $event);
+                $legacy->trigger(self::EVENT_AFTER_EXECUTE_UPDATE_INVENTORY_LEVEL, new UpdateInventoryLevelEvent(['updateInventoryLevel' => $event->updateInventoryLevel]));
             }
         });
 
-        Event::listen(InventoryMovementEvent::class, static function(InventoryMovementEvent $event) {
+        Event::listen(InventoryMoved::class, static function(InventoryMoved $event) {
             $legacy = Plugin::getInstance()->getInventory();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT)) {
-                $legacy->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, $event);
+                $legacy->trigger(self::EVENT_AFTER_EXECUTE_INVENTORY_MOVEMENT, new InventoryMovementEvent(['inventoryMovement' => $event->inventoryMovement]));
             }
         });
     }

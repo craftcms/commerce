@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Customer;
 
-use craft\mail\Mailer;
-use craft\mail\Message;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Auth\Impersonation;
 use CraftCms\Cms\Element\Events\ElementSaved;
@@ -21,12 +19,10 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Models\Order as OrderRecord;
-use CraftCms\Commerce\Payment\Events\UpdatePrimaryPaymentSourceEvent;
+use CraftCms\Commerce\Payment\Events\PrimaryPaymentSourceUpdated;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use yii\base\Event;
-use yii\mail\MailEvent;
 
 use function CraftCms\Cms\t;
 
@@ -74,7 +70,7 @@ class Customers
         $user->setPrimaryPaymentSourceId($paymentSourceId);
 
         if ($originalPaymentSourceId != $paymentSourceId) {
-            $event = new UpdatePrimaryPaymentSourceEvent(
+            $event = new PrimaryPaymentSourceUpdated(
                 customer: $user,
                 previousPrimaryPaymentSourceId: $originalPaymentSourceId,
                 newPrimaryPaymentSourceId: $paymentSourceId,
@@ -418,23 +414,6 @@ class Customers
         if (Elements::saveElement($user)) {
             Users::assignUserToDefaultGroup($user);
 
-            $setActivationEmailSiteId = function(MailEvent $event) use ($user, &$setActivationEmailSiteId) {
-                Event::off(Mailer::class, Mailer::EVENT_BEFORE_PREP, $setActivationEmailSiteId);
-
-                if (!$event->message instanceof Message) {
-                    return;
-                }
-
-                if ($event->message->key !== 'account_activation') {
-                    return;
-                }
-
-                if ($event->message->siteId === null && $user->affiliatedSiteId) {
-                    $event->message->siteId = $user->affiliatedSiteId;
-                }
-            };
-            Event::on(Mailer::class, Mailer::EVENT_BEFORE_PREP, $setActivationEmailSiteId);
-
             $emailSent = Users::sendActivationEmail($user);
 
             if (!$emailSent) {
@@ -461,7 +440,7 @@ class Customers
                      * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
                      * therefore we are unable to simply set the `isPrimaryBilling` property when specifying the new attributes during duplication.
                      */
-                    if (!$newBillingAddress->hasErrors()) {
+                    if (!$newBillingAddress->errors()->isNotEmpty()) {
                         $this->savePrimaryBillingAddressId($user, $newBillingAddress->id);
 
                         if ($order->hasMatchingAddresses()) {
@@ -477,13 +456,13 @@ class Customers
                      * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
                      * therefore we are unable to simply set the `isPrimaryShipping` property when specifying the new attributes during duplication.
                      */
-                    if (!$newShippingAddress->hasErrors()) {
+                    if (!$newShippingAddress->errors()->isNotEmpty()) {
                         $this->savePrimaryShippingAddressId($user, $newShippingAddress->id);
                     }
                 }
             }
         } else {
-            $errors = $user->getErrors();
+            $errors = $user->errors()->getMessages();
             Log::warning('Could not create user on order completion.', ['errors' => $errors]);
         }
     }

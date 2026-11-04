@@ -2,19 +2,22 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\PdfEvent;
+use craft\commerce\events\PdfRenderEvent;
+use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\Plugin;
+use craft\events\ConfigEvent;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Events\PdfDeleting;
 use CraftCms\Commerce\Pdf\Events\PdfRendered;
-use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsEvent;
 use CraftCms\Commerce\Pdf\Events\PdfRendering;
+use CraftCms\Commerce\Pdf\Events\PdfRenderOptionsResolving;
+
 use CraftCms\Commerce\Pdf\Events\PdfSaved;
 use CraftCms\Commerce\Pdf\Events\PdfSaving;
-use Illuminate\Support\Facades\Event;
-
-use CraftCms\Commerce\Order\Elements\Order;
-use craft\events\ConfigEvent;
-use CraftCms\Commerce\Pdf\Data\Pdf;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 use yii\base\Component;
 
@@ -119,42 +122,77 @@ class Pdfs extends Component
         Event::listen(PdfSaving::class, static function(PdfSaving $event) {
             $legacy = Plugin::getInstance()->getPdfs();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
-                $legacy->trigger(self::EVENT_BEFORE_SAVE_PDF, $event);
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfEvent([
+                    'pdf' => $event->pdf,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(PdfSaved::class, static function(PdfSaved $event) {
             $legacy = Plugin::getInstance()->getPdfs();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
-                $legacy->trigger(self::EVENT_AFTER_SAVE_PDF, $event);
+                $legacy->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfEvent([
+                    'pdf' => $event->pdf,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(PdfDeleting::class, static function(PdfDeleting $event) {
             $legacy = Plugin::getInstance()->getPdfs();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
-                $legacy->trigger(self::EVENT_BEFORE_DELETE_PDF, $event);
+                $legacy->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
+                    'pdf' => $event->pdf,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(PdfRendering::class, static function(PdfRendering $event) {
             $legacy = Plugin::getInstance()->getPdfs();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_RENDER_PDF)) {
-                $legacy->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
+                $legacyEvent = new PdfRenderEvent([
+                    'order' => $event->order,
+                    'option' => $event->option,
+                    'template' => $event->template,
+                    'variables' => $event->variables,
+                    'pdf' => $event->pdf,
+                    'sourcePdf' => $event->sourcePdf,
+                ]);
+                $legacy->trigger(self::EVENT_BEFORE_RENDER_PDF, $legacyEvent);
+                $event->option = $legacyEvent->option;
+                $event->template = $legacyEvent->template;
+                $event->variables = $legacyEvent->variables;
+                $event->pdf = $legacyEvent->pdf;
             }
         });
 
         Event::listen(PdfRendered::class, static function(PdfRendered $event) {
             $legacy = Plugin::getInstance()->getPdfs();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_RENDER_PDF)) {
-                $legacy->trigger(self::EVENT_AFTER_RENDER_PDF, $event);
+                $legacyEvent = new PdfRenderEvent([
+                    'order' => $event->order,
+                    'option' => $event->option,
+                    'template' => $event->template,
+                    'variables' => $event->variables,
+                    'pdf' => $event->pdf,
+                    'sourcePdf' => $event->sourcePdf,
+                ]);
+                $legacy->trigger(self::EVENT_AFTER_RENDER_PDF, $legacyEvent);
+                $event->option = $legacyEvent->option;
+                $event->template = $legacyEvent->template;
+                $event->variables = $legacyEvent->variables;
+                $event->pdf = $legacyEvent->pdf;
             }
         });
 
-        Event::listen(PdfRenderOptionsEvent::class, static function(PdfRenderOptionsEvent $event) {
+        Event::listen(PdfRenderOptionsResolving::class, static function(PdfRenderOptionsResolving $event) {
             $legacy = Plugin::getInstance()->getPdfs();
             if ($legacy->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
-                $legacy->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, $event);
+                $legacyEvent = new PdfRenderOptionsEvent(['options' => $event->options]);
+                $legacy->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, $legacyEvent);
+                $event->options = $legacyEvent->options;
             }
         });
     }

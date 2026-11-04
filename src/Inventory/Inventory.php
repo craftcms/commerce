@@ -20,8 +20,8 @@ use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevelInTransfer;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
-use CraftCms\Commerce\Inventory\Events\InventoryMovementEvent;
-use CraftCms\Commerce\Inventory\Events\UpdateInventoryLevelEvent;
+use CraftCms\Commerce\Inventory\Events\InventoryLevelUpdated;
+use CraftCms\Commerce\Inventory\Events\InventoryMoved;
 use CraftCms\Commerce\Inventory\Models\InventoryItem as InventoryItemRecord;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -345,7 +345,7 @@ class Inventory
         }
 
         foreach ($updateInventoryLevels as $updateInventoryLevel) {
-            $event = new UpdateInventoryLevelEvent(
+            $event = new InventoryLevelUpdated(
                 updateInventoryLevel: $updateInventoryLevel,
             );
             event($event);
@@ -533,7 +533,7 @@ class Inventory
         }
 
         foreach ($inventoryMovements as $inventoryMovement) {
-            $event = new InventoryMovementEvent(
+            $event = new InventoryMoved(
                 inventoryMovement: $inventoryMovement,
             );
             event($event);

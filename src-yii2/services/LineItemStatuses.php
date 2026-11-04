@@ -2,14 +2,15 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\DefaultLineItemStatusEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Order\Events\DefaultLineItemStatusEvent;
-use Illuminate\Support\Facades\Event;
-
-use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use craft\events\ConfigEvent;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
+
+use CraftCms\Commerce\Order\Events\DefaultLineItemStatusResolving;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 use yii\base\Component;
 
@@ -94,10 +95,15 @@ class LineItemStatuses extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(DefaultLineItemStatusEvent::class, static function(DefaultLineItemStatusEvent $event) {
+        Event::listen(DefaultLineItemStatusResolving::class, static function(DefaultLineItemStatusResolving $event) {
             $legacy = Plugin::getInstance()->getLineItemStatuses();
             if ($legacy->hasEventHandlers(self::EVENT_DEFAULT_LINE_ITEM_STATUS)) {
-                $legacy->trigger(self::EVENT_DEFAULT_LINE_ITEM_STATUS, $event);
+                $legacyEvent = new DefaultLineItemStatusEvent([
+                    'lineItem' => $event->lineItem,
+                    'lineItemStatus' => $event->lineItemStatus,
+                ]);
+                $legacy->trigger(self::EVENT_DEFAULT_LINE_ITEM_STATUS, $legacyEvent);
+                $event->lineItemStatus = $legacyEvent->lineItemStatus;
             }
         });
     }

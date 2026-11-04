@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\StoreManagement;
 
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -55,7 +55,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
 
     public function index(): Response|CpScreenResponse
     {
-        $site = Cp::requestedSite();
+        $site = app(RequestedSite::class)->get();
         /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $store = $site->getStore();
 
@@ -93,7 +93,7 @@ readonly class StoreManagementController extends BaseStoreManagementController
         abort_unless(currentUser()?->can('commerce-manageGeneralStoreSettings'), 403);
 
         if (!$storeHandle) {
-            $site = Cp::requestedSite();
+            $site = app(RequestedSite::class)->get();
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             return redirect($site->getStore()->getStoreSettingsUrl());
         }

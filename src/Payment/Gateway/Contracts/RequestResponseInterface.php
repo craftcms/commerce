@@ -25,6 +25,4 @@ interface RequestResponseInterface
     public function getData(): mixed;
 
     public function getMessage(): string;
-
-    public function redirect(): void;
 }

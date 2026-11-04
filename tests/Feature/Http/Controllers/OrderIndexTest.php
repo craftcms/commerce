@@ -105,7 +105,7 @@ it('falls back to all orders for an unknown handle', function() {
 });
 
 it('limits orders to a date range preset', function() {
-    get($this->indexPath . '?dateRange=today&viewMode=table')
+    get($this->indexPath . '?viewMode=table&dateRange=today')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => expect(orderIndexTestRowIds($page))
             ->toHaveCount(2)
@@ -116,7 +116,7 @@ it('limits orders to a date range preset', function() {
 it('limits orders to a custom date range including its end date', function() {
     $yesterday = $this->fixture->orders['completed-new-past']->dateOrdered->format('Y-m-d');
 
-    get($this->indexPath . "?dateRange=range&dateFrom=$yesterday&dateTo=$yesterday&viewMode=table")
+    get($this->indexPath . "?viewMode=table&dateRange=range&dateFrom=$yesterday&dateTo=$yesterday")
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => expect(orderIndexTestRowIds($page))
             ->toBe([$this->fixture->orders['completed-new-past']->id]));
@@ -131,7 +131,7 @@ it('keeps the date range when switching sources', function() {
 });
 
 it('ignores an unknown date range', function() {
-    get($this->indexPath . '?dateRange=before&dateFrom=nope&viewMode=table')
+    get($this->indexPath . '?viewMode=table&dateRange=before&dateFrom=nope')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->where('dateRange', ['type' => null, 'from' => null, 'to' => null])

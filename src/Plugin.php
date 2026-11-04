@@ -194,6 +194,7 @@ class Plugin extends BasePlugin
         'resources/js/cp.ts',
     ];
 
+
     protected array $commands = [
         ResaveProductsCommand::class,
         ResaveVariantsCommand::class,

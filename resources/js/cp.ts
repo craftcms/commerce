@@ -40,6 +40,19 @@ function registerComponents(): void {
     TransferReceiveControl
   );
 
+  window.Cp.$components.register(
+    'commerce:widget-number-stat',
+    () => import('./modules/dashboard/NumberStatWidget.vue')
+  );
+  window.Cp.$components.register(
+    'commerce:widget-table',
+    () => import('./modules/dashboard/TableWidget.vue')
+  );
+  window.Cp.$components.register(
+    'commerce:widget-chart',
+    () => import('./modules/dashboard/ChartWidget.vue')
+  );
+
   // Loaded on demand, so the element index `cms` shares through the import
   // map is only fetched on the pages that use it.
   window.Cp.$inertia.register(
@@ -53,6 +66,10 @@ function registerComponents(): void {
   window.Cp.$inertia.register(
     'commerce::orders/Index',
     () => import('./pages/orders/Index.vue')
+  );
+  window.Cp.$inertia.register(
+    'commerce::prices/Index',
+    () => import('./pages/prices/Index.vue')
   );
   window.Cp.$inertia.register(
     'commerce::inventory/transfers/Index',

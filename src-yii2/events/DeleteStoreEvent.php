@@ -1,4 +1,10 @@
 <?php
 
-/** @deprecated use {@see \CraftCms\Commerce\Store\Events\DeleteStoreEvent} */
-class_alias(\CraftCms\Commerce\Store\Events\DeleteStoreEvent::class, 'craft\commerce\events\DeleteStoreEvent');
+namespace craft\commerce\events;
+
+/**
+ * @deprecated 6.0.0
+ */
+class DeleteStoreEvent extends StoreEvent
+{
+}

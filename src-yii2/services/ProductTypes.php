@@ -2,15 +2,16 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\Plugin;
+use craft\events\ConfigEvent;
+use craft\events\DeleteSiteEvent;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
+
+use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
 use CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaved;
 use CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving;
 use Illuminate\Support\Facades\Event;
-
-use craft\events\ConfigEvent;
-use craft\events\DeleteSiteEvent;
-use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
-use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use yii\base\Component;
 
 /**
@@ -137,14 +138,20 @@ class ProductTypes extends Component
         Event::listen(ProductTypeSaving::class, static function(ProductTypeSaving $event) {
             $legacy = Plugin::getInstance()->getProductTypes();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
-                $legacy->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, $event);
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+                    'productType' => $event->productType,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(ProductTypeSaved::class, static function(ProductTypeSaved $event) {
             $legacy = Plugin::getInstance()->getProductTypes();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
-                $legacy->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, $event);
+                $legacy->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+                    'productType' => $event->productType,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
     }

@@ -6,7 +6,7 @@ use CraftCms\Commerce\Order\Adjuster\Shipping;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use Illuminate\Support\Facades\Event;
 
 test('adjuster drops the shipping adjustment cleanly when a previously-matching third-party method stops matching', function() {
@@ -27,8 +27,8 @@ test('adjuster drops the shipping adjustment cleanly when a previously-matching 
         return $thirdPartyMethodMatches;
     });
 
-    Event::listen(RegisterAvailableShippingMethodsEvent::class, function(RegisterAvailableShippingMethodsEvent $event) use ($method) {
-        $event->setShippingMethods($event->getShippingMethods()->push($method));
+    Event::listen(ShippingMethodsResolving::class, function(ShippingMethodsResolving $event) use ($method) {
+        $event->shippingMethods->push($method);
     });
 
     $lineItem = new LineItem();

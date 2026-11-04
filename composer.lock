@@ -418,12 +418,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "395aae2ca474897252f47ec21fe5c3dd12a5f942"
+                "reference": "b5bf8ff4df5a62b480d15fe67e69b3fcc25061e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/395aae2ca474897252f47ec21fe5c3dd12a5f942",
-                "reference": "395aae2ca474897252f47ec21fe5c3dd12a5f942",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/b5bf8ff4df5a62b480d15fe67e69b3fcc25061e7",
+                "reference": "b5bf8ff4df5a62b480d15fe67e69b3fcc25061e7",
                 "shasum": ""
             },
             "require": {
@@ -606,7 +606,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-11-02T08:04:21+00:00"
+            "time": "2026-11-03T13:19:45+00:00"
         },
         {
             "name": "craftcms/cms-assets",
@@ -614,12 +614,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms-assets.git",
-                "reference": "20f4a1fc42453feebc895db417d38dca2b52bfa2"
+                "reference": "28b590dbedc3aca3ac21332e79fcd625fefc2970"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/20f4a1fc42453feebc895db417d38dca2b52bfa2",
-                "reference": "20f4a1fc42453feebc895db417d38dca2b52bfa2",
+                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/28b590dbedc3aca3ac21332e79fcd625fefc2970",
+                "reference": "28b590dbedc3aca3ac21332e79fcd625fefc2970",
                 "shasum": ""
             },
             "default-branch": true,
@@ -632,7 +632,7 @@
             "support": {
                 "source": "https://github.com/craftcms/cms-assets/tree/6.x"
             },
-            "time": "2026-11-02T06:39:34+00:00"
+            "time": "2026-11-03T12:47:57+00:00"
         },
         {
             "name": "craftcms/laravel-aliases",
@@ -2486,16 +2486,16 @@
         },
         {
             "name": "ibericode/vat",
-            "version": "2.2.2",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ibericode/vat.git",
-                "reference": "bfe46f42edf5ff64d9aa3e51185d6e5c25200f49"
+                "reference": "319689c142ac5375dd211b436c27f7c6c4126804"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ibericode/vat/zipball/bfe46f42edf5ff64d9aa3e51185d6e5c25200f49",
-                "reference": "bfe46f42edf5ff64d9aa3e51185d6e5c25200f49",
+                "url": "https://api.github.com/repos/ibericode/vat/zipball/319689c142ac5375dd211b436c27f7c6c4126804",
+                "reference": "319689c142ac5375dd211b436c27f7c6c4126804",
                 "shasum": ""
             },
             "require": {
@@ -2534,9 +2534,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ibericode/vat/issues",
-                "source": "https://github.com/ibericode/vat/tree/2.2.2"
+                "source": "https://github.com/ibericode/vat/tree/2.2.1"
             },
-            "time": "2026-10-20T11:20:54+00:00"
+            "time": "2026-10-08T13:09:52+00:00"
         },
         {
             "name": "iio/libmergepdf",
@@ -2598,16 +2598,16 @@
         },
         {
             "name": "inertiajs/inertia-laravel",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/inertiajs/inertia-laravel.git",
-                "reference": "cb1a80fde6cfbd59be14e9cc6c086f5ef08c3ec8"
+                "reference": "9d3f9060c1614565eb4d3a3208015ed01de347bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/inertiajs/inertia-laravel/zipball/cb1a80fde6cfbd59be14e9cc6c086f5ef08c3ec8",
-                "reference": "cb1a80fde6cfbd59be14e9cc6c086f5ef08c3ec8",
+                "url": "https://api.github.com/repos/inertiajs/inertia-laravel/zipball/9d3f9060c1614565eb4d3a3208015ed01de347bb",
+                "reference": "9d3f9060c1614565eb4d3a3208015ed01de347bb",
                 "shasum": ""
             },
             "require": {
@@ -2664,9 +2664,9 @@
             ],
             "support": {
                 "issues": "https://github.com/inertiajs/inertia-laravel/issues",
-                "source": "https://github.com/inertiajs/inertia-laravel/tree/v3.6.0"
+                "source": "https://github.com/inertiajs/inertia-laravel/tree/v3.7.0"
             },
-            "time": "2026-10-30T12:58:39+00:00"
+            "time": "2026-11-02T10:29:10+00:00"
         },
         {
             "name": "intervention/gif",
@@ -5862,16 +5862,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "4.0.2",
+            "version": "4.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "1fe20b9acb08ce810cec24d8a9d02e7c13426e4c"
+                "reference": "6077cecfed9e371993d3aa339b0afeb23f7bf636"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/1fe20b9acb08ce810cec24d8a9d02e7c13426e4c",
-                "reference": "1fe20b9acb08ce810cec24d8a9d02e7c13426e4c",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/6077cecfed9e371993d3aa339b0afeb23f7bf636",
+                "reference": "6077cecfed9e371993d3aa339b0afeb23f7bf636",
                 "shasum": ""
             },
             "require": {
@@ -5895,9 +5895,6 @@
             },
             "type": "library",
             "autoload": {
-                "files": [
-                    "phpseclib/bootstrap.php"
-                ],
                 "psr-4": {
                     "phpseclib4\\": "phpseclib/"
                 }
@@ -5934,8 +5931,7 @@
                 },
                 {
                     "name": "Jack Worman",
-                    "email": "jack.worman@gmail.com",
-                    "homepage": "https://jackworman.com",
+                    "email": "jack.worman@proton.me",
                     "role": "Developer"
                 }
             ],
@@ -5962,7 +5958,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/4.0.2"
+                "source": "https://github.com/phpseclib/phpseclib/tree/4.0.3"
             },
             "funding": [
                 {
@@ -5978,7 +5974,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-07T19:55:38+00:00"
+            "time": "2026-11-02T10:46:03+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -7029,21 +7025,21 @@
         },
         {
             "name": "setasign/fpdi",
-            "version": "v2.6.9",
+            "version": "v2.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Setasign/FPDI.git",
-                "reference": "d97ade6368aa0b51b6316d5dc16a567e2bf60167"
+                "reference": "881945be29a4996ad3d008eb18ddc01fa3df890c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/d97ade6368aa0b51b6316d5dc16a567e2bf60167",
-                "reference": "d97ade6368aa0b51b6316d5dc16a567e2bf60167",
+                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/881945be29a4996ad3d008eb18ddc01fa3df890c",
+                "reference": "881945be29a4996ad3d008eb18ddc01fa3df890c",
                 "shasum": ""
             },
             "require": {
                 "ext-zlib": "*",
-                "php": ">=7.2 <=8.6.99999"
+                "php": ">=7.2 <=8.5.99999"
             },
             "conflict": {
                 "setasign/tfpdf": "<1.31"
@@ -7052,6 +7048,7 @@
                 "phpunit/phpunit": "^8.5.52",
                 "setasign/fpdf": "^1.9.0",
                 "setasign/tfpdf": "~1.33",
+                "squizlabs/php_codesniffer": "^3.5",
                 "tecnickcom/tcpdf": "^6.8"
             },
             "suggest": {
@@ -7088,7 +7085,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Setasign/FPDI/issues",
-                "source": "https://github.com/Setasign/FPDI/tree/v2.6.9"
+                "source": "https://github.com/Setasign/FPDI/tree/v2.6.8"
             },
             "funding": [
                 {
@@ -7096,7 +7093,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-13T07:36:28+00:00"
+            "time": "2026-06-11T10:37:24+00:00"
         },
         {
             "name": "spomky-labs/cbor-php",
@@ -11285,16 +11282,16 @@
         },
         {
             "name": "web-auth/webauthn-lib",
-            "version": "5.3.10",
+            "version": "5.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-auth/webauthn-lib.git",
-                "reference": "894f6be8c8a47354a4dfd134a5979246e26d8639"
+                "reference": "c7aeeb1d35e39b7d32ab5146cce4b668f271a68e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/894f6be8c8a47354a4dfd134a5979246e26d8639",
-                "reference": "894f6be8c8a47354a4dfd134a5979246e26d8639",
+                "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/c7aeeb1d35e39b7d32ab5146cce4b668f271a68e",
+                "reference": "c7aeeb1d35e39b7d32ab5146cce4b668f271a68e",
                 "shasum": ""
             },
             "require": {
@@ -11355,7 +11352,7 @@
                 "webauthn"
             ],
             "support": {
-                "source": "https://github.com/web-auth/webauthn-lib/tree/5.3.10"
+                "source": "https://github.com/web-auth/webauthn-lib/tree/5.3.12"
             },
             "funding": [
                 {
@@ -11367,7 +11364,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-10-31T12:44:21+00:00"
+            "time": "2026-11-03T09:21:08+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -12420,12 +12417,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/yii2-adapter.git",
-                "reference": "3eb54db49ce137b9541623552a8b54e11806c3df"
+                "reference": "7837b8a6cc49745330632abad86d9c687bd5fa43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/3eb54db49ce137b9541623552a8b54e11806c3df",
-                "reference": "3eb54db49ce137b9541623552a8b54e11806c3df",
+                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/7837b8a6cc49745330632abad86d9c687bd5fa43",
+                "reference": "7837b8a6cc49745330632abad86d9c687bd5fa43",
                 "shasum": ""
             },
             "require": {
@@ -12524,7 +12521,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-11-01T16:09:02+00:00"
+            "time": "2026-11-03T12:34:03+00:00"
         },
         {
             "name": "creocoder/yii2-nested-sets",
@@ -12572,16 +12569,16 @@
         },
         {
             "name": "dg/bypass-finals",
-            "version": "v1.11.1",
+            "version": "v1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dg/bypass-finals.git",
-                "reference": "295d8549a99848afc7fe39099d9bfac6fceb0e75"
+                "reference": "b21595bdd1937e9ac912d68380dc85a65d77285f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dg/bypass-finals/zipball/295d8549a99848afc7fe39099d9bfac6fceb0e75",
-                "reference": "295d8549a99848afc7fe39099d9bfac6fceb0e75",
+                "url": "https://api.github.com/repos/dg/bypass-finals/zipball/b21595bdd1937e9ac912d68380dc85a65d77285f",
+                "reference": "b21595bdd1937e9ac912d68380dc85a65d77285f",
                 "shasum": ""
             },
             "require": {
@@ -12611,21 +12608,19 @@
                     "homepage": "https://davidgrudl.com"
                 }
             ],
-            "description": "🔓 BypassFinals: removes final and readonly from your code on the fly, so you can mock final classes and methods in PHPUnit, Mockery or Nette Tester.",
+            "description": "Removes final keyword from source code on-the-fly and allows mocking of final methods and classes",
             "keywords": [
-                "final",
-                "mock final class",
-                "mockery",
+                "finals",
                 "mocking",
                 "phpunit",
-                "readonly",
-                "testing"
+                "testing",
+                "unit"
             ],
             "support": {
                 "issues": "https://github.com/dg/bypass-finals/issues",
-                "source": "https://github.com/dg/bypass-finals/tree/v1.11.1"
+                "source": "https://github.com/dg/bypass-finals/tree/v1.11.0"
             },
-            "time": "2026-10-23T13:27:43+00:00"
+            "time": "2026-07-24T12:24:07+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -12815,16 +12810,16 @@
         },
         {
             "name": "filp/whoops",
-            "version": "2.19.1",
+            "version": "2.18.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "2915c807d7af61d8fb5c31d90c57af91d30f29fc"
+                "reference": "7d0a2cde892089bb09372f4366e9b960eb3001a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/2915c807d7af61d8fb5c31d90c57af91d30f29fc",
-                "reference": "2915c807d7af61d8fb5c31d90c57af91d30f29fc",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/7d0a2cde892089bb09372f4366e9b960eb3001a9",
+                "reference": "7d0a2cde892089bb09372f4366e9b960eb3001a9",
                 "shasum": ""
             },
             "require": {
@@ -12874,7 +12869,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.19.1"
+                "source": "https://github.com/filp/whoops/tree/2.18.6"
             },
             "funding": [
                 {
@@ -12882,7 +12877,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-02T12:00:00+00:00"
+            "time": "2026-10-03T17:03:57+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -13042,16 +13037,16 @@
         },
         {
             "name": "larastan/larastan",
-            "version": "v3.13.2",
+            "version": "v3.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/larastan/larastan.git",
-                "reference": "0de9aec250ab498f97171b43cd1192ce11a8c8fc"
+                "reference": "24ee69a7705ffc7c2cd8a3c96a5f498a4c2de5e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/larastan/larastan/zipball/0de9aec250ab498f97171b43cd1192ce11a8c8fc",
-                "reference": "0de9aec250ab498f97171b43cd1192ce11a8c8fc",
+                "url": "https://api.github.com/repos/larastan/larastan/zipball/24ee69a7705ffc7c2cd8a3c96a5f498a4c2de5e3",
+                "reference": "24ee69a7705ffc7c2cd8a3c96a5f498a4c2de5e3",
                 "shasum": ""
             },
             "require": {
@@ -13119,7 +13114,7 @@
             ],
             "support": {
                 "issues": "https://github.com/larastan/larastan/issues",
-                "source": "https://github.com/larastan/larastan/tree/v3.13.2"
+                "source": "https://github.com/larastan/larastan/tree/v3.13.0"
             },
             "funding": [
                 {
@@ -13127,7 +13122,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-23T21:03:09+00:00"
+            "time": "2026-10-07T14:14:28+00:00"
         },
         {
             "name": "laravel/pail",
@@ -14692,11 +14687,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.4",
+            "version": "2.3.1",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/f20ce6f3c82556cfcfc086b152445a12d1d64fff",
-                "reference": "f20ce6f3c82556cfcfc086b152445a12d1d64fff",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db",
+                "reference": "6155239b488e95d26d1ebd95c6b4bb294d7f09db",
                 "shasum": ""
             },
             "require": {
@@ -14752,7 +14747,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-28T22:38:53+00:00"
+            "time": "2026-10-08T21:09:11+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -15282,21 +15277,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.8.3",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "12ddb68d34acb91bcf3d00302bf1c7c1b5840bd6"
+                "reference": "4d6a39b7fff302cac0ce90cd959a53c2f6a32776"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/12ddb68d34acb91bcf3d00302bf1c7c1b5840bd6",
-                "reference": "12ddb68d34acb91bcf3d00302bf1c7c1b5840bd6",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/4d6a39b7fff302cac0ce90cd959a53c2f6a32776",
+                "reference": "4d6a39b7fff302cac0ce90cd959a53c2f6a32776",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4|^8.0",
-                "phpstan/phpstan": "^2.3.4"
+                "phpstan/phpstan": "^2.3.0"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -15327,7 +15322,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.8.3"
+                "source": "https://github.com/rectorphp/rector/tree/2.7.0"
             },
             "funding": [
                 {
@@ -15335,7 +15330,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-29T05:51:41+00:00"
+            "time": "2026-10-06T08:46:45+00:00"
         },
         {
             "name": "samdark/yii2-psr-log-target",

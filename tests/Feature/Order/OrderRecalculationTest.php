@@ -10,7 +10,7 @@ use CraftCms\Commerce\Payment\Gateway\Types\Dummy;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
 use CraftCms\Commerce\Payment\Transactions;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\Event;
 
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Event;
  */
 function registerDynamicShippingMethod(Closure $matches): void
 {
-    Event::listen(RegisterAvailableShippingMethodsEvent::class, function(RegisterAvailableShippingMethodsEvent $event) use ($matches) {
+    Event::listen(ShippingMethodsResolving::class, function(ShippingMethodsResolving $event) use ($matches) {
         $method = Mockery::mock(ShippingMethodInterface::class);
         $method->shouldReceive('getId')->andReturn(null);
         $method->shouldReceive('getType')->andReturn('dynamic');
@@ -32,7 +32,7 @@ function registerDynamicShippingMethod(Closure $matches): void
         $method->shouldReceive('getMatchingShippingRule')->andReturn(null);
         $method->shouldReceive('matchOrder')->andReturnUsing($matches);
 
-        $event->getShippingMethods()->push($method);
+        $event->shippingMethods->push($method);
     });
 }
 

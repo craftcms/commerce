@@ -10,15 +10,15 @@ use CraftCms\Cms\Database\Migration;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
-use CraftCms\Commerce\Product\Elements\Product;
-use CraftCms\Commerce\Product\Variant\Elements\Variant;
-use CraftCms\Commerce\Transfer\Elements\Transfer;
-use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\ProductType\Data\ProductType;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Promotion\Coupons;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -38,7 +38,7 @@ class Install extends Migration
 
         PromptTask::run(
             label: str($label)->finish('...')->toString(),
-            callback: function (Logger $logger) use ($callback, $label) {
+            callback: function(Logger $logger) use ($callback, $label) {
                 $callback($logger);
                 $logger->label($label);
             },
@@ -49,7 +49,7 @@ class Install extends Migration
 
     public function up(): void
     {
-        $this->task('Install Craft Commerce', function (?Logger $logger = null) {
+        $this->task('Install Craft Commerce', function(?Logger $logger = null) {
             $logger?->subLabel('Creating tables...');
             $this->createTables();
             $logger?->success('Tables created.');
@@ -63,7 +63,7 @@ class Install extends Migration
             $logger?->success('Foreign keys added.');
         });
 
-        $this->task('Seed default Craft Commerce data', function (?Logger $logger = null) {
+        $this->task('Seed default Craft Commerce data', function(?Logger $logger = null) {
             $this->insertDefaultData();
             $logger?->success('Default data seeded.');
         });
@@ -74,7 +74,7 @@ class Install extends Migration
      */
     public function createTables(): void
     {
-        Schema::create(Table::CATALOG_PRICING_RULES, function (Blueprint $table) {
+        Schema::create(Table::CATALOG_PRICING_RULES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('name');
             $table->text('description')->nullable();
@@ -96,7 +96,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::CATALOG_PRICING_RULES_USERS, function (Blueprint $table) {
+        Schema::create(Table::CATALOG_PRICING_RULES_USERS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('catalogPricingRuleId');
             $table->integer('userId');
@@ -105,7 +105,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::CATALOG_PRICING, function (Blueprint $table) {
+        Schema::create(Table::CATALOG_PRICING, function(Blueprint $table) {
             $table->integer('id', true);
             $table->decimal('price', 14, 4)->nullable(); // @TODO Consider storing as string to avoid float-precision issues
             $table->integer('purchasableId');
@@ -121,7 +121,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::CATALOG_PRICING_QUEUE, function (Blueprint $table) {
+        Schema::create(Table::CATALOG_PRICING_QUEUE, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId')->nullable();
             $table->enum('type', [CatalogPricingQueue::TYPE_PURCHASABLE, CatalogPricingQueue::TYPE_RULE]);
@@ -132,7 +132,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::CUSTOMERS, function (Blueprint $table) {
+        Schema::create(Table::CUSTOMERS, function(Blueprint $table) {
             $table->integer('id', true); // Not used in v4 but is the old customerId
             $table->integer('customerId'); // This is the User element ID
             $table->integer('primaryBillingAddressId')->nullable();
@@ -143,7 +143,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::COUPONS, function (Blueprint $table) {
+        Schema::create(Table::COUPONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('code')->nullable();
             $table->integer('discountId');
@@ -154,7 +154,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::CUSTOMER_DISCOUNTUSES, function (Blueprint $table) {
+        Schema::create(Table::CUSTOMER_DISCOUNTUSES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('discountId');
             $table->integer('customerId');
@@ -164,7 +164,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::EMAIL_DISCOUNTUSES, function (Blueprint $table) {
+        Schema::create(Table::EMAIL_DISCOUNTUSES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('discountId');
             $table->string('email');
@@ -174,7 +174,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::DISCOUNT_PURCHASABLES, function (Blueprint $table) {
+        Schema::create(Table::DISCOUNT_PURCHASABLES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('discountId');
             $table->integer('purchasableId');
@@ -185,16 +185,16 @@ class Install extends Migration
         });
 
         // @TODO Rename to `discount_entries` table in Commerce 6.0, or remove if the purchasable condition builder fully replaces it
-        Schema::create(Table::DISCOUNT_CATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::DISCOUNT_ENTRIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('discountId');
-            $table->integer('categoryId');
+            $table->integer('entryId');
             $table->dateTime('dateCreated');
             $table->dateTime('dateUpdated');
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::DISCOUNTS, function (Blueprint $table) {
+        Schema::create(Table::DISCOUNTS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId');
             $table->string('name');
@@ -223,10 +223,10 @@ class Install extends Migration
             $table->boolean('hasFreeShippingForOrder')->default(false);
             $table->boolean('allPurchasables')->default(false);
             $table->text('purchasableIds')->nullable();
-            $table->boolean('allCategories')->default(false);
-            $table->text('categoryIds')->nullable();
+            $table->boolean('allEntries')->default(false);
+            $table->text('entryIds')->nullable();
             $table->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->default('matchingLineItems');
-            $table->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->default('element');
+            $table->enum('entryRelationshipType', ['element', 'sourceElement', 'targetElement'])->default('element');
             $table->text('orderConditionFormula')->nullable();
             $table->boolean('enabled')->default(true);
             $table->boolean('stopProcessing')->default(false);
@@ -237,7 +237,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::DONATIONS, function (Blueprint $table) {
+        Schema::create(Table::DONATIONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('sku');
             $table->dateTime('dateCreated');
@@ -245,7 +245,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::EMAILS, function (Blueprint $table) {
+        Schema::create(Table::EMAILS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId')->nullable();
             $table->string('name');
@@ -268,7 +268,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PDFS, function (Blueprint $table) {
+        Schema::create(Table::PDFS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId')->nullable();
             $table->string('name');
@@ -288,7 +288,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::GATEWAYS, function (Blueprint $table) {
+        Schema::create(Table::GATEWAYS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('type');
             $table->string('name');
@@ -307,7 +307,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::INVENTORYITEMS, function (Blueprint $table) {
+        Schema::create(Table::INVENTORYITEMS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('purchasableId');
             $table->string('countryCodeOfOrigin')->nullable();
@@ -318,7 +318,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::INVENTORYLOCATIONS, function (Blueprint $table) {
+        Schema::create(Table::INVENTORYLOCATIONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('handle');
             $table->string('name');
@@ -329,7 +329,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::INVENTORYLOCATIONS_STORES, function (Blueprint $table) {
+        Schema::create(Table::INVENTORYLOCATIONS_STORES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('inventoryLocationId');
             $table->integer('storeId');
@@ -339,7 +339,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::INVENTORYTRANSACTIONS, function (Blueprint $table) {
+        Schema::create(Table::INVENTORYTRANSACTIONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('inventoryLocationId');
             $table->integer('inventoryItemId');
@@ -363,7 +363,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::LINEITEMS, function (Blueprint $table) {
+        Schema::create(Table::LINEITEMS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
             $table->enum('type', ['purchasable', 'custom'])->default('purchasable');
@@ -398,7 +398,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::LINEITEMSTATUSES, function (Blueprint $table) {
+        Schema::create(Table::LINEITEMSTATUSES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId')->nullable();
             $table->string('name');
@@ -413,7 +413,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::ORDERADJUSTMENTS, function (Blueprint $table) {
+        Schema::create(Table::ORDERADJUSTMENTS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
             $table->integer('lineItemId')->nullable();
@@ -429,7 +429,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::ORDERNOTICES, function (Blueprint $table) {
+        Schema::create(Table::ORDERNOTICES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
             $table->string('type')->nullable();
@@ -441,7 +441,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::ORDERHISTORIES, function (Blueprint $table) {
+        Schema::create(Table::ORDERHISTORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
             $table->integer('userId')->nullable();
@@ -454,7 +454,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::ORDERS, function (Blueprint $table) {
+        Schema::create(Table::ORDERS, function(Blueprint $table) {
             $table->integer('id');
             $table->integer('storeId');
             $table->integer('billingAddressId')->nullable();
@@ -513,7 +513,7 @@ class Install extends Migration
             $table->primary('id');
         });
 
-        Schema::create(Table::ORDERSTATUS_EMAILS, function (Blueprint $table) {
+        Schema::create(Table::ORDERSTATUS_EMAILS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderStatusId');
             $table->integer('emailId');
@@ -522,7 +522,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::ORDERSTATUSES, function (Blueprint $table) {
+        Schema::create(Table::ORDERSTATUSES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId')->nullable();
             $table->string('name');
@@ -537,7 +537,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PAYMENTCURRENCIES, function (Blueprint $table) {
+        Schema::create(Table::PAYMENTCURRENCIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId');
             $table->string('iso', 3);
@@ -548,7 +548,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PAYMENTSOURCES, function (Blueprint $table) {
+        Schema::create(Table::PAYMENTSOURCES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('customerId');
             $table->integer('gatewayId');
@@ -560,7 +560,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PLANS, function (Blueprint $table) {
+        Schema::create(Table::PLANS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('gatewayId')->nullable();
             $table->integer('planInformationId')->nullable();
@@ -577,7 +577,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PRODUCTS, function (Blueprint $table) {
+        Schema::create(Table::PRODUCTS, function(Blueprint $table) {
             $table->integer('id');
             $table->integer('typeId')->nullable();
             $table->integer('defaultVariantId')->nullable();
@@ -595,7 +595,7 @@ class Install extends Migration
             $table->primary('id');
         });
 
-        Schema::create(Table::PRODUCTTYPES, function (Blueprint $table) {
+        Schema::create(Table::PRODUCTTYPES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->boolean('isStructure')->default(false);
             $table->unsignedSmallInteger('maxLevels')->nullable();
@@ -638,7 +638,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PRODUCTTYPES_SITES, function (Blueprint $table) {
+        Schema::create(Table::PRODUCTTYPES_SITES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('productTypeId');
             $table->integer('siteId');
@@ -651,7 +651,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('productTypeId');
             $table->integer('shippingCategoryId');
@@ -660,7 +660,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PRODUCTTYPES_TAXCATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::PRODUCTTYPES_TAXCATEGORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('productTypeId');
             $table->integer('taxCategoryId');
@@ -669,7 +669,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PURCHASABLES, function (Blueprint $table) {
+        Schema::create(Table::PURCHASABLES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('sku');
             $table->text('description')->nullable();
@@ -683,7 +683,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::PURCHASABLES_STORES, function (Blueprint $table) {
+        Schema::create(Table::PURCHASABLES_STORES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('purchasableId');
             $table->integer('storeId');
@@ -704,7 +704,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SALE_PURCHASABLES, function (Blueprint $table) {
+        Schema::create(Table::SALE_PURCHASABLES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('saleId');
             $table->integer('purchasableId');
@@ -715,16 +715,16 @@ class Install extends Migration
         });
 
         // @TODO Rename to `sale_entries` table in Commerce 6.0, or remove if the purchasable condition builder fully replaces it
-        Schema::create(Table::SALE_CATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::SALE_ENTRIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('saleId');
-            $table->integer('categoryId');
+            $table->integer('entryId');
             $table->dateTime('dateCreated');
             $table->dateTime('dateUpdated');
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SALE_USERGROUPS, function (Blueprint $table) {
+        Schema::create(Table::SALE_USERGROUPS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('saleId');
             $table->integer('userGroupId');
@@ -733,7 +733,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SALES, function (Blueprint $table) {
+        Schema::create(Table::SALES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('name');
             $table->text('description')->nullable();
@@ -743,8 +743,8 @@ class Install extends Migration
             $table->decimal('applyAmount', 14, 4);
             $table->boolean('allGroups')->default(false);
             $table->boolean('allPurchasables')->default(false);
-            $table->boolean('allCategories')->default(false);
-            $table->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->default('element');
+            $table->boolean('allEntries')->default(false);
+            $table->enum('entryRelationshipType', ['element', 'sourceElement', 'targetElement'])->default('element');
             $table->boolean('enabled')->default(true);
             $table->boolean('ignorePrevious')->default(false);
             $table->boolean('stopProcessing')->default(false);
@@ -754,7 +754,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SHIPPINGCATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::SHIPPINGCATEGORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId');
             $table->string('name');
@@ -769,7 +769,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SHIPPINGMETHODS, function (Blueprint $table) {
+        Schema::create(Table::SHIPPINGMETHODS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId');
             $table->string('name');
@@ -784,7 +784,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SHIPPINGRULE_CATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::SHIPPINGRULE_CATEGORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('shippingRuleId')->nullable();
             $table->integer('shippingCategoryId')->nullable();
@@ -797,7 +797,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SHIPPINGRULES, function (Blueprint $table) {
+        Schema::create(Table::SHIPPINGRULES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('methodId');
             $table->string('name');
@@ -818,7 +818,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SHIPPINGZONES, function (Blueprint $table) {
+        Schema::create(Table::SHIPPINGZONES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId')->nullable();
             $table->string('name');
@@ -830,7 +830,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::SITESTORES, function (Blueprint $table) {
+        Schema::create(Table::SITESTORES, function(Blueprint $table) {
             $table->integer('siteId');
             $table->integer('storeId')->nullable(); // defaults to primary store in app
             $table->dateTime('dateCreated');
@@ -839,7 +839,7 @@ class Install extends Migration
             $table->primary('siteId');
         });
 
-        Schema::create(Table::STORES, function (Blueprint $table) {
+        Schema::create(Table::STORES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('name');
             $table->string('handle');
@@ -865,7 +865,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::STORESETTINGS, function (Blueprint $table) {
+        Schema::create(Table::STORESETTINGS, function(Blueprint $table) {
             $table->integer('id');
             $table->integer('locationAddressId')->nullable();
             $table->text('countries')->nullable();
@@ -876,7 +876,7 @@ class Install extends Migration
             $table->primary('id');
         });
 
-        Schema::create(Table::SUBSCRIPTIONS, function (Blueprint $table) {
+        Schema::create(Table::SUBSCRIPTIONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('userId');
             $table->integer('planId')->nullable();
@@ -899,7 +899,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::TAXCATEGORIES, function (Blueprint $table) {
+        Schema::create(Table::TAXCATEGORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('name');
             $table->string('handle');
@@ -913,7 +913,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::TAXRATES, function (Blueprint $table) {
+        Schema::create(Table::TAXRATES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId');
             $table->integer('taxZoneId')->nullable();
@@ -934,7 +934,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::TAXZONES, function (Blueprint $table) {
+        Schema::create(Table::TAXZONES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('storeId');
             $table->string('name');
@@ -946,7 +946,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::TRANSACTIONS, function (Blueprint $table) {
+        Schema::create(Table::TRANSACTIONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
             $table->integer('parentId')->nullable();
@@ -970,7 +970,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::TRANSFERS, function (Blueprint $table) {
+        Schema::create(Table::TRANSFERS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->enum('transferStatus', [
                 'draft',
@@ -983,7 +983,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::TRANSFERDETAILS, function (Blueprint $table) {
+        Schema::create(Table::TRANSFERDETAILS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('transferId');
             $table->integer('inventoryItemId')->nullable();
@@ -994,7 +994,7 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
-        Schema::create(Table::VARIANTS, function (Blueprint $table) {
+        Schema::create(Table::VARIANTS, function(Blueprint $table) {
             $table->integer('id');
             $table->integer('primaryOwnerId')->nullable();
             $table->boolean('isDefault')->default(false);
@@ -1034,8 +1034,8 @@ class Install extends Migration
         Schema::createIndex(Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], unique: true);
         Schema::createIndex(Table::DISCOUNTS, ['dateFrom']);
         Schema::createIndex(Table::DISCOUNTS, ['dateTo']);
-        Schema::createIndex(Table::DISCOUNT_CATEGORIES, ['categoryId']);
-        Schema::createIndex(Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], unique: true);
+        Schema::createIndex(Table::DISCOUNT_ENTRIES, ['entryId']);
+        Schema::createIndex(Table::DISCOUNT_ENTRIES, ['discountId', 'entryId'], unique: true);
         Schema::createIndex(Table::DISCOUNT_PURCHASABLES, ['purchasableId']);
         Schema::createIndex(Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], unique: true);
         Schema::createIndex(Table::EMAILS, ['storeId']);
@@ -1097,8 +1097,8 @@ class Install extends Migration
         Schema::createIndex(Table::PURCHASABLES, ['sku']); // Application layer enforces unique
         Schema::createIndex(Table::PURCHASABLES_STORES, ['purchasableId']); // Application layer enforces unique
         Schema::createIndex(Table::PURCHASABLES_STORES, ['storeId']); // Application layer enforces unique
-        Schema::createIndex(Table::SALE_CATEGORIES, ['categoryId']);
-        Schema::createIndex(Table::SALE_CATEGORIES, ['saleId', 'categoryId'], unique: true);
+        Schema::createIndex(Table::SALE_ENTRIES, ['entryId']);
+        Schema::createIndex(Table::SALE_ENTRIES, ['saleId', 'entryId'], unique: true);
         Schema::createIndex(Table::SALE_PURCHASABLES, ['purchasableId']);
         Schema::createIndex(Table::SALE_PURCHASABLES, ['saleId', 'purchasableId'], unique: true);
         Schema::createIndex(Table::SALE_USERGROUPS, ['userGroupId']);
@@ -1141,121 +1141,121 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
-        Schema::table(Table::CATALOG_PRICING, fn (Blueprint $table) => $table->foreign('catalogPricingRuleId')->references('id')->on(Table::CATALOG_PRICING_RULES)->cascadeOnDelete());
-        Schema::table(Table::CATALOG_PRICING, fn (Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CATALOG_PRICING, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::CATALOG_PRICING, fn (Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->cascadeOnDelete());
-        Schema::table(Table::CATALOG_PRICING_QUEUE, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CATALOG_PRICING_RULES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CATALOG_PRICING_RULES_USERS, fn (Blueprint $table) => $table->foreign('catalogPricingRuleId')->references('id')->on(Table::CATALOG_PRICING_RULES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CATALOG_PRICING_RULES_USERS, fn (Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::COUPONS, fn (Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CUSTOMERS, fn (Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CUSTOMERS, fn (Blueprint $table) => $table->foreign('primaryBillingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::CUSTOMERS, fn (Blueprint $table) => $table->foreign('primaryPaymentSourceId')->references('id')->on(Table::PAYMENTSOURCES)->nullOnDelete());
-        Schema::table(Table::CUSTOMERS, fn (Blueprint $table) => $table->foreign('primaryShippingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::CUSTOMER_DISCOUNTUSES, fn (Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::CUSTOMER_DISCOUNTUSES, fn (Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::DISCOUNTS, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::DISCOUNT_CATEGORIES, fn (Blueprint $table) => $table->foreign('categoryId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::DISCOUNT_CATEGORIES, fn (Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::DISCOUNT_PURCHASABLES, fn (Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::DISCOUNT_PURCHASABLES, fn (Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::DONATIONS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::EMAILS, fn (Blueprint $table) => $table->foreign('pdfId')->references('id')->on(Table::PDFS)->nullOnDelete());
-        Schema::table(Table::EMAILS, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::EMAILS, fn (Blueprint $table) => $table->foreign('renderSiteId')->references('id')->on(CraftTable::SITES)->nullOnDelete());
-        Schema::table(Table::EMAIL_DISCOUNTUSES, fn (Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::INVENTORYITEMS, fn (Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete());
-        Schema::table(Table::INVENTORYLOCATIONS, fn (Blueprint $table) => $table->foreign('addressId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::INVENTORYLOCATIONS_STORES, fn (Blueprint $table) => $table->foreign('inventoryLocationId')->references('id')->on(Table::INVENTORYLOCATIONS)->cascadeOnDelete());
-        Schema::table(Table::INVENTORYLOCATIONS_STORES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::INVENTORYTRANSACTIONS, fn (Blueprint $table) => $table->foreign('inventoryItemId')->references('id')->on(Table::INVENTORYITEMS)->cascadeOnDelete());
-        Schema::table(Table::INVENTORYTRANSACTIONS, fn (Blueprint $table) => $table->foreign('inventoryLocationId')->references('id')->on(Table::INVENTORYLOCATIONS)->cascadeOnDelete());
-        Schema::table(Table::INVENTORYTRANSACTIONS, fn (Blueprint $table) => $table->foreign('lineItemId')->references('id')->on(Table::LINEITEMS)->cascadeOnDelete());
+        Schema::table(Table::CATALOG_PRICING, fn(Blueprint $table) => $table->foreign('catalogPricingRuleId')->references('id')->on(Table::CATALOG_PRICING_RULES)->cascadeOnDelete());
+        Schema::table(Table::CATALOG_PRICING, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CATALOG_PRICING, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::CATALOG_PRICING, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->cascadeOnDelete());
+        Schema::table(Table::CATALOG_PRICING_QUEUE, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CATALOG_PRICING_RULES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CATALOG_PRICING_RULES_USERS, fn(Blueprint $table) => $table->foreign('catalogPricingRuleId')->references('id')->on(Table::CATALOG_PRICING_RULES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CATALOG_PRICING_RULES_USERS, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::COUPONS, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CUSTOMERS, fn(Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CUSTOMERS, fn(Blueprint $table) => $table->foreign('primaryBillingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::CUSTOMERS, fn(Blueprint $table) => $table->foreign('primaryPaymentSourceId')->references('id')->on(Table::PAYMENTSOURCES)->nullOnDelete());
+        Schema::table(Table::CUSTOMERS, fn(Blueprint $table) => $table->foreign('primaryShippingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::CUSTOMER_DISCOUNTUSES, fn(Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::CUSTOMER_DISCOUNTUSES, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DISCOUNTS, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DISCOUNT_ENTRIES, fn(Blueprint $table) => $table->foreign('entryId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DISCOUNT_ENTRIES, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DISCOUNT_PURCHASABLES, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DISCOUNT_PURCHASABLES, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DONATIONS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::EMAILS, fn(Blueprint $table) => $table->foreign('pdfId')->references('id')->on(Table::PDFS)->nullOnDelete());
+        Schema::table(Table::EMAILS, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::EMAILS, fn(Blueprint $table) => $table->foreign('renderSiteId')->references('id')->on(CraftTable::SITES)->nullOnDelete());
+        Schema::table(Table::EMAIL_DISCOUNTUSES, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::INVENTORYITEMS, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete());
+        Schema::table(Table::INVENTORYLOCATIONS, fn(Blueprint $table) => $table->foreign('addressId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::INVENTORYLOCATIONS_STORES, fn(Blueprint $table) => $table->foreign('inventoryLocationId')->references('id')->on(Table::INVENTORYLOCATIONS)->cascadeOnDelete());
+        Schema::table(Table::INVENTORYLOCATIONS_STORES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('inventoryItemId')->references('id')->on(Table::INVENTORYITEMS)->cascadeOnDelete());
+        Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('inventoryLocationId')->references('id')->on(Table::INVENTORYLOCATIONS)->cascadeOnDelete());
+        Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('lineItemId')->references('id')->on(Table::LINEITEMS)->cascadeOnDelete());
         // NOTE: the legacy migration added this same FK twice (once here, once further down); only ported once.
-        Schema::table(Table::INVENTORYTRANSACTIONS, fn (Blueprint $table) => $table->foreign('transferId')->references('id')->on(Table::TRANSFERS)->nullOnDelete());
-        Schema::table(Table::INVENTORYTRANSACTIONS, fn (Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->nullOnDelete());
-        Schema::table(Table::LINEITEMS, fn (Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
-        Schema::table(Table::LINEITEMS, fn (Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::LINEITEMS, fn (Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnUpdate());
-        Schema::table(Table::LINEITEMS, fn (Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnUpdate());
-        Schema::table(Table::LINEITEMSTATUSES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERADJUSTMENTS, fn (Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
-        Schema::table(Table::ORDERHISTORIES, fn (Blueprint $table) => $table->foreign('newStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERHISTORIES, fn (Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERHISTORIES, fn (Blueprint $table) => $table->foreign('prevStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERHISTORIES, fn (Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::ORDERNOTICES, fn (Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('billingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('estimatedBillingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('estimatedShippingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('orderStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('paymentSourceId')->references('id')->on(Table::PAYMENTSOURCES)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('shippingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::ORDERS, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERSTATUSES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERSTATUS_EMAILS, fn (Blueprint $table) => $table->foreign('emailId')->references('id')->on(Table::EMAILS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::ORDERSTATUS_EMAILS, fn (Blueprint $table) => $table->foreign('orderStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PAYMENTCURRENCIES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PAYMENTSOURCES, fn (Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::PAYMENTSOURCES, fn (Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->cascadeOnDelete());
-        Schema::table(Table::PDFS, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::PLANS, fn (Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->cascadeOnDelete());
-        Schema::table(Table::PLANS, fn (Blueprint $table) => $table->foreign('planInformationId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::PRODUCTS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::PRODUCTS, fn (Blueprint $table) => $table->foreign('typeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
-        Schema::table(Table::PRODUCTS, fn (Blueprint $table) => $table->foreign('defaultVariantId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::PRODUCTTYPES, fn (Blueprint $table) => $table->foreign('fieldLayoutId')->references('id')->on(CraftTable::FIELDLAYOUTS)->nullOnDelete());
-        Schema::table(Table::PRODUCTTYPES, fn (Blueprint $table) => $table->foreign('variantFieldLayoutId')->references('id')->on(CraftTable::FIELDLAYOUTS)->nullOnDelete());
-        Schema::table(Table::PRODUCTTYPES, fn (Blueprint $table) => $table->foreign('structureId')->references('id')->on(CraftTable::STRUCTURES)->nullOnDelete());
-        Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn (Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn (Blueprint $table) => $table->foreign('shippingCategoryId', 'commerce_pts_shippingcategoryid_foreign')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PRODUCTTYPES_SITES, fn (Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
-        Schema::table(Table::PRODUCTTYPES_SITES, fn (Blueprint $table) => $table->foreign('siteId')->references('id')->on(CraftTable::SITES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PRODUCTTYPES_TAXCATEGORIES, fn (Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
-        Schema::table(Table::PRODUCTTYPES_TAXCATEGORIES, fn (Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnDelete());
-        Schema::table(Table::PURCHASABLES, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::PURCHASABLES, fn (Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES));
+        Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('transferId')->references('id')->on(Table::TRANSFERS)->nullOnDelete());
+        Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->nullOnDelete());
+        Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
+        Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnUpdate());
+        Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnUpdate());
+        Schema::table(Table::LINEITEMSTATUSES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERADJUSTMENTS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
+        Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('newStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('prevStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::ORDERNOTICES, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('billingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('estimatedBillingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('estimatedShippingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('orderStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('paymentSourceId')->references('id')->on(Table::PAYMENTSOURCES)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('shippingAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::ORDERS, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERSTATUSES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERSTATUS_EMAILS, fn(Blueprint $table) => $table->foreign('emailId')->references('id')->on(Table::EMAILS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::ORDERSTATUS_EMAILS, fn(Blueprint $table) => $table->foreign('orderStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PAYMENTCURRENCIES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PAYMENTSOURCES, fn(Blueprint $table) => $table->foreign('customerId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::PAYMENTSOURCES, fn(Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->cascadeOnDelete());
+        Schema::table(Table::PDFS, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::PLANS, fn(Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->cascadeOnDelete());
+        Schema::table(Table::PLANS, fn(Blueprint $table) => $table->foreign('planInformationId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::PRODUCTS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::PRODUCTS, fn(Blueprint $table) => $table->foreign('typeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
+        Schema::table(Table::PRODUCTS, fn(Blueprint $table) => $table->foreign('defaultVariantId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::PRODUCTTYPES, fn(Blueprint $table) => $table->foreign('fieldLayoutId')->references('id')->on(CraftTable::FIELDLAYOUTS)->nullOnDelete());
+        Schema::table(Table::PRODUCTTYPES, fn(Blueprint $table) => $table->foreign('variantFieldLayoutId')->references('id')->on(CraftTable::FIELDLAYOUTS)->nullOnDelete());
+        Schema::table(Table::PRODUCTTYPES, fn(Blueprint $table) => $table->foreign('structureId')->references('id')->on(CraftTable::STRUCTURES)->nullOnDelete());
+        Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn(Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, fn(Blueprint $table) => $table->foreign('shippingCategoryId', 'commerce_pts_shippingcategoryid_foreign')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PRODUCTTYPES_SITES, fn(Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
+        Schema::table(Table::PRODUCTTYPES_SITES, fn(Blueprint $table) => $table->foreign('siteId')->references('id')->on(CraftTable::SITES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PRODUCTTYPES_TAXCATEGORIES, fn(Blueprint $table) => $table->foreign('productTypeId')->references('id')->on(Table::PRODUCTTYPES)->cascadeOnDelete());
+        Schema::table(Table::PRODUCTTYPES_TAXCATEGORIES, fn(Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnDelete());
+        Schema::table(Table::PURCHASABLES, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::PURCHASABLES, fn(Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES));
         // NOTE: the legacy migration added this same FK twice (once with just cascadeOnDelete, once with cascadeOnDelete+cascadeOnUpdate); only the more complete one is ported.
-        Schema::table(Table::PURCHASABLES_STORES, fn (Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::PURCHASABLES_STORES, fn (Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->nullOnDelete());
-        Schema::table(Table::PURCHASABLES_STORES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::SALE_CATEGORIES, fn (Blueprint $table) => $table->foreign('categoryId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::SALE_CATEGORIES, fn (Blueprint $table) => $table->foreign('saleId')->references('id')->on(Table::SALES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::SALE_PURCHASABLES, fn (Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::SALE_PURCHASABLES, fn (Blueprint $table) => $table->foreign('saleId')->references('id')->on(Table::SALES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::SALE_USERGROUPS, fn (Blueprint $table) => $table->foreign('saleId')->references('id')->on(Table::SALES)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::SALE_USERGROUPS, fn (Blueprint $table) => $table->foreign('userGroupId')->references('id')->on(CraftTable::USERGROUPS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::SHIPPINGCATEGORIES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::SHIPPINGMETHODS, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::SHIPPINGRULES, fn (Blueprint $table) => $table->foreign('methodId')->references('id')->on(Table::SHIPPINGMETHODS)->cascadeOnDelete());
-        Schema::table(Table::SHIPPINGRULE_CATEGORIES, fn (Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnDelete());
-        Schema::table(Table::SHIPPINGRULE_CATEGORIES, fn (Blueprint $table) => $table->foreign('shippingRuleId')->references('id')->on(Table::SHIPPINGRULES)->cascadeOnDelete());
-        Schema::table(Table::SHIPPINGZONES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::STORESETTINGS, fn (Blueprint $table) => $table->foreign('locationAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::STORESETTINGS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::SUBSCRIPTIONS, fn (Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->restrictOnDelete());
-        Schema::table(Table::SUBSCRIPTIONS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::SUBSCRIPTIONS, fn (Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->nullOnDelete());
-        Schema::table(Table::SUBSCRIPTIONS, fn (Blueprint $table) => $table->foreign('planId')->references('id')->on(Table::PLANS)->restrictOnDelete());
-        Schema::table(Table::SUBSCRIPTIONS, fn (Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->cascadeOnDelete());
-        Schema::table(Table::TAXRATES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::TAXRATES, fn (Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnUpdate());
-        Schema::table(Table::TAXRATES, fn (Blueprint $table) => $table->foreign('taxZoneId')->references('id')->on(Table::TAXZONES)->cascadeOnUpdate());
-        Schema::table(Table::TAXZONES, fn (Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
-        Schema::table(Table::TRANSACTIONS, fn (Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->cascadeOnUpdate());
-        Schema::table(Table::TRANSACTIONS, fn (Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
-        Schema::table(Table::TRANSACTIONS, fn (Blueprint $table) => $table->foreign('parentId')->references('id')->on(Table::TRANSACTIONS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::TRANSACTIONS, fn (Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
-        Schema::table(Table::TRANSFERS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::TRANSFERDETAILS, fn (Blueprint $table) => $table->foreign('transferId')->references('id')->on(Table::TRANSFERS)->cascadeOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::TRANSFERDETAILS, fn (Blueprint $table) => $table->foreign('inventoryItemId')->references('id')->on(Table::INVENTORYITEMS)->nullOnDelete()->cascadeOnUpdate());
-        Schema::table(Table::VARIANTS, fn (Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
-        Schema::table(Table::VARIANTS, fn (Blueprint $table) => $table->foreign('primaryOwnerId')->references('id')->on(Table::PRODUCTS)->cascadeOnDelete());
+        Schema::table(Table::PURCHASABLES_STORES, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::PURCHASABLES_STORES, fn(Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->nullOnDelete());
+        Schema::table(Table::PURCHASABLES_STORES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::SALE_ENTRIES, fn(Blueprint $table) => $table->foreign('entryId')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::SALE_ENTRIES, fn(Blueprint $table) => $table->foreign('saleId')->references('id')->on(Table::SALES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::SALE_PURCHASABLES, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::SALE_PURCHASABLES, fn(Blueprint $table) => $table->foreign('saleId')->references('id')->on(Table::SALES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::SALE_USERGROUPS, fn(Blueprint $table) => $table->foreign('saleId')->references('id')->on(Table::SALES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::SALE_USERGROUPS, fn(Blueprint $table) => $table->foreign('userGroupId')->references('id')->on(CraftTable::USERGROUPS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::SHIPPINGCATEGORIES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::SHIPPINGMETHODS, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::SHIPPINGRULES, fn(Blueprint $table) => $table->foreign('methodId')->references('id')->on(Table::SHIPPINGMETHODS)->cascadeOnDelete());
+        Schema::table(Table::SHIPPINGRULE_CATEGORIES, fn(Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnDelete());
+        Schema::table(Table::SHIPPINGRULE_CATEGORIES, fn(Blueprint $table) => $table->foreign('shippingRuleId')->references('id')->on(Table::SHIPPINGRULES)->cascadeOnDelete());
+        Schema::table(Table::SHIPPINGZONES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::STORESETTINGS, fn(Blueprint $table) => $table->foreign('locationAddressId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::STORESETTINGS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::SUBSCRIPTIONS, fn(Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->restrictOnDelete());
+        Schema::table(Table::SUBSCRIPTIONS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::SUBSCRIPTIONS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->nullOnDelete());
+        Schema::table(Table::SUBSCRIPTIONS, fn(Blueprint $table) => $table->foreign('planId')->references('id')->on(Table::PLANS)->restrictOnDelete());
+        Schema::table(Table::SUBSCRIPTIONS, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->cascadeOnDelete());
+        Schema::table(Table::TAXRATES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::TAXRATES, fn(Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnUpdate());
+        Schema::table(Table::TAXRATES, fn(Blueprint $table) => $table->foreign('taxZoneId')->references('id')->on(Table::TAXZONES)->cascadeOnUpdate());
+        Schema::table(Table::TAXZONES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete());
+        Schema::table(Table::TRANSACTIONS, fn(Blueprint $table) => $table->foreign('gatewayId')->references('id')->on(Table::GATEWAYS)->cascadeOnUpdate());
+        Schema::table(Table::TRANSACTIONS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
+        Schema::table(Table::TRANSACTIONS, fn(Blueprint $table) => $table->foreign('parentId')->references('id')->on(Table::TRANSACTIONS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::TRANSACTIONS, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete());
+        Schema::table(Table::TRANSFERS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::TRANSFERDETAILS, fn(Blueprint $table) => $table->foreign('transferId')->references('id')->on(Table::TRANSFERS)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::TRANSFERDETAILS, fn(Blueprint $table) => $table->foreign('inventoryItemId')->references('id')->on(Table::INVENTORYITEMS)->nullOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::VARIANTS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::VARIANTS, fn(Blueprint $table) => $table->foreign('primaryOwnerId')->references('id')->on(Table::PRODUCTS)->cascadeOnDelete());
     }
 
     /**
@@ -1375,7 +1375,7 @@ class Install extends Migration
 
     public function down(): void
     {
-        $this->task('Uninstall Craft Commerce', function (?Logger $logger = null) {
+        $this->task('Uninstall Craft Commerce', function(?Logger $logger = null) {
             $logger?->subLabel('Dropping tables...');
             $this->dropTables();
             $logger?->success('Tables dropped.');

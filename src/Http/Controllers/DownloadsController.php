@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\RouteToken\RouteTokens;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Pdf\Pdfs;
@@ -87,15 +88,11 @@ readonly class DownloadsController
 
         abort_if(!$pdf, 500, 'Can not find a PDF to render.');
 
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLocale = \Craft::$app->formattingLocale;
-
-        $language = $pdf->getRenderLanguage($order);
-        Locale::switchAppLanguage($language);
-
-        $renderedPdf = app(Pdfs::class)->renderPdfForOrder($order, $option, null, [], $pdf);
-
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
+        $renderedPdf = I18N::withLocale(
+            $pdf->getRenderLanguage($order),
+            null,
+            fn() => app(Pdfs::class)->renderPdfForOrder($order, $option, null, [], $pdf),
+        );
 
         $fileName = renderSandboxedObjectTemplate((string)$pdf->fileNameFormat, $order, $order->getObjectTemplateVariables()) ?: ($pdf->handle . '-' . $order->number);
 
@@ -183,6 +180,7 @@ readonly class DownloadsController
         abort_if(!$order, 404, 'Order not found');
 
         return pageTemplate('commerce/_downloads/email-sent', [
+            ...$this->challengePageVariables(),
             'email' => $order->getMaskedEmail(),
         ], TemplateMode::Cp);
     }
@@ -195,11 +193,26 @@ readonly class DownloadsController
         bool $inline,
     ): string {
         return pageTemplate('commerce/_downloads/email-challenge', [
+            ...$this->challengePageVariables(),
             'order' => $order,
             'orderNumber' => $orderNumber,
             'pdfHandle' => $pdfHandle,
             'option' => $option,
             'inline' => $inline,
         ], TemplateMode::Cp);
+    }
+
+    /**
+     * The logo, system name and error message the email challenge pages show.
+     *
+     * @return array{logoUrl: ?string, systemName: string, error: mixed}
+     */
+    private function challengePageVariables(): array
+    {
+        return [
+            'logoUrl' => Cms::config()->cpLogoUrl,
+            'systemName' => Cms::systemName(),
+            'error' => session('error'),
+        ];
     }
 }

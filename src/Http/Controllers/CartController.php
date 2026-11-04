@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -234,7 +235,7 @@ class CartController
                         session()->put('commerce:anonymousCartWithCredentialedCustomer:' . $this->cart->number, true);
                     }
                 } catch (\Exception $e) {
-                    $this->cart->addError('email', $e->getMessage());
+                    $this->cart->errors()->add('email', $e->getMessage());
                 }
             }
         } else {
@@ -421,7 +422,7 @@ class CartController
         try {
             $lock->block(10);
         } catch (LockTimeoutException) {
-            $this->cart->addError('isComplete', t('Unable to complete order: another request is already in progress.', category: 'commerce'));
+            $this->cart->errors()->add('isComplete', t('Unable to complete order: another request is already in progress.', category: 'commerce'));
             return $this->returnCart($request);
         }
 
@@ -456,7 +457,9 @@ class CartController
         }
 
         if (!empty($errors)) {
-            $this->cart->addErrors($errors);
+            foreach ($errors as $attribute => $message) {
+                $this->cart->errors()->add($attribute, $message);
+            }
         }
 
         if (empty($errors)) {
@@ -467,7 +470,7 @@ class CartController
             }
 
             if (!$completedSuccess) {
-                $this->cart->addError('isComplete', t('Completing order failed.', category: 'commerce'));
+                $this->cart->errors()->add('isComplete', t('Completing order failed.', category: 'commerce'));
             }
         }
 
@@ -540,6 +543,7 @@ class CartController
         abort_if(!$cart, 404, 'Cart not found');
 
         return pageTemplate('commerce/_cart/email-sent', [
+            ...$this->challengePageVariables(),
             'email' => $cart->getMaskedEmail(),
         ], TemplateMode::Cp);
     }
@@ -782,8 +786,23 @@ class CartController
     private function renderCartEmailChallenge(Order $cart, string $cartNumber): string
     {
         return pageTemplate('commerce/_cart/email-challenge', [
+            ...$this->challengePageVariables(),
             'cart' => $cart,
             'cartNumber' => $cartNumber,
         ], TemplateMode::Cp);
+    }
+
+    /**
+     * The logo, system name and error message the email challenge pages show.
+     *
+     * @return array{logoUrl: ?string, systemName: string, error: mixed}
+     */
+    private function challengePageVariables(): array
+    {
+        return [
+            'logoUrl' => Cms::config()->cpLogoUrl,
+            'systemName' => Cms::systemName(),
+            'error' => session('error'),
+        ];
     }
 }

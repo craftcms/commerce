@@ -4,30 +4,27 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
-use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
-use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
-use craft\helpers\Cp;
+use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
-use CraftCms\Cms\Support\Facades\InputNamespace;
-use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Controls\Number;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Dashboard\Widgets\Concerns\HasCommerceIcon;
 use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Order\Elements\Order;
-
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Store\Stores;
+
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
-use function CraftCms\Cms\template;
 
 class Orders extends Widget
 {
+    use HasCommerceIcon;
     use StatWidgetTrait;
 
     public int $limit = 10;
@@ -39,7 +36,7 @@ class Orders extends Widget
 
         if (!$this->storeId) {
             /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
-            $this->storeId = Cp::requestedSite()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
+            $this->storeId = app(RequestedSite::class)->get()?->getStore()->id ?? app(Stores::class)->getPrimaryStore()->id;
         }
     }
 
@@ -53,12 +50,6 @@ class Orders extends Widget
     public static function displayName(): string
     {
         return t('Recent Orders', category: 'commerce');
-    }
-
-    #[\Override]
-    public static function icon(): ?string
-    {
-        return \Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
     #[\Override]
@@ -76,27 +67,36 @@ class Orders extends Widget
     }
 
     #[\Override]
+    public function component(): ?string
+    {
+        return 'commerce:widget-table';
+    }
+
+    #[\Override]
     public function props(): array
     {
-        $orders = $this->getOrders();
+        $showStatuses = !empty($this->orderStatuses) && count($this->orderStatuses) > 1;
 
-        $id = 'recent-orders-settings-' . Str::random();
-        $namespaceId = InputNamespace::namespaceId($id);
-
-        return ['html' => template('commerce/_components/widgets/orders/recent/body', [
-            'orders' => $orders,
-            'showStatuses' => !empty($this->orderStatuses) && count($this->orderStatuses) > 1,
-            'id' => $id,
-            'namespaceId' => $namespaceId,
-        ], TemplateMode::Cp)];
+        return [
+            'columns' => array_values(array_filter([
+                ['key' => 'title', 'label' => t('Reference', category: 'commerce')],
+                $showStatuses ? ['key' => 'orderStatus', 'label' => t('Status', category: 'commerce')] : null,
+                ['key' => 'paid', 'label' => t('Total Paid', category: 'commerce')],
+                ['key' => 'date', 'label' => t('Date Ordered', category: 'commerce')],
+            ])),
+            'rows' => array_map(fn(Order $order) => [
+                'title' => $order->reference,
+                'url' => $order->getCpEditUrl(),
+                'orderStatus' => ($orderStatus = $order->getOrderStatus()) ? ['name' => $orderStatus->name, 'color' => $orderStatus->color] : null,
+                'paid' => I18N::getFormatter()->asCurrency($order->getTotalPaid(), $order->currency),
+                'date' => I18N::getFormatter()->asDatetime($order->dateOrdered, 'short'),
+            ], $this->getOrders()),
+        ];
     }
 
     #[\Override]
     public function settingsUi(UiContext $context = new UiContext()): ?Ui
     {
-        \Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
-        \Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
-
         return Ui::make([
             Field::make(t('Store', category: 'commerce'))
                 ->control(Choice::make('storeId')->value($this->storeId)->options($this->getStoreOptions())),

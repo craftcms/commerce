@@ -34,7 +34,6 @@ use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * @extends PurchasableQuery<Variant>
- *
  * @implements NestedElementQueryInterface<Variant>
  */
 class VariantQuery extends PurchasableQuery implements NestedElementQueryInterface

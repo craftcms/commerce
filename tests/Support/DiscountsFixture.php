@@ -23,9 +23,7 @@ use RuntimeException;
  * plus three purchasables (`rad-hood`, `hct-white`, `hct-blue`) and a signed-in customer, for the
  * `Discounts`/`Coupons` service tests.
  *
- * Like `SalesFixture`, this deliberately never sets `allCategories: false` with real category
- * IDs — category-based discount matching is currently broken (see COM-644/645/646/647) so it
- * isn't exercised here.
+ * Entry-based discount matching is covered by `PromotionEntriesTest`.
  */
 class DiscountsFixture
 {
@@ -77,7 +75,7 @@ class DiscountsFixture
             'perItemDiscount' => 5,
             'percentDiscount' => 15.25,
             'enabled' => true,
-            'allCategories' => true,
+            'allEntries' => true,
             'allPurchasables' => true,
             'percentageOffSubject' => 'original',
             'requireCouponCode' => true,
@@ -161,14 +159,14 @@ class DiscountsFixture
     /**
      * @param array<string, mixed> $attributes
      * @param int[] $purchasableIds
-     * @param int[] $categoryIds
+     * @param int[] $entryIds
      * @param Coupon[] $coupons
      */
-    private function createDiscount(array $attributes, array $purchasableIds = [], array $categoryIds = [], array $coupons = []): Discount
+    private function createDiscount(array $attributes, array $purchasableIds = [], array $entryIds = [], array $coupons = []): Discount
     {
         $discount = new Discount($attributes);
         $discount->setPurchasableIds($purchasableIds);
-        $discount->setCategoryIds($categoryIds);
+        $discount->setEntryIds($entryIds);
 
         if (!empty($coupons)) {
             $discount->setCoupons($coupons);

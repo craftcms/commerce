@@ -2,16 +2,18 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\Plugin;
-use CraftCms\Commerce\Tax\Events\TaxEngineEvent;
-use CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent;
-use Illuminate\Support\Facades\Event;
-
 use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\base\TaxIdValidatorInterface;
+use craft\commerce\events\TaxEngineEvent;
+use craft\commerce\events\TaxIdValidatorsEvent;
+use craft\commerce\Plugin;
+
 use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface as NewTaxEngineInterface;
+use CraftCms\Commerce\Tax\Events\TaxEngineResolving;
+use CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 
 /**
  * @deprecated 6.0.0 use `app(\CraftCms\Commerce\Tax\Taxes::class)` instead.
@@ -136,17 +138,21 @@ class Taxes extends Component implements TaxEngineInterface
 
     public static function registerEvents(): void
     {
-        Event::listen(TaxIdValidatorsEvent::class, static function(TaxIdValidatorsEvent $event) {
+        Event::listen(TaxIdValidatorsResolving::class, static function(TaxIdValidatorsResolving $event) {
             $legacy = Plugin::getInstance()->getTaxes();
             if ($legacy->hasEventHandlers(self::EVENT_REGISTER_TAX_ID_VALIDATORS)) {
-                $legacy->trigger(self::EVENT_REGISTER_TAX_ID_VALIDATORS, $event);
+                $legacyEvent = new TaxIdValidatorsEvent(['validators' => $event->validators]);
+                $legacy->trigger(self::EVENT_REGISTER_TAX_ID_VALIDATORS, $legacyEvent);
+                $event->validators = $legacyEvent->validators;
             }
         });
 
-        Event::listen(TaxEngineEvent::class, static function(TaxEngineEvent $event) {
+        Event::listen(TaxEngineResolving::class, static function(TaxEngineResolving $event) {
             $legacy = Plugin::getInstance()->getTaxes();
             if ($legacy->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
-                $legacy->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
+                $legacyEvent = new TaxEngineEvent(['engine' => $event->engine]);
+                $legacy->trigger(self::EVENT_REGISTER_TAX_ENGINE, $legacyEvent);
+                $event->engine = $legacyEvent->engine;
             }
         });
     }

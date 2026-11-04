@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Support\Facades\Conditions;
+use CraftCms\Cms\Support\Query;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCustomerConditionRule;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricing as CatalogPricingModel;
@@ -521,9 +521,9 @@ class CatalogPricing
         // Plain where()s rather than whereRaw() — the column is camelCase, and an unquoted
         // raw fragment gets folded to lowercase by Postgres, no longer matching it.
         $query->where(function($q) {
-            $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', CraftDb::prepareDateForDb(new DateTime()));
+            $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', Query::prepareDateForDb(new DateTime()));
         })->where(function($q) {
-            $q->whereNull('dateTo')->orWhere('dateTo', '>=', CraftDb::prepareDateForDb(new DateTime()));
+            $q->whereNull('dateTo')->orWhere('dateTo', '>=', Query::prepareDateForDb(new DateTime()));
         });
 
         if (!$allPrices) {
@@ -561,9 +561,9 @@ class CatalogPricing
         $condition->modifyQuery($query);
 
         $query->where(function($q) {
-            $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', CraftDb::prepareDateForDb(new DateTime()));
+            $q->whereNull('dateFrom')->orWhere('dateFrom', '<=', Query::prepareDateForDb(new DateTime()));
         })->where(function($q) {
-            $q->whereNull('dateTo')->orWhere('dateTo', '>=', CraftDb::prepareDateForDb(new DateTime()));
+            $q->whereNull('dateTo')->orWhere('dateTo', '>=', Query::prepareDateForDb(new DateTime()));
         })->orderBy('purchasableId')->orderBy('price');
 
         if (!$allPrices) {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Support\Arr;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\Sql;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -39,15 +39,13 @@ readonly class EmailPreviewController
         $order ??= new Order();
 
         if ($email && $templatePath = $email->templatePath) {
-            $emailLanguage = $email->getRenderLanguage($order);
+            return I18N::withLocale($email->getRenderLanguage($order), null, function() use ($order, $templatePath) {
+                $orderHistory = Arr::first($order->getHistories()) ?: new OrderHistory();
+                $orderData = $order->toArray();
+                $option = 'email';
 
-            Locale::switchAppLanguage($emailLanguage);
-
-            $orderHistory = Arr::first($order->getHistories()) ?: new OrderHistory();
-            $orderData = $order->toArray();
-            $option = 'email';
-
-            return template($templatePath, compact('order', 'orderHistory', 'option', 'orderData'), TemplateMode::Site);
+                return template($templatePath, compact('order', 'orderHistory', 'option', 'orderData'), TemplateMode::Site);
+            });
         }
 
         $errors = [];
