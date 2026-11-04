@@ -15,11 +15,9 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <div class="lg:flex lg:justify-between">
-    <h1 class="text-3xl block sm:inline">
-      {{- 'My Orders'|t -}}
-    </h1>
-  </div>
+  <h1 class="text-3xl font-bold tracking-tight">{{ 'Order history'|t }}</h1>
+  <p class="mt-1 text-sm text-gray-500">{{ 'Check the status of recent orders and download receipts.'|t }}</p>
+
   {# @var orders \CraftCms\Commerce\Order\Elements\Order[] #}
   {% set orders = craft.orders()
     .customer(currentUser)
@@ -28,51 +26,47 @@
     .all() %}
 
   {% if orders|length %}
-    <div class="my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+    <ul class="mt-8 space-y-4">
       {% for order in orders %}
         {% set totalLineItems = order.lineItems|length %}
-        <a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}" class="block border border-gray-200 bg-white rounded-lg shadow-sm hover:shadow-md p-4 w-full">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-semibold">
-                {{ order.dateOrdered|date }}
-              </h2>
-              <small class="text-sm text-gray-400">
-                {{- order.reference -}}
-              </small>
+        <li>
+          <a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}" class="block rounded-lg border border-gray-200 bg-white p-5 shadow-xs transition hover:shadow-md">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+                <div>
+                  <dt class="text-gray-500">{{ 'Order'|t }}</dt>
+                  <dd class="font-medium">{{ order.reference }}</dd>
+                </div>
+                <div>
+                  <dt class="text-gray-500">{{ 'Date placed'|t }}</dt>
+                  <dd class="font-medium">{{ order.dateOrdered|date }}</dd>
+                </div>
+                <div>
+                  <dt class="text-gray-500">{{ 'Total'|t }}</dt>
+                  <dd class="font-medium">{{ order.totalPriceAsCurrency }}</dd>
+                </div>
+              </dl>
+              <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ order.isPaid ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700' }}">
+                {{- order.paidStatus|title -}}
+              </span>
             </div>
-            <div class="text-lg font-semibold">
-              {{ order.totalPriceAsCurrency }}
-            </div>
-          </div>
-          <div class="border-t border-gray-200 mt-3 pt-3">
-          <span class="block text-xs uppercase text-gray-600">
-            {{ '{x} {items}'|t({
-              x: order.totalQty,
-              items: order.totalQty == 1 ? 'item' : 'items'
-            }) }}
-          </span>
-            {% for item in order.lineItems|slice(0, limitPreviewLineItems) %}
-              {{ item.description }}{% if item.qty > 1 %}<span class="text-xs"> × {{ item.qty }}</span>{% endif %}{% if not loop.last %}, {% endif %}
-            {%- endfor -%}
-            {%- if totalLineItems > limitPreviewLineItems and loop.last -%}
-              , {{ 'and {x} other items'|t({
-              x: totalLineItems - limitPreviewLineItems
-            }) }}
-            {% endif %}
-          </div>
-        </a>
+            <p class="mt-4 border-t border-gray-100 pt-4 text-sm text-gray-600">
+              {% for item in order.lineItems|slice(0, limitPreviewLineItems) %}
+                {{ item.description }}{% if item.qty > 1 %}<span class="text-gray-400"> × {{ item.qty }}</span>{% endif %}{% if not loop.last %}, {% endif %}
+              {%- endfor -%}
+              {%- if totalLineItems > limitPreviewLineItems -%}
+                , {{ 'and {x} other items'|t({ x: totalLineItems - limitPreviewLineItems }) }}
+              {%- endif %}
+            </p>
+          </a>
+        </li>
       {% endfor %}
-    </div>
+    </ul>
   {% else %}
-    <div class="text-center py-8">
-      <p class="text-lg">{{ 'You don’t have any orders yet.'|t }}</p>
-      <p class="mt-4">
-        <a href="{{ url('/[[folderName]]/products') }}" class="inline-block bg-blue-500 text-white rounded-md py-2 px-4 hover:bg-blue-600">
-          {{- 'Continue shopping'|t -}}
-        </a>
-      </p>
+    <div class="mt-10 rounded-lg border border-dashed border-gray-300 p-12 text-center">
+      <p class="font-semibold">{{ 'You don’t have any orders yet'|t }}</p>
+      <p class="mt-1 text-sm text-gray-500">{{ 'When you place an order, it’ll show up here.'|t }}</p>
+      <a href="{{ url('/[[folderName]]/products') }}" class="mt-6 [[classes.btn.base]] [[classes.btn.mainColor]]">{{ 'Start shopping'|t }}</a>
     </div>
   {% endif %}
-
 {% endblock %}

@@ -5,12 +5,13 @@
     {% redirect '[[folderName]]/checkout/payment-method' %}
   {% endif %}
 
-  <div class="flex -mx-8">
-    <div class="w-2/3 px-8">
-      <h1 class="font-bold text-xl">
+  <div class="mx-auto max-w-md">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
+      <h1 class="text-xl font-semibold">
         {{- 'Commit to buy'|t -}}
       </h1>
-      <div class="mt-1">
+      <p class="mt-1 text-sm text-gray-500">{{ 'Place your order now and pay for it later.'|t }}</p>
+      <div class="mt-6">
         <form id="completeForm"
               method="post"
               action=""
@@ -23,8 +24,8 @@
           })) }}
           {{ tag('button', {
             type: 'submit',
-            class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-            text: 'Submit'|t
+            class: 'w-full [[classes.btn.base]] [[classes.btn.mainColor]]',
+            text: 'Place order'|t
           }) }}
         </form>
       </div>

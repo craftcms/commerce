@@ -4,85 +4,34 @@ Outputs the global site footer.
 
 @var currentUser \CraftCms\Cms\User\Elements\User
 #}
-
-<div class="bg-gray-500 text-white">
-  <div class="container mx-auto p-6">
-    {% if not currentUser %}
-      <p class="text-1xl">
-        {{- 'You’re a guest user that’s not logged in.'|t -}}
-      </p>
-    {% endif %}
-
-    {% if currentUser %}
-      <p class="text-1xl">
+<div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm text-gray-500 sm:px-6 md:grid-cols-3 lg:px-8">
+  <div class="md:col-span-2">
+    <p class="font-semibold text-gray-900">{{ 'Example templates'|t }}</p>
+    <p class="mt-2 max-w-prose">
+      {{ 'These Craft Commerce {version} example templates use <a href="{url}" class="{classes}">Tailwind CSS</a> and native JavaScript. You’re running the {edition} edition of Craft Commerce.'|t({
+        url: 'https://tailwindcss.com',
+        classes: 'font-medium text-blue-600 hover:text-blue-500',
+        edition: craft.commerce.edition|upper,
+        version: craft.commerce.version,
+      })|raw }}
+    </p>
+    <p class="mt-4">
+      {% if currentUser %}
+        {{ 'Signed in as {user}.'|t({ user: '<span class="font-medium text-gray-900">' ~ currentUser.username|e ~ '</span>' })|raw }}
         {% if currentUser.groups %}
-          {% set userGroups %}
-            {% for group in currentUser.groups %}
-              <code class="rounded p-1 bg-gray-700 text-xs mr-2">
-                {{- group.name -}}
-              </code>
-            {% endfor %}
-          {% endset %}
-          {{ 'Logged in as <code class="{classes}">{user}</code>, in user groups: {groups}.'|t({
-            classes: 'rounded p-1 bg-gray-700 text-xs',
-            user: currentUser.username,
-            groups: userGroups
-          })|raw }}
-        {% else %}
-          {{ 'Logged in as <code class="{classes}">{user}</code>.'|t({
-            classes: 'rounded p-1 bg-gray-700 text-xs',
-            user: currentUser.username
-          })|raw }}
+          {{ 'User groups: {groups}.'|t({ groups: currentUser.groups|map(g => g.name|e)|join(', ') })|raw }}
         {% endif %}
-    {% endif %}
+      {% else %}
+        {{- 'You’re browsing as a guest.'|t -}}
+      {% endif %}
+    </p>
   </div>
-</div>
-
-<div class="bg-gray-900 text-gray-400 pt-8 pb-12">
-  <div class="container mx-auto p-6">
-    <div class="md:flex">
-      <div class="md:w-1/2 md:pr-6">
-        <h3 class="text-xl pb-3 text-gray-300">
-          {{- 'Example Templates'|t -}}
-        </h3>
-        <p class="pb-3">
-          {{ 'These Craft Commerce {version} example templates use <a href="{url}" class="underline">TailwindCSS</a> and native JavaScript. You’re
-      running the {edition} edition of Craft Commerce.'|t({
-            url: 'https://tailwindcss.com',
-            edition: craft.commerce.edition|upper,
-            version: craft.commerce.version,
-          })|raw }}
-        </p>
-      </div>
-      <div class="md:w-1/2 md:pl-6">
-        <h5 class="text-gray-600 pb-2 uppercase text-sm tracking-wide pt-3">
-          {{- 'More Resources'|t -}}
-        </h5>
-        <ul class="list-disc list-inside pb-2">
-          <li>
-            <a href="https://craftcms.com/docs/4.x/" class="text-blue-500 hover:text-blue-600 underline">
-              {{- 'Craft'|t -}}
-            </a>
-            &
-            <a href="https://craftcms.com/docs/commerce/4.x/" class="text-blue-500 hover:text-blue-600 underline">
-              {{- 'Commerce'|t -}}
-            </a>
-            Documentation.
-          </li>
-          <li>
-            <a href="http://craftcms.stackexchange.com" class="text-blue-500 hover:text-blue-600 underline">
-              {{- 'Craft CMS Stack Exchange'|t -}}
-            </a>.
-            <span class="text-xs">Use the <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.</span>
-          </li>
-          <li>
-            <a href="https://craftcms.com/discord" class="text-blue-500 hover:text-blue-600 underline">
-              {{- 'Craft Discord Community'|t -}}
-            </a>.
-            <span class="text-xs">Use the <code class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.</span>
-          </li>
-        </ul>
-      </div>
-    </div>
+  <div>
+    <p class="font-semibold text-gray-900">{{ 'Resources'|t }}</p>
+    <ul class="mt-2 space-y-2">
+      <li><a href="https://craftcms.com/docs/commerce/" class="hover:text-gray-900">{{ 'Commerce documentation'|t }}</a></li>
+      <li><a href="https://craftcms.com/docs/" class="hover:text-gray-900">{{ 'Craft documentation'|t }}</a></li>
+      <li><a href="https://craftcms.com/discord" class="hover:text-gray-900">{{ 'Craft Discord community'|t }}</a> <span class="text-xs">(#commerce)</span></li>
+    </ul>
   </div>
 </div>

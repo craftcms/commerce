@@ -6,9 +6,9 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <div class="md:flex md:-mx-8">
-    <div class="md:w-2/3 md:px-8">
-      <h1 class="font-bold text-xl">
+  <div class="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12">
+    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 lg:col-span-7">
+      <h1 class="text-xl font-semibold">
         {{- 'How should your order be shipped?'|t -}}
       </h1>
 
@@ -31,37 +31,34 @@
             {{ redirectInput(siteUrl('[[folderName]]/checkout/payment-method')) }}
             {{ successMessageInput('Shipping option updated.') }}
 
-            {% for handle, method in cart.availableShippingMethodOptions %}
-              <div class="js-shipping-select mt-2">
-                <label class="block [[classes.box.selection]]">
-                  <div class="flex justify-start items-center">
-                    <div class="pr-3">
-                      {{ input('radio', 'shippingMethodHandle', handle, {
-                        checked: handle == cart.shippingMethodHandle
-                      }) }}
-                    </div>
-                    <div>
-                      <strong>{{ method.name }}</strong><br>
-                      <span class="price">{{ method.getPrice()|commerceCurrency(cart.currency) }}</span>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            {% endfor %}
-            <span class="flash">{{ errors.get('shippingMethodHandle')|join }}</span>
+            <div class="space-y-3">
+              {% for handle, method in cart.availableShippingMethodOptions %}
+                <div class="js-shipping-select">
+                  <label class="flex items-center gap-4 [[classes.box.selection]]">
+                    {{ input('radio', 'shippingMethodHandle', handle, {
+                      checked: handle == cart.shippingMethodHandle,
+                      class: 'size-4'
+                    }) }}
+                    <span class="flex-1 text-sm font-medium">{{ method.name }}</span>
+                    <span class="text-sm font-semibold tabular-nums">{{ method.getPrice()|commerceCurrency(cart.currency) }}</span>
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+            <span class="mt-2 block text-sm text-[[dangerColor]]-600">{{ errors.get('shippingMethodHandle')|join }}</span>
 
-            <div class="mt-6 text-right">
+            <div class="mt-6 flex justify-end gap-3">
               {{ tag('button', {
                 type: 'submit',
                 class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-                text: 'Select shipping method'|t
+                text: 'Continue to payment'|t
               }) }}
             </div>
           </form>
         </div>
       {% endif %}
     </div>
-    <div class="mt-8 md:w-1/3 md:pr-8 md:mt-0">
+    <div class="mt-10 lg:col-span-5 lg:mt-0">
       {{ include('[[folderName]]/checkout/_includes/order-summary', {
         showShippingAddress: true
       }) }}

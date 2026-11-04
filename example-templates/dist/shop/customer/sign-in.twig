@@ -6,13 +6,10 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <div class="flex -mx-8 pt-8">
-    <div class="w-1/2 pl-8">
-      <div class="bg-gray-100 border-blue-300 border-b-2 p-6">
-        {% include 'shop/customer/_includes/sign-in' with {
-          redirectUrl : 'shop/customer'
-        } %}
-      </div>
-    </div>
+  <div class="mx-auto max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
+    <h1 class="text-xl font-semibold">{{ 'Sign in to your account'|t }}</h1>
+    {% include 'shop/customer/_includes/sign-in' with {
+      redirectUrl : 'shop/customer'
+    } %}
   </div>
 {% endblock %}

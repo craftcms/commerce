@@ -33,38 +33,38 @@ Outputs the checkout progress navigation using the request path and included `ch
   }
 ] %}
 
-{% set totalSteps = checkoutSteps|length %}
-
-{% if width is not defined %}
-  {% set width = 0 %}
-{% endif %}
-
 {% set currentPath = Request.path() %}
+{% set currentIndex = checkoutSteps|column('url')|keys|filter(i => checkoutSteps[i].url == currentPath)|first %}
 
-{% if currentPath in checkoutSteps|column('url') %}
-  <div class="container mx-auto justify-between items-center p-6 text-center text-sm text-gray-600">
-    <nav class="flex"
-         role="navigation"
-         aria-label="Checkout">
+{% if currentIndex is not same as(false) and currentIndex is not null %}
+  <nav class="border-b border-gray-200 bg-white" aria-label="{{ 'Checkout progress'|t }}">
+    <ol class="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-4 text-sm sm:px-6 lg:px-8">
       {% for step in checkoutSteps %}
-        {% set isCurrentStep = step.url == currentPath %}
-        <span class="flex-1 pb-2">
-          {% if isCurrentStep %}
-            {# Calculate greatest thermometer width to use after this loop #}
-            {% set width = (((loop.index * 2) - 1) * 100 / (totalSteps * 2)) %}
-            <span class="text-gray-800">
+        {% set index = loop.index0 %}
+        <li class="flex shrink-0 items-center gap-2">
+          {% if index == currentIndex %}
+            <span class="flex items-center gap-2 font-semibold text-[[color]]-600" aria-current="step">
+              <span class="flex size-6 items-center justify-center rounded-full border-2 border-[[color]]-600 text-xs">{{ loop.index }}</span>
               {{- step.label|t -}}
             </span>
+          {% elseif index < currentIndex %}
+            <a href="{{ url(step.url) }}" class="flex items-center gap-2 text-gray-900 hover:text-[[color]]-600">
+              <span class="flex size-6 items-center justify-center rounded-full bg-[[color]]-600 text-xs text-white">
+                <svg class="size-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
+              </span>
+              {{- step.label|t -}}
+            </a>
           {% else %}
-            <a href="{{ url(step.url) }}"
-               class="no-underline">
+            <a href="{{ url(step.url) }}" class="flex items-center gap-2 text-gray-500 hover:text-gray-700">
+              <span class="flex size-6 items-center justify-center rounded-full border border-gray-300 text-xs">{{ loop.index }}</span>
               {{- step.label|t -}}
             </a>
           {% endif %}
-        </span>
+          {% if not loop.last %}
+            <span class="h-px w-6 bg-gray-300 sm:w-10" aria-hidden="true"></span>
+          {% endif %}
+        </li>
       {% endfor %}
-    </nav>
-    <div class="h-2 w-full bg-gray-200 rounded"></div>
-    <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width: {{ width }}%;"></div>
-  </div>
+    </ol>
+  </nav>
 {% endif %}

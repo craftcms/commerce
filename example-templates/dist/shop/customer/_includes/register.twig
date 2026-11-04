@@ -1,4 +1,4 @@
-<form method="post" action="" accept-charset="UTF-8">
+<form method="post" action="" accept-charset="UTF-8" class="mt-6 space-y-5">
   {{ csrfInput() }}
   {{ actionInput('users/save-user') }}
   {{ redirectInput(redirectUrl) }}
@@ -6,56 +6,45 @@
   {# A failed registration redirects back with the user's errors in the `errors` bag #}
   {% macro errorList(key) %}
     {% if session().get('modelName') == 'user' and errors.has(key) %}
-      {{ ul(errors.get(key), { class: 'errors text-red-500' }) }}
+      {{ ul(errors.get(key), { class: 'mt-2 space-y-1 text-sm text-red-600' }) }}
     {% endif %}
   {% endmacro %}
 
   {% from _self import errorList %}
 
-  <div class="field mt-3">
-    <label for="username">
-      {{- 'Username'|t -}}
-    </label>
-    <div class="mt-1">
-      {{ input('text', 'username', old('username'), {
-        id: 'username',
-        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
-      }) }}
-      {{ errorList('username') }}
-    </div>
-  </div>
-
-  <div class="field mt-3">
-    <label for="email">
-      {{- 'Email'|t -}}
-    </label>
-    <div class="mt-1">
-      {{ input('email', 'email', old('email', cart.email ?? null), {
-        id: 'email',
-        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
-      }) }}
-      {{ errorList('email') }}
-    </div>
-  </div>
-
-  <div class="field mt-3">
-    <label for="savePassword">
-      {{- 'Password'|t -}}
-    </label>
-    <div class="mt-1">
-      {{ input('password', 'password', null, {
-        id: 'savePassword',
-        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
-      }) }}
-      {{ errorList('password') }}
-    </div>
-  </div>
-
-  <div class="mt-3">
-    {{ tag('button', {
-      type: 'submit',
-      class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-      text: 'Register'|t
+  <div>
+    <label for="username" class="block text-sm font-medium text-gray-700">{{ 'Username'|t }}</label>
+    {{ input('text', 'username', old('username'), {
+      id: 'username',
+      autocomplete: 'username',
+      class: 'mt-1 w-full block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'
     }) }}
+    {{ errorList('username') }}
   </div>
+
+  <div>
+    <label for="email" class="block text-sm font-medium text-gray-700">{{ 'Email address'|t }}</label>
+    {{ input('email', 'email', old('email', cart.email ?? null), {
+      id: 'email',
+      autocomplete: 'email',
+      class: 'mt-1 w-full block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'
+    }) }}
+    {{ errorList('email') }}
+  </div>
+
+  <div>
+    <label for="savePassword" class="block text-sm font-medium text-gray-700">{{ 'Password'|t }}</label>
+    {{ input('password', 'password', null, {
+      id: 'savePassword',
+      autocomplete: 'new-password',
+      class: 'mt-1 w-full block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'
+    }) }}
+    {{ errorList('password') }}
+  </div>
+
+  {{ tag('button', {
+    type: 'submit',
+    class: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+    text: 'Create account'|t
+  }) }}
 </form>

@@ -11,7 +11,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
 #}
 {% set sourceAttribute = 'source' ~ (name|slice(0, 1)|capitalize) ~ (name|slice(1) ~ 'Id') %}
 <div class="js-address-fieldset {{ classes }}">
-  <h2 class="text-lg font-bold mb-4">
+  <h2 class="text-base font-semibold">
     {{- title -}}
   </h2>
 
@@ -29,9 +29,10 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
     {# Show the custom toggle if there is a custom address on the order #}
     {% if currentUser and cart and attribute(cart, name ~ 'Id') and not attribute(cart, sourceAttribute) %}
       <div class="js-radio">
-        <label>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
           {{ input('radio', name ~ 'Id', '', {
-            checked: true
+            checked: true,
+            class: 'size-4'
           }) }}
           {{ 'Custom {title}'|t({ title: title }) }}
         </label>
@@ -39,7 +40,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
     {% endif %}
 
     <div class="js-body{% if currentUser and not addressHasErrors %} hidden{% endif %}">
-      {% if errors.has(name) %}<span class="flash">{{ errors.get(name)|join }}</span><br>{% endif %}
+      {% if errors.has(name) %}<p class="mt-2 text-sm text-[[dangerColor]]-600">{{ errors.get(name)|join }}</p>{% endif %}
       {% namespace name %}
         {{ include('[[folderName]]/_private/address/fields', {
           address: attribute(cart, name),

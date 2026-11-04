@@ -22,297 +22,160 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
   {% if currentUser %}
-    <div class="mt-3">
-      <p><a href="{{ url('/shop/customer') }}" class="text-blue-500 hover:text-blue-600">&larr; {{ 'View My Orders'|t }}</a></p>
+    <a href="{{ url('/shop/customer') }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">&larr; {{ 'Back to orders'|t }}</a>
+  {% endif %}
+
+  {% if Request.query('success') %}
+    <div class="mt-6 rounded-lg border border-green-200 bg-green-50 p-6">
+      <h2 class="text-lg font-semibold text-green-900">{{ 'Thanks for your order!'|t }}</h2>
+      <p class="mt-1 text-sm text-green-800">{{ 'We’ve sent a confirmation to {email}.'|t({ email: order.email }) }}</p>
     </div>
   {% endif %}
 
-  <div class="lg:flex mt-5">
-    <div class="lg:w-1/2">
-      <h1 class="text-2xl font-semibold">
-        {{- 'Order {ref}'|t({ ref: order.reference }) -}}
-        <small class="block text-sm text-gray-600 font-normal">{{ order.dateOrdered|date }}</small>
-      </h1>
+  <div class="mt-6 flex flex-wrap items-end justify-between gap-4 border-b border-gray-200 pb-6">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">{{ 'Order {ref}'|t({ ref: order.reference }) }}</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        {{ 'Placed on {date}'|t({ date: order.dateOrdered|date }) }}
+        <span class="ml-2 rounded-full px-2.5 py-0.5 text-xs font-medium {{ order.isPaid ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700' }}">{{ order.paidStatus|title }}</span>
+      </p>
     </div>
-    <div class="lg:w-1/2 lg:text-right">
-      {# Display a link to download a PDF if the order has a PDF URL and a PDF has been configured #}
-      {% if craft.commerce.pdfs.hasEnabledPdf %}
-        <a href="{{ order.getPdfUrl('receipt') }}" download target="_blank" class="text-blue-500 hover:text-blue-600">
-          {{ 'Download PDF'|t }}
-        </a>
-      {% endif %}
-    </div>
+    {# Display a link to download a PDF if the order has a PDF URL and a PDF has been configured #}
+    {% if craft.commerce.pdfs.hasEnabledPdf %}
+      <a href="{{ order.getPdfUrl('receipt') }}" download target="_blank" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+        {{- 'Download receipt'|t -}}
+      </a>
+    {% endif %}
   </div>
 
-  <div class="lg:flex lg:-mx-6 my-6">
-    <div class="lg:w-1/3 lg:mx-6">
-      {# High-level details #}
-      <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">{{ 'Customer'|t }}:</div>
-        <div class="font-bold">{{ order.email }}</div>
-      </div>
-      <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">{{ 'Total'|t }}:</div>
-        <div class="font-bold">{{ order.totalPriceAsCurrency }}</div>
-      </div>
-      <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">{{ 'Payment Status'|t }}:</div>
-        <div class="font-bold">{{ order.paidStatushtml|raw }}</div>
-      </div>
-      <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">{{ 'Amount Paid'|t }}:</div>
-        <div class="font-bold">{{ order.totalPaidAsCurrency }}</div>
-      </div>
-      {% if order.shippingMethodName %}
-        <div class="flex items-center w-full">
-          <div class="text-sm text-gray-600 pr-2">{{ 'Shipping Method'|t }}:</div>
-          <div class="font-bold">{{ order.shippingMethodName }}</div>
-        </div>
-      {% endif %}
-
-      {# Address information #}
-        <div class="mt-6">
-          <h2 class="font-semibold">
-            {{- 'Shipping Address'|t -}}
-          </h2>
-          {% if order.shippingAddress %}
-            {{ Addresses.formatAddress(order.shippingAddress)|raw }}
-          {% else %}
-            <p>{{ 'Not submitted.'|t }}</p>
-          {% endif %}
-        </div>
-        <div class="mt-6">
-          <h2 class="font-semibold">
-            {{- 'Billing Address'|t -}}
-          </h2>
-          {% if order.billingAddress %}
-            {{ Addresses.formatAddress(order.billingAddress)|raw }}
-          {% else %}
-            <p>{{ 'Not submitted.'|t }}</p>
-          {% endif %}
-        </div>
-    </div>
-    <div class="mt-10 lg:w-2/3 lg:mx-6 lg:mt-0">
-      {# Order item and adjustment detail #}
-      <table class="w-full lg:-mt-2">
-        <tbody>
-        {% for item in order.lineItems %}
-          <tr class="align-top">
-            <td class="pb-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}" rowspan="2">
-              <h3 class="text-lg pt-2">
-                {{ item.description }}
-                {% if item.qty > 1 %}
-                  <small>× {{ item.qty }}</small>
-                {% endif %}
-              </h3>
-              <span class="text-gray-500 tracking-widest font-mono text-xs">
-                  {{ item.sku }}
-                </span>
-              {% if item.options|length %}
-                <div class="mt-2 relative">
-                  <span class="absolute top-0 left-0 pt-2 pl-2 text-xs text-gray-500 uppercase tracking-wider">
-                    {{ 'Options'|t }}
-                  </span>
-                  <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">
-                    {{- item.options|json_encode -}}
-                  </code>
-                </div>
-              {% endif %}
-            </td>
-            <td class="py-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}">
-              {% if item.note %}
-                <div>
-                  <div class="text-xs block text-gray-500">{{ 'Note'|t }}:</div>
-                  <div>{{ item.note }}</div>
-                </div>
-              {% endif %}
-              {% if item.options.giftWrapped is defined %}
-                <div>
-                  <div class="text-xs block text-gray-500">{{ 'Gift Wrapped?'|t }}</div>
-                  <div>{{ item.options.giftWrapped|title }}</div>
-                </div>
-              {% endif %}
-            </td>
-
-            <td class="py-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
-              <div class="flex items-center w-full justify-end" title="{{ item.price }}">
-                <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
-                <div class="text-sm tabular-nums">{% if item.onPromotion %}
-                  <del>{% endif %}{{ item.priceAsCurrency }}{% if item.onPromotion %}</del>{% endif %}
-                </div>
+  <div class="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12">
+    <div class="space-y-8 lg:col-span-7">
+      <section aria-labelledby="items-heading">
+        <h2 id="items-heading" class="text-lg font-semibold">{{ 'Items'|t }}</h2>
+        <ul class="mt-4 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
+          {% for item in order.lineItems %}
+            <li class="flex gap-4 p-4">
+              <div class="size-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                {% include "shop/_private/images/placeholder.svg" with { class: 'h-full w-full', width: 64, height: 64, showDimensions: false } %}
               </div>
-              {% if item.onPromotion %}
-                <div class="flex items-center w-full justify-end" title="{{ item.promotionalPrice }}">
-                  <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
-                  <div class="text-sm tabular-nums">{{ item.promotionalPriceAsCurrency }}</div>
-                </div>
-                <div class="flex items-center w-full justify-end" title="{{ item.promotionalAmount }}">
-                  <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
-                  <div class="text-sm tabular-nums">{{ item.promotionalAmountAsCurrency }}</div>
-                </div>
-              {% endif %}
-              <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
-                <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
-                <div class="text-sm tabular-nums">{{ item.subtotalAsCurrency }}</div>
-              </div>
-            </td>
-          </tr>
-          <tr class="">
-            <td class="pb-3 text-right" colspan="2">
-              {% if item.adjustments|length %}
-                <div class="text-left text-2xs uppercase tracking-wider text-gray-600">{{ 'Adjustments'|t }}</div>
-                <div class="border-t border-gray-300 border-dotted mt-1">
-                  {% for adjustment in item.adjustments %}
-                    <div class="flex w-full items-center mt-2 text-sm">
-                      <div class="pr-2">
-                        <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong>
-                      </div>
-                      <div>
-                        {{ adjustment.name }}
-                        {% if adjustment.isEstimated %}<i
-                                class="text-grey-dark">{{ 'Estimated'|t }}</i>{% endif %}<br>
-                        {{ adjustment.description }}
-                      </div>
-                      <div class="ml-auto">
-                          <span class="text-gray-500 tabular-nums" title="{{ adjustment.amount }}">
-                            {{ ' ' ~ adjustment.amountAsCurrency }}
-                          </span>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-
-              <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
-                <div class="text-sm text-gray-600 pr-2">{{ 'Total'|t }}:</div>
-                <div class="font-bold tabular-nums">{{ item.totalAsCurrency }}</div>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-
-        <tr>
-          <td colspan="3" class="text-right pb-3">
-            <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
-                 title="{{ order.itemSubTotal }}">
-              <div class="text-sm text-gray-600 pr-2">{{ 'Item Subtotal'|t }}:</div>
-              <div class="font-bold tabular-nums">{{ order.itemSubtotalAsCurrency }}</div>
-            </div>
-          </td>
-        </tr>
-
-        {% if order.orderAdjustments|length %}
-          <tr class="border-t-2 border-gray-300">
-            <td class="py-3"></td>
-            <td colspan="2" class="py-3 pr-3">
-              <div class="text-left text-2xs uppercase tracking-wider text-gray-600">{{ 'Order Adjustments'|t }}</div>
-              <div class="border-t border-gray-300 border-dotted mt-1">
-                {% for adjustment in order.orderAdjustments %}
-                  <div class="flex w-full items-center mt-2 text-sm">
-                    <div class="pr-2">
-                      <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong>
-                    </div>
-                    <div>
-                      {{ adjustment.name }}
-                      {% if adjustment.isEstimated %}<i class="text-grey-dark">{{ 'Estimated'|t }}</i>{% endif %}<br>
-                      {{ adjustment.description }}
-                    </div>
-                    <div class="ml-auto">
-                        <span class="text-gray-500 tabular-nums" title="{{ adjustment.amount }}">
-                          {{ ' ' ~ adjustment.amountAsCurrency }}
-                        </span>
-                    </div>
+              <div class="min-w-0 flex-1 text-sm">
+                <div class="flex justify-between gap-4">
+                  <div>
+                    <p class="font-medium">{{ item.description }}</p>
+                    <p class="font-mono text-xs text-gray-500">{{ item.sku }}</p>
                   </div>
-                {% endfor %}
+                  <p class="font-medium tabular-nums">{{ item.totalAsCurrency }}</p>
+                </div>
+                <p class="mt-1 text-gray-500">
+                  {{ 'Qty {qty}'|t({ qty: item.qty }) }} ·
+                  {% if item.onPromotion %}<del>{{ item.priceAsCurrency }}</del> {{ item.promotionalPriceAsCurrency }}{% else %}{{ item.priceAsCurrency }}{% endif %}
+                  {{ 'each'|t }}
+                </p>
+                {% if item.options|length %}
+                  <ul class="mt-2 flex flex-wrap gap-1.5">
+                    {% for key, value in item.options %}
+                      <li class="rounded-md bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{{ key }}: {{ value is iterable ? value|json_encode : value }}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+                {% if item.note %}
+                  <p class="mt-2 text-gray-600"><span class="font-medium">{{ 'Note'|t }}:</span> {{ item.note }}</p>
+                {% endif %}
+                {% if item.adjustments|length %}
+                  <ul class="mt-2 space-y-1 text-xs text-gray-500">
+                    {% for adjustment in item.adjustments %}
+                      <li class="flex justify-between gap-4">
+                        <span><span class="font-medium uppercase">{{ adjustment.type }}</span> {{ adjustment.name }}</span>
+                        <span class="tabular-nums">{{ adjustment.amountAsCurrency }}</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
               </div>
-            </td>
-          </tr>
-        {% endif %}
-        <tr>
-          <td colspan="2" class="border-t-2 border-gray-300"></td>
-          <td class="text-right align-text-top border-t-2 border-gray-300 pt-3">
-            <div class="mt-3">
-              <strong class="text-sm text-gray-600">{{ 'Adjustment Totals'|t }}</strong>
-            </div>
-
-            <div class="flex items-center w-full justify-end" title="{{ order.totalShippingCost }}">
-              <div class="text-xs text-gray-500 pr-2">{{ 'Total Shipping'|t }}:</div>
-              <div class="text-sm text-gray-500 tabular-nums">{{ order.totalShippingCostAsCurrency }}</div>
-            </div>
-            <div class="flex items-center w-full justify-end" title="{{ order.totalTax }}">
-              <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax'|t }}:</div>
-              <div class="text-sm text-gray-500 tabular-nums">{{ order.totalTaxAsCurrency }}</div>
-            </div>
-            <div class="flex items-center w-full justify-end" title="{{ order.totalTaxIncluded }}">
-              <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax (inc)'|t }}:</div>
-              <div class="text-sm text-gray-500 tabular-nums">{{ order.totalTaxIncludedAsCurrency }}</div>
-            </div>
-            {% if order.totalDiscount %}
-              <div class="flex items-center w-full justify-end" title="{{ order.totalDiscount }}">
-                <div class="text-xs text-gray-500 pr-2">{{ 'Total Discount'|t }}:</div>
-                <div class="text-sm text-gray-500 tabular-nums">{{ order.totalDiscountAsCurrency }}</div>
-              </div>
-            {% endif %}
-            <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPrice }}">
-              <div class="text-gray-600 pr-2">{{ 'Total Price'|t }}:</div>
-              <div class="text-xl font-bold tabular-nums">{{ order.totalPriceAsCurrency }}</div>
-            </div>
-
-            <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPaid }}">
-              <div class="text-gray-600 pr-2">{{ 'Total Paid'|t }}:</div>
-              <div class="text-xl font-bold tabular-nums">{{ order.totalPaidAsCurrency }}</div>
-            </div>
-
-            <div class="flex items-center w-full justify-end mt-3" title="{{ order.outstandingBalance }}">
-              <div class="text-gray-600 pr-2">{{ 'Outstanding Balance'|t }}:</div>
-              <div class="text-xl font-bold tabular-nums">{{ order.outstandingBalanceAsCurrency }}</div>
-            </div>
-
-            {% if order.getOutstandingBalance() - order.getTotalAuthorized() > 0 %}
-              <a href="{{ siteUrl(
-                'shop/checkout/pay-static',
-                { number: order.number, email: order.email, paymentCurrency: order.paymentCurrency
-                }) }}" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
-              >
-                {{- 'Make payment'|t -}}
-              </a>
-            {% endif %}
-          </td>
-        </tr>
-        </tbody>
-      </table>
-
-      {# Transactions #}
-      <div class="mt-6">
-        <h3 class="font-semibold">
-          {{- 'Transactions'|t -}}
-        </h3>
-        <table class="w-full">
-          <tbody>
-          {% for transaction in order.transactions %}
-            <tr>
-              <td>
-                <span class="mr-1 uppercase text-xs border rounded-sm px-2 py-1 tracking-wide{{ transaction.status == 'success' ? ' text-green-500 border-green-500' : '' }}">
-                  {{- transaction.status -}}
-                </span>
-              </td>
-              <td class="text-left align-text-top pt-3 pr-3 {% if transaction.getParent() %}pl-5{% endif %}">
-                <span>
-                  {{- transaction.amountAsCurrency }} {{ transaction.currency }} {{ transaction.type -}}
-                </span>
-                <br>
-                <span class="text-gray-600 text-sm">
-                  ({{ transaction.paymentAmountAsCurrency }} {{ transaction.paymentCurrency }} {{ 'paid'|t }})
-                </span>
-              </td>
-              <td class="text-left align-text-top pt-3 pr-3 text-right">
-                {{ transaction.dateCreated|datetime }}
-              </td>
-            </tr>
+            </li>
           {% endfor %}
-          </tbody>
-        </table>
-      </div>
+        </ul>
+      </section>
+
+      <section aria-labelledby="transactions-heading">
+        <h2 id="transactions-heading" class="text-lg font-semibold">{{ 'Transactions'|t }}</h2>
+        {% if order.transactions|length %}
+          <ul class="mt-4 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white text-sm">
+            {% for transaction in order.transactions %}
+              <li class="flex flex-wrap items-center justify-between gap-3 p-4 {{ transaction.getParent() ? 'pl-8' }}">
+                <div class="flex items-center gap-3">
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ transaction.status == 'success' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600' }}">
+                    {{- transaction.status|title -}}
+                  </span>
+                  <span>
+                    <span class="font-medium">{{ transaction.amountAsCurrency }} {{ transaction.currency }}</span>
+                    <span class="text-gray-500">{{ transaction.type }}</span>
+                    {% if transaction.paymentCurrency != transaction.currency %}
+                      <span class="block text-xs text-gray-500">({{ transaction.paymentAmountAsCurrency }} {{ transaction.paymentCurrency }} {{ 'paid'|t }})</span>
+                    {% endif %}
+                  </span>
+                </div>
+                <span class="text-gray-500">{{ transaction.dateCreated|datetime('short') }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="mt-2 text-sm text-gray-500">{{ 'No payments have been made yet.'|t }}</p>
+        {% endif %}
+      </section>
     </div>
+
+    <aside class="mt-10 space-y-6 lg:col-span-5 lg:mt-0">
+      <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-xs">
+        <h2 class="text-lg font-semibold">{{ 'Summary'|t }}</h2>
+        <div class="mt-4">
+          {{ include('shop/_private/order/totals', { order: order }) }}
+        </div>
+        <dl class="mt-3 space-y-3 border-t border-gray-200 pt-3 text-sm">
+          <div class="flex items-center justify-between">
+            <dt class="text-gray-600">{{ 'Paid'|t }}</dt>
+            <dd class="font-medium tabular-nums">{{ order.totalPaidAsCurrency }}</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-gray-600">{{ 'Balance due'|t }}</dt>
+            <dd class="font-semibold tabular-nums">{{ order.outstandingBalanceAsCurrency }}</dd>
+          </div>
+        </dl>
+        {% if order.getOutstandingBalance() - order.getTotalAuthorized() > 0 %}
+          <a href="{{ siteUrl('shop/checkout/pay-static', {
+            number: order.number,
+            email: order.email,
+            paymentCurrency: order.paymentCurrency
+          }) }}" class="mt-6 w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600">
+            {{- 'Pay remaining balance'|t -}}
+          </a>
+        {% endif %}
+      </section>
+
+      <section class="grid gap-6 rounded-lg border border-gray-200 bg-white p-6 text-sm shadow-xs sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+        <div>
+          <h2 class="font-semibold">{{ 'Shipping address'|t }}</h2>
+          <div class="mt-2 text-gray-600 [&_p]:m-0">
+            {{ order.shippingAddress ? Addresses.formatAddress(order.shippingAddress)|raw : 'Not provided.'|t }}
+          </div>
+        </div>
+        <div>
+          <h2 class="font-semibold">{{ 'Billing address'|t }}</h2>
+          <div class="mt-2 text-gray-600 [&_p]:m-0">
+            {{ order.billingAddress ? Addresses.formatAddress(order.billingAddress)|raw : 'Not provided.'|t }}
+          </div>
+        </div>
+        <div>
+          <h2 class="font-semibold">{{ 'Contact'|t }}</h2>
+          <p class="mt-2 text-gray-600">{{ order.email }}</p>
+        </div>
+        {% if order.shippingMethodName %}
+          <div>
+            <h2 class="font-semibold">{{ 'Shipping method'|t }}</h2>
+            <p class="mt-2 text-gray-600">{{ order.shippingMethodName }}</p>
+          </div>
+        {% endif %}
+      </section>
+    </aside>
   </div>
 {% endblock %}

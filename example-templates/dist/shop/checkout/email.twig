@@ -6,37 +6,39 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-xl font-bold">
-    {{- 'Let’s grab your email to get started'|t -}}
-  </h1>
+  <div class="mx-auto max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
+    <h1 class="text-xl font-semibold">{{ 'Contact information'|t }}</h1>
+    <p class="mt-1 text-sm text-gray-500">{{ 'We’ll send your order confirmation to this email address.'|t }}</p>
 
-  <div class="flex -mx-8 mt-6">
-    <div class="w-full max-w-xl px-8">
-      <form method="post" action="">
-        {{ csrfInput() }}
-        {{ actionInput('commerce/cart/update') }}
-        {{ redirectInput('shop/checkout/register-signin') }}
-        {{ successMessageInput('Email address updated.') }}
+    <form method="post" action="" class="mt-6 space-y-6">
+      {{ csrfInput() }}
+      {{ actionInput('commerce/cart/update') }}
+      {{ redirectInput('shop/checkout/register-signin') }}
+      {{ successMessageInput('Email address updated.') }}
 
-        <div class="field">
-          <label for="email">
-            {{- 'Email'|t -}}
-          </label>
-          {{ input('text', 'email', old('email', cart.email), {
-            id: 'email',
-            placeholder: 'email@site.com',
-            class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
-          }) }}
-        </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">{{ 'Email address'|t }}</label>
+        {{ input('email', 'email', old('email', cart.email), {
+          id: 'email',
+          autocomplete: 'email',
+          placeholder: 'email@site.com',
+          class: 'mt-1 w-full block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'
+        }) }}
+        {% if errors.has('email') %}
+          <p class="mt-2 text-sm text-red-600">{{ errors.first('email') }}</p>
+        {% endif %}
+      </div>
 
-        <div class="mt-3">
-          {{ tag('button', {
-            type: 'submit',
-            class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-            text: 'Continue'|t
-          }) }}
-        </div>
-      </form>
-    </div>
+      {{ tag('button', {
+        type: 'submit',
+        class: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+        text: 'Continue'|t
+      }) }}
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-500">
+      {{ 'Already have an account?'|t }}
+      <a href="{{ url('shop/customer/sign-in') }}" class="font-medium text-blue-600 hover:text-blue-500">{{ 'Sign in'|t }}</a>
+    </p>
   </div>
 {% endblock %}

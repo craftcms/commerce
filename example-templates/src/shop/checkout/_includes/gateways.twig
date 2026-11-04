@@ -9,48 +9,38 @@ Outputs radio selection inputs for payment sources and/or gateways.
 {% set paymentSources = paymentSources ?? [] %}
 {% set availableGateways = availableGateways ?? [] %}
 
-<label class="font-semibold">
-  {{- 'Choose a payment gateway or payment source'|t -}}:
-</label>
+<fieldset>
+  <legend class="text-sm font-medium text-gray-700">{{ 'Payment method'|t }}</legend>
 
-{% if paymentSources|length %}
-  {% for source in paymentSources %}
-    <label class="block cursor-pointer mt-3 [[classes.box.selection]]">
-      <span class="flex justify-start items-center">
-        <span class="pr-3">
-          {{ input('radio', 'paymentSourceId', source.id, {
-            checked: source.id == cart.paymentSourceId
-          }) }}
+  <div class="mt-3 space-y-3">
+    {% for source in paymentSources %}
+      <label class="flex items-center gap-4 [[classes.box.selection]]">
+        {{ input('radio', 'paymentSourceId', source.id, {
+          checked: source.id == cart.paymentSourceId,
+          class: 'size-4'
+        }) }}
+        <span class="flex-1">
+          <span class="block text-sm font-medium">{{ source.description }}</span>
+          <span class="block text-xs text-gray-500">{{ 'Saved card'|t }}</span>
         </span>
-        <span>
-          <strong>{{ source.description }}</strong>
-          <br><span class="text-gray-600">{{ 'Stored source'|t }}</span>
-        </span>
-      </span>
-    </label>
-  {% endfor %}
-  {% if availableGateways|length %}
-    <hr class="my-8">
-  {% endif %}
-{% endif %}
+      </label>
+    {% endfor %}
 
-{% if availableGateways|length %}
-  {% for gatewayId, gatewayName in availableGateways %}
-    <label class="block cursor-pointer mt-3 [[classes.box.selection]]">
-      <span class="flex justify-start items-center">
-        <span class="pr-3">
-          {{ input('radio', 'gatewayId', gatewayId, {
-            checked: gatewayId == cart.gatewayId
-          }) }}
-        </span>
-        <span>
-          <strong>{{ gatewayName }}</strong>
-          <br><span class="text-gray-600">{{ 'Payment gateway'|t }}</span>
-        </span>
-      </span>
-    </label>
-  {% endfor %}
-{% endif %}
+    {% if paymentSources|length and availableGateways|length %}
+      <p class="pt-2 text-xs font-medium tracking-wide text-gray-400 uppercase">{{ 'Or pay another way'|t }}</p>
+    {% endif %}
+
+    {% for gatewayId, gatewayName in availableGateways %}
+      <label class="flex items-center gap-4 [[classes.box.selection]]">
+        {{ input('radio', 'gatewayId', gatewayId, {
+          checked: gatewayId == cart.gatewayId,
+          class: 'size-4'
+        }) }}
+        <span class="flex-1 text-sm font-medium">{{ gatewayName }}</span>
+      </label>
+    {% endfor %}
+  </div>
+</fieldset>
 
 {% js %}
 var $paymentSources = document.querySelectorAll('[name="paymentSourceId"]');

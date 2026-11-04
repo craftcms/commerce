@@ -6,9 +6,9 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <div class="md:flex md:-mx-8">
-    <div class="md:w-2/3 md:px-8">
-      <h1 class="font-bold text-xl">
+  <div class="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12">
+    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 lg:col-span-7">
+      <h1 class="text-xl font-semibold">
         {{- 'How should your order be shipped?'|t -}}
       </h1>
 
@@ -18,7 +18,7 @@
         </p>
         <div>
           <a href="{{ url('/shop/checkout/payment-method') }}"
-             class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
+             class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600"
           >
             {{- 'Continue to payment method'|t -}}
           </a>
@@ -31,37 +31,34 @@
             {{ redirectInput(siteUrl('shop/checkout/payment-method')) }}
             {{ successMessageInput('Shipping option updated.') }}
 
-            {% for handle, method in cart.availableShippingMethodOptions %}
-              <div class="js-shipping-select mt-2">
-                <label class="block border-blue-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg">
-                  <div class="flex justify-start items-center">
-                    <div class="pr-3">
-                      {{ input('radio', 'shippingMethodHandle', handle, {
-                        checked: handle == cart.shippingMethodHandle
-                      }) }}
-                    </div>
-                    <div>
-                      <strong>{{ method.name }}</strong><br>
-                      <span class="price">{{ method.getPrice()|commerceCurrency(cart.currency) }}</span>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            {% endfor %}
-            <span class="flash">{{ errors.get('shippingMethodHandle')|join }}</span>
+            <div class="space-y-3">
+              {% for handle, method in cart.availableShippingMethodOptions %}
+                <div class="js-shipping-select">
+                  <label class="flex items-center gap-4 block cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xs hover:border-gray-300 has-checked:border-blue-600 has-checked:ring-1 has-checked:ring-blue-600">
+                    {{ input('radio', 'shippingMethodHandle', handle, {
+                      checked: handle == cart.shippingMethodHandle,
+                      class: 'size-4'
+                    }) }}
+                    <span class="flex-1 text-sm font-medium">{{ method.name }}</span>
+                    <span class="text-sm font-semibold tabular-nums">{{ method.getPrice()|commerceCurrency(cart.currency) }}</span>
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+            <span class="mt-2 block text-sm text-red-600">{{ errors.get('shippingMethodHandle')|join }}</span>
 
-            <div class="mt-6 text-right">
+            <div class="mt-6 flex justify-end gap-3">
               {{ tag('button', {
                 type: 'submit',
-                class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-                text: 'Select shipping method'|t
+                class: 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                text: 'Continue to payment'|t
               }) }}
             </div>
           </form>
         </div>
       {% endif %}
     </div>
-    <div class="mt-8 md:w-1/3 md:pr-8 md:mt-0">
+    <div class="mt-10 lg:col-span-5 lg:mt-0">
       {{ include('shop/checkout/_includes/order-summary', {
         showShippingAddress: true
       }) }}

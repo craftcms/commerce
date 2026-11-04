@@ -621,6 +621,7 @@
 - Added `CraftCms\Commerce\Http\Middleware\LogDeprecatedAction`.
 - Cart recovery URLs now point to the `commerce/cart/load` action.
 - The example templates now use the `commerce/cart/update` and `commerce/cart/load` actions.
+- The example templates now use Tailwind CSS 4, with a redesigned storefront, cart, checkout, and customer account.
 - Removed `craft\commerce\controllers\OrderStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\LineItemStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\UserOrdersController`. `CraftCms\Commerce\Http\Controllers\UserOrdersController` should be used instead.

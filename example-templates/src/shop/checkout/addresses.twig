@@ -10,13 +10,13 @@ Outputs a form for collecting an order’s shipping and billing address.
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <div class="md:flex md:-mx-8">
-    <div class="md:w-2/3 md:px-8">
-      <h1 class="text-xl font-bold">
+  <div class="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12">
+    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 lg:col-span-7">
+      <h1 class="text-xl font-semibold">
         {{- 'Where should we send your order?'|t -}}
       </h1>
 
-      <div class="mt-6">
+      <div>
         <form method="post" action="">
           {{ csrfInput() }}
           {{ actionInput('commerce/cart/update') }}
@@ -25,13 +25,16 @@ Outputs a form for collecting an order’s shipping and billing address.
 
           {% if not cart.email %}
             <div class="mb-6">
-              <label for="email">{{ 'Email'|t }}</label>
+              <label for="email" class="block text-sm font-medium text-gray-700">{{ 'Email address'|t }}</label>
               {{ input('email', 'email', old('email', cart.email), {
                 id: 'email',
+                autocomplete: 'email',
                 placeholder: 'email@site.com',
-                class: ['w-full', '[[classes.input]]']
+                class: 'mt-1 w-full [[classes.input]]'
               }) }}
-              <span class="flash">{{ errors.get('email')|join }}</span>
+              {% if errors.has('email') %}
+                <p class="mt-2 text-sm text-[[dangerColor]]-600">{{ errors.first('email') }}</p>
+              {% endif %}
             </div>
           {% endif %}
 
@@ -46,7 +49,7 @@ Outputs a form for collecting an order’s shipping and billing address.
           {% if currentUser and addresses|length %}
             {{ hiddenInput('makePrimaryShippingAddress', 0) }}
             <div class="mt-3">
-              <label>
+              <label class="flex items-center gap-2 text-sm text-gray-700">
                 {{ input('checkbox', 'makePrimaryShippingAddress', 1, {
                   id: 'makePrimaryShippingAddress',
                   checked: cart.makePrimaryShippingAddress
@@ -56,12 +59,12 @@ Outputs a form for collecting an order’s shipping and billing address.
             </div>
           {% endif %}
 
-          <hr class="my-5">
+          <hr class="my-6 border-gray-200">
 
           {{ hiddenInput('billingAddressSameAsShipping', 0) }}
 
           <div class="mt-3">
-            <label>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
               {{ input('checkbox', 'billingAddressSameAsShipping', 1, {
                 id: 'billingAddressSameAsShipping',
                 checked: true
@@ -83,7 +86,7 @@ Outputs a form for collecting an order’s shipping and billing address.
           {% if currentUser and addresses|length %}
             {{ hiddenInput('makePrimaryBillingAddress', 0) }}
             <div class="mt-3">
-              <label>
+              <label class="flex items-center gap-2 text-sm text-gray-700">
                 {{ input('checkbox', 'makePrimaryBillingAddress', 1, {
                   id: 'makePrimaryBillingAddress',
                   checked: cart.makePrimaryBillingAddress,
@@ -93,20 +96,20 @@ Outputs a form for collecting an order’s shipping and billing address.
             </div>
           {% endif %}
 
-          <hr class="my-5">
+          <hr class="my-6 border-gray-200">
 
           <div class="mt-3 flex justify-end">
             {{ tag('button', {
               type: 'submit',
               class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-              text: 'Confirm addresses'|t
+              text: 'Continue to shipping'|t
             }) }}
           </div>
         </form>
       </div>
     </div>
 
-    <div class="mt-8 pr-0 md:w-1/3 md:mt-0  md:pr-8">
+    <div class="mt-10 lg:col-span-5 lg:mt-0">
       {% include "[[folderName]]/checkout/_includes/order-summary" %}
     </div>
   </div>

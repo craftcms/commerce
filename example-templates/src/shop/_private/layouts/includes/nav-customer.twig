@@ -7,34 +7,31 @@ Outputs the site’s global main navigation based on path and included `pages` a
 #}
 {% set pages = [
   {
-    label: 'My Orders',
+    label: 'Orders',
     url: '[[folderName]]/customer/orders'
   },
   {
-    label: 'My Addresses',
+    label: 'Addresses',
     url: '[[folderName]]/customer/addresses'
   },
   {
-    label: 'My Stored Cards',
+    label: 'Saved cards',
     url: '[[folderName]]/customer/cards'
   }
 ] %}
 {% set currentPath = Request.path() %}
-{# Show the nav if we in a customers page #}
+{# Show the nav if we’re on a customer page #}
 {% if currentPath in pages|column('url') %}
-{% set activeClasses = 'bg-gray-200' %}
-  <div class="bg-gray-50">
-    <div class="container mx-auto justify-between items-center p-6 relative">
-      <nav class="-ml-4"
-           role="navigation"
-           aria-label="Customer">
-        {% for page in pages %}
-          <a href="{{ url(page.url) }}"
-             class="mx-2 px-2 py-1 rounded{% if page.url in currentPath %} {{ activeClasses }}{% endif %}">
-            {{- page.label|t -}}
-          </a>
-        {% endfor %}
-      </nav>
+  <nav class="border-b border-gray-200 bg-white" aria-label="{{ 'Account'|t }}">
+    <div class="mx-auto flex max-w-7xl gap-6 px-4 sm:px-6 lg:px-8">
+      {% for page in pages %}
+        {% set isActive = page.url in currentPath %}
+        <a href="{{ url(page.url) }}"
+           class="border-b-2 py-4 text-sm font-medium {{ isActive ? 'border-[[color]]-600 text-[[color]]-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}"
+           {% if isActive %}aria-current="page"{% endif %}>
+          {{- page.label|t -}}
+        </a>
+      {% endfor %}
     </div>
-  </div>
+  </nav>
 {% endif %}

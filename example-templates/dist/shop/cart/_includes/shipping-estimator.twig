@@ -9,19 +9,20 @@ Outputs a form for collecting shipping estimate address details if an address do
   {% set states = [] %}
 {#  {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}#}
 
-  <div class="bg-gray-100 border-blue-300 border-b-2 p-6">
-    <h5 class="mt-0 font-bold">
-      {{- 'Shipping Estimate'|t -}}
-    </h5>
+  <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-xs">
+    <h2 class="text-base font-semibold">
+      {{- 'Estimate shipping'|t -}}
+    </h2>
+    <p class="mt-1 text-sm text-gray-500">{{ 'Enter your location to see shipping options and costs.'|t }}</p>
 
     <div class="js-estimate-fields">
-      <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryCode">
+      <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedShippingAddress-countryCode">
         {{- 'Country'|t -}}
       </label>
       {% tag 'select' with {
         name: 'estimatedShippingAddress[countryCode]',
         'data-modelname': 'estimatedShippingAddress',
-        class: ['js-address-country', 'js-estimate-country', 'w-full', 'h-9', 'max-w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+        class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
       } %}
         {{ tag('option', {
           value: '',
@@ -39,10 +40,10 @@ Outputs a form for collecting shipping estimate address details if an address do
         {% endfor %}
       {% endtag %}
 
-      <div class="lg:flex lg:-mx-2">
-        <div class="lg:w-1/2 lg:mx-2 my-2">
+      <div class="mt-1 grid gap-x-3 sm:grid-cols-2">
+        <div class="">
           <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
-            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">
+            <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedShippingAddress-state">
               {{- 'State'|t -}}
             </label>
             {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryCode] is defined ?
@@ -52,7 +53,7 @@ Outputs a form for collecting shipping estimate address details if an address do
               name: 'estimatedShippingAddress[stateValue]',
               id: 'estimatedShippingAddress-stateId',
               'data-modelname': 'estimatedShippingAddress',
-              class: ['js-address-stateId', 'max-w-full', 'h-9', options|length == 0 ? 'hidden' : '', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+              class: ['js-address-stateId', 'max-w-full', options|length == 0 ? 'hidden' : '', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
             } %}
               {{ tag('option', {
                 value: '',
@@ -73,43 +74,44 @@ Outputs a form for collecting shipping estimate address details if an address do
             {{ input('text', options|length == 0 ? 'estimatedShippingAddress[stateValue]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.administrativeArea : '', {
               id: 'estimatedShippingAddress-administrativeArea',
               'data-modelname': 'estimatedShippingAddress',
-              class: ['js-address-administrativeArea', 'w-full', options|length > 0 ? 'hidden' : '', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+              class: ['js-address-administrativeArea', 'w-full', options|length > 0 ? 'hidden' : '', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
             }) }}
           </div>
         </div>
-        <div class="lg:w-1/2 lg:mx-2 my-2">
-          <label class="mb-0 mt-2 block" for="estimatedShippingAddress-postalCode">
+        <div class="">
+          <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedShippingAddress-postalCode">
             {{- 'Postal Code'|t -}}
           </label>
           {{ input('text', 'estimatedShippingAddress[postalCode]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.postalCode : '', {
             id: 'estimatedShippingAddress-postalCode',
             'data-modelname': 'estimatedShippingAddress',
-            class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+            class: ['w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
           }) }}
         </div>
       </div>
 
       <div class="mt-4">
-        <label class="m-0">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
           {{ input('checkbox', 'estimatedBillingAddressSameAsShipping', 1, {
-            checked: cart.estimatedShippingAddressId == cart.estimatedBillingAddressId
+            checked: cart.estimatedShippingAddressId == cart.estimatedBillingAddressId,
+            class: 'size-4 accent-blue-600'
           }) }}
-          {{ 'Billing Same as Shipping'|t }}
+          {{ 'Use the same address for tax'|t }}
         </label>
       </div>
 
 
       <div class="js-estimate-billing mt-6">
-        <h5 class="mt-0 font-bold">
-          {{- 'Tax Estimate'|t -}}
-        </h5>
-        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryCode">
+        <h2 class="text-base font-semibold">
+          {{- 'Estimate tax'|t -}}
+        </h2>
+        <label class="mt-4 block text-sm font-medium text-gray-700" for="estimatedBillingAddress-countryCode">
           {{- 'Country'|t -}}
         </label>
         {% tag 'select' with {
           name: 'estimatedBillingAddress[countryCode]',
           'data-modelname': 'estimatedBillingAddress',
-          class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+          class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
         } %}
           {{ tag('option', {
             value: '',
@@ -127,10 +129,10 @@ Outputs a form for collecting shipping estimate address details if an address do
           {% endfor %}
         {% endtag %}
 
-        <div class="lg:flex lg:-mx-2">
-          <div class="lg:w-1/2 lg:mx-2 my-2">
+        <div class="mt-1 grid gap-x-3 sm:grid-cols-2">
+          <div class="">
             <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
-              <label class="mb-0 block" for="estimatedBillingAddress-state">
+              <label class="block text-sm font-medium text-gray-700" for="estimatedBillingAddress-state">
                 {{- 'State'|t -}}
               </label>
               {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryCode] is defined ?
@@ -140,7 +142,7 @@ Outputs a form for collecting shipping estimate address details if an address do
                 name: 'estimatedBillingAddress[stateValue]',
                 id: 'estimatedBillingAddress-stateId',
                 'data-modelname': 'estimatedBillingAddress',
-                class: ['js-address-stateId', 'w-full', 'max-w-full', 'h-9', options|length == 0 ? 'hidden', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+                class: ['js-address-stateId', 'w-full', 'max-w-full', options|length == 0 ? 'hidden', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
               } %}
                 {{ tag('option', {
                   value: '',
@@ -160,17 +162,17 @@ Outputs a form for collecting shipping estimate address details if an address do
               {{ input('text', options|length == 0 ? 'estimatedBillingAddress[stateValue]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.administrativeArea : '', {
                 id: 'estimatedBillingAddress-administrativeArea',
                 'data-modelname': 'estimatedBillingAddress',
-                class: ['js-address-administrativeArea', options|length > 0 ? 'hidden', 'w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+                class: ['js-address-administrativeArea', options|length > 0 ? 'hidden', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
               }) }}
             </div>
           </div>
-          <div class="lg:w-1/2 lg:mx-2 my-2">
-            <label class="mb-0 block" for="estimatedBillingAddress-postalCode">
+          <div class="">
+            <label class="block text-sm font-medium text-gray-700" for="estimatedBillingAddress-postalCode">
               {{- 'Postal Code' -}}
             </label>
             {{ input('text', options|length == 0 ? 'estimatedBillingAddress[postalCode]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.postalCode : '', {
               id: 'estimatedBillingAddress-postalCode',
-              class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+              class: ['w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
             }) }}
           </div>
         </div>
@@ -180,22 +182,25 @@ Outputs a form for collecting shipping estimate address details if an address do
     <div class="js-estimate-shipping-methods">
       {% if cart.availableShippingMethodOptions|length and cart.estimatedShippingAddressId %}
         <div class="mt-3">
-          {% for handle, method in cart.availableShippingMethodOptions %}
-            <div class="js-shipping-select">
-              <label>
-                {{ input('radio', 'shippingMethodHandle', handle, {
-                  checked: handle == cart.shippingMethodHandle
-                }) }}
-                {{ method.name }}
-                <span title="{{ method.priceForOrder(cart) }}">
-                  {{- method.priceForOrder(cart)|commerceCurrency(cart.currency) -}}
-                </span>
-              </label>
-            </div>
-          {% endfor %}
+          <div class="space-y-2">
+            {% for handle, method in cart.availableShippingMethodOptions %}
+              <div class="js-shipping-select">
+                <label class="flex items-center gap-3 block cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xs hover:border-gray-300 has-checked:border-blue-600 has-checked:ring-1 has-checked:ring-blue-600">
+                  {{ input('radio', 'shippingMethodHandle', handle, {
+                    checked: handle == cart.shippingMethodHandle,
+                    class: 'size-4 accent-blue-600'
+                  }) }}
+                  <span class="flex-1 text-sm font-medium">{{ method.name }}</span>
+                  <span class="text-sm tabular-nums" title="{{ method.priceForOrder(cart) }}">
+                    {{- method.priceForOrder(cart)|commerceCurrency(cart.currency) -}}
+                  </span>
+                </label>
+              </div>
+            {% endfor %}
+          </div>
         </div>
         <div class="mt-4">
-          <a class="text-blue-500 hover:text-blue-600 js-estimate-show-fields" href="#">
+          <a class="font-medium text-blue-600 hover:text-blue-500 js-estimate-show-fields" href="#">
             {{- 'Show estimate fields'|t -}}
           </a>
         </div>
