@@ -72,6 +72,6 @@ fi
 step 'Install PHP dependencies' composer install --prefer-dist --no-progress
 step 'Install frontend dependencies' pnpm install --prefer-offline --frozen-lockfile
 step 'Build Commerce assets' pnpm build
-step 'Prepare SQLite workbench' composer workbench:setup
+step 'Build the SQLite workbench' composer build
 
 printf '\nOrb toolchain, dependencies, and workbench are ready.\n'

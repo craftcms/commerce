@@ -47,8 +47,7 @@
   "autoload": {
     "psr-4": {
       "craft\\commerce\\": "src-yii2/",
-      "CraftCms\\Commerce\\": "src/",
-      "craftcommercetests\\fixtures\\": "tests-yii2/fixtures/"
+      "CraftCms\\Commerce\\": "src/"
     }
   },
   "autoload-dev": {
@@ -132,13 +131,14 @@
       "@php workbench/prepare.php",
       "@php vendor/bin/testbench package:discover --ansi"
     ],
-    "workbench:setup": [
-      "@php workbench/prepare.php",
-      "@php vendor/bin/testbench workbench:build --no-interaction"
-    ],
     "serve": [
       "Composer\\Config::disableProcessTimeout",
-      "@php vendor/bin/testbench serve --host=127.0.0.1 --port=8125"
+      "@php vendor/bin/testbench workbench:serve --ansi"
+    ],
+    "build": [
+      "@php workbench/prepare.php",
+      "@php vendor/bin/testbench package:create-sqlite-db --ansi",
+      "@php vendor/bin/testbench workbench:build --ansi"
     ]
   },
   "config": {

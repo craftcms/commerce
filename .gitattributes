@@ -28,7 +28,6 @@
 /stubs/ export-ignore
 /tests/ export-ignore
 /packages/ export-ignore
-/.ddev/ export-ignore
 /.github/ export-ignore
 /.husky/ export-ignore
 

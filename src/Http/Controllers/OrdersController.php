@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers;
 
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -831,7 +830,6 @@ JS, []);
         abort_unless($request->expectsJson(), 400);
 
         $site = \craft\helpers\Cp::requestedSite();
-        /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
         $storeId = $site?->getStore()?->id;
 
         $counts = app(OrderStatuses::class)->getOrderCountByStatus($storeId);
