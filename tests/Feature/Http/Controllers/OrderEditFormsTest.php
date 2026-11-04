@@ -8,7 +8,9 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
+use Illuminate\Support\Facades\Event;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\getJson;
@@ -217,36 +219,104 @@ it('shows a form the order as its session would leave it', function() {
     expect($response->json('ui.values.changes.qty'))->toBe(4);
 });
 
-it('adds a purchasable chosen with the element selector', function() {
+it('adds each chosen purchasable with its own quantity', function() {
     $fixture = OrdersFixture::seed();
     $cart = editFormsCart($fixture, false);
 
     $response = editFormsShow($cart, 'addLineItem')->assertOk();
 
-    expect(editFormsControlPaths($response->json('ui.nodes')))->toBe(['purchasableId', 'qty', 'note']);
+    expect(editFormsControlPaths($response->json('ui.nodes')))->toBe([]);
 
-    editFormsSubmit($cart, 'addLineItem', ['purchasableId' => $fixture->blue->id, 'qty' => '2'])->assertOk();
+    editFormsSubmit($cart, 'addLineItem', ['items' => [
+        ['purchasableId' => $fixture->blue->id, 'qty' => '2'],
+        ['purchasableId' => $fixture->white->id, 'qty' => '3'],
+    ]])->assertOk();
 
-    $lineItem = Order::find()->id($cart->id)->one()->getLineItems()[0];
+    $quantities = collect(Order::find()->id($cart->id)->one()->getLineItems())->pluck('qty', 'purchasableId')->all();
 
-    expect($lineItem->purchasableId)->toBe($fixture->blue->id)->and($lineItem->qty)->toBe(2);
-
-    editFormsSubmit($cart, 'addLineItem', ['qty' => '1'])->assertStatus(422)->assertJsonValidationErrors(['purchasableId']);
+    expect($quantities)->toEqual([$fixture->blue->id => 2, $fixture->white->id => 3]);
 });
 
-it('adds a purchasable to a completed order’s edit session without saving it', function() {
+it('puts a chosen item’s validation errors on its own row', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = editFormsCart($fixture, false);
+
+    editFormsSubmit($cart, 'addLineItem', ['items' => [
+        ['purchasableId' => $fixture->blue->id, 'qty' => '1'],
+        ['purchasableId' => $fixture->white->id, 'qty' => '0'],
+    ]])->assertStatus(422)->assertJsonValidationErrors(['items.1.qty']);
+
+    editFormsSubmit($cart, 'addLineItem', ['items' => []])->assertStatus(422)->assertJsonValidationErrors(['items']);
+
+    expect(Order::find()->id($cart->id)->one()->getLineItems())->toBe([]);
+});
+
+it('adds nothing when one of the chosen purchasables is unavailable', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = editFormsCart($fixture, false);
+
+    Event::listen(PurchasableAvailabilityResolving::class, function(PurchasableAvailabilityResolving $event) use ($fixture) {
+        if ($event->purchasable->id === $fixture->white->id) {
+            $event->isAvailable = false;
+        }
+    });
+
+    editFormsSubmit($cart, 'addLineItem', ['items' => [
+        ['purchasableId' => $fixture->blue->id, 'qty' => '1'],
+        ['purchasableId' => $fixture->white->id, 'qty' => '1'],
+    ]])->assertStatus(422)->assertJsonPath('itemIndex', 1);
+
+    expect(Order::find()->id($cart->id)->one()->getLineItems())->toBe([]);
+});
+
+it('merges a purchasable that is already in a cart into its line item', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = editFormsCart($fixture);
+
+    editFormsSubmit($cart, 'addLineItem', ['items' => [['purchasableId' => $fixture->white->id, 'qty' => '2']]])->assertOk();
+
+    $lineItems = Order::find()->id($cart->id)->one()->getLineItems();
+
+    expect($lineItems)->toHaveCount(1);
+    expect($lineItems[0]->qty)->toBe(3);
+});
+
+it('adds purchasables to a completed order’s edit session without saving them', function() {
     $fixture = OrdersFixture::seed();
     $order = $fixture->orders['completed-new'];
     $count = count($order->getLineItems());
 
     postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
 
-    editFormsSubmit($order, 'addLineItem', ['purchasableId' => $fixture->blue->id, 'qty' => '2'])
+    editFormsSubmit($order, 'addLineItem', ['items' => [
+        ['purchasableId' => $fixture->blue->id, 'qty' => '2'],
+        ['purchasableId' => $fixture->white->id, 'qty' => '1'],
+    ]])
         ->assertOk()
         ->assertJsonPath('message', 'Change added.')
-        ->assertJsonPath('session.edit.operations.0.type', 'addLineItem');
+        ->assertJsonPath('session.edit.operations.0.type', 'addLineItem')
+        ->assertJsonPath('session.edit.operations.1.type', 'addLineItem');
 
     expect(Order::find()->id($order->id)->one()->getLineItems())->toHaveCount($count);
+});
+
+it('reports which chosen item can’t be added to a completed order’s edit session', function() {
+    $fixture = OrdersFixture::seed();
+    $order = $fixture->orders['completed-new'];
+
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+    editFormsSubmit($order, 'addLineItem', ['items' => [['purchasableId' => $fixture->blue->id, 'qty' => '1']]])->assertOk();
+
+    Event::listen(PurchasableAvailabilityResolving::class, function(PurchasableAvailabilityResolving $event) use ($fixture) {
+        if ($event->purchasable->id === $fixture->white->id) {
+            $event->isAvailable = false;
+        }
+    });
+
+    editFormsSubmit($order, 'addLineItem', ['items' => [
+        ['purchasableId' => $fixture->blue->id, 'qty' => '1'],
+        ['purchasableId' => $fixture->white->id, 'qty' => '1'],
+    ]])->assertStatus(422)->assertJsonPath('itemIndex', 1);
 });
 
 function editFormsSetCustomer(Order $cart, ?int $customerId): Illuminate\Testing\TestResponse

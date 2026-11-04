@@ -31,6 +31,7 @@ use CraftCms\Commerce\Http\Controllers\OrderActionsController;
 use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
+use CraftCms\Commerce\Http\Controllers\OrderPurchasablesController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
@@ -53,7 +54,6 @@ use CraftCms\Commerce\Order\OrderSnapshots;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Pdf\Pdfs;
-use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use CraftCms\Commerce\Shipping\Data\ShippingMethodOption;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -277,6 +277,7 @@ class OrderEditViewModel extends ViewModel
             'address' => action([OrderEditController::class, 'addressScreen']),
             'snapshot' => action([OrderEditController::class, 'snapshot']),
             'customerSearch' => action([OrderCustomersController::class, 'search']),
+            'purchasablesSearch' => action([OrderPurchasablesController::class, 'search']),
             'customerCreate' => action([OrderCustomersController::class, 'create']),
             'fulfillmentForm' => action([OrderActionsController::class, 'fulfillmentForm']),
             'fulfill' => action([OrderActionsController::class, 'fulfill']),
@@ -896,19 +897,6 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * The purchasable types a product can be added from.
-     *
-     * @return list<array{type: string, label: string}>
-     */
-    public function purchasableTypes(): array
-    {
-        return app(PurchasableTypes::class)->types()
-            ->map(fn(string $type) => ['type' => $type, 'label' => $type::displayName()])
-            ->values()
-            ->all();
-    }
-
-    /**
      * @return array<string, string>
      */
     public function labels(): array
@@ -1000,7 +988,22 @@ class OrderEditViewModel extends ViewModel
             'add' => t('Add', category: 'commerce'),
             'addLineItem' => t('Add a line item', category: 'commerce'),
             'addCustomLineItem' => t('Add a custom line item', category: 'commerce'),
-            'addType' => t('Add {type}', category: 'commerce'),
+            'description' => t('Description', category: 'commerce'),
+            'sku' => t('SKU', category: 'commerce'),
+            'stock' => t('Stock', category: 'commerce'),
+            'available' => t('Available', category: 'commerce'),
+            'unavailable' => t('Unavailable', category: 'commerce'),
+            'quantity' => t('Quantity', category: 'commerce'),
+            'search' => t('Search', category: 'commerce'),
+            'allTypes' => t('All Types', category: 'commerce'),
+            'selectedCount' => t('{count} selected', category: 'commerce'),
+            'cancel' => t('Cancel', category: 'commerce'),
+            'failed' => t('Couldn’t add the items.', category: 'commerce'),
+            'loadFailed' => t('Couldn’t load the purchasables.', category: 'commerce'),
+            'fixItems' => t('Fix the highlighted items and try again.', category: 'commerce'),
+            'noPurchasables' => t('No purchasables found.', category: 'commerce'),
+            'priceSortedByLive' => t('Sorts by the price this order would be charged.', category: 'commerce'),
+            'priceSortedByBase' => t('Sorts by the base price.', category: 'commerce'),
             'chooseFromAddressBook' => t('Choose from Address Book', category: 'commerce'),
             'copyToShipping' => t('Copy to Shipping Address', category: 'commerce'),
             'copyToBilling' => t('Copy to Billing Address', category: 'commerce'),

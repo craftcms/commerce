@@ -7,6 +7,7 @@ use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrderActionsController;
 use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
+use CraftCms\Commerce\Http\Controllers\OrderPurchasablesController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
@@ -212,7 +213,6 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
     Route::post('orders/refresh', [OrdersController::class, 'refresh']);
     Route::post('orders/get-shipping-method-options', [OrdersController::class, 'shippingMethodOptions']);
     Route::get('orders/user-orders-table', [OrdersController::class, 'userOrdersTable']);
-    Route::get('orders/purchasables-table', [OrdersController::class, 'purchasablesTable']);
     Route::get('orders/customer-search', [OrdersController::class, 'customerSearch']);
     Route::get('orders/get-customer-addresses', [OrdersController::class, 'customerAddresses']);
     Route::get('orders/get-order-address', [OrdersController::class, 'orderAddress']);
@@ -234,6 +234,7 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
 
     Route::middleware('can:commerce-editOrders')->group(function () {
         Route::post('orders/apply', [OrderEditController::class, 'apply']);
+        Route::get('orders/purchasables/search', [OrderPurchasablesController::class, 'search']);
         Route::get('orders/customers/search', [OrderCustomersController::class, 'search']);
         Route::post('orders/customers/create', [OrderCustomersController::class, 'create']);
         Route::get('orders/edit/form', [OrderEditController::class, 'showForm']);

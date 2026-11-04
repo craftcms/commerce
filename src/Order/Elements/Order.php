@@ -1885,6 +1885,17 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * The customer purchasables are priced for: the order's customer, or `false` for a guest, so an order without
+     * a customer isn't priced for whoever is editing it.
+     *
+     * @since 6.0.0
+     */
+    public function getPricingCustomerId(): int|false
+    {
+        return $this->getCustomer()->id ?? false;
+    }
+
+    /**
      * Returns the order's customer.
      */
     public function getCustomer(): ?User

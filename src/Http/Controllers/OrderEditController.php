@@ -25,6 +25,7 @@ use CraftCms\Commerce\Order\Edit\Operations\SetAddress;
 use CraftCms\Commerce\Order\Edit\Operations\SetFieldValues;
 use CraftCms\Commerce\Order\Edit\OrderEdit;
 use CraftCms\Commerce\Order\Edit\OrderEditSessions;
+use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
@@ -244,12 +245,7 @@ class OrderEditController
             'dateUpdated' => ['required', 'date'],
         ]);
 
-        $operation = $this->operations->operationFromArray([
-            ...$form->operationData($order, $request->all()),
-            'type' => $form::type(),
-        ]);
-
-        return $this->applyToCart($order, new OrderEdit([$operation], new DateTimeImmutable($request->input('dateUpdated'))));
+        return $this->applyToCart($order, new OrderEdit($this->formOperations($form, $order, $request), new DateTimeImmutable($request->input('dateUpdated'))));
     }
 
     public function start(Request $request): JsonResponse
@@ -382,18 +378,16 @@ class OrderEditController
     {
         $session = $this->previewOwnSession($preview);
 
-        $operation = $this->operations->operationFromArray([
-            ...$form->operationData($preview, $request->all()),
-            'type' => $form::type(),
-        ]);
+        $operations = $this->formOperations($form, $preview, $request);
 
         $order = $this->editableOrder($request);
         $original = OrderSummary::fromOrder($order);
+        $existing = count($session->edit->operations);
 
         try {
-            $session = $this->sessions->addOperation($session, $order, $operation);
+            $session = $this->sessions->addOperations($session, $order, $operations);
         } catch (OperationNotApplicableException $exception) {
-            return $this->notApplicableResponse($exception);
+            return $this->notApplicableResponse($exception, $existing);
         }
 
         return $this->asJsonSuccess(t('Change added.', category: 'commerce'), $this->sessionData($session, $order, $original));
@@ -529,12 +523,36 @@ class OrderEditController
         ], 409);
     }
 
-    private function notApplicableResponse(OperationNotApplicableException $exception): JsonResponse
+    /**
+     * @param int $offset The number of operations the edit had before the ones being added.
+     */
+    private function notApplicableResponse(OperationNotApplicableException $exception, int $offset = 0): JsonResponse
     {
         return new JsonResponse([
             'message' => $exception->getMessage(),
             'operationIndex' => $exception->operationIndex,
+            'itemIndex' => $exception->operationIndex === null ? null : max(0, $exception->operationIndex - $offset),
         ], 422);
+    }
+
+    /**
+     * The operations a submitted form produces.
+     *
+     * @return list<OrderOperation>
+     */
+    private function formOperations(OrderOperationForm $form, Order $order, Request $request): array
+    {
+        $operations = [];
+
+        foreach ($form->operationsData($order, $request->all()) as $index => $data) {
+            $operations[] = $this->operations->operationFromArray([...$data, 'type' => $form::type()], $form->errorPrefix($index));
+        }
+
+        if ($operations === []) {
+            throw ValidationException::withMessages(['items' => t('Choose at least one item.', category: 'commerce')]);
+        }
+
+        return $operations;
     }
 
     private function orderErrorsResponse(Order $order): JsonResponse

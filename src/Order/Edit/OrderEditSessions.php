@@ -131,6 +131,25 @@ class OrderEditSessions
     }
 
     /**
+     * Adds several operations to the session together, if the session's edit still applies with all of them.
+     *
+     * @param list<OrderOperation> $operations
+     * @throws OperationNotApplicableException
+     */
+    public function addOperations(OrderEditSession $session, Order $order, array $operations): OrderEditSession
+    {
+        $edit = $session->edit;
+
+        foreach ($operations as $operation) {
+            $edit = $edit->with($operation, $order);
+        }
+
+        $this->operations->preview($order, $edit);
+
+        return $this->update($session, $edit);
+    }
+
+    /**
      * @throws OperationNotApplicableException
      */
     public function removeOperation(OrderEditSession $session, Order $order, int $index): OrderEditSession

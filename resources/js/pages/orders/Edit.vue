@@ -27,6 +27,7 @@
         type ComboboxFieldOption,
     } from '../../modules/orders/ComboboxFieldPopover.vue';
     import TextFieldPopover from '../../modules/orders/TextFieldPopover.vue';
+    import AddLineItemDialog from '../../modules/orders/AddLineItemDialog.vue';
 
     interface Adjustment {
         id: number | null;
@@ -174,7 +175,6 @@
         }>;
         metadataHtml: string;
         fieldsUi: UiPayload | null;
-        purchasableTypes: Array<{type: string; label: string}>;
         transactions: TransactionRow[];
         histories: HistoryRow[];
         activity: {
@@ -765,20 +765,17 @@
         ];
     }
 
+    const addingLineItem = ref(false);
+
+    function reloadPage(): void {
+        window.Cp.$router.reload();
+    }
+
     const addActions = computed<ActionItem[]>(() => [
-        ...props.purchasableTypes.map((purchasableType) => ({
-            label:
-                props.purchasableTypes.length === 1
-                    ? props.labels.addLineItem
-                    : props.labels.addType.replace(
-                          '{type}',
-                          purchasableType.label
-                      ),
-            onClick: () =>
-                openForm('addLineItem', {
-                    purchasableType: purchasableType.type,
-                }),
-        })),
+        {
+            label: props.labels.addLineItem,
+            onClick: () => (addingLineItem.value = true),
+        },
         {
             label: props.labels.addCustomLineItem,
             onClick: () => openForm('addCustomLineItem'),
@@ -1396,6 +1393,17 @@
             </div>
         </component>
     </div>
+
+    <AddLineItemDialog
+        v-if="addingLineItem"
+        :order-id="orderId"
+        :search-url="editUrls.purchasablesSearch"
+        :submit-url="editUrls.form"
+        :params="editParams()"
+        :labels="labels"
+        @close="addingLineItem = false"
+        @added="reloadPage"
+    />
 
     <craft-dialog
         v-if="reviewing && session"

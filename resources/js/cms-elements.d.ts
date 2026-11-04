@@ -149,11 +149,37 @@ declare module '@craftcms/cp' {
     dataProp?: string;
   }
 
+  export interface CraftPaginationState {
+    pageIndex: number;
+    pageSize: number;
+  }
+
+  export interface CraftSortingItem {
+    id: string;
+    desc: boolean;
+  }
+
+  export type CraftTableUpdater<T> = T | ((old: T) => T);
+
   export function useCraftTable<TData>(options: {
     readonly data: TData[];
     columns: unknown[];
     getRowId?: (row: TData) => string;
     inertia?: CraftTableInertiaOptions;
+    manualPagination?: boolean;
+    manualSorting?: boolean;
+    enableSorting?: boolean;
+    enableMultiSort?: boolean;
+    enableSortingRemoval?: boolean;
+    rowCount?: number;
+    state?: {
+      pagination?: CraftPaginationState;
+      sorting?: CraftSortingItem[];
+    };
+    onPaginationChange?: (
+      updater: CraftTableUpdater<CraftPaginationState>
+    ) => void;
+    onSortingChange?: (updater: CraftTableUpdater<CraftSortingItem[]>) => void;
   }): unknown;
 
   export interface CraftCellContext<TData, TValue> {
@@ -166,13 +192,17 @@ declare module '@craftcms/cp' {
     display(column: {
       id: string;
       header?: string;
+      enableSorting?: boolean;
+      meta?: {trackSize?: string; headerTip?: string};
       cell: (context: CraftCellContext<TData, unknown>) => unknown;
     }): unknown;
     accessor<TKey extends keyof TData>(
       key: TKey,
       config: {
+        id?: string;
         header: string;
-        meta?: {trackSize?: string};
+        enableSorting?: boolean;
+        meta?: {trackSize?: string; headerTip?: string};
         cell?: (cell: CraftCellContext<TData, TData[TKey]>) => unknown;
       }
     ): unknown;
@@ -188,6 +218,8 @@ declare module '@craftcms/cp' {
     total?: number;
     emptyMessage?: string | null;
     enableAdjustPageSize?: boolean;
+    loading?: boolean;
+    readOnly?: boolean;
   }>;
 
   export const ElementActionMenu: DefineComponent<{

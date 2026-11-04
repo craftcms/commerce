@@ -78,7 +78,7 @@ final readonly class AddLineItem extends OrderOperation
 
     public function summary(Order $before): ?string
     {
-        $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $before->orderSiteId, $before->getCustomer()?->id);
+        $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $before->orderSiteId, $before->getPricingCustomerId());
 
         return $purchasable
             ? t('{description} × {qty}', ['description' => $purchasable->getDescription(), 'qty' => $this->qty], category: 'commerce')

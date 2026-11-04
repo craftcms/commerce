@@ -19,7 +19,9 @@ use CraftCms\Commerce\Order\Events\LineItemAdding;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\LineItemStatuses;
+use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
 use CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving;
+use CraftCms\Commerce\Purchasable\Purchasables;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tax\TaxCategories;
@@ -205,7 +207,58 @@ describe('applying', function() {
     });
 });
 
+function recordPurchasableCustomers(): object
+{
+    $recorder = new class() extends Purchasables {
+        /** @var list<int|false|null> */
+        public array $customers = [];
+
+        public function getPurchasableById(int $purchasableId, ?int $siteId = null, int|false|null $forCustomer = null): ?PurchasableInterface
+        {
+            $this->customers[] = $forCustomer;
+
+            return parent::getPurchasableById($purchasableId, $siteId, $forCustomer);
+        }
+    };
+
+    app()->instance(Purchasables::class, $recorder);
+
+    return $recorder;
+}
+
 describe('line items', function() {
+    it('prices a purchasable for a guest when the order has no customer', function() {
+        $fixture = OrdersFixture::seed();
+        $recorder = recordPurchasableCustomers();
+
+        $cart = new Order();
+        $cart->number = bin2hex(random_bytes(16));
+        $cart->storeId = $fixture->storeId;
+        Elements::saveElement($cart, false);
+
+        expect($cart->getPricingCustomerId())->toBeFalse();
+
+        applyOrderOperations(Order::find()->id($cart->id)->one(), [
+            ['type' => 'addLineItem', 'uid' => (string)Str::uuid(), 'purchasableId' => $fixture->white->id],
+        ]);
+
+        expect($recorder->customers)->not->toBeEmpty()->each->toBeFalse();
+    });
+
+    it('prices a purchasable for the order’s customer', function() {
+        $fixture = OrdersFixture::seed();
+        $recorder = recordPurchasableCustomers();
+        $order = $fixture->orders['completed-new'];
+
+        expect($order->getPricingCustomerId())->toBe($fixture->customer->id);
+
+        applyOrderOperations($order, [
+            ['type' => 'addLineItem', 'uid' => (string)Str::uuid(), 'purchasableId' => $fixture->white->id],
+        ]);
+
+        expect($recorder->customers)->not->toBeEmpty()->each->toBe($fixture->customer->id);
+    });
+
     it('rejects a purchasable that is not available to the order', function() {
         $fixture = OrdersFixture::seed();
         $order = $fixture->orders['completed-new'];

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use CraftCms\Aliases\Aliases;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\TemplateMode;
@@ -63,38 +62,6 @@ function ordersControllerPayload(Order $order, array $overrides = []): array
         ], $overrides),
     ];
 }
-
-it('lists purchasables for the order edit purchasable table', function() {
-    OrdersFixture::seed();
-
-    $response = get(Url::actionUrl('commerce/orders/purchasables-table', [
-        'siteId' => Sites::getPrimarySite()->id,
-    ]), ['Accept' => 'application/json'])->assertOk();
-
-    expect($response->json('pagination.total'))->toBe(2);
-    expect($response->json('data'))->toHaveCount(2);
-
-    $purchasable = collect($response->json('data'))->last();
-
-    foreach (['id', 'price', 'priceAsCurrency', 'description', 'sku', 'isAvailable', 'detail'] as $key) {
-        expect($purchasable)->toHaveKey($key);
-    }
-
-    expect($purchasable['sku'])->toBe('hct-blue');
-})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
-
-it('sorts the purchasable table by the requested column', function() {
-    OrdersFixture::seed();
-
-    $response = get(Url::actionUrl('commerce/orders/purchasables-table', [
-        'siteId' => Sites::getPrimarySite()->id,
-        'sort' => 'sku|desc',
-    ]), ['Accept' => 'application/json'])->assertOk();
-
-    $purchasable = collect($response->json('data'))->last();
-
-    expect($purchasable['sku'])->toBe('hct-blue');
-})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('searches for customers by email', function() {
     OrdersFixture::seed();

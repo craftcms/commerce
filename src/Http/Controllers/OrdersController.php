@@ -6,15 +6,12 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
-use craft\db\Query;
-use craft\db\Table as CraftTable;
 use craft\helpers\AdminTable;
 use craft\helpers\Localization;
 use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Cp\SiteSwitcher;
-use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Field\Field;
 use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
@@ -38,10 +35,8 @@ use CraftCms\Cms\Ui\UiHtmlRenderer;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\View\Enums\Position;
 use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Currency;
-use CraftCms\Commerce\Helpers\LineItem as LineItemHelper;
 use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Helpers\Purchasable;
@@ -78,10 +73,7 @@ use CraftCms\Commerce\Payment\Transactions;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
-use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
-use CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent;
 use CraftCms\Commerce\Purchasable\Purchasables;
-use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Store\Stores;
@@ -452,105 +444,6 @@ JS, []);
         return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, (int)$total, $limit),
             'data' => $rows,
-        ]);
-    }
-
-    public function purchasablesTable(Request $request): Response
-    {
-        abort_unless($request->expectsJson(), 400);
-
-        $page = (int)$request->input('page', 1);
-        $sort = $request->input('sort');
-        $limit = (int)$request->input('per_page', 10);
-        $search = $request->input('search');
-        $siteId = $request->query('siteId');
-        $customerId = $request->query('customerId', false);
-        $customerId = $customerId !== false ? (int)$customerId : false;
-
-        abort_unless($siteId !== null, 400, 'siteId is required');
-        $siteId = (int)$siteId;
-
-        $store = app(Stores::class)->getStoreBySiteId($siteId);
-        abort_unless($store !== null, 400, 'Store not found');
-
-        $offset = ($page - 1) * $limit;
-
-        // Prepare purchasables query
-        $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-        $sqlQuery = new Query()
-            ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku', 'elements.type'])
-            ->leftJoin(['elements' => CraftTable::ELEMENTS], [
-                'and',
-                '[[elements.id]] = [[purchasables.id]]',
-            ])
-            // Make sure this purchasable is enabled for the site
-            ->innerJoin(['es' => CraftTable::ELEMENTS_SITES], [
-                'and',
-                '[[es.elementId]] = [[purchasables.id]]',
-                '[[es.siteId]] = :siteId',
-            ], [
-                ':siteId' => $siteId,
-            ])
-            ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
-            ->where(['elements.enabled' => true])
-            ->andWhere(['pstores.storeId' => $store->id])
-            ->andWhere(['elements.revisionId' => null])
-            ->andWhere(['elements.draftId' => null])
-            ->from(['purchasables' => Table::PURCHASABLES]);
-
-        // Are they searching for a SKU or purchasable description?
-        if ($search) {
-            $sqlQuery->andwhere([
-                'or',
-                [$likeOperator, 'purchasables.description', '%' . str_replace(' ', '%', $search) . '%', false],
-                [$likeOperator, 'purchasables.sku', $search],
-            ]);
-        }
-
-        // Do not return any purchasables with temp SKUs
-        // SUBSTR(str, start, length) is identical across MySQL/MariaDB, PostgreSQL, and SQLite.
-        $sqlQuery->andWhere(new \yii\db\Expression("SUBSTR([[purchasables.sku]], 1, " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
-
-        // Do not return soft deleted purchasables
-        $sqlQuery->andWhere(['elements.dateDeleted' => null]);
-
-        // Apply sorting if required
-        if ($sort && strpos((string)$sort, '|')) {
-            [$column, $direction] = explode('|', (string)$sort);
-
-            if (!in_array($column, [
-                'description',
-                'sku',
-                'price',
-            ])) {
-                $column = null;
-            }
-
-            if ($column && in_array($direction, ['asc', 'desc'], true)) {
-                $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
-            }
-        } else {
-            $sqlQuery->orderBy(['purchasables.id' => 'asc']);
-        }
-
-        // Trigger event before working out the total and limiting the results for pagination
-        $event = new ModifyPurchasablesTableQueryEvent(
-            query: $sqlQuery,
-            search: $search,
-        );
-        event($event);
-        $sqlQuery = $event->query;
-
-        $total = $sqlQuery->count();
-
-        $sqlQuery->limit($limit);
-        $sqlQuery->offset($offset);
-
-        $result = $sqlQuery->all();
-
-        return $this->asSuccess(data: [
-            'pagination' => AdminTable::paginationLinks($page, (int)$total, $limit),
-            'data' => $this->addLivePurchasableInfo($result, $siteId, $customerId),
         ]);
     }
 
@@ -1817,68 +1710,6 @@ JS, []);
         }
 
         return $return;
-    }
-
-    private function addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
-    {
-        $purchasables = [];
-        $store = app(Stores::class)->getStoreBySiteId($siteId);
-        $baseCurrency = $store->getCurrency();
-
-        $elementIdsByType = [];
-        foreach ($results as $r) {
-            if (!array_key_exists((string)$r['type'], $elementIdsByType)) {
-                $elementIdsByType[$r['type']] = [];
-            }
-            $elementIdsByType[$r['type']][] = $r['id'];
-        }
-
-        $purchasablesById = [];
-        foreach ($elementIdsByType as $type => $ids) {
-            if (!class_exists($type)) {
-                continue;
-            }
-
-            /** @var ElementQuery $query */
-            $query = $type::find();
-
-            if ($type::isLocalized()) {
-                $query->siteId($siteId);
-            }
-
-            $query->status(null);
-
-            if ($query instanceof PurchasableQuery) {
-                $query->forCustomer($customerId);
-            }
-
-            $purchasablesById = [...$purchasablesById, ...$query->id($ids)->all()];
-        }
-
-        foreach ($results as $row) {
-            /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Arr::first($purchasablesById, fn($p) => $p->id == $row['id']);
-            if ($purchasable) {
-                // @TODO Revisit purchasable price lookup once per-store currency handling is finalized
-                $row['price'] = $purchasable->getSalePrice();
-                $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
-                $row['priceAsCurrency'] = Money::toString(Money::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
-                $row['isAvailable'] = app(Purchasables::class)->isPurchasableAvailable($purchasable);
-                $row['detail'] = [
-                    'title' => t('Information', category: 'commerce'),
-                    'content' => $purchasable->getSnapshot(),
-                    'showAsList' => true,
-                ];
-                $row['newLineItemUid'] = (string)\CraftCms\Cms\Support\Str::uuid();
-                $row['newLineItemOptionsSignature'] = LineItemHelper::generateOptionsSignature([]);
-                $row['description'] = Html::encode($row['description']);
-                $row['sku'] = Html::encode($row['sku']);
-                $row['qty'] = '';
-                $purchasables[] = $row;
-            }
-        }
-
-        return $purchasables;
     }
 
     private function customerToArray(User $customer): array

@@ -23,7 +23,7 @@
 - Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving`.
 - Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving`.
 - Added `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving`.
-- Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`.
+- Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`. Its `$query` is an `Illuminate\Database\Query\Builder`, not a `craft\db\Query`, and listeners must keep selecting `purchasables.id` and `elements.type`.
 - Added `CraftCms\Commerce\Product\Events\ProductEvent`.
 - Added `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent`.
 - Added `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent`.
@@ -50,7 +50,7 @@
 - Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
 - Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
 - Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
-- Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
+- Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead. Listeners that use the `craft\db\Query` it carried need updating to the Laravel query builder.
 - Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Product\Events\ProductEvent` should be used instead.
 - Deprecated `craft\commerce\events\ProductTypeEvent` in favor of the following new events:
   - `craft\commerce\services\ProductTypes::EVENT_BEFORE_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving`

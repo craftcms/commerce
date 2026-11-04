@@ -47,6 +47,25 @@ abstract readonly class OrderOperationForm
      */
     abstract public function operationData(Order $order, array $input): array;
 
+    /**
+     * The data of each operation the submitted values produce, for a form that adds several at once.
+     *
+     * @param array<string, mixed> $input The submitted values along with the form's params.
+     * @return list<array<string, mixed>>
+     */
+    public function operationsData(Order $order, array $input): array
+    {
+        return [$this->operationData($order, $input)];
+    }
+
+    /**
+     * The prefix that puts the validation errors of the operation at `$index` on the matching control.
+     */
+    public function errorPrefix(int $index): string
+    {
+        return '';
+    }
+
     public function submitLabel(Order $order): string
     {
         return t('Save');
