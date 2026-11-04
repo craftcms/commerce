@@ -19,6 +19,11 @@ class OrderAdjustment extends Component
 {
     public ?int $id = null;
 
+    /**
+     * Identifies an adjustment added in an edit session until it's saved and has an ID.
+     */
+    public ?string $uid = null;
+
     public string $name;
 
     public ?string $description = null;

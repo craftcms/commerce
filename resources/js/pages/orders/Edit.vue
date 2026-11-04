@@ -1,9 +1,11 @@
 <script setup lang="ts">
     import {
         ActionMenu,
+        ActivityTimeline,
         AdminTable,
         ElementActionMenu,
         MetadataDetails,
+        ScreenPanel,
         createCraftColumnHelper,
         openUiModal,
         useCraftTable,
@@ -26,6 +28,8 @@
     import TextFieldPopover from '../../modules/orders/TextFieldPopover.vue';
 
     interface Adjustment {
+        id: number | null;
+        uid: string | null;
         type: string;
         name: string;
         description: string | null;
@@ -127,6 +131,22 @@
         statusHtml: string[];
         orderStatusHtml: string | null;
         immediateActionsBlockedReason: string | null;
+        canFulfil: boolean;
+        canEmail: boolean;
+        emails: Array<{id: number; name: string}>;
+        fulfilment: Array<{
+            item: string;
+            location: string;
+            committed: number;
+            fulfilled: number;
+        }>;
+        snapshots: SnapshotRow[];
+        pdfs: Array<{name: string; url: string}>;
+        copyToUser: {
+            userId: number;
+            shippingAddressId: number | null;
+            billingAddressId: number | null;
+        } | null;
         completionStatusName: string | null;
         actionMenu: unknown[];
         notices: Notice[];
@@ -157,6 +177,12 @@
         purchasableTypes: Array<{type: string; label: string}>;
         transactions: TransactionRow[];
         histories: HistoryRow[];
+        activity: {
+            url: string;
+            elementType: string;
+            elementId: number;
+            siteId: number | null;
+        } | null;
         labels: Record<string, string>;
     }>();
 
@@ -286,25 +312,163 @@
             : props.labels.changeCount.replace('{count}', String(count));
     });
 
-    interface Snapshot {
-        title: string;
-        sections: Array<{label: string; json: string}>;
+    interface SnapshotRow {
+        key: string;
+        name: string;
+        context: string | null;
+        type: string;
     }
 
-    const snapshot = ref<Snapshot | null>(null);
+    const snapshotData = ref<Record<string, string>>({});
+    const openSnapshots = ref<string[]>([]);
 
-    async function showSnapshot(item: LineItemRow): Promise<void> {
+    async function toggleSnapshot(row: SnapshotRow): Promise<void> {
+        if (openSnapshots.value.includes(row.key)) {
+            openSnapshots.value = openSnapshots.value.filter(
+                (key) => key !== row.key
+            );
+
+            return;
+        }
+
+        openSnapshots.value = [...openSnapshots.value, row.key];
+
+        if (snapshotData.value[row.key] !== undefined) {
+            return;
+        }
+
         try {
-            const {data} = await window.Craft.sendActionRequest<Snapshot>(
+            const {data} = await window.Craft.sendActionRequest<{json: string}>(
                 'GET',
                 props.editUrls.snapshot,
-                {params: {orderId: props.orderId, lineItemUid: item.uid}}
+                {params: {orderId: props.orderId, key: row.key}}
             );
-            snapshot.value = data;
+            snapshotData.value = {...snapshotData.value, [row.key]: data.json};
         } catch (error: any) {
-            window.Craft.cp?.displayError(error?.response?.data?.message);
+            openSnapshots.value = openSnapshots.value.filter(
+                (key) => key !== row.key
+            );
+            showError(error);
         }
     }
+
+    function downloadPdf(pdf: {url: string}): void {
+        window.location.href = pdf.url;
+    }
+
+    const activityRefresh = ref(0);
+    watch(
+        () => props.dateUpdated,
+        () => activityRefresh.value++
+    );
+
+    const selectedEmailId = ref<number | null>(props.emails[0]?.id ?? null);
+
+    async function sendSelectedEmail(): Promise<void> {
+        if (selectedEmailId.value !== null) {
+            await post(props.editUrls.sendEmail, {
+                emailId: selectedEmailId.value,
+            });
+            activityRefresh.value++;
+        }
+    }
+
+    function openFulfilment(): void {
+        void openUiModal({
+            modalUrl: props.editUrls.fulfillmentForm,
+            actionUrl: props.editUrls.fulfill,
+            params: {orderId: String(props.orderId)},
+            onSubmitted: () => {
+                activityRefresh.value++;
+                window.Cp.$router.reload();
+            },
+        });
+    }
+
+    const sharedCartUrl = ref<string | null>(null);
+
+    async function shareCart(): Promise<void> {
+        try {
+            const {data} = await window.Craft.sendActionRequest<{url: string}>(
+                'GET',
+                props.editUrls.shareCart,
+                {params: {orderId: props.orderId}}
+            );
+            sharedCartUrl.value = data.url;
+        } catch (error: any) {
+            showError(error);
+        }
+    }
+
+    async function copySharedCartUrl(): Promise<void> {
+        if (sharedCartUrl.value) {
+            await navigator.clipboard.writeText(sharedCartUrl.value);
+            window.Craft.cp?.displayNotice(props.labels.linkCopied);
+        }
+    }
+
+    function copyableAddressId(
+        addressType: 'shipping' | 'billing'
+    ): number | null {
+        return (
+            (addressType === 'shipping'
+                ? props.copyToUser?.shippingAddressId
+                : props.copyToUser?.billingAddressId) ?? null
+        );
+    }
+
+    async function copyAddressToUser(
+        addressType: 'shipping' | 'billing'
+    ): Promise<void> {
+        await post(props.editUrls.copyAddressToUser, {
+            addressId: copyableAddressId(addressType),
+            userId: props.copyToUser?.userId,
+        });
+        window.Craft.cp?.displayNotice(props.labels.addressCopied);
+    }
+
+    function recalculate(): void {
+        if (window.confirm(props.labels.confirmRecalculate)) {
+            void apply([{type: 'recalculate'}]);
+        }
+    }
+
+    function adjustmentTarget(adjustment: Adjustment): Record<string, string> {
+        return adjustment.id !== null
+            ? {adjustmentId: String(adjustment.id)}
+            : {adjustmentUid: adjustment.uid ?? ''};
+    }
+
+    function adjustmentActions(adjustment: Adjustment): ActionItem[] {
+        return [
+            {
+                label: props.labels.editAdjustment,
+                icon: 'pencil',
+                onClick: () =>
+                    openForm('updateAdjustment', adjustmentTarget(adjustment)),
+            },
+            {
+                label: props.labels.removeAdjustment,
+                icon: 'trash',
+                variant: 'danger',
+                onClick: () =>
+                    void apply([
+                        {
+                            type: 'removeAdjustment',
+                            ...adjustmentTarget(adjustment),
+                        },
+                    ]),
+            },
+        ];
+    }
+
+    const totalsActions = computed<ActionItem[]>(() => [
+        {
+            label: props.labels.addAdjustment,
+            onClick: () => openForm('addAdjustment'),
+        },
+        {label: props.labels.recalculate, onClick: recalculate},
+    ]);
 
     function editParams(): Record<string, string> {
         return {
@@ -477,6 +641,17 @@
                       },
                   ]
                 : []),
+            ...(copyableAddressId(addressType) ||
+            (props.copyToUser && props.immediateActionsBlockedReason)
+                ? [
+                      {
+                          label: props.labels.copyToCustomer,
+                          disabled: !!props.immediateActionsBlockedReason,
+                          disabledReason: props.immediateActionsBlockedReason,
+                          onClick: () => void copyAddressToUser(addressType),
+                      },
+                  ]
+                : []),
             ...(hasAddress
                 ? [
                       {
@@ -548,19 +723,22 @@
                       label: props.labels.options,
                       onClick: () => openForm('setLineItemOptions', params),
                   },
+                  ...(props.isCompleted
+                      ? [
+                            {
+                                label: props.labels.addAdjustment,
+                                onClick: () =>
+                                    openForm('addAdjustment', {
+                                        lineItemUid: item.uid ?? '',
+                                    }),
+                            },
+                        ]
+                      : []),
               ]
             : [];
 
         return [
             ...editActions,
-            ...(item.change === 'added'
-                ? []
-                : [
-                      {
-                          label: props.labels.viewSnapshot,
-                          onClick: () => void showSnapshot(item),
-                      },
-                  ]),
             ...(item.url
                 ? [
                       {
@@ -613,9 +791,17 @@
                 fieldsUi: {...props.fieldsUi!, nodes: [node]},
             })),
         {id: 'transactions', label: props.labels.transactions},
-        {id: 'history', label: props.labels.history},
     ]);
 
+    const noteItems = computed(() =>
+        props.lineItems.filter((item) => item.uid && item.change !== 'removed')
+    );
+    const fulfilmentLocations = computed(
+        () => new Set(props.fulfilment.map((row) => row.location)).size
+    );
+    const hasCommunication = computed(
+        () => props.canEmail || props.pdfs.length > 0 || !props.isCompleted
+    );
     const activeTab = ref('details');
 
     function onTabShow(event: Event): void {
@@ -700,8 +886,25 @@
                                 ...item.adjustments.map((adjustment) =>
                                     h(
                                         'div',
-                                        {class: 'text-sm'},
-                                        `${adjustment.type}: ${adjustment.name} ${adjustment.amount}`
+                                        {
+                                            class: 'text-sm flex items-center gap-1',
+                                        },
+                                        [
+                                            `${adjustment.type}: ${adjustment.name} ${adjustment.amount}`,
+                                            editable.value &&
+                                            props.isCompleted &&
+                                            (adjustment.id || adjustment.uid) &&
+                                            item.change !== 'removed'
+                                                ? h(ActionMenu, {
+                                                      actions:
+                                                          adjustmentActions(
+                                                              adjustment
+                                                          ),
+                                                      label: props.labels
+                                                          .actions,
+                                                  })
+                                                : null,
+                                        ]
                                     )
                                 ),
                             ]
@@ -759,7 +962,8 @@
                 lineItemColumns.display({
                     id: 'actions',
                     cell: ({row}) =>
-                        row.original.change === 'removed'
+                        row.original.change === 'removed' ||
+                        lineItemActions(row.original).length === 0
                             ? null
                             : h(ActionMenu, {
                                   actions: lineItemActions(row.original),
@@ -823,52 +1027,6 @@
             ];
         },
     });
-
-    const historyColumns = createCraftColumnHelper<HistoryRow>();
-    const historyTable = useCraftTable<HistoryRow>({
-        get data() {
-            return props.histories;
-        },
-        get columns() {
-            return [
-                historyColumns.display({
-                    id: 'status',
-                    header: props.labels.status,
-                    cell: ({row}) =>
-                        h('div', [
-                            h('span', {
-                                innerHTML: row.original.newStatusHtml ?? '',
-                            }),
-                            row.original.messageHtml
-                                ? h('div', {
-                                      class: 'text-sm',
-                                      innerHTML: row.original.messageHtml,
-                                  })
-                                : null,
-                        ]),
-                }),
-                historyColumns.display({
-                    id: 'previousStatus',
-                    header: props.labels.previousStatus,
-                    cell: ({row}) =>
-                        h('span', {
-                            innerHTML: row.original.prevStatusHtml ?? '',
-                        }),
-                }),
-                historyColumns.display({
-                    id: 'updatedBy',
-                    header: props.labels.updatedBy,
-                    cell: ({row}) =>
-                        h('span', {innerHTML: row.original.userHtml}),
-                }),
-                historyColumns.display({
-                    id: 'date',
-                    header: props.labels.date,
-                    cell: ({row}) => row.original.date,
-                }),
-            ];
-        },
-    });
 </script>
 
 <template>
@@ -885,7 +1043,7 @@
         v-if="actionMenu.length"
         name="content-toolbar-actions"
     >
-        <ElementActionMenu :items="actionMenu" />
+        <ElementActionMenu v-if="actionMenu.length" :items="actionMenu" />
     </component>
 
     <component
@@ -960,7 +1118,11 @@
     <component
         :is="LayoutSlot"
         v-if="
-            canStartEditing || session?.mine || canChangeStatus || canComplete
+            canStartEditing ||
+            session?.mine ||
+            canChangeStatus ||
+            canComplete ||
+            !isCompleted
         "
         name="additional-buttons"
     >
@@ -1050,6 +1212,17 @@
                             </craft-button>
                         </template>
                     </ActionMenu>
+                    <craft-button
+                        v-if="canFulfil"
+                        slot="header-actions"
+                        type="button"
+                        size="small"
+                        :disabled="!!immediateActionsBlockedReason || undefined"
+                        :title="immediateActionsBlockedReason ?? undefined"
+                        @click="openFulfilment"
+                    >
+                        {{ labels.fulfil }}
+                    </craft-button>
                     <div v-if="lineItems.length" data-line-items>
                         <AdminTable :table="lineItemsTable" read-only />
                     </div>
@@ -1065,6 +1238,22 @@
                     :padding="0"
                     :label="labels.payment"
                 >
+                    <ActionMenu
+                        v-if="editable && isCompleted"
+                        slot="header-actions"
+                        :label="labels.adjustments"
+                        :actions="totalsActions"
+                    >
+                        <template #invoker="{label}">
+                            <craft-button
+                                slot="invoker"
+                                type="button"
+                                size="small"
+                            >
+                                {{ label }}
+                            </craft-button>
+                        </template>
+                    </ActionMenu>
                     <dl class="cp-metadata-list">
                         <div
                             v-for="row in totals"
@@ -1082,7 +1271,18 @@
                             <dt class="font-bold text-xs">
                                 {{ adjustment.type }}: {{ adjustment.name }}
                             </dt>
-                            <dd>{{ adjustment.amount }}</dd>
+                            <dd class="flex items-center gap-2">
+                                {{ adjustment.amount }}
+                                <ActionMenu
+                                    v-if="
+                                        editable &&
+                                        isCompleted &&
+                                        (adjustment.id || adjustment.uid)
+                                    "
+                                    :label="labels.actions"
+                                    :actions="adjustmentActions(adjustment)"
+                                />
+                            </dd>
                         </div>
                         <div
                             class="cp-metadata-list__item"
@@ -1190,21 +1390,6 @@
                     />
                 </craft-pane>
             </div>
-
-            <div id="order-tab-history" :hidden="activeTab !== 'history'">
-                <craft-pane appearance="raised" :padding="0">
-                    <AdminTable
-                        v-if="histories.length"
-                        :table="historyTable"
-                        read-only
-                    />
-                    <craft-empty
-                        v-else
-                        :label="labels.noHistory"
-                        appearance="plain"
-                    />
-                </craft-pane>
-            </div>
         </component>
     </div>
 
@@ -1219,7 +1404,7 @@
             <li
                 v-for="operation in session.operations"
                 :key="operation.index"
-                class="flex items-center justify-between gap-2"
+                class="order-panel__row"
             >
                 <div>
                     {{ operation.label }}
@@ -1272,14 +1457,24 @@
     </craft-dialog>
 
     <craft-dialog
-        v-if="snapshot"
+        v-if="sharedCartUrl"
         open
-        :label="snapshot.title"
-        @craft-after-hide="snapshot = null"
+        :label="labels.shareCart"
+        @craft-after-hide="sharedCartUrl = null"
     >
-        <div v-for="section in snapshot.sections" :key="section.label">
-            <h3 class="font-bold">{{ section.label }}</h3>
-            <pre><code>{{ section.json }}</code></pre>
+        <p>{{ labels.shareCartHint }}</p>
+        <div class="flex items-center gap-2">
+            <input
+                class="text"
+                style="flex: 1; min-width: 0"
+                type="text"
+                readonly
+                :value="sharedCartUrl"
+                @focus="($event.target as HTMLInputElement).select()"
+            />
+            <craft-button type="button" @click="copySharedCartUrl">
+                {{ labels.copy }}
+            </craft-button>
         </div>
     </craft-dialog>
 
@@ -1312,71 +1507,6 @@
                             "
                         />
                     </craft-button>
-                </div>
-            </craft-field>
-            <craft-field
-                v-for="addressType in ['shipping', 'billing'] as const"
-                :key="addressType"
-                :status="
-                    changes.includes(`${addressType}Address`)
-                        ? 'modified'
-                        : undefined
-                "
-                :status-label="labels.fieldModified"
-            >
-                <span slot="label">{{
-                    addressType === 'shipping'
-                        ? labels.shippingAddress
-                        : labels.billingAddress
-                }}</span>
-                <div
-                    slot="input"
-                    class="flex items-start justify-between gap-2"
-                >
-                    <div>
-                        <span
-                            v-if="
-                                addressType === 'shipping'
-                                    ? shippingAddressHtml
-                                    : billingAddressHtml
-                            "
-                            v-html="
-                                addressType === 'shipping'
-                                    ? shippingAddressHtml
-                                    : billingAddressHtml
-                            "
-                        />
-                        <template v-else>{{ labels.noAddress }}</template>
-                    </div>
-                    <ActionMenu
-                        v-if="editable"
-                        :label="labels.actions"
-                        :actions="addressActions(addressType)"
-                    />
-                </div>
-            </craft-field>
-            <craft-field
-                :status="
-                    changes.includes('shippingMethod') ? 'modified' : undefined
-                "
-                :status-label="labels.fieldModified"
-            >
-                <span slot="label">{{ labels.shippingMethod }}</span>
-                <div slot="input" class="flex items-center gap-2">
-                    {{ shippingMethodName || labels.none }}
-                    <ComboboxFieldPopover
-                        v-if="editable"
-                        :title="labels.shippingMethod"
-                        :label="
-                            labels.editItem.replace(
-                                '{item}',
-                                labels.shippingMethod
-                            )
-                        "
-                        :options="shippingMethodOptions"
-                        :value="shippingMethodHandle"
-                        @select="selectShippingMethod"
-                    />
                 </div>
             </craft-field>
             <craft-field v-if="orderStatusHtml">
@@ -1481,9 +1611,565 @@
             </div>
         </dl>
     </MetadataDetails>
+
+    <ScreenPanel
+        id="addresses"
+        :label="labels.addresses"
+        icon="location-dot"
+        :order="10"
+    >
+        <div class="order-panel">
+            <craft-field-group>
+                <craft-field
+                    v-for="addressType in ['shipping', 'billing'] as const"
+                    :key="addressType"
+                    :status="
+                        changes.includes(`${addressType}Address`)
+                            ? 'modified'
+                            : undefined
+                    "
+                    :status-label="labels.fieldModified"
+                >
+                    <span slot="label">{{
+                        addressType === 'shipping'
+                            ? labels.shippingAddress
+                            : labels.billingAddress
+                    }}</span>
+                    <div
+                        slot="input"
+                        class="flex items-start justify-between gap-2"
+                    >
+                        <div>
+                            <span
+                                v-if="
+                                    addressType === 'shipping'
+                                        ? shippingAddressHtml
+                                        : billingAddressHtml
+                                "
+                                v-html="
+                                    addressType === 'shipping'
+                                        ? shippingAddressHtml
+                                        : billingAddressHtml
+                                "
+                            />
+                            <template v-else>{{ labels.noAddress }}</template>
+                        </div>
+                        <ActionMenu
+                            v-if="editable"
+                            :label="labels.actions"
+                            :actions="addressActions(addressType)"
+                        />
+                    </div>
+                </craft-field>
+                <craft-field
+                    :status="
+                        changes.includes('shippingMethod')
+                            ? 'modified'
+                            : undefined
+                    "
+                    :status-label="labels.fieldModified"
+                >
+                    <span slot="label">{{ labels.shippingMethod }}</span>
+                    <div slot="input" class="flex items-center gap-2">
+                        {{ shippingMethodName || labels.none }}
+                        <ComboboxFieldPopover
+                            v-if="editable"
+                            :title="labels.shippingMethod"
+                            :label="
+                                labels.editItem.replace(
+                                    '{item}',
+                                    labels.shippingMethod
+                                )
+                            "
+                            :options="shippingMethodOptions"
+                            :value="shippingMethodHandle"
+                            @select="selectShippingMethod"
+                        />
+                    </div>
+                </craft-field>
+            </craft-field-group>
+        </div>
+    </ScreenPanel>
+
+    <ScreenPanel
+        v-if="isCompleted"
+        id="fulfilment"
+        :label="labels.fulfilment"
+        icon="truck"
+        :order="20"
+    >
+        <div class="order-panel">
+            <p class="order-panel__hint">{{ labels.fulfilmentHint }}</p>
+            <p v-if="!fulfilment.length" class="text-sm">
+                {{ labels.noFulfilment }}
+            </p>
+            <table v-else class="order-panel__table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ labels.item }}</th>
+                        <th v-if="fulfilmentLocations > 1" scope="col">
+                            {{ labels.location }}
+                        </th>
+                        <th scope="col" class="order-panel__number">
+                            {{ labels.committed }}
+                        </th>
+                        <th scope="col" class="order-panel__number">
+                            {{ labels.fulfilledHeading }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(row, index) in fulfilment" :key="index">
+                        <td>{{ row.item }}</td>
+                        <td v-if="fulfilmentLocations > 1">
+                            {{ row.location }}
+                        </td>
+                        <td class="order-panel__number">
+                            {{ row.committed }}
+                        </td>
+                        <td class="order-panel__number">
+                            {{ row.fulfilled }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <template v-if="canFulfil">
+                <p v-if="immediateActionsBlockedReason" class="text-sm">
+                    {{ immediateActionsBlockedReason }}
+                </p>
+                <craft-button
+                    type="button"
+                    variant="primary"
+                    :disabled="!!immediateActionsBlockedReason || undefined"
+                    @click="openFulfilment"
+                >
+                    {{ labels.fulfil }}
+                </craft-button>
+            </template>
+        </div>
+    </ScreenPanel>
+
+    <ScreenPanel
+        v-if="hasCommunication"
+        id="communication"
+        :label="labels.communication"
+        icon="envelope"
+        :order="30"
+    >
+        <div class="order-panel">
+            <p
+                v-if="
+                    immediateActionsBlockedReason &&
+                    (emails.length || pdfs.length)
+                "
+                class="text-sm"
+            >
+                {{ immediateActionsBlockedReason }}
+            </p>
+
+            <section v-if="emails.length" class="order-panel__section">
+                <h4>{{ labels.emails }}</h4>
+                <p class="order-panel__hint">{{ labels.emailsHint }}</p>
+                <craft-select v-if="emails.length > 1" :label="labels.email">
+                    <select
+                        slot="input"
+                        :disabled="!!immediateActionsBlockedReason"
+                        @change="
+                            selectedEmailId = Number(
+                                ($event.target as HTMLSelectElement).value
+                            )
+                        "
+                    >
+                        <option
+                            v-for="email in emails"
+                            :key="email.id"
+                            :value="email.id"
+                            :selected="email.id === selectedEmailId"
+                        >
+                            {{ email.name }}
+                        </option>
+                    </select>
+                </craft-select>
+                <p v-else class="font-bold text-sm">{{ emails[0].name }}</p>
+                <craft-button
+                    type="button"
+                    :disabled="!!immediateActionsBlockedReason || undefined"
+                    @click="sendSelectedEmail"
+                >
+                    <craft-icon name="paper-plane" slot="prefix" />
+                    {{ labels.send }}
+                </craft-button>
+            </section>
+
+            <section v-if="pdfs.length" class="order-panel__section">
+                <h4>{{ labels.pdfs }}</h4>
+                <p class="order-panel__hint">{{ labels.pdfsHint }}</p>
+                <ul class="order-panel__list">
+                    <li
+                        v-for="pdf in pdfs"
+                        :key="pdf.url"
+                        class="order-panel__row"
+                    >
+                        <span>{{ pdf.name }}</span>
+                        <craft-button
+                            type="button"
+                            size="small"
+                            :disabled="
+                                !!immediateActionsBlockedReason || undefined
+                            "
+                            @click="downloadPdf(pdf)"
+                        >
+                            <craft-icon name="download" slot="prefix" />
+                            {{ labels.download }}
+                        </craft-button>
+                    </li>
+                </ul>
+            </section>
+
+            <section v-if="!isCompleted" class="order-panel__section">
+                <h4>{{ labels.shareCartHeading }}</h4>
+                <p class="order-panel__hint">{{ labels.shareCartHint }}</p>
+                <craft-button type="button" @click="shareCart">
+                    {{ labels.shareCart }}
+                </craft-button>
+            </section>
+        </div>
+    </ScreenPanel>
+
+    <ScreenPanel
+        id="notes"
+        :label="labels.notes"
+        icon="note-sticky"
+        :order="40"
+    >
+        <div class="order-panel">
+            <p class="order-panel__hint">{{ labels.notesHint }}</p>
+            <craft-empty
+                v-if="!noteItems.length"
+                :label="labels.noProducts"
+                appearance="plain"
+            />
+            <ul v-else class="order-panel__list">
+                <li
+                    v-for="item in noteItems"
+                    :key="item.uid ?? item.sku"
+                    class="order-panel__item"
+                >
+                    <div class="order-panel__row">
+                        <strong class="text-sm">{{ item.description }}</strong>
+                        <craft-button
+                            v-if="editable"
+                            type="button"
+                            size="small"
+                            @click="
+                                openForm('setLineItemNotes', {
+                                    lineItemUid: item.uid ?? '',
+                                })
+                            "
+                        >
+                            {{
+                                item.note || item.privateNote
+                                    ? labels.edit
+                                    : labels.addNote
+                            }}
+                        </craft-button>
+                    </div>
+                    <div v-if="item.note" class="order-note">
+                        <craft-badge fill="blue" size="small">
+                            {{ labels.customer }}
+                        </craft-badge>
+                        <span>{{ item.note }}</span>
+                    </div>
+                    <div v-if="item.privateNote" class="order-note">
+                        <craft-badge size="small">
+                            <craft-icon name="lock" slot="prefix" />
+                            {{ labels.internal }}
+                        </craft-badge>
+                        <span>{{ item.privateNote }}</span>
+                    </div>
+                    <p
+                        v-if="!item.note && !item.privateNote"
+                        class="order-panel__hint"
+                    >
+                        {{ labels.noNote }}
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </ScreenPanel>
+
+    <ScreenPanel
+        v-if="activity"
+        id="history"
+        :label="labels.history"
+        icon="clock-rotate-left"
+        :order="50"
+        scrolls-itself
+        v-slot="{active}"
+    >
+        <div class="order-activity">
+            <div class="order-activity__timeline">
+                <ActivityTimeline
+                    :active="active"
+                    :url="activity.url"
+                    :element-type="activity.elementType"
+                    :element-id="activity.elementId"
+                    :site-id="activity.siteId"
+                    :refresh-token="activityRefresh"
+                />
+            </div>
+            <details v-if="histories.length" class="order-activity__earlier">
+                <summary>
+                    {{ labels.earlierHistory }} ({{ histories.length }})
+                </summary>
+                <ol class="order-panel__list">
+                    <li
+                        v-for="(history, index) in histories"
+                        :key="index"
+                        class="order-panel__item"
+                    >
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span v-html="history.newStatusHtml ?? ''" />
+                            <span
+                                v-if="history.prevStatusHtml"
+                                class="text-xs flex items-center gap-1"
+                            >
+                                {{ labels.previousStatus }}:
+                                <span v-html="history.prevStatusHtml" />
+                            </span>
+                        </div>
+                        <div
+                            v-if="history.messageHtml"
+                            class="text-sm"
+                            v-html="history.messageHtml"
+                        />
+                        <div class="text-xs flex items-center gap-2 flex-wrap">
+                            <span v-html="history.userHtml" />
+                            <span>{{ history.date }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </details>
+        </div>
+    </ScreenPanel>
+
+    <ScreenPanel
+        v-if="snapshots.length"
+        id="snapshots"
+        :label="labels.snapshots"
+        icon="camera"
+        :order="60"
+    >
+        <div class="order-panel">
+            <p class="order-panel__hint">{{ labels.snapshotsHint }}</p>
+            <p v-if="immediateActionsBlockedReason" class="text-sm">
+                {{ immediateActionsBlockedReason }}
+            </p>
+            <table class="order-panel__table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ labels.name }}</th>
+                        <th scope="col">{{ labels.type }}</th>
+                    </tr>
+                </thead>
+                <tbody v-for="row in snapshots" :key="row.key">
+                    <tr>
+                        <td>
+                            <button
+                                type="button"
+                                class="order-panel__toggle"
+                                :aria-expanded="openSnapshots.includes(row.key)"
+                                :disabled="!!immediateActionsBlockedReason"
+                                @click="toggleSnapshot(row)"
+                            >
+                                <craft-icon
+                                    :name="
+                                        openSnapshots.includes(row.key)
+                                            ? 'chevron-down'
+                                            : 'chevron-right'
+                                    "
+                                    :label="
+                                        openSnapshots.includes(row.key)
+                                            ? labels.hideData
+                                            : labels.showData
+                                    "
+                                />
+                                <span>
+                                    {{ row.name }}
+                                    <small v-if="row.context" class="block">
+                                        {{ row.context }}
+                                    </small>
+                                </span>
+                            </button>
+                        </td>
+                        <td>{{ row.type }}</td>
+                    </tr>
+                    <tr v-if="openSnapshots.includes(row.key)">
+                        <td colspan="2">
+                            <pre
+                                v-if="snapshotData[row.key] !== undefined"
+                                class="order-panel__code"
+                            ><code>{{ snapshotData[row.key] }}</code></pre>
+                            <p v-else class="text-sm">
+                                {{ labels.loadingData }}
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </ScreenPanel>
 </template>
 
 <style>
+    .order-panel {
+        display: grid;
+        gap: var(--c-spacing-lg, 1rem);
+        padding: var(--c-spacing-lg, 1rem) var(--cp-container-padding, 1rem);
+    }
+
+    .order-panel__list {
+        display: grid;
+        gap: var(--c-spacing-md, 0.75rem);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .order-panel__item dt,
+    .order-panel__item dd {
+        margin: 0;
+    }
+
+    .order-panel__item + .order-panel__item {
+        padding-block-start: var(--c-spacing-md, 0.75rem);
+        border-block-start: 1px solid var(--c-color-border-quiet, #e5e7eb);
+    }
+
+    .order-activity {
+        display: flex;
+        flex-direction: column;
+        block-size: 100%;
+        min-block-size: 0;
+    }
+
+    .order-activity__timeline {
+        flex: 1;
+        min-block-size: 0;
+    }
+
+    .order-activity__earlier {
+        max-block-size: 45%;
+        padding: var(--c-spacing-md, 0.75rem) var(--cp-container-padding, 1rem);
+        overflow: auto;
+        border-block-start: 1px solid var(--c-color-border-quiet, #e5e7eb);
+    }
+
+    .order-activity__earlier summary {
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    .order-activity__earlier .order-panel__list {
+        margin-block-start: var(--c-spacing-md, 0.75rem);
+    }
+
+    .order-panel__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--c-spacing-sm, 0.5rem);
+    }
+
+    .order-panel__hint {
+        margin: 0;
+        color: var(--c-color-text-quiet, #64748b);
+        font-size: var(--text-sm, 0.875rem);
+    }
+
+    .order-panel__section {
+        display: grid;
+        gap: var(--c-spacing-sm, 0.5rem);
+        justify-items: start;
+    }
+
+    .order-panel__section h4,
+    .order-panel__section p {
+        margin: 0;
+    }
+
+    .order-panel__section + .order-panel__section {
+        padding-block-start: var(--c-spacing-lg, 1rem);
+        border-block-start: 1px solid var(--c-color-border-quiet, #e5e7eb);
+    }
+
+    .order-panel__section craft-select {
+        inline-size: 100%;
+    }
+
+    .order-panel__table {
+        inline-size: 100%;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .order-panel__table th,
+    .order-panel__table td {
+        padding: var(--c-spacing-sm, 0.5rem) var(--c-spacing-xs, 0.25rem);
+        border-block-end: 1px solid var(--c-color-border-quiet, #e5e7eb);
+        text-align: start;
+        vertical-align: top;
+    }
+
+    .order-panel__table th {
+        font-size: var(--text-xs, 0.75rem);
+        font-weight: 700;
+    }
+
+    .order-panel__number {
+        text-align: end !important;
+    }
+
+    .order-panel__toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--c-spacing-xs, 0.25rem);
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: start;
+        cursor: pointer;
+    }
+
+    .order-panel__toggle:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .order-panel__code {
+        max-block-size: 20rem;
+        margin: 0;
+        overflow: auto;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: var(--text-xs, 0.75rem);
+    }
+
+    .order-note {
+        display: grid;
+        justify-items: start;
+        gap: var(--c-spacing-xs, 0.25rem);
+        margin-block-start: var(--c-spacing-sm, 0.5rem);
+    }
+
+    .order-panel__actions {
+        display: grid;
+        justify-items: start;
+        gap: var(--c-spacing-sm, 0.5rem);
+    }
+
     .review-totals {
         display: grid;
         gap: 0.25rem;

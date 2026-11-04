@@ -72,6 +72,14 @@ abstract readonly class OrderOperation implements JsonSerializable
     }
 
     /**
+     * Whether the operation undoes an earlier one, so that neither is kept.
+     */
+    public function cancels(OrderOperation $earlier): bool
+    {
+        return false;
+    }
+
+    /**
      * Whether the operation would leave the order as it already is, so it needn't be kept.
      */
     public function isUnchangedFor(Order $order): bool

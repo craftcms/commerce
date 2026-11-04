@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Email;
 use CraftCms\Cms\Email\Data\EmailSettings;
 use CraftCms\Cms\Image\CraftAssetTransformDriver;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -24,6 +25,7 @@ use CraftCms\Commerce\Email\Events\MailSent;
 use CraftCms\Commerce\Email\Mailables\OrderEmail;
 use CraftCms\Commerce\Email\Models\Email as EmailRecord;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\Order\Activity\OrderEmailSent;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Pdfs;
@@ -265,11 +267,17 @@ class Emails
             return false;
         }
 
-        return app(CraftAssetTransformDriver::class)->withImmediateTransforms(
+        $sent = app(CraftAssetTransformDriver::class)->withImmediateTransforms(
             function() use ($email, $order, $orderHistory, $orderData, &$error) {
                 return $this->sendEmailInternal($email, $order, $orderHistory, $orderData, $error);
             }
         );
+
+        if ($sent && $order->id) {
+            Activities::record(new OrderEmailSent($order, (string)$email->name));
+        }
+
+        return $sent;
     }
 
     /**

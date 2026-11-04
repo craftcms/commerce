@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\ViewModels;
 
+use CraftCms\Cms\Activity\Data\ActivitySubject;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Cp\Html\ElementHtml;
@@ -12,19 +13,24 @@ use CraftCms\Cms\FieldLayout\FieldLayoutCompiler;
 use CraftCms\Cms\Http\ViewModels\ViewModel;
 use CraftCms\Cms\Markdown\Markdown;
 use CraftCms\Cms\Site\Data\Site;
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Facades\Addresses;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\Markdown as MarkdownFacade;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\Ui\UiPayload;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Http\Controllers\OrderActionsController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
+use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderHistory;
@@ -40,12 +46,17 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use CraftCms\Commerce\Order\OrderFulfillment;
 use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Order\OrderSnapshots;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Data\Transaction;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use CraftCms\Commerce\Shipping\Data\ShippingMethodOption;
+use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
@@ -62,6 +73,9 @@ class OrderEditViewModel extends ViewModel
      * without a selection, and handles can't start with a hyphen.
      */
     private const string NO_SHIPPING_METHOD = '-none';
+
+    /** A status change is saved moments before its activity is recorded, so they shouldn't both show. */
+    private const int ACTIVITY_OVERLAP_SECONDS = 60;
 
     /**
      * @param OrderEditSession|null $session The order's edit session, whose edit the order has been previewed with.
@@ -116,6 +130,119 @@ class OrderEditViewModel extends ViewModel
         return app(OrderEditGuard::class)->blockReason($this->order, currentUserElement()?->id);
     }
 
+    private function userCan(string $permission): bool
+    {
+        return currentUserElement()?->can($permission) ?? false;
+    }
+
+    /**
+     * The order's PDFs, for downloading.
+     *
+     * @return list<array{name: string, url: string}>
+     */
+    public function pdfs(): array
+    {
+        if (!$this->order->isCompleted || !$this->order->id) {
+            return [];
+        }
+
+        return app(Pdfs::class)->getAllEnabledPdfs($this->order->storeId)
+            ->map(fn($pdf) => [
+                'name' => (string)$pdf->name,
+                'url' => Url::actionUrl('commerce/downloads/pdf', ['number' => $this->order->number, 'pdfHandle' => $pdf->handle]),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Whether the store has an email to send for the order.
+     */
+    public function canEmail(): bool
+    {
+        return $this->order->isCompleted
+            && $this->userCan('commerce-manageOrders')
+            && app(Emails::class)->getAllEnabledEmails($this->order->storeId)->isNotEmpty();
+    }
+
+    /**
+     * Whether the order has committed stock the user can fulfil, or return from fulfilled.
+     */
+    public function canFulfil(): bool
+    {
+        return $this->order->isCompleted
+            && $this->userCan('commerce-manageOrders')
+            && app(OrderFulfillment::class)->levels($this->order)->isNotEmpty();
+    }
+
+    /**
+     * The order's committed and fulfilled stock, by line item and location.
+     *
+     * @return list<array{item: string, location: string, committed: int, fulfilled: int}>
+     */
+    public function fulfilment(): array
+    {
+        return app(OrderFulfillment::class)->levels($this->order)
+            ->map(fn($level) => [
+                'item' => $level->getLineItem()->getDescription(),
+                'location' => (string)$level->getInventoryLocation()->name,
+                'committed' => $level->committedQuantity,
+                'fulfilled' => $level->fulfilledQuantity,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * What has a snapshot, which can be viewed on demand.
+     *
+     * @return list<array{key: string, name: string, context: string|null, type: string}>
+     */
+    public function snapshots(): array
+    {
+        return app(OrderSnapshots::class)->list($this->order);
+    }
+
+    /**
+     * The emails that can be sent for the order.
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public function emails(): array
+    {
+        if (!$this->canEmail()) {
+            return [];
+        }
+
+        return app(Emails::class)->getAllEnabledEmails($this->order->storeId)
+            ->map(fn($email) => ['id' => (int)$email->id, 'name' => (string)$email->name])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The customer addresses can be copied to, and the saved addresses that can be copied. An address
+     * the edit session has changed isn't saved yet, so it can't be.
+     *
+     * @return array{userId: int, shippingAddressId: int|null, billingAddressId: int|null}|null
+     */
+    public function copyToUser(): ?array
+    {
+        $customer = $this->order->getCustomer();
+
+        if (!$customer?->getIsCredentialed() || !$this->userCan('editUsers')) {
+            return null;
+        }
+
+        $changes = $this->changes();
+
+        return [
+            'userId' => $customer->id,
+            'shippingAddressId' => in_array('shippingAddress', $changes, true) ? null : $this->order->shippingAddressId,
+            'billingAddressId' => in_array('billingAddress', $changes, true) ? null : $this->order->billingAddressId,
+        ];
+    }
+
     /**
      * The name of the status a cart is given when it's completed.
      */
@@ -148,6 +275,12 @@ class OrderEditViewModel extends ViewModel
             'complete' => action([OrderLifecycleController::class, 'complete']),
             'address' => action([OrderEditController::class, 'addressScreen']),
             'snapshot' => action([OrderEditController::class, 'snapshot']),
+            'fulfillmentForm' => action([OrderActionsController::class, 'fulfillmentForm']),
+            'fulfill' => action([OrderActionsController::class, 'fulfill']),
+            'emailForm' => action([OrderActionsController::class, 'emailForm']),
+            'sendEmail' => action([OrderActionsController::class, 'sendEmail']),
+            'shareCart' => action([OrderActionsController::class, 'shareCart']),
+            'copyAddressToUser' => action([OrdersController::class, 'copyAddressToUser']),
             'start' => action([OrderEditController::class, 'start']),
             'takeOver' => action([OrderEditController::class, 'takeOver']),
             'add' => action([OrderEditController::class, 'addOperation']),
@@ -365,7 +498,7 @@ class OrderEditViewModel extends ViewModel
      *     note: string,
      *     privateNote: string,
      *     options: list<array{key: string, value: string}>,
-     *     adjustments: list<array{type: string, name: string, description: string|null, amount: string, included: bool}>,
+     *     adjustments: list<array{id: int|null, uid: string|null, type: string, name: string, description: string|null, amount: string, included: bool}>,
      *     change: string|null,
      * }>
      */
@@ -466,7 +599,7 @@ class OrderEditViewModel extends ViewModel
     /**
      * The order's own adjustments (not attached to a line item).
      *
-     * @return list<array{type: string, name: string, description: string|null, amount: string, included: bool}>
+     * @return list<array{id: int|null, uid: string|null, type: string, name: string, description: string|null, amount: string, included: bool}>
      */
     public function adjustments(): array
     {
@@ -704,10 +837,33 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
+     * Where the order's activity timeline loads from, which is every kind of change recorded for it.
+     *
+     * @return array{url: string, elementType: string, elementId: int, siteId: int|null}|null
+     */
+    public function activity(): ?array
+    {
+        if (!$this->order->isCompleted || !$this->order->id) {
+            return null;
+        }
+
+        return [
+            'url' => Url::actionUrl('elements/activity'),
+            'elementType' => $this->order::class,
+            'elementId' => $this->order->id,
+            'siteId' => $this->order->siteId,
+        ];
+    }
+
+    /**
+     * The status changes made before the order's activity was recorded, which the timeline can't show.
+     *
      * @return list<array{newStatusHtml: string|null, prevStatusHtml: string|null, userHtml: string, date: string, messageHtml: string|null}>
      */
     public function histories(): array
     {
+        $recordedFrom = $this->activityStart()?->getTimestamp();
+
         return array_values(array_map(fn(OrderHistory $history) => [
             'newStatusHtml' => $history->getNewStatus()?->getLabelHtml(),
             'prevStatusHtml' => $history->getPrevStatus()?->getLabelHtml(),
@@ -718,7 +874,28 @@ class OrderEditViewModel extends ViewModel
             'messageHtml' => $history->message
                 ? MarkdownFacade::parse(Html::encode($history->message), Markdown::FLAVOR_PRE_ENCODED)
                 : null,
-        ], $this->order->getHistories()));
+        ], array_filter(
+            $this->order->getHistories(),
+            fn(OrderHistory $history) => $recordedFrom === null || $history->dateCreated->getTimestamp() < $recordedFrom - self::ACTIVITY_OVERLAP_SECONDS,
+        )));
+    }
+
+    /**
+     * When the order's first activity was recorded.
+     */
+    private function activityStart(): ?DateTimeImmutable
+    {
+        if (!$this->order->id) {
+            return null;
+        }
+
+        $first = Activities::query()
+            /** @phpstan-ignore-next-line method.notFound (subject() is an Eloquent local scope declared with #[Scope] on ActivityEvent) */
+            ->subject(ActivitySubject::fromElement($this->order))
+            ->reorder()
+            ->min('occurredAt');
+
+        return $first ? new DateTimeImmutable((string)$first, new DateTimeZone('UTC')) : null;
     }
 
     /**
@@ -743,6 +920,7 @@ class OrderEditViewModel extends ViewModel
             'details' => t('Details', category: 'commerce'),
             'transactions' => t('Transactions', category: 'commerce'),
             'history' => t('History', category: 'commerce'),
+            'earlierHistory' => t('Earlier status changes', category: 'commerce'),
             'products' => t('Line Items', category: 'commerce'),
             'noProducts' => t('No products have been added.', category: 'commerce'),
             'item' => t('Item', category: 'commerce'),
@@ -787,7 +965,32 @@ class OrderEditViewModel extends ViewModel
             'notes' => t('Notes', category: 'commerce'),
             'options' => t('Options', category: 'commerce'),
             'viewPurchasable' => t('View Purchasable', category: 'commerce'),
-            'viewSnapshot' => t('View Snapshot', category: 'commerce'),
+            'addresses' => t('Addresses', category: 'commerce'),
+            'location' => t('Location', category: 'commerce'),
+            'committed' => t('Committed', category: 'commerce'),
+            'fulfilledHeading' => t('Fulfilled', category: 'commerce'),
+            'name' => t('Name', category: 'commerce'),
+            'emails' => t('Emails', category: 'commerce'),
+            'email' => t('Email', category: 'commerce'),
+            'pdfs' => t('PDFs', category: 'commerce'),
+            'download' => t('Download', category: 'commerce'),
+            'send' => t('Send', category: 'commerce'),
+            'fulfilment' => t('Fulfilment', category: 'commerce'),
+            'fulfilmentHint' => t('Record committed stock as fulfilled when items ship.', category: 'commerce'),
+            'noFulfilment' => t('No stock is committed for this order. Stock is committed for line items with tracked inventory.', category: 'commerce'),
+            'communication' => t('Communication', category: 'commerce'),
+            'emailsHint' => t('Send one of the store’s emails for this order. Each email goes to its own recipients.', category: 'commerce'),
+            'pdfsHint' => t('Download the order as a PDF.', category: 'commerce'),
+            'shareCartHeading' => t('Share', category: 'commerce'),
+            'internal' => t('Internal', category: 'commerce'),
+            'notesHint' => t('Notes are saved on each line item. Customer notes are visible to the customer, and internal notes are only visible to staff.', category: 'commerce'),
+            'addNote' => t('Add note', category: 'commerce'),
+            'noNote' => t('No notes', category: 'commerce'),
+            'snapshots' => t('Snapshots', category: 'commerce'),
+            'snapshotsHint' => t('The data saved with each line item and adjustment when it was added to the order.', category: 'commerce'),
+            'showData' => t('Show data', category: 'commerce'),
+            'hideData' => t('Hide data', category: 'commerce'),
+            'loadingData' => t('Loading…', category: 'commerce'),
             'remove' => t('Remove', category: 'commerce'),
             'confirmRemoveLineItem' => t('Remove {item} from the cart?', category: 'commerce'),
             'dismiss' => t('Dismiss', category: 'commerce'),
@@ -799,6 +1002,20 @@ class OrderEditViewModel extends ViewModel
             'copyToShipping' => t('Copy to Shipping Address', category: 'commerce'),
             'copyToBilling' => t('Copy to Billing Address', category: 'commerce'),
             'removeAddress' => t('Remove Address', category: 'commerce'),
+            'copyToCustomer' => t('Copy to Customer’s Address Book', category: 'commerce'),
+            'addressCopied' => t('Address copied to user.', category: 'commerce'),
+            'fulfil' => t('Fulfil', category: 'commerce'),
+            'downloadPdf' => t('Download PDF', category: 'commerce'),
+            'sendEmail' => t('Send Email', category: 'commerce'),
+            'shareCart' => t('Share Cart', category: 'commerce'),
+            'linkCopied' => t('Link copied.', category: 'commerce'),
+            'copy' => t('Copy', category: 'commerce'),
+            'shareCartHint' => t('Anyone with this link can load the cart.', category: 'commerce'),
+            'addAdjustment' => t('Add Adjustment', category: 'commerce'),
+            'editAdjustment' => t('Edit Adjustment', category: 'commerce'),
+            'removeAdjustment' => t('Remove Adjustment', category: 'commerce'),
+            'recalculate' => t('Recalculate Order', category: 'commerce'),
+            'confirmRecalculate' => t('Recalculate the order? Prices are refreshed from the purchasables and manual adjustments are replaced.', category: 'commerce'),
             'editFields' => t('Edit Fields', category: 'commerce'),
             'fieldModified' => t('This field has been modified.'),
             'discardChanges' => t('Discard changes'),
@@ -824,11 +1041,13 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * @return array{type: string, name: string, description: string|null, amount: string, included: bool}
+     * @return array{id: int|null, uid: string|null, type: string, name: string, description: string|null, amount: string, included: bool}
      */
     private function adjustmentData(OrderAdjustment $adjustment): array
     {
         return [
+            'id' => $adjustment->id,
+            'uid' => $adjustment->uid,
             'type' => t(Str::title($adjustment->type), category: 'commerce'),
             'name' => $adjustment->name,
             'description' => $adjustment->description,

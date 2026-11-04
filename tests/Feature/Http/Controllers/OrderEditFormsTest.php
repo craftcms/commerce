@@ -349,17 +349,3 @@ it('sets and clears a cart’s reference', function() {
     editFormsSubmit($cart, 'setReference', ['reference' => ''])->assertOk();
     expect(Order::find()->id($cart->id)->one()->reference)->toBeNull();
 });
-
-it('shows the snapshots of a line item', function() {
-    $order = OrdersFixture::seed()->orders['completed-new'];
-    $lineItem = $order->getLineItems()[0];
-
-    getJson(Url::actionUrl('commerce/orders/snapshot', ['orderId' => $order->id, 'lineItemUid' => $lineItem->uid]))
-        ->assertOk()
-        ->assertJsonPath('title', $lineItem->getDescription())
-        ->assertJsonPath('sections.0.label', 'Line Item')
-        ->assertJsonStructure(['sections' => [['label', 'json']]]);
-
-    getJson(Url::actionUrl('commerce/orders/snapshot', ['orderId' => $order->id, 'lineItemUid' => 'missing']))
-        ->assertNotFound();
-});

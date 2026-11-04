@@ -5,6 +5,7 @@ use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
+use CraftCms\Commerce\Http\Controllers\OrderActionsController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
@@ -224,6 +225,11 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
     Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
 
     Route::get('orders/snapshot', [OrderEditController::class, 'snapshot']);
+    Route::get('orders/actions/email-form', [OrderActionsController::class, 'emailForm']);
+    Route::post('orders/actions/send-email', [OrderActionsController::class, 'sendEmail']);
+    Route::get('orders/actions/fulfillment-form', [OrderActionsController::class, 'fulfillmentForm']);
+    Route::post('orders/actions/fulfill', [OrderActionsController::class, 'fulfill']);
+    Route::get('orders/actions/share-cart', [OrderActionsController::class, 'shareCart']);
 
     Route::middleware('can:commerce-editOrders')->group(function () {
         Route::post('orders/apply', [OrderEditController::class, 'apply']);

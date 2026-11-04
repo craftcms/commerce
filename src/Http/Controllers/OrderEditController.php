@@ -28,6 +28,7 @@ use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Order\OrderSnapshots;
 use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -77,34 +78,23 @@ class OrderEditController
     }
 
     /**
-     * The snapshots a line item and its adjustments were saved with.
+     * The snapshot saved with a line item or an adjustment.
      */
     public function snapshot(Request $request): JsonResponse
     {
         $request->validate([
             'orderId' => ['required', 'integer'],
-            'lineItemUid' => ['required', 'string'],
+            'key' => ['required', 'string'],
         ]);
 
         $order = app(Orders::class)->getOrderById((int)$request->input('orderId'));
         abort_if(!$order, 404, t('Can not find order.', category: 'commerce'));
         abort_unless($order->canView($this->user()), 403, 'User not authorized to view this order.');
 
-        foreach ($order->getLineItems() as $lineItem) {
-            if ($lineItem->uid !== $request->input('lineItemUid')) {
-                continue;
-            }
+        $json = app(OrderSnapshots::class)->json($order, (string)$request->input('key'));
+        abort_if($json === null, 404);
 
-            $sections = [['label' => t('Line Item', category: 'commerce'), 'json' => $this->prettyJson($lineItem->getSnapshot())]];
-
-            foreach ($lineItem->getAdjustments() as $adjustment) {
-                $sections[] = ['label' => $adjustment->name, 'json' => $this->prettyJson($adjustment->getSourceSnapshot())];
-            }
-
-            return new JsonResponse(['title' => $lineItem->getDescription(), 'sections' => $sections]);
-        }
-
-        abort(404, t('The line item no longer exists.', category: 'commerce'));
+        return new JsonResponse(['json' => $json]);
     }
 
     /**
@@ -446,12 +436,6 @@ class OrderEditController
         return $this->asJsonSuccess(t('Cart updated.', category: 'commerce'), [
             'order' => OrderSummary::fromOrder($order),
         ]);
-    }
-
-    /** @param array<array-key, mixed> $data */
-    private function prettyJson(array $data): string
-    {
-        return (string)json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     private function operationForm(Request $request): OrderOperationForm

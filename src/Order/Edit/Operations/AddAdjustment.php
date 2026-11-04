@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
+use Closure;
 use CraftCms\Commerce\Order\Adjuster\Discount;
 use CraftCms\Commerce\Order\Adjuster\Shipping;
 use CraftCms\Commerce\Order\Adjuster\Tax;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
+use Illuminate\Support\Fluent;
+use Illuminate\Validation\Rule;
 
 use function CraftCms\Cms\t;
 
@@ -31,6 +34,7 @@ final readonly class AddAdjustment extends OrderOperation
         public ?string $description = null,
         public bool $included = false,
         public ?string $lineItemUid = null,
+        public ?string $uid = null,
     ) {
     }
 
@@ -49,11 +53,27 @@ final readonly class AddAdjustment extends OrderOperation
         return [
             'adjustmentType' => ['required', 'in:' . implode(',', self::TYPES)],
             'name' => ['required', 'string'],
-            'amount' => ['required', 'numeric'],
+            'amount' => ['required', 'numeric', Rule::when(
+                fn(Fluent $input) => $input->get('adjustmentType') === Discount::ADJUSTMENT_TYPE,
+                [self::negativeDiscount()],
+            )],
             'description' => ['nullable', 'string'],
             'included' => ['boolean'],
             'lineItemUid' => ['nullable', 'string'],
+            'uid' => ['nullable', 'string'],
         ];
+    }
+
+    /**
+     * A rule that fails for a discount that isn't a negative amount.
+     */
+    public static function negativeDiscount(): Closure
+    {
+        return function(string $attribute, mixed $value, Closure $fail): void {
+            if ((float)$value >= 0) {
+                $fail(t('A discount must be a negative amount.', category: 'commerce'));
+            }
+        };
     }
 
     public static function fromArray(array $data): static
@@ -65,6 +85,7 @@ final readonly class AddAdjustment extends OrderOperation
             description: $data['description'] ?? null,
             included: (bool)($data['included'] ?? false),
             lineItemUid: $data['lineItemUid'] ?? null,
+            uid: $data['uid'] ?? null,
         );
     }
 
@@ -77,6 +98,7 @@ final readonly class AddAdjustment extends OrderOperation
             'description' => $this->description,
             'included' => $this->included,
             'lineItemUid' => $this->lineItemUid,
+            'uid' => $this->uid,
         ];
     }
 
@@ -91,6 +113,7 @@ final readonly class AddAdjustment extends OrderOperation
 
         $adjustment = new OrderAdjustment();
         $adjustment->setOrder($order);
+        $adjustment->uid = $this->uid;
         $adjustment->type = $this->adjustmentType;
         $adjustment->name = $this->name;
         $adjustment->description = $this->description;

@@ -34,13 +34,22 @@ final readonly class OrderEdit implements JsonSerializable
      * Adds an operation, folding in earlier ones it makes redundant.
      *
      * @param Order|null $base the order as the edit starts from. An operation that wouldn't change it
-     *                         is dropped, along with the earlier ones it undoes.
+     *                         is dropped, along with the earlier ones it undoes. One that cancels
+     *                         earlier ones is dropped with them.
      */
     public function with(OrderOperation $operation, ?Order $base = null): self
     {
         $operations = $this->operations;
+        $cancelled = false;
 
         foreach ($operations as $index => $earlier) {
+            if ($operation->cancels($earlier)) {
+                unset($operations[$index]);
+                $cancelled = true;
+
+                continue;
+            }
+
             $combined = $operation->absorb($earlier);
 
             if ($combined !== null) {
@@ -49,7 +58,7 @@ final readonly class OrderEdit implements JsonSerializable
             }
         }
 
-        if ($base === null || !$operation->isUnchangedFor($base)) {
+        if (!$cancelled && ($base === null || !$operation->isUnchangedFor($base))) {
             $operations[] = $operation;
         }
 

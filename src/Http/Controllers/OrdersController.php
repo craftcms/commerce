@@ -47,12 +47,8 @@ use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Helpers\Purchasable;
 use CraftCms\Commerce\Http\ViewModels\OrderEditViewModel;
 use CraftCms\Commerce\Http\ViewModels\OrderIndexViewModel;
-use CraftCms\Commerce\Inventory\Collections\InventoryMovementCollection;
 use CraftCms\Commerce\Inventory\Data\InventoryFulfillmentLevel;
-use CraftCms\Commerce\Inventory\Data\InventoryFulfillMovement;
-use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Inventory;
-use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Data\LineItemStatus;
 use CraftCms\Commerce\Order\Data\OrderAdjustment;
@@ -62,10 +58,12 @@ use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\Exceptions\FulfillmentException;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\OrderAdjustments;
+use CraftCms\Commerce\Order\OrderFulfillment;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Currencies;
@@ -207,49 +205,10 @@ class OrdersController
 
     public function fulfill(Request $request): Response
     {
-        $fulfillments = $request->input('fulfillment');
-        $movements = [];
-        foreach ($fulfillments as $fulfillment) {
-            $qty = (int)$fulfillment['quantity'];
-            if ($qty != 0) {
-                $inventoryLocation = app(InventoryLocations::class)->getInventoryLocationById((int)$fulfillment['inventoryLocationId']);
-
-                $movement = new InventoryFulfillMovement();
-                $movement->fromInventoryLocation = $inventoryLocation;
-                $movement->inventoryItemId = (int)$fulfillment['inventoryItemId'];
-                $movement->toInventoryLocation = $inventoryLocation;
-                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
-                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
-                $movement->lineItemId = (int)$fulfillment['lineItemId'];
-                $movement->quantity = $qty;
-                $movement->userId = currentUser()?->getCraftUserId();
-                $movements[] = $movement;
-            }
-        }
-
-        // Validate each movement against the stock the other movements for the same item and location will also use
-        $pendingQuantities = [];
-        foreach ($movements as $movement) {
-            $key = $movement->inventoryItemId . '-' . $movement->fromInventoryLocation->id;
-            $movement->otherPendingQuantity = $pendingQuantities[$key] ?? 0;
-            $pendingQuantities[$key] = $movement->otherPendingQuantity + max($movement->quantity, 0);
-        }
-
-        foreach ($movements as $movement) {
-            if (!$movement->isValid()) {
-                $errorMessage = collect($movement->getErrors())->flatten()->first() ?? t('Invalid inventory movements.', category: 'commerce');
-
-                return $this->asFailure($errorMessage, [
-                    'errors' => ['fulfillment' => $movement->getErrors()],
-                ]);
-            }
-        }
-
-        /** @var InventoryMovementCollection $movements */
-        $movements = InventoryMovementCollection::make($movements);
-
-        if (!app(Inventory::class)->executeInventoryMovements($movements)) {
-            return $this->asFailure(t('Invalid inventory movements.', category: 'commerce'));
+        try {
+            app(OrderFulfillment::class)->fulfill(array_values($request->input('fulfillment') ?? []));
+        } catch (FulfillmentException $exception) {
+            return $this->asFailure($exception->getMessage(), $exception->errors ? ['errors' => $exception->errors] : []);
         }
 
         return $this->asSuccess(t('Updated committed stock successfully.', category: 'commerce'));

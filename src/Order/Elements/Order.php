@@ -55,6 +55,7 @@ use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Data\OrderStatus;
+use CraftCms\Commerce\Order\Edit\OrderEditGuard;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Events\LineItemAddApplied;
 use CraftCms\Commerce\Order\Events\LineItemAdded;
@@ -124,6 +125,7 @@ use ReflectionProperty;
 use Throwable;
 
 use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\renderObjectTemplate;
 use function CraftCms\Cms\t;
 
@@ -2988,6 +2990,11 @@ class Order extends Element implements HasStoreInterface
     {
         if (!parent::beforeDelete()) {
             return false;
+        }
+
+        if ($user = currentUserElement()) {
+            $blockReason = app(OrderEditGuard::class)->blockReason($this, $user->id);
+            abort_if($blockReason !== null, 423, (string)$blockReason);
         }
 
         // Capture line items before the cascade delete fires so afterDelete() can refresh stock caches

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Activity\OrderStatusChanged as OrderStatusChangedActivity;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\OrderStatusChanged;
@@ -60,6 +62,7 @@ class OrderHistories
 
         // By default the user who changed the status is the same as the user who placed the order
         $userId = $order->getCustomerId();
+        $actor = null;
 
         // If the user is logged in, use the current user
         if (!app()->runningInConsole()
@@ -72,6 +75,7 @@ class OrderHistories
         if ($userId) {
             $user = Users::getUserById($userId);
             if ($user) {
+                $actor = $user;
                 $orderHistoryModel->userId = $userId;
                 $orderHistoryModel->userName = $user->fullName ?? $user->email;
             } else {
@@ -85,7 +89,16 @@ class OrderHistories
             return false;
         }
 
-        app(OrderStatuses::class)->statusChangeHandler($order, $orderHistoryModel);
+        $statuses = app(OrderStatuses::class);
+        Activities::record(new OrderStatusChangedActivity(
+            subject: $order,
+            oldStatus: $oldStatusId ? $statuses->getOrderStatusById($oldStatusId, $order->storeId)?->name : null,
+            newStatus: $order->orderStatusId ? $statuses->getOrderStatusById($order->orderStatusId, $order->storeId)?->name : null,
+            message: $order->message,
+            actor: $actor,
+        ));
+
+        $statuses->statusChangeHandler($order, $orderHistoryModel);
 
         // Raising 'orderStatusChange' event
         $event = new OrderStatusChanged(

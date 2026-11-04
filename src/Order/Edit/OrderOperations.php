@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit;
 
+use CraftCms\Cms\Activity\Data\ActivityChange;
 use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Commerce\Order\Activity\OrderEdited;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -90,15 +93,22 @@ class OrderOperations
      * stand. Carts are then recalculated, the same as after any other cart change.
      *
      * @param list<OrderOperation> $operations
+     * @return list<string> What each operation did, for those that describe themselves.
      * @throws OperationNotApplicableException with the index of the operation that couldn't be applied.
      */
-    public function apply(Order $order, array $operations): void
+    public function apply(Order $order, array $operations): array
     {
+        $summaries = [];
         $order->setRecalculationMode($order->isCompleted ? Order::RECALCULATION_MODE_NONE : Order::RECALCULATION_MODE_ALL);
 
         foreach ($operations as $index => $operation) {
             try {
+                $summary = $this->summaryFor($operation, $order);
                 $operation->apply($order);
+
+                if ($summary !== null) {
+                    $summaries[] = $summary;
+                }
             } catch (OperationNotApplicableException $exception) {
                 throw $exception->forOperation($index);
             }
@@ -106,6 +116,17 @@ class OrderOperations
 
         if (!$order->isCompleted) {
             $order->recalculate();
+        }
+
+        return $summaries;
+    }
+
+    private function summaryFor(OrderOperation $operation, Order $order): ?string
+    {
+        try {
+            return $operation->summary($order);
+        } catch (InvalidArgumentException) {
+            return null;
         }
     }
 
@@ -185,11 +206,24 @@ class OrderOperations
                 throw new StaleOrderException(t('This order has changed since it was loaded.', category: 'commerce'));
             }
 
-            $this->apply($order, $edit->operations);
+            $originalTotal = $order->getTotalPriceAsCurrency();
+            $summaries = $this->apply($order, $edit->operations);
 
             $order->ruleset->useScenario(ElementRules::SCENARIO_LIVE);
 
-            return $order->validate(null, false) && Elements::saveElement($order, false);
+            if (!$order->validate(null, false) || !Elements::saveElement($order, false)) {
+                return false;
+            }
+
+            $newTotal = $order->getTotalPriceAsCurrency();
+
+            Activities::record(new OrderEdited(
+                subject: $order,
+                summaries: $summaries,
+                changes: $originalTotal === $newTotal ? [] : [new ActivityChange(t('Total Price', category: 'commerce'), $originalTotal, $newTotal)],
+            ));
+
+            return true;
         });
     }
 

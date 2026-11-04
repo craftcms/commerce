@@ -40,6 +40,8 @@ class OrderOperationForms extends TypeRegistry
         SetCustomerForm::class,
         SetAddressForm::class,
         SetFieldValuesForm::class,
+        AddAdjustmentForm::class,
+        UpdateAdjustmentForm::class,
     ];
 
     public function byType(string $type): ?OrderOperationForm

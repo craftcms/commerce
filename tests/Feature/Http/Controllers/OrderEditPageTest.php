@@ -193,12 +193,12 @@ it('tells another user that an order is being edited', function() {
         );
 });
 
-it('renders status history messages as Markdown, with HTML escaped', function() {
+it('renders earlier status history messages as Markdown, with HTML escaped', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
     $history = $order->getHistories()[0];
     DB::table(Table::ORDERHISTORIES)
         ->where('id', $history->id)
-        ->update(['message' => "**Shipped** <script>alert(1)</script>"]);
+        ->update(['message' => "**Shipped** <script>alert(1)</script>", 'dateCreated' => now()->subDays(2)]);
 
     get(orderEditPagePath($order->id))
         ->assertOk()

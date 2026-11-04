@@ -6,8 +6,9 @@
  * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
  * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`,
  * `AdminTable.vue`, `SearchForm.vue`, `common/table/craftTable.ts` and
- * `common/table/createCraftColumnHelper.ts` and `open-ui-modal.ts`. The table types are loose: the
- * TanStack generics behind them aren't worth mirroring by hand.
+ * `common/table/createCraftColumnHelper.ts` and `open-ui-modal.ts`. The table
+ * types are loose: the TanStack generics behind them aren't worth mirroring by
+ * hand.
  */
 declare module '@craftcms/cp' {
   import type {ComputedRef, DefineComponent} from 'vue';
@@ -65,6 +66,8 @@ declare module '@craftcms/cp' {
     label: string;
     icon?: string;
     variant?: string;
+    disabled?: boolean;
+    disabledReason?: string | null;
     onClick?: (event: Event) => void;
   }
 
@@ -160,6 +163,11 @@ declare module '@craftcms/cp' {
 
   export interface CraftColumnHelper<TData> {
     columns(columns: unknown[]): unknown[];
+    display(column: {
+      id: string;
+      header?: string;
+      cell: (context: CraftCellContext<TData, unknown>) => unknown;
+    }): unknown;
     accessor<TKey extends keyof TData>(
       key: TKey,
       config: {
@@ -195,5 +203,22 @@ declare module '@craftcms/cp' {
     action: string;
     modelValue?: string | null;
     options?: Record<string, unknown>;
+  }>;
+
+  export const ActivityTimeline: DefineComponent<{
+    active: boolean;
+    url: string;
+    elementType: string;
+    elementId: number | null;
+    siteId: number | null;
+    refreshToken?: number;
+  }>;
+
+  export const ScreenPanel: DefineComponent<{
+    id: string;
+    label: string;
+    icon: string;
+    order?: number;
+    scrollsItself?: boolean;
   }>;
 }
