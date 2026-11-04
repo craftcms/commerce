@@ -651,7 +651,7 @@ class Inventory
             ->when($inventoryLocationId !== null, fn(Builder $query) => $query->where('it.inventoryLocationId', $inventoryLocationId))
             ->when($lineItemIds !== null, fn(Builder $query) => $query->whereIn('it.lineItemId', $lineItemIds))
             ->havingRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) > 0', [InventoryTransactionType::COMMITTED->value])
-            ->orderByRaw('MIN(orders.dateOrdered) ASC');
+            ->orderByRaw('MIN(' . DB::connection()->getQueryGrammar()->wrap('orders.dateOrdered') . ') ASC');
 
         return $query->get()->map(fn($row) => $this->populateInventoryFulfillmentLevel((array) $row));
     }
@@ -717,14 +717,21 @@ class Inventory
      */
     private function inventoryFulfillmentLevelQuery(): Builder
     {
+        $wrap = fn(string $value): string => DB::connection()->getQueryGrammar()->wrap($value);
+        $sumWhen = fn(string $condition, string $alias): string => sprintf(
+            'SUM(CASE WHEN %s THEN it.quantity ELSE 0 END) AS %s',
+            $condition,
+            $wrap($alias),
+        );
+
         return DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-            ->selectRaw('it.lineItemId, li.orderId, it.inventoryItemId, it.inventoryLocationId')
+            ->select(['it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId'])
             ->selectRaw(
-                'SUM(CASE WHEN ((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0)) THEN it.quantity ELSE 0 END) AS committedQuantity',
+                $sumWhen('((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0))', 'committedQuantity'),
                 [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value],
             )
-            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS outstandingCommittedQuantity', [InventoryTransactionType::COMMITTED->value])
-            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS fulfilledQuantity', [InventoryTransactionType::FULFILLED->value])
+            ->selectRaw($sumWhen('it.type = ?', 'outstandingCommittedQuantity'), [InventoryTransactionType::COMMITTED->value])
+            ->selectRaw($sumWhen('it.type = ?', 'fulfilledQuantity'), [InventoryTransactionType::FULFILLED->value])
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->whereIn('it.type', [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value])
             ->groupBy('it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId');
