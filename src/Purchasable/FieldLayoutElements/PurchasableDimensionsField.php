@@ -9,7 +9,6 @@ use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
 use CraftCms\Cms\Support\Facades\I18N;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Text;
@@ -64,10 +63,6 @@ class PurchasableDimensionsField extends BaseNativeField
         $unit = app(Plugin::class)->getSettings()->dimensionUnits;
 
         $static = $context->mode !== ControlMode::Editable || $context->ui->mode !== ControlMode::Editable;
-        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
-        $statusLabel = $status !== null
-            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
-            : null;
         $localized = fn(?float $value): string => $value === null ? '' : I18N::getFormatter()->asDecimal($value);
 
         return Group::make($this->uid, [
@@ -83,15 +78,11 @@ class PurchasableDimensionsField extends BaseNativeField
         ])
             ->asField()
             ->label($this->label !== null && $this->label !== '__blank__' ? $this->label() : null)
-            ->showStatus($this->showStatus())
-            ->orientation($this->orientation($element, $static))
-            ->translatable(Sites::isMultiSite() && $this->translatable($element, $static), $this->translationDescription($element, $static))
             ->instructions($this->instructionsText($element, $static))
             ->instructionsPosition($this->instructionsPosition)
             ->tip($this->tipText($element, $static))
             ->warning($this->warningText($element, $static))
             ->required(!$static && $this->required)
-            ->status($status, $statusLabel)
             ->layoutUid($this->uid)
             ->width($this->width);
     }

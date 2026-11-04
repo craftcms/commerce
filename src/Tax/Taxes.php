@@ -7,8 +7,8 @@ namespace CraftCms\Commerce\Tax;
 use CraftCms\Commerce\Tax\Contracts\TaxEngineInterface;
 use CraftCms\Commerce\Tax\Contracts\TaxIdValidatorInterface;
 use CraftCms\Commerce\Tax\Engines\Tax;
-use CraftCms\Commerce\Tax\Events\TaxEngineEvent;
-use CraftCms\Commerce\Tax\Events\TaxIdValidatorsEvent;
+use CraftCms\Commerce\Tax\Events\TaxEngineResolving;
+use CraftCms\Commerce\Tax\Events\TaxIdValidatorsResolving;
 use CraftCms\Commerce\Tax\VatValidator\Eu;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Collection;
@@ -30,7 +30,7 @@ class Taxes implements TaxEngineInterface
     {
         $validators = [new Eu()];
 
-        $event = new TaxIdValidatorsEvent(
+        $event = new TaxIdValidatorsResolving(
             validators: $validators,
         );
         event($event);
@@ -58,7 +58,7 @@ class Taxes implements TaxEngineInterface
             return $this->taxEngine;
         }
 
-        $event = new TaxEngineEvent(engine: new Tax());
+        $event = new TaxEngineResolving(engine: new Tax());
         event($event);
 
         $this->taxEngine = $event->engine;

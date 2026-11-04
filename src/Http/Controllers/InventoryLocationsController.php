@@ -78,6 +78,15 @@ readonly class InventoryLocationsController
             'name' => ['html' => Html::a(Html::encode($inventoryLocation->getUiLabel()), $inventoryLocation->getCpEditUrl(), ['class' => 'cell-bold'])],
             'handle' => $inventoryLocation->handle,
             'address' => $inventoryLocation->getAddressLine(),
+            'actions' => $canDelete ? [
+                'label' => t('Actions', category: 'commerce'),
+                'items' => [[
+                    'label' => t('Delete', category: 'commerce'),
+                    'modalUrl' => action([self::class, 'prepareDeleteModal']),
+                    'actionUrl' => action([self::class, 'deactivate']),
+                    'params' => ['id' => $inventoryLocation->id],
+                ]],
+            ] : '',
         ])->values()->all();
 
         $nodes = [
@@ -86,6 +95,7 @@ readonly class InventoryLocationsController
                     ['key' => 'name', 'label' => t('Name', category: 'commerce'), 'sortable' => true],
                     ['key' => 'handle', 'label' => t('Handle', category: 'commerce')],
                     ['key' => 'address', 'label' => t('Address')],
+                    ['key' => 'actions', 'label' => ''],
                 ])
                 ->rows($rows)
                 ->emptyMessage(t('No inventory locations exist yet.', category: 'commerce'))
@@ -94,11 +104,7 @@ readonly class InventoryLocationsController
                     fn(Table $table) => $table
                         ->createAction(t('New location', category: 'commerce'), cp_url('commerce/inventory-locations/new'))
                         ->createActionInPageHeader(),
-                )
-                ->when($canDelete, fn(Table $table) => $table->deletable(
-                    action([self::class, 'deactivate']),
-                    modalUrl: action([self::class, 'prepareDeleteModal']),
-                )),
+                ),
         ];
 
         return new CpScreenResponse()
@@ -201,7 +207,8 @@ readonly class InventoryLocationsController
         // Validated before the address is saved, so an invalid location never orphans an address.
         $isValid = $inventoryLocation->validate();
 
-        $addressId = $request->integer('addressId') ?: null;
+        // Never trust a posted address ID: only the location's own address can be updated
+        $addressId = $inventoryLocation->getAddressId();
         /** @var Address|null $address */
         $address = $isValid && $addressId ? Elements::getElementById($addressId, Address::class) : null;
         $address ??= new Address();

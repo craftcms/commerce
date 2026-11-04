@@ -50,7 +50,7 @@ beforeEach(function() {
 });
 
 it('renders the products index page', function() {
-    get($this->indexPath)
+    get($this->indexPath . '?viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->component('commerce::products/Index', false)

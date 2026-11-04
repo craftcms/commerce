@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\Events;
 
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
-use yii\base\Event;
 
-class LineItemEvent extends Event
+abstract class LineItemEvent
 {
     public function __construct(
         public LineItem $lineItem,

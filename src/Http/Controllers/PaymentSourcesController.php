@@ -37,7 +37,7 @@ readonly class PaymentSourcesController
 
         $gateway = app(Gateways::class)->getGatewayById($gatewayId);
 
-        if (!$gateway || !$gateway->supportsPaymentSources()) {
+        if (!$gateway || $gateway->isArchived || !$gateway->supportsPaymentSources()) {
             return $this->asFailure(t('There is no gateway selected that supports payment sources.', category: 'commerce'));
         }
 
@@ -55,7 +55,7 @@ readonly class PaymentSourcesController
                 $paymentForm,
                 t('Could not create the payment source.', category: 'commerce'),
                 'paymentForm',
-                ['paymentFormErrors' => $paymentForm->getErrors()]
+                ['paymentFormErrors' => $paymentForm->errors()->getMessages()]
             );
         }
 

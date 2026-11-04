@@ -23,7 +23,7 @@ use CraftCms\Commerce\Payment\Gateway\Types\Dummy;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
 use CraftCms\Commerce\Payment\Transactions;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
-use CraftCms\Commerce\Shipping\Events\RegisterAvailableShippingMethodsEvent;
+use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\Event;
@@ -81,7 +81,7 @@ it('lists purchasables for the order edit purchasable table', function() {
     }
 
     expect($purchasable['sku'])->toBe('hct-blue');
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('sorts the purchasable table by the requested column', function() {
     OrdersFixture::seed();
@@ -94,7 +94,7 @@ it('sorts the purchasable table by the requested column', function() {
     $purchasable = collect($response->json('data'))->last();
 
     expect($purchasable['sku'])->toBe('hct-blue');
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('searches for customers by email', function() {
     OrdersFixture::seed();
@@ -131,7 +131,7 @@ it('returns order counts per status for the index source badges', function() {
 
     $shippedCount = collect($counts)->firstWhere('handle', 'shipped');
     expect($shippedCount['orderCount'])->toBe(1);
-});
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('returns matching shipping method options for an order', function() {
     $fixture = OrdersFixture::seed();
@@ -169,8 +169,8 @@ it('includes a custom runtime shipping method registered via the shipping method
     $customMethod->shouldReceive('getPriceForOrder')->andReturn(0.0);
     $customMethod->shouldReceive('matchOrder')->andReturn(true);
 
-    Event::listen(RegisterAvailableShippingMethodsEvent::class, function(RegisterAvailableShippingMethodsEvent $event) use ($customMethod) {
-        $event->setShippingMethods($event->getShippingMethods()->push($customMethod));
+    Event::listen(ShippingMethodsResolving::class, function(ShippingMethodsResolving $event) use ($customMethod) {
+        $event->shippingMethods->push($customMethod);
     });
 
     $response = postJson(
@@ -595,4 +595,26 @@ it('takes a payment on a completed order from the control panel', function() {
 
     expect($purchase?->status)->toBe(TransactionRecord::STATUS_SUCCESS);
     expect(Order::find()->id($order->id)->one()->getIsPaid())->toBeTrue();
+});
+
+it('rejects an invalid address type when updating an order address', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+
+    get(Url::actionUrl('commerce/orders/update-order-address', [
+        'orderId' => $order->id,
+        'addressId' => 1,
+        'addressType' => 'id',
+    ]), ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJsonPath('message', 'Not a valid address type');
+});
+
+it('rejects an unknown order when updating an order address', function() {
+    get(Url::actionUrl('commerce/orders/update-order-address', [
+        'orderId' => 999999,
+        'addressId' => 1,
+        'addressType' => 'shippingAddress',
+    ]), ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJsonPath('message', 'Bad order ID.');
 });

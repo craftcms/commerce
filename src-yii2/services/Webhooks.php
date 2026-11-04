@@ -2,13 +2,14 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\base\GatewayInterface;
+use craft\commerce\events\WebhookEvent;
 use craft\commerce\Plugin;
 use CraftCms\Commerce\Payment\Events\WebhookProcessed;
 use CraftCms\Commerce\Payment\Events\WebhookProcessing;
-use Illuminate\Support\Facades\Event;
 
-use craft\commerce\base\GatewayInterface;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -33,14 +34,20 @@ class Webhooks extends Component
         Event::listen(WebhookProcessing::class, static function(WebhookProcessing $event) {
             $legacy = Plugin::getInstance()->getWebhooks();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_PROCESS_WEBHOOK)) {
-                $legacy->trigger(self::EVENT_BEFORE_PROCESS_WEBHOOK, $event);
+                $legacy->trigger(self::EVENT_BEFORE_PROCESS_WEBHOOK, new WebhookEvent([
+                    'gateway' => $event->gateway,
+                    'response' => $event->response ?? null,
+                ]));
             }
         });
 
         Event::listen(WebhookProcessed::class, static function(WebhookProcessed $event) {
             $legacy = Plugin::getInstance()->getWebhooks();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_PROCESS_WEBHOOK)) {
-                $legacy->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $event);
+                $legacy->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, new WebhookEvent([
+                    'gateway' => $event->gateway,
+                    'response' => $event->response ?? null,
+                ]));
             }
         });
     }

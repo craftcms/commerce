@@ -12,7 +12,7 @@ test('switchAppLanguage switches the app language', function() {
     Locale::switchAppLanguage('nl');
 
     expect(Craft::$app->language)->toBe('nl');
-});
+})->group('yii2-adapter');
 
 test('Pdf::getRenderLanguage() throws without an order when language is order-language', function() {
     $pdf = new Pdf();

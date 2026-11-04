@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+export CI=true HUSKY=0 COMPOSER_NO_INTERACTION=1 COMPOSER_ROOT_VERSION=6.x-dev
+TIMEFORMAT='Finished in %3R seconds'
+
+step() {
+    printf '\n==> %s\n' "$1"
+    shift
+    time "$@"
+}
+
+scratch=$(mktemp -d)
+trap 'rm -rf -- "$scratch"' EXIT
+
+# Debian's default PHP is older than Commerce's minimum version.
+if [[ ! -f /usr/share/keyrings/debsuryorg-archive-keyring.gpg ]]; then
+    curl -fsSL https://packages.sury.org/debsuryorg-archive-keyring.deb -o "$scratch/sury.deb"
+    sudo dpkg -i "$scratch/sury.deb"
+fi
+if [[ ! -f /etc/apt/sources.list.d/php.list ]]; then
+    . /etc/os-release
+    echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $VERSION_CODENAME main" |
+        sudo tee /etc/apt/sources.list.d/php.list >/dev/null
+fi
+
+packages=(php8.5-cli php8.5-bcmath php8.5-curl php8.5-gd php8.5-intl
+    php8.5-mbstring php8.5-mysql php8.5-pgsql php8.5-sqlite3 php8.5-xml
+    php8.5-zip php8.5-soap php8.5-imagick libvips42 unzip sqlite3)
+missing=()
+for package in "${packages[@]}"; do
+    if [[ $(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true) != 'install ok installed' ]]; then
+        missing+=("$package")
+    fi
+done
+if ((${#missing[@]})); then
+    step 'Refresh apt indexes' sudo apt-get update -qq
+    step 'Install PHP and image libraries' sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"
+fi
+sudo update-alternatives --set php /usr/bin/php8.5
+
+# Install to the standard PATH for Amp and supervised non-interactive shells.
+node_major=$(tr -d '[:space:]' < .node-version)
+if [[ $(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || true) != "$node_major" ]] ||
+    ! npm ls --global --depth=0 >/dev/null 2>&1; then
+    case $(uname -m) in
+        x86_64) node_arch=x64 ;;
+        aarch64) node_arch=arm64 ;;
+        *) echo 'Unsupported Node architecture' >&2; exit 1 ;;
+    esac
+    curl -fsSL "https://nodejs.org/dist/latest-v${node_major}.x/SHASUMS256.txt" -o "$scratch/SHASUMS256.txt"
+    archive=$(awk -v arch="linux-$node_arch.tar.xz" '$2 ~ arch "$" {print $2}' "$scratch/SHASUMS256.txt")
+    curl -fsSL "https://nodejs.org/dist/latest-v${node_major}.x/$archive" -o "$scratch/$archive"
+    (cd "$scratch"; grep " $archive$" SHASUMS256.txt | sha256sum --check)
+    sudo rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack
+    sudo tar -xJf "$scratch/$archive" -C /usr/local --strip-components=1
+fi
+pnpm_version=$(node -p 'require("./package.json").packageManager.split("@")[1]')
+if [[ $(pnpm --version 2>/dev/null || true) != "$pnpm_version" ]]; then
+    step 'Install pinned pnpm' sudo npm install --global "pnpm@$pnpm_version"
+fi
+if ! command -v composer >/dev/null; then
+    curl -fsSL https://getcomposer.org/installer -o "$scratch/composer-setup.php"
+    expected=$(curl -fsSL https://composer.github.io/installer.sig)
+    actual=$(php -r 'echo hash_file("sha384", $argv[1]);' "$scratch/composer-setup.php")
+    [[ "$actual" == "$expected" ]] || { echo 'Composer installer checksum mismatch' >&2; exit 1; }
+    php "$scratch/composer-setup.php" --2 --install-dir="$scratch" --filename=composer
+    sudo install -m 755 "$scratch/composer" /usr/local/bin/composer
+fi
+
+step 'Install PHP dependencies' composer install --prefer-dist --no-progress
+step 'Install frontend dependencies' pnpm install --prefer-offline --frozen-lockfile
+step 'Build Commerce assets' pnpm build
+step 'Prepare SQLite workbench' composer workbench:setup
+
+printf '\nOrb toolchain, dependencies, and workbench are ready.\n'

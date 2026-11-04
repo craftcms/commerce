@@ -2,16 +2,17 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\PaymentSourceEvent;
 use craft\commerce\Plugin;
+use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\Events\PaymentSourceDeleting;
 use CraftCms\Commerce\Payment\Events\PaymentSourceSaved;
 use CraftCms\Commerce\Payment\Events\PaymentSourceSaving;
-use Illuminate\Support\Facades\Event;
 
 use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
-use CraftCms\Commerce\Payment\Data\PaymentSource;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -84,21 +85,27 @@ class PaymentSources extends Component
         Event::listen(PaymentSourceSaving::class, static function(PaymentSourceSaving $event) {
             $legacy = Plugin::getInstance()->getPaymentSources();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
-                $legacy->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, $event);
+                $legacyEvent = new PaymentSourceEvent(['paymentSource' => $event->paymentSource]);
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
 
         Event::listen(PaymentSourceSaved::class, static function(PaymentSourceSaved $event) {
             $legacy = Plugin::getInstance()->getPaymentSources();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
-                $legacy->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, $event);
+                $legacyEvent = new PaymentSourceEvent(['paymentSource' => $event->paymentSource]);
+                $legacy->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
 
         Event::listen(PaymentSourceDeleting::class, static function(PaymentSourceDeleting $event) {
             $legacy = Plugin::getInstance()->getPaymentSources();
             if ($legacy->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
-                $legacy->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, $event);
+                $legacyEvent = new PaymentSourceEvent(['paymentSource' => $event->paymentSource]);
+                $legacy->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, $legacyEvent);
+                $event->isValid = $legacyEvent->isValid;
             }
         });
     }

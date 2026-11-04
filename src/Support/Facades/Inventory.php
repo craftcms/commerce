@@ -27,6 +27,9 @@ use Override;
  * @method static \Illuminate\Database\Query\Builder getTransactionQuery()
  * @method static \Illuminate\Support\Collection getInventoryTransactions(\CraftCms\Commerce\Inventory\Data\InventoryItem $inventoryItem, \CraftCms\Commerce\Inventory\Data\InventoryLocation $inventoryLocation)
  * @method static \Illuminate\Support\Collection getInventoryFulfillmentLevels(\CraftCms\Commerce\Order\Elements\Order $order)
+ * @method static \Illuminate\Support\Collection getOutstandingInventoryFulfillmentLevels(int $inventoryItemId, int|null $inventoryLocationId = null, int[]|null $lineItemIds = null)
+ * @method static \Illuminate\Support\Collection getReservedQuantitiesByLineItem(int $inventoryItemId, int $inventoryLocationId, int|null $committedLocationId = null)
+ * @method static int getFulfillableQuantity(int $inventoryItemId, int $inventoryLocationId)
  * @method static void orderCompleteHandler(\CraftCms\Commerce\Order\Elements\Order $order)
  *
  * @see \CraftCms\Commerce\Inventory\Inventory

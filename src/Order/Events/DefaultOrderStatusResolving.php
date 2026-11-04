@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CraftCms\Commerce\Order\Events;
+
+use CraftCms\Commerce\Order\Data\OrderStatus;
+use CraftCms\Commerce\Order\Elements\Order;
+
+/**
+ * Dispatched when resolving the default status for an order. Listeners may change `$orderStatus`.
+ */
+class DefaultOrderStatusResolving
+{
+    public function __construct(
+        public ?OrderStatus $orderStatus,
+        public Order $order,
+    ) {
+    }
+}

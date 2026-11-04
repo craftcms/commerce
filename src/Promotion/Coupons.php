@@ -128,7 +128,7 @@ class Coupons
             }
         }
 
-        return !$discount->hasErrors();
+        return !$discount->errors()->isNotEmpty();
     }
 
     public function saveCoupon(Coupon $coupon, bool $runValidation = true): bool

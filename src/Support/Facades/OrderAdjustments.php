@@ -10,7 +10,7 @@ use Override;
 /**
  * @method static string[] getAdjusters()
  * @method static \CraftCms\Commerce\Order\Data\OrderAdjustment|null getOrderAdjustmentById(int $id)
- * @method static \CraftCms\Commerce\Order\Data\OrderAdjustment[] getAllOrderAdjustmentsByOrderId(int $orderId)
+ * @method static \CraftCms\Commerce\Order\Data\OrderAdjustment[] getAllOrderAdjustmentsByOrderId(int $orderId, \CraftCms\Commerce\Order\Elements\Order|null $order = null)
  * @method static bool saveOrderAdjustment(\CraftCms\Commerce\Order\Data\OrderAdjustment $orderAdjustment, bool $runValidation = true)
  * @method static bool deleteAllOrderAdjustmentsByOrderId(int $orderId)
  * @method static bool deleteOrderAdjustmentByAdjustmentId(int $adjustmentId)

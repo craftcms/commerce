@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Gateway;
 
 use Carbon\Carbon;
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Component\Exceptions\MissingComponentException;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
@@ -144,7 +143,7 @@ class Gateways
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
-            $gateway->addError('handle', t('That handle is already in use.', category: 'commerce'));
+            $gateway->errors()->add('handle', t('That handle is already in use.', category: 'commerce'));
 
             return false;
         }
@@ -155,7 +154,7 @@ class Gateways
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewGateway) {
-            $gateway->id = CraftDb::idByUid(Table::GATEWAYS, $gatewayUid);
+            $gateway->id = DB::table(Table::GATEWAYS)->where('uid', $gatewayUid)->value('id');
         }
 
         $this->allGateways = null; // reset cache
@@ -242,7 +241,7 @@ class Gateways
      */
     public function reorderGateways(array $ids): bool
     {
-        $uidsByIds = CraftDb::uidsByIds(Table::GATEWAYS, $ids);
+        $uidsByIds = DB::table(Table::GATEWAYS)->whereIn('id', $ids)->pluck('uid', 'id')->all();
 
         foreach ($ids as $gatewayOrder => $gatewayId) {
             if (!empty($uidsByIds[$gatewayId])) {

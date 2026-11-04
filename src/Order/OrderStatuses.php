@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order;
 
-use craft\helpers\Db as CraftDb;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailEvent;
 use CraftCms\Commerce\Email\Jobs\SendEmailJob;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
-use CraftCms\Commerce\Order\Events\DefaultOrderStatusEvent;
-use CraftCms\Commerce\Order\Events\OrderStatusEmailsEvent;
+use CraftCms\Commerce\Order\Events\DefaultOrderStatusResolving;
+use CraftCms\Commerce\Order\Events\OrderStatusEmailsResolving;
 use CraftCms\Commerce\Order\Models\OrderStatus as OrderStatusRecord;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Container\Attributes\Singleton;
@@ -119,7 +118,7 @@ class OrderStatuses
     {
         $orderStatus = $this->getDefaultOrderStatus($order->storeId);
 
-        $event = new DefaultOrderStatusEvent(
+        $event = new DefaultOrderStatusResolving(
             orderStatus: $orderStatus,
             order: $order,
         );
@@ -178,7 +177,7 @@ class OrderStatuses
         if ($isNewStatus) {
             $statusUid = Str::uuid()->toString();
         } else {
-            $statusUid = CraftDb::uidById(Table::ORDERSTATUSES, $orderStatus->id);
+            $statusUid = DB::table(Table::ORDERSTATUSES)->uidById($orderStatus->id);
         }
 
         $otherStatuses = $this->getAllOrderStatuses($orderStatus->storeId)->where('uid', '!=', $statusUid)->all();
@@ -192,7 +191,7 @@ class OrderStatuses
         ProjectConfig::set($configPath, $configData, force: $force);
 
         if ($isNewStatus) {
-            $orderStatus->id = CraftDb::idByUid(Table::ORDERSTATUSES, $statusUid);
+            $orderStatus->id = DB::table(Table::ORDERSTATUSES)->idByUid($statusUid);
             $orderStatus->uid = $statusUid;
         }
 
@@ -252,7 +251,7 @@ class OrderStatuses
                     ProjectConfig::processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
                 }
 
-                $emailIds = CraftDb::idsByUids(Table::EMAILS, $data['emails']);
+                $emailIds = DB::table(Table::EMAILS)->idsByUids($data['emails']);
                 $now = now()->toDateTimeString();
 
                 foreach ($emailIds as $emailId) {
@@ -351,7 +350,7 @@ class OrderStatuses
         }
 
         // Raising 'beforeOrderStatusChange' event
-        $event = new OrderStatusEmailsEvent(
+        $event = new OrderStatusEmailsResolving(
             orderHistory: $orderHistory,
             order: $order,
             emails: $status->getEmails(),
@@ -364,29 +363,19 @@ class OrderStatuses
             return;
         }
 
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLocale = \Craft::$app->formattingLocale;
-
         foreach ($event->emails as $email) {
             if (!$email->enabled) {
                 continue;
             }
 
-            // Set language by email's set locale
-            // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
-            $language = $email->getRenderLanguage($event->order);
-            Locale::switchAppLanguage($language);
-
-            SendEmailJob::dispatch(
+            // Use the email's language, since $order->toArray() formats the asCurrency attributes with it
+            I18N::withLocale($email->getRenderLanguage($event->order), null, fn() => SendEmailJob::dispatch(
                 orderId: $event->order->id,
                 orderData: $event->order->toArray(),
                 commerceEmailId: $email->id,
                 orderHistoryId: $event->orderHistory->id,
-            );
+            ));
         }
-
-        // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale->id);
     }
 
     /**
@@ -396,7 +385,7 @@ class OrderStatuses
      */
     public function reorderOrderStatuses(array $ids): bool
     {
-        $uidsByIds = CraftDb::uidsByIds(Table::ORDERSTATUSES, $ids);
+        $uidsByIds = DB::table(Table::ORDERSTATUSES)->uidsByIds($ids);
 
         foreach ($ids as $orderStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {

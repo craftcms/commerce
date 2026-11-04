@@ -8,7 +8,6 @@ use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
 use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
@@ -173,6 +172,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
 
     Route::middleware('can:commerce-managePromotions')->group(function () {
         Route::post('sales/save', [SalesController::class, 'store']);
+        Route::post('sales/render-ui', [SalesController::class, 'renderUi']);
         Route::post('sales/reorder', [SalesController::class, 'reorder']);
         Route::post('sales/delete', [SalesController::class, 'destroy']);
         Route::match(['get', 'post'], 'sales/get-all-sales', [SalesController::class, 'list']);
@@ -197,11 +197,6 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('catalog-pricing-rules/table-data', [CatalogPricingRulesController::class, 'tableData']);
         Route::match(['post', 'delete'], 'catalog-pricing-rules/delete', [CatalogPricingRulesController::class, 'destroy']);
         Route::post('catalog-pricing-rules/update-status', [CatalogPricingRulesController::class, 'updateStatus']);
-
-        Route::post('catalog-pricing/filter', [CatalogPricingController::class, 'filter']);
-        Route::post('catalog-pricing/prices', [CatalogPricingController::class, 'prices']);
-        Route::get('catalog-pricing/queue-status', [CatalogPricingController::class, 'queueStatus']);
-        Route::post('catalog-pricing/get-catalog-prices', [CatalogPricingController::class, 'catalogPrices']);
     });
 });
 

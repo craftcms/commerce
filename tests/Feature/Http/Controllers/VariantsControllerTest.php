@@ -23,7 +23,7 @@ beforeEach(function() {
 });
 
 it('renders the variants index without a global create action', function() {
-    get($this->indexPath)
+    get($this->indexPath . '?viewMode=table')
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->component('commerce::variants/Index', false)

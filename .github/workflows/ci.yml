@@ -188,3 +188,27 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           packagist-username: ${{ secrets.packagist_username }}
           packagist-token: ${{ secrets.packagist_token }}
+
+  without-yii2-adapter:
+    needs: [check-cs, phpstan, rector]
+    # Commerce has to run on a Craft 6 project that doesn't install the yii2 adapter. The legacy
+    # craft\commerce event bridge and the order edit page still need it, so their tests are in the
+    # `yii2-adapter` group, which this job skips.
+    name: 'Tests / Without yii2-adapter'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        uses: ./.github/actions/run-tests
+        with:
+          test-command: >-
+            sed -i '/Yii2ServiceProvider/d' testbench.yaml &&
+            composer remove --dev craftcms/yii2-adapter --no-interaction &&
+            ./vendor/bin/pest --ci --compact --testsuite=Unit,Feature --exclude-group=yii2-adapter
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          packagist-username: ${{ secrets.packagist_username }}
+          packagist-token: ${{ secrets.packagist_token }}

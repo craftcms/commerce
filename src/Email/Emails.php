@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Email;
 
-use craft\helpers\Db as CraftDb;
-use craft\mail\Message;
-use CraftCms\Cms\Asset\AssetsHelper as Assets;
+use CraftCms\Cms\Email\Data\EmailSettings;
 use CraftCms\Cms\Image\CraftAssetTransformDriver;
 use CraftCms\Cms\ProjectConfig\Events\ConfigEvent;
+use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Facades\Template;
@@ -22,8 +21,8 @@ use CraftCms\Commerce\Email\Events\EmailSaved;
 use CraftCms\Commerce\Email\Events\EmailSaving;
 use CraftCms\Commerce\Email\Events\MailSending;
 use CraftCms\Commerce\Email\Events\MailSent;
+use CraftCms\Commerce\Email\Mailables\OrderEmail;
 use CraftCms\Commerce\Email\Models\Email as EmailRecord;
-use CraftCms\Commerce\Helpers\Locale;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
@@ -34,6 +33,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Throwable;
 use function CraftCms\Cms\t;
@@ -131,7 +132,7 @@ class Emails
         ProjectConfig::set($configPath, $configData);
 
         if ($isNewEmail) {
-            $email->id = CraftDb::idByUid(Table::EMAILS, $email->uid);
+            $email->id = DB::table(Table::EMAILS)->idByUid($email->uid);
         }
 
         return true;
@@ -175,7 +176,7 @@ class Emails
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-            $emailRecord->pdfId = $pdfUid ? CraftDb::idByUid(Table::PDFS, $pdfUid) : null;
+            $emailRecord->pdfId = $pdfUid ? DB::table(Table::PDFS)->idByUid($pdfUid) : null;
             $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
             /** @phpstan-ignore-next-line nullsafe.neverNull ($renderSite is genuinely nullable - it's null whenever 'renderSite' isn't present in $data) */
             $emailRecord->renderSiteId = $renderSite?->id ?? null;
@@ -277,34 +278,36 @@ class Emails
      */
     private function sendEmailInternal(Email $email, Order $order, ?OrderHistory $orderHistory, ?array $orderData, string &$error): bool
     {
+        return I18N::withLocale($email->getRenderLanguage($order), null, function() use ($email, $order, $orderHistory, $orderData, &$error) {
+            return $this->renderAndSendEmail($email, $order, $orderHistory, $orderData, $error);
+        });
+    }
+
+    /**
+     * @throws \Exception
+     * @throws Throwable
+     */
+    private function renderAndSendEmail(Email $email, Order $order, ?OrderHistory $orderHistory, ?array $orderData, string &$error): bool
+    {
         $option = 'email';
 
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
 
-        $newEmail = new Message();
-
-        $originalLanguage = \Craft::$app->language;
-        $originalFormattingLanguage = \Craft::$app->formattingLocale;
-        $emailLanguage = $email->getRenderLanguage($order);
         $emailSite = $email->getRenderSite($order);
-
-        Locale::switchAppLanguage($emailLanguage);
+        $mailable = new OrderEmail();
+        $mailable->siteId = $emailSite->id;
 
         $fromEmail = $email->getSenderAddress();
         $fromName = $email->getSenderName();
 
         if ($fromEmail) {
-            $newEmail->setFrom($fromEmail);
-        }
-
-        if ($fromName && $fromEmail) {
-            $newEmail->setFrom([$fromEmail => $fromName]);
+            $mailable->from($fromEmail, $fromName ?: null);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
             if ($order->getCustomer()) {
-                $newEmail->setTo($order->getEmail());
+                $mailable->to($order->getEmail());
             }
         }
 
@@ -314,7 +317,7 @@ class Emails
                 $emails = Template::renderSandboxedString($email->getTo(), $renderVariables, TemplateMode::Site);
                 $emails = preg_split('/[\s,]+/', (string)$emails);
 
-                $newEmail->setTo($emails);
+                $mailable->to(array_filter($emails));
             } catch (\Exception $e) {
                 $error = t('Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -325,17 +328,13 @@ class Emails
                 ], category: 'commerce');
                 Log::error($error);
 
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
                 return false;
             }
         }
 
-        if (!$newEmail->getTo()) {
+        if ($mailable->to === []) {
             $error = t('Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()], category: 'commerce');
             Log::error($error);
-
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             return false;
         }
@@ -348,7 +347,7 @@ class Emails
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
                 if (array_filter($bcc)) {
-                    $newEmail->setBcc($bcc);
+                    $mailable->bcc(array_filter($bcc));
                 }
             } catch (\Exception $e) {
                 $error = t('Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
@@ -359,8 +358,6 @@ class Emails
                     'line' => $e->getLine(),
                 ], category: 'commerce');
                 Log::error($error);
-
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
                 return false;
             }
@@ -374,7 +371,7 @@ class Emails
                 $cc = preg_split('/[\s,]+/', $cc);
 
                 if (array_filter($cc)) {
-                    $newEmail->setCc($cc);
+                    $mailable->cc(array_filter($cc));
                 }
             } catch (\Exception $e) {
                 $error = t('Email template parse error for email “{email}” in “CC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
@@ -386,8 +383,6 @@ class Emails
                 ], category: 'commerce');
                 Log::error($error);
 
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
                 return false;
             }
         }
@@ -395,7 +390,7 @@ class Emails
         if ($email->replyTo) {
             // Reply To:
             try {
-                $newEmail->setReplyTo(Template::renderSandboxedString($email->replyTo, $renderVariables, TemplateMode::Site));
+                $mailable->replyTo(Template::renderSandboxedString($email->replyTo, $renderVariables, TemplateMode::Site));
             } catch (\Exception $e) {
                 $error = t('Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -406,15 +401,13 @@ class Emails
                 ], category: 'commerce');
                 Log::error($error);
 
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
                 return false;
             }
         }
 
         // Subject:
         try {
-            $newEmail->setSubject(Template::renderSandboxedString($email->subject, $renderVariables, TemplateMode::Site));
+            $mailable->subject(Template::renderSandboxedString($email->subject, $renderVariables, TemplateMode::Site));
         } catch (\Exception $e) {
             $error = t('Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -424,8 +417,6 @@ class Emails
                 'line' => $e->getLine(),
             ], category: 'commerce');
             Log::error($error);
-
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             return false;
         }
@@ -443,8 +434,6 @@ class Emails
             ], category: 'commerce');
             Log::error($error);
 
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
             return false;
         }
 
@@ -457,8 +446,6 @@ class Emails
                 'order' => $order->getShortNumber(),
             ], category: 'commerce');
             Log::error($error);
-
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             return false;
         }
@@ -478,8 +465,6 @@ class Emails
                 ], category: 'commerce');
                 Log::error($error);
 
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
                 return false;
             }
 
@@ -492,8 +477,6 @@ class Emails
                     'order' => $order->getShortNumber(),
                 ], category: 'commerce');
                 Log::error($error);
-
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
                 return false;
             }
@@ -509,17 +492,11 @@ class Emails
                 ], category: 'commerce');
                 Log::error($error);
 
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
                 return false;
             }
 
             try {
                 $renderedPdf = app(Pdfs::class)->renderPdfForOrder($order, 'email', null, [], $pdf);
-
-                $tempPath = Assets::tempFilePath('pdf');
-
-                file_put_contents($tempPath, $renderedPdf);
 
                 $fileName = '';
                 $defaultFileName = $pdf->handle . '-' . $order->number;
@@ -535,9 +512,7 @@ class Emails
                     $fileName = $defaultFileName;
                 }
 
-                // Attachment information
-                $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
-                $newEmail->attach($tempPath, $options);
+                $mailable->attachData($renderedPdf, $fileName . '.pdf', ['mime' => 'application/pdf']);
             } catch (\Exception $e) {
                 $error = t('Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -547,8 +522,6 @@ class Emails
                     'line' => $e->getLine(),
                 ], category: 'commerce');
                 Log::error($error);
-
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
                 return false;
             }
@@ -560,7 +533,7 @@ class Emails
         // Render HTML body
         try {
             $body = Template::renderTemplate($templatePath, $renderVariables, TemplateMode::Site);
-            $newEmail->setHtmlBody($body);
+            $mailable->html($body);
         } catch (\Exception $e) {
             $error = t('Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -572,7 +545,6 @@ class Emails
             Log::error($error);
 
             Sites::setCurrentSite($originalSiteId);
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             return false;
         }
@@ -581,7 +553,8 @@ class Emails
         if ($plainTextTemplatePath) {
             try {
                 $plainTextBody = Template::renderTemplate($plainTextTemplatePath, $renderVariables, TemplateMode::Site);
-                $newEmail->setTextBody($plainTextBody);
+                /** @phpstan-ignore argument.type (the mailer renders an Htmlable text view as-is) */
+                $mailable->text(new HtmlString($plainTextBody));
             } catch (\Exception $e) {
                 $error = t('Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -593,7 +566,6 @@ class Emails
                 Log::error($error);
 
                 Sites::setCurrentSite($originalSiteId);
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
                 return false;
             }
@@ -602,7 +574,7 @@ class Emails
         try {
             // Raise 'beforeSendEmail' event
             $event = new MailSending(
-                craftEmail: $newEmail,
+                mailable: $mailable,
                 commerceEmail: $email,
                 order: $order,
                 orderHistory: $orderHistory,
@@ -619,7 +591,6 @@ class Emails
                 Log::info($notice);
 
                 Sites::setCurrentSite($originalSiteId);
-                Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
                 // The blocking of the send will still be logged as an error though for now.
@@ -628,7 +599,7 @@ class Emails
                 return true;
             }
 
-            app('mail.manager')->mailer()->getSymfonyTransport()->send($newEmail->getSymfonyEmail());
+            Mail::mailer(EmailSettings::fromProjectConfig()->resolveForSite($emailSite->id)->mailer)->sendNow($mailable);
         } catch (\Exception $e) {
             $error = t('Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
@@ -641,14 +612,13 @@ class Emails
             Log::error($error);
 
             Sites::setCurrentSite($originalSiteId);
-            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
 
             return false;
         }
 
         // Raise 'afterSendEmail' event
         $afterEvent = new MailSent(
-            craftEmail: $newEmail,
+            mailable: $mailable,
             commerceEmail: $email,
             order: $order,
             orderHistory: $orderHistory,
@@ -657,12 +627,6 @@ class Emails
         event($afterEvent);
 
         Sites::setCurrentSite($originalSiteId);
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage->id);
-
-        // Clear out the temp PDF file if it was created.
-        if (!empty($tempPath)) {
-            unlink($tempPath);
-        }
 
         return true;
     }

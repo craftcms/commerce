@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Support\Expressions;
 
-use craft\helpers\Db;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Grammar;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Tpetry\QueryExpressions\Concerns\IdentifiesDriver;
 use Tpetry\QueryExpressions\Concerns\StringizeExpression;
@@ -48,7 +48,7 @@ class LocalTimestamp implements Expression
     {
         // The fallback if timezone conversion can't happen in SQL is simply to extract the
         // information from the UTC date stored in the column.
-        if (!Db::supportsTimeZones()) {
+        if (!self::supportsTimeZones()) {
             Log::warning('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', ['category' => 'commerce']);
 
             return $column;
@@ -72,5 +72,16 @@ class LocalTimestamp implements Expression
 
         $sign = $offsetMinutes > 0 ? '+' : '-';
         return "datetime({$column}, '{$sign}" . abs($offsetMinutes) . " minutes')";
+    }
+
+    /**
+     * Whether MySQL/MariaDB has its time zone tables populated, which `convert_tz()` needs for
+     * named time zones.
+     */
+    private static function supportsTimeZones(): bool
+    {
+        static $supported = null;
+
+        return $supported ??= (bool)DB::scalar("SELECT CONVERT_TZ('2007-03-11 02:00:00', 'America/Los_Angeles', 'America/New_York')");
     }
 }

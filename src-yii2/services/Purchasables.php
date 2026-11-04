@@ -2,17 +2,20 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\PurchasableAvailableEvent;
+use craft\commerce\events\PurchasableOutOfStockPurchasesAllowedEvent;
+use craft\commerce\events\PurchasableShippableEvent;
 use craft\commerce\Plugin;
-use CraftCms\Commerce\Purchasable\Events\PurchasableAvailableEvent;
-use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesAllowedEvent;
-use CraftCms\Commerce\Purchasable\Events\PurchasableShippableEvent;
-use Illuminate\Support\Facades\Event;
-
-use CraftCms\Commerce\Order\Elements\Order;
 use craft\elements\User;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Purchasable\Contracts\PurchasableInterface;
+use CraftCms\Commerce\Purchasable\Events\PurchasableAvailabilityResolving;
+
+use CraftCms\Commerce\Purchasable\Events\PurchasableOutOfStockPurchasesResolving;
+use CraftCms\Commerce\Purchasable\Events\PurchasableShippabilityResolving;
 use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use CraftCms\Yii2Adapter\Event\TypeRegistryCompatibility;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 use yii\base\Component;
 
@@ -82,24 +85,45 @@ class Purchasables extends Component
 
     public static function registerEvents(): void
     {
-        Event::listen(PurchasableOutOfStockPurchasesAllowedEvent::class, static function(PurchasableOutOfStockPurchasesAllowedEvent $event) {
+        Event::listen(PurchasableOutOfStockPurchasesResolving::class, static function(PurchasableOutOfStockPurchasesResolving $event) {
             $legacy = Plugin::getInstance()->getPurchasables();
             if ($legacy->hasEventHandlers(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED)) {
-                $legacy->trigger(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED, $event);
+                $legacyEvent = new PurchasableOutOfStockPurchasesAllowedEvent([
+                    'purchasable' => $event->purchasable,
+                    'order' => $event->order,
+                    'currentUser' => $event->currentUser,
+                    'outOfStockPurchasesAllowed' => $event->outOfStockPurchasesAllowed,
+                ]);
+                $legacy->trigger(self::EVENT_PURCHASABLE_OUT_OF_STOCK_PURCHASES_ALLOWED, $legacyEvent);
+                $event->outOfStockPurchasesAllowed = $legacyEvent->outOfStockPurchasesAllowed;
             }
         });
 
-        Event::listen(PurchasableAvailableEvent::class, static function(PurchasableAvailableEvent $event) {
+        Event::listen(PurchasableAvailabilityResolving::class, static function(PurchasableAvailabilityResolving $event) {
             $legacy = Plugin::getInstance()->getPurchasables();
             if ($legacy->hasEventHandlers(self::EVENT_PURCHASABLE_AVAILABLE)) {
-                $legacy->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
+                $legacyEvent = new PurchasableAvailableEvent([
+                    'purchasable' => $event->purchasable,
+                    'order' => $event->order,
+                    'currentUser' => $event->currentUser,
+                    'isAvailable' => $event->isAvailable,
+                ]);
+                $legacy->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $legacyEvent);
+                $event->isAvailable = $legacyEvent->isAvailable;
             }
         });
 
-        Event::listen(PurchasableShippableEvent::class, static function(PurchasableShippableEvent $event) {
+        Event::listen(PurchasableShippabilityResolving::class, static function(PurchasableShippabilityResolving $event) {
             $legacy = Plugin::getInstance()->getPurchasables();
             if ($legacy->hasEventHandlers(self::EVENT_PURCHASABLE_SHIPPABLE)) {
-                $legacy->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
+                $legacyEvent = new PurchasableShippableEvent([
+                    'purchasable' => $event->purchasable,
+                    'order' => $event->order,
+                    'currentUser' => $event->currentUser,
+                    'isShippable' => $event->isShippable,
+                ]);
+                $legacy->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $legacyEvent);
+                $event->isShippable = $legacyEvent->isShippable;
             }
         });
     }

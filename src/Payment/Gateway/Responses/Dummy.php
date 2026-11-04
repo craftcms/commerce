@@ -82,11 +82,6 @@ class Dummy implements RequestResponseInterface
     }
 
     #[\Override]
-    public function redirect(): void
-    {
-    }
-
-    #[\Override]
     public function getData(): mixed
     {
         return '';

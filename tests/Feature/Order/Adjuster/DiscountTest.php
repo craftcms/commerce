@@ -27,7 +27,7 @@ function discountLineItem(float $price, int $qty, bool $isPromotable): LineItem
 /**
  * Swaps in a partial mock of the `Discounts` service so `adjust()` only ever sees the
  * given discount as "active" and "matching the order" — real matching against line items
- * (promotability, category/purchasable restrictions) still runs for real.
+ * (promotability, entry/purchasable restrictions) still runs for real.
  */
 function mockActiveDiscount(DiscountModel $discount): void
 {
@@ -43,7 +43,7 @@ function orderLevelDiscount(float $baseDiscount): DiscountModel
     $discount->name = 'Order Level';
     $discount->description = 'Order level discount';
     $discount->allPurchasables = true;
-    $discount->allCategories = true;
+    $discount->allEntries = true;
     $discount->stopProcessing = false;
     $discount->baseDiscount = $baseDiscount;
 

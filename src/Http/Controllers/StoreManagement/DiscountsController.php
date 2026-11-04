@@ -293,7 +293,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         $store = $this->resolveStore($storeHandle);
         $discount = $this->resolveDiscount($id, $store);
         abort_if($id !== null && $discount === null, 404);
-        $discount ??= new Discount(['allPurchasables' => true, 'allCategories' => true, 'storeId' => $store->id]);
+        $discount ??= new Discount(['allPurchasables' => true, 'allEntries' => true, 'storeId' => $store->id]);
 
         $title = $discount->id ? $discount->name : t('Create a Discount', category: 'commerce');
 
@@ -352,7 +352,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discountId = $values['id'] ?? null;
         $discount = $discountId ? $this->resolveDiscount((int) $discountId, $store) : null;
         abort_if($discountId !== null && $discount === null, 404);
-        $discount ??= new Discount(['allPurchasables' => true, 'allCategories' => true, 'storeId' => $store->id]);
+        $discount ??= new Discount(['allPurchasables' => true, 'allEntries' => true, 'storeId' => $store->id]);
 
         $values = array_replace($this->initialValues($discount, $store), $values);
 
@@ -383,10 +383,10 @@ readonly class DiscountsController extends BaseStoreManagementController
         }
 
         $entryIds = [];
-        foreach ($discount->getCategoryIds() as $categoryId) {
-            $element = Elements::getElementById((int) $categoryId, siteId: '*');
+        foreach ($discount->getEntryIds() as $entryId) {
+            $element = Elements::getElementById((int) $entryId, siteId: '*');
             if ($element instanceof Entry) {
-                $entryIds[] = $categoryId;
+                $entryIds[] = $entryId;
             }
         }
 
@@ -399,15 +399,15 @@ readonly class DiscountsController extends BaseStoreManagementController
             'stopProcessing' => $discount->stopProcessing,
 
             // The lightswitches are worded as "only match certain purchasables/related
-            // entries…", the opposite sense of the `allPurchasables`/`allCategories` properties
+            // entries…", the opposite sense of the `allPurchasables`/`allEntries` properties
             // they end up setting — kept as its own path (rather than a Choice bound directly
             // to `allPurchasables`) so nothing here has to reason about a double negative; the
             // inversion happens once, in `store()`/here, not everywhere the value is read.
             'restrictPurchasables' => !$discount->allPurchasables,
             'purchasables' => $purchasablesByType,
-            'restrictRelatedElements' => !$discount->allCategories,
+            'restrictRelatedElements' => !$discount->allEntries,
             'relatedElements' => ['entries' => $entryIds],
-            'categoryRelationshipType' => $discount->categoryRelationshipType,
+            'entryRelationshipType' => $discount->entryRelationshipType,
 
             'requireCouponCode' => $discount->requireCouponCode,
             'couponFormat' => $discount->couponFormat,
@@ -478,24 +478,21 @@ readonly class DiscountsController extends BaseStoreManagementController
                     ->elementType(Entry::class)
                     ->showSiteMenu());
 
-                $matchingItemsFields[] = Group::make('category-relationship-type-advanced', [
-                    Field::make(t('Relationship Type', category: 'commerce'), Choice::make('categoryRelationshipType')
+                $matchingItemsFields[] = Group::make('entry-relationship-type-advanced', [
+                    Field::make(t('Relationship Type', category: 'commerce'), Choice::make('entryRelationshipType')
                         ->presentation(ChoicePresentation::Radios)
                         ->options([
-                            ['label' => t('The purchasable defines the relationship', category: 'commerce'), 'value' => DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE],
-                            ['label' => t('The purchasable is related by another element', category: 'commerce'), 'value' => DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET],
-                            ['label' => t('Either way', category: 'commerce'), 'value' => DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH],
+                            ['label' => t('The purchasable defines the relationship', category: 'commerce'), 'value' => DiscountRecord::ENTRY_RELATIONSHIP_TYPE_SOURCE],
+                            ['label' => t('The purchasable is related by another element', category: 'commerce'), 'value' => DiscountRecord::ENTRY_RELATIONSHIP_TYPE_TARGET],
+                            ['label' => t('Either way', category: 'commerce'), 'value' => DiscountRecord::ENTRY_RELATIONSHIP_TYPE_BOTH],
                         ])),
                 ])
                     ->label(t('Advanced', category: 'commerce'))
                     ->collapsible()
-                    ->expanded($discount->categoryRelationshipType !== DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH);
+                    ->expanded($discount->entryRelationshipType !== DiscountRecord::ENTRY_RELATIONSHIP_TYPE_BOTH);
             }
         } else {
-            // Categories were removed as a discount-matching option in Craft 6 (see the
-            // `allCategories`/`categoryRelationshipType` TODOs on the Discount model itself) —
-            // when there's nothing left for it to restrict, keep it permanently off rather than
-            // showing a toggle with nothing behind it.
+            // With no entries to relate to, keep it off rather than showing a toggle with nothing behind it.
             $matchingItemsFields[] = HiddenField::make('restrictRelatedElements');
         }
 
@@ -703,7 +700,7 @@ readonly class DiscountsController extends BaseStoreManagementController
         $discount->perEmailLimit = (int) $request->input('perEmailLimit');
         $discount->totalDiscountUseLimit = (int) $request->input('totalDiscountUseLimit');
         $discount->ignorePromotions = (bool) $request->input('ignorePromotions');
-        $discount->categoryRelationshipType = $request->input('categoryRelationshipType', $discount->categoryRelationshipType);
+        $discount->entryRelationshipType = $request->input('entryRelationshipType', $discount->entryRelationshipType);
         $discount->appliedTo = $request->input('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = trim((string) $request->input('orderConditionFormula', ''));
 
@@ -755,11 +752,11 @@ readonly class DiscountsController extends BaseStoreManagementController
             $discount->setPurchasableIds(array_unique($purchasables));
         }
 
-        $allCategories = !$request->input('restrictRelatedElements', false);
-        if ($discount->allCategories = $allCategories) {
-            $discount->setCategoryIds([]);
+        $allEntries = !$request->input('restrictRelatedElements', false);
+        if ($discount->allEntries = $allEntries) {
+            $discount->setEntryIds([]);
         } else {
-            $discount->setCategoryIds(array_unique((array) ($request->input('relatedElements')['entries'] ?? [])));
+            $discount->setEntryIds(array_unique((array) ($request->input('relatedElements')['entries'] ?? [])));
         }
 
         if (app(Discounts::class)->saveDiscount($discount)) {

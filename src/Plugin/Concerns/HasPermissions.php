@@ -6,14 +6,27 @@ namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\User\Data\Permission;
 use CraftCms\Commerce\Product\Elements\Product;
+use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
+use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use CraftCms\Commerce\Product\Variant\Policies\VariantPolicy;
+use CraftCms\Commerce\Transfer\Elements\Transfer;
+use CraftCms\Commerce\Transfer\Policies\TransferPolicy;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Override;
 
 use function CraftCms\Cms\t;
 
 trait HasPermissions
 {
+    private function registerPolicies(): void
+    {
+        Gate::policy(Product::class, ProductPolicy::class);
+        Gate::policy(Transfer::class, TransferPolicy::class);
+        Gate::policy(Variant::class, VariantPolicy::class);
+    }
+
     #[Override]
     protected function getPermissions(): array
     {

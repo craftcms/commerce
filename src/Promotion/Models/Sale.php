@@ -25,18 +25,18 @@ class Sale extends BaseModel
 
     public const string APPLY_TO_FLAT = 'toFlat';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const string ENTRY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const string ENTRY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
 
-    public const string CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
+    public const string ENTRY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     #[\Override]
     protected $table = Table::SALES;
 
     #[\Override]
     protected $casts = [
-        'allCategories' => 'boolean',
+        'allEntries' => 'boolean',
         'allGroups' => 'boolean',
         'allPurchasables' => 'boolean',
         'dateFrom' => 'datetime',

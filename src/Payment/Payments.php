@@ -29,11 +29,11 @@ use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use yii\base\ExitException;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -63,9 +63,10 @@ class Payments
      * @param string|null $redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null $transaction the transaction
      * @param array|null $redirectData the additional data the gateway might need to redirect the user to the payment page. This is useful for ajax payment responses.
+     * @param Response|null $redirectResponse the response that sends the customer to the gateway, when the gateway needs a POST redirect
      * @throws PaymentException if the payment was unsuccessful
      */
-    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData = []): void
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData = [], ?Response &$redirectResponse = null): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new PaymentProcessing(order: $order, form: $form);
@@ -123,7 +124,7 @@ class Payments
 
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
-                $this->handleRedirect($response, $redirect, $redirectData);
+                $redirectResponse = $this->handleRedirect($response, $redirect, $redirectData);
                 return;
             }
 
@@ -197,7 +198,7 @@ class Payments
      * @throws \craft\commerce\errors\OrderStatusException
      * @throws \CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException
      */
-    public function completePayment(Transaction $transaction, ?string &$customError): bool
+    public function completePayment(Transaction $transaction, ?string &$customError, ?string &$redirect = null, ?Response &$redirectResponse = null): bool
     {
         // Only transactions with the status of "redirect" can be completed
         if (!in_array($transaction->status, [TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
@@ -264,9 +265,9 @@ class Payments
         $redirectData = [];
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $lock->release();
-            $this->handleRedirect($response, $redirect, $redirectData);
-            \Craft::$app->getResponse()->redirect($redirect);
-            \Craft::$app->end();
+            $redirectResponse = $this->handleRedirect($response, $redirect, $redirectData);
+
+            return $success;
         }
 
         if (!$success) {
@@ -279,48 +280,61 @@ class Payments
     }
 
     /**
-     * Handles a redirect.
+     * Handles a redirect. GET redirects set `$redirect`, and POST redirects return a page that submits
+     * the redirect data to the gateway.
      *
-     * @throws ExitException
+     * @param-out string $redirect
+     * @param-out array $redirectData
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws \Exception
      */
-    private function handleRedirect(RequestResponseInterface $response, ?string &$redirect, ?array &$redirectData): void
+    private function handleRedirect(RequestResponseInterface $response, ?string &$redirect, ?array &$redirectData): ?Response
     {
         // If the gateway tells is it is a GET redirect, let them
+        $redirect = $response->getRedirectUrl();
+        $redirectData = $response->getRedirectData();
+
         if ($response->getRedirectMethod() === 'GET') {
-            $redirect = $response->getRedirectUrl();
-            $redirectData = $response->getRedirectData();
-        } else {
-            $gatewayPostRedirectTemplate = $this->plugin->getSettings()->gatewayPostRedirectTemplate;
-
-            if (!empty($gatewayPostRedirectTemplate)) {
-                $variables = [];
-                $hiddenFields = '';
-
-                // Gather all post hidden data inputs.
-                foreach ($response->getRedirectData() as $key => $value) {
-                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false)) . "\n";
-                }
-
-                $variables['inputs'] = $hiddenFields;
-
-                // Set the action url to the responses redirect url
-                $variables['actionUrl'] = $response->getRedirectUrl();
-
-                $template = Template::renderPageTemplate($gatewayPostRedirectTemplate, $variables, TemplateMode::Site);
-
-                // Send the template back to the user.
-                ob_start();
-                echo $template;
-                \Craft::$app->end();
-            }
-
-            // Let the gateway's response redirect us
-            $response->redirect();
+            return null;
         }
+
+        $hiddenFields = '';
+
+        foreach ($redirectData as $key => $value) {
+            $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities((string)$key, ENT_QUOTES, 'UTF-8', false), htmlentities((string)$value, ENT_QUOTES, 'UTF-8', false)) . "\n";
+        }
+
+        $gatewayPostRedirectTemplate = $this->plugin->getSettings()->gatewayPostRedirectTemplate;
+
+        if (!empty($gatewayPostRedirectTemplate)) {
+            return response(Template::renderPageTemplate($gatewayPostRedirectTemplate, [
+                'inputs' => $hiddenFields,
+                'actionUrl' => $redirect,
+            ], TemplateMode::Site));
+        }
+
+        $actionUrl = htmlentities($redirect, ENT_QUOTES, 'UTF-8', false);
+        $message = htmlentities(t('Redirecting…', category: 'commerce'), ENT_QUOTES, 'UTF-8', false);
+        $continue = htmlentities(t('Continue', category: 'commerce'), ENT_QUOTES, 'UTF-8', false);
+
+        return response(<<<HTML
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>$message</title>
+            </head>
+            <body onload="document.forms[0].submit();">
+                <form action="$actionUrl" method="post">
+                    <p>$message</p>
+                    $hiddenFields
+                    <input type="submit" value="$continue">
+                </form>
+            </body>
+            </html>
+            HTML);
     }
 
     /**

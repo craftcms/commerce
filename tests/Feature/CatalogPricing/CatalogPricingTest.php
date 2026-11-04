@@ -6,6 +6,8 @@ use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule as CatalogPricingRuleData;
+use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
+use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule as CatalogPricingRuleRecord;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Payment\Currencies;
@@ -15,6 +17,7 @@ use CraftCms\Commerce\Purchasable\Conditions\PurchasableTypeConditionRule;
 use CraftCms\Commerce\Purchasable\Conditions\SkuConditionRule;
 use CraftCms\Commerce\Tests\Support\CatalogPricingFixture;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 /**
  * @param array<string, object> $conditionRules Keyed by condition property name
@@ -314,4 +317,98 @@ test('getPurchasableIds() with a purchasableCondition and isPromotionalPrice exc
 
     expect($purchasableIds)->not->toContain($fixture->radHood->id)
         ->and($purchasableIds)->toContain($fixture->hctWhite->id);
+});
+
+function percentOffRuleAttributes(string $name, int $storeId): array
+{
+    return [
+        'apply' => CatalogPricingRuleRecord::APPLY_BY_PERCENT,
+        'name' => $name,
+        'enabled' => true,
+        'applyAmount' => -0.1,
+        'applyPriceType' => CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE,
+        'isPromotionalPrice' => false,
+        'storeId' => $storeId,
+    ];
+}
+
+function countRulePrices(int $catalogPricingRuleId): int
+{
+    return DB::table(Table::CATALOG_PRICING)->where('catalogPricingRuleId', $catalogPricingRuleId)->count();
+}
+
+function countAllRulePrices(): int
+{
+    return DB::table(Table::CATALOG_PRICING)->whereNotNull('catalogPricingRuleId')->count();
+}
+
+test('generateCatalogPrices with an empty set of rules does nothing', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $storeId = $fixture->hctWhite->getStore()->id;
+
+    createCatalogPricingRule(percentOffRuleAttributes('10% off', $storeId));
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    $totalCount = DB::table(Table::CATALOG_PRICING)->count();
+    $rulePriceCount = countAllRulePrices();
+    expect($rulePriceCount)->toBeGreaterThan(0);
+
+    app(CatalogPricing::class)->generateCatalogPrices(null, []);
+
+    expect(DB::table(Table::CATALOG_PRICING)->count())->toBe($totalCount)
+        ->and(countAllRulePrices())->toBe($rulePriceCount);
+});
+
+test('a job for a deleted rule keeps the prices of other rules', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $storeId = $fixture->hctWhite->getStore()->id;
+
+    $keptRule = createCatalogPricingRule(percentOffRuleAttributes('10% off', $storeId));
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    Queue::fake();
+    CatalogPricingQueueRecord::query()->delete();
+
+    $keptRulePriceCount = countAllRulePrices();
+    expect($keptRulePriceCount)->toBeGreaterThan(0);
+
+    $deletedRule = createCatalogPricingRule(percentOffRuleAttributes('20% off', $storeId));
+    app(CatalogPricingRules::class)->deleteCatalogPricingRuleById($deletedRule->id);
+    expect(CatalogPricingQueueRecord::query()->count())->toBe(1);
+
+    (new CatalogPricingJob())->handle();
+
+    expect(countAllRulePrices())->toBe($keptRulePriceCount)
+        ->and(countRulePrices($keptRule->id))->toBe($keptRulePriceCount)
+        ->and(CatalogPricingQueueRecord::query()->count())->toBe(0);
+});
+
+test('a job for partially deleted rules regenerates the remaining rules', function() {
+    $fixture = CatalogPricingFixture::seed();
+    $storeId = $fixture->hctWhite->getStore()->id;
+
+    $untouchedRule = createCatalogPricingRule(percentOffRuleAttributes('10% off', $storeId));
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    Queue::fake();
+    CatalogPricingQueueRecord::query()->delete();
+
+    $untouchedRulePriceCount = countRulePrices($untouchedRule->id);
+    expect($untouchedRulePriceCount)->toBeGreaterThan(0);
+
+    $remainingRule = createCatalogPricingRule(percentOffRuleAttributes('20% off', $storeId));
+    $deletedRule = createCatalogPricingRule(percentOffRuleAttributes('30% off', $storeId));
+    app(CatalogPricingRules::class)->deleteCatalogPricingRuleById($deletedRule->id);
+
+    $queueRows = CatalogPricingQueueRecord::query()->get();
+    expect($queueRows)->toHaveCount(1)
+        ->and($queueRows[0]->type)->toBe(CatalogPricingQueueRecord::TYPE_RULE)
+        ->and(countRulePrices($remainingRule->id))->toBe(0);
+
+    (new CatalogPricingJob())->handle();
+
+    expect(countRulePrices($remainingRule->id))->toBe($untouchedRulePriceCount)
+        ->and(countRulePrices($untouchedRule->id))->toBe($untouchedRulePriceCount)
+        ->and(countRulePrices($deletedRule->id))->toBe(0)
+        ->and(CatalogPricingQueueRecord::query()->count())->toBe(0);
 });

@@ -2,16 +2,17 @@
 
 namespace craft\commerce\services;
 
+use craft\commerce\events\LineItemEvent;
 use craft\commerce\Plugin;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\LineItemCreated;
 use CraftCms\Commerce\Order\Events\LineItemPopulated;
 use CraftCms\Commerce\Order\Events\LineItemSaved;
 use CraftCms\Commerce\Order\Events\LineItemSaving;
-use Illuminate\Support\Facades\Event;
 
-use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use Illuminate\Support\Facades\Event;
 use yii\base\Component;
 
 /**
@@ -84,28 +85,40 @@ class LineItems extends Component
         Event::listen(LineItemSaving::class, static function(LineItemSaving $event) {
             $legacy = Plugin::getInstance()->getLineItems();
             if ($legacy->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
-                $legacy->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, $event);
+                $legacy->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, new LineItemEvent([
+                    'lineItem' => $event->lineItem,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(LineItemSaved::class, static function(LineItemSaved $event) {
             $legacy = Plugin::getInstance()->getLineItems();
             if ($legacy->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
-                $legacy->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, $event);
+                $legacy->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, new LineItemEvent([
+                    'lineItem' => $event->lineItem,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(LineItemCreated::class, static function(LineItemCreated $event) {
             $legacy = Plugin::getInstance()->getLineItems();
             if ($legacy->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
-                $legacy->trigger(self::EVENT_CREATE_LINE_ITEM, $event);
+                $legacy->trigger(self::EVENT_CREATE_LINE_ITEM, new LineItemEvent([
+                    'lineItem' => $event->lineItem,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
 
         Event::listen(LineItemPopulated::class, static function(LineItemPopulated $event) {
             $legacy = Plugin::getInstance()->getLineItems();
             if ($legacy->hasEventHandlers(self::EVENT_POPULATE_LINE_ITEM)) {
-                $legacy->trigger(self::EVENT_POPULATE_LINE_ITEM, $event);
+                $legacy->trigger(self::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
+                    'lineItem' => $event->lineItem,
+                    'isNew' => $event->isNew,
+                ]));
             }
         });
     }

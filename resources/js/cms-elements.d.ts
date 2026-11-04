@@ -5,7 +5,9 @@
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
  * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
  * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`,
- * `open-ui-modal.ts`.
+ * `AdminTable.vue`, `SearchForm.vue`, `common/table/craftTable.ts` and
+ * `common/table/createCraftColumnHelper.ts` and `open-ui-modal.ts`. The table types are loose: the
+ * TanStack generics behind them aren't worth mirroring by hand.
  */
 declare module '@craftcms/cp' {
   import type {ComputedRef, DefineComponent} from 'vue';
@@ -127,10 +129,57 @@ declare module '@craftcms/cp' {
     inertia?: boolean;
   }>;
 
+  export interface PaginationData {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+    next_page_url: string | null;
+    prev_page_url: string | null;
+    from: number | null;
+    to: number | null;
+  }
+
+  export interface CraftTableInertiaOptions {
+    url: string;
+    pagination?: () => PaginationData;
+    dataProp?: string;
+  }
+
+  export function useCraftTable<TData>(options: {
+    readonly data: TData[];
+    columns: unknown[];
+    getRowId?: (row: TData) => string;
+    inertia?: CraftTableInertiaOptions;
+  }): unknown;
+
+  export interface CraftCellContext<TData, TValue> {
+    getValue(): TValue;
+    row: {original: TData};
+  }
+
+  export interface CraftColumnHelper<TData> {
+    columns(columns: unknown[]): unknown[];
+    accessor<TKey extends keyof TData>(
+      key: TKey,
+      config: {
+        header: string;
+        meta?: {trackSize?: string};
+        cell?: (cell: CraftCellContext<TData, TData[TKey]>) => unknown;
+      }
+    ): unknown;
+  }
+
+  export function createCraftColumnHelper<TData>(): CraftColumnHelper<TData>;
+
   export const AdminTable: DefineComponent<{
-    table: CraftTable<any>;
-    readOnly?: boolean;
+    table: unknown;
+    title?: string;
+    from?: number | null;
+    to?: number | null;
+    total?: number;
     emptyMessage?: string | null;
+    enableAdjustPageSize?: boolean;
   }>;
 
   export const ElementActionMenu: DefineComponent<{
@@ -142,26 +191,9 @@ declare module '@craftcms/cp' {
     html: string | null | undefined;
   }>;
 
-  export interface CraftTable<TData> {
-    readonly __data?: TData;
-  }
-
-  export interface CraftCellContext<TData> {
-    row: {original: TData};
-  }
-
-  export interface CraftColumnHelper<TData> {
-    display(column: {
-      id: string;
-      header?: string;
-      cell: (context: CraftCellContext<TData>) => unknown;
-    }): unknown;
-  }
-
-  export function createCraftColumnHelper<TData>(): CraftColumnHelper<TData>;
-
-  export function useCraftTable<TData>(options: {
-    data: TData[];
-    columns: unknown[];
-  }): CraftTable<TData>;
+  export const SearchForm: DefineComponent<{
+    action: string;
+    modelValue?: string | null;
+    options?: Record<string, unknown>;
+  }>;
 }

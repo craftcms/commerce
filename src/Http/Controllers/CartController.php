@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Address\Elements\Address;
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\RouteToken\RouteTokens;
 use CraftCms\Cms\Support\Facades\Elements;
@@ -115,7 +116,7 @@ class CartController
 
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->input('purchasableId')) {
-            $note = $request->input('note', '');
+            $note = (string)$request->input('note', '');
             $options = $request->input('options', []); // @TODO Restrict `options` to key/value pairs only in Commerce 6.0 #COM-55
             $qty = (int)$request->input('qty', 1);
 
@@ -127,7 +128,7 @@ class CartController
                     $lineItem = app(LineItems::class)->create($this->cart, params: $params);
                 } else {
                     // we are passing everything into params but need to pass purchasableId and options for now until we refactor
-                    $lineItem = app(LineItems::class)->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], params: $params);
+                    $lineItem = app(LineItems::class)->resolveLineItem($this->cart, (int)$params['purchasableId'], $params['options'], params: $params);
                 }
 
                 // New line items already have a qty of one.
@@ -149,7 +150,7 @@ class CartController
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
                 $purchasableId = $request->input("purchasables.$key.id");
-                $note = $request->input("purchasables.$key.note", '');
+                $note = (string)$request->input("purchasables.$key.note", '');
                 $options = $request->input("purchasables.$key.options", []);
                 $qty = (int)$request->input("purchasables.$key.qty", 1);
 
@@ -185,7 +186,7 @@ class CartController
                     if ($clearLineItems) {
                         $lineItem = app(LineItems::class)->create($this->cart, params: $params);
                     } else {
-                        $lineItem = app(LineItems::class)->resolveLineItem($this->cart, $params['purchasableId'], $params['options'], $params);
+                        $lineItem = app(LineItems::class)->resolveLineItem($this->cart, (int)$params['purchasableId'], $params['options'], $params);
                     }
 
                     // New line items already have a qty of one.
@@ -207,7 +208,7 @@ class CartController
                 $lineItem = $this->getCartLineItemById((int)$key);
                 if ($lineItem) {
                     $lineItem->qty = (int)$request->input("lineItems.$key.qty", $lineItem->qty);
-                    $lineItem->note = $request->input("lineItems.$key.note", $lineItem->note);
+                    $lineItem->note = (string)$request->input("lineItems.$key.note", $lineItem->note);
                     $lineItem->setOptions($request->input("lineItems.$key.options", $lineItem->getOptions()));
 
                     $removeLine = $request->input("lineItems.$key.remove", false);
@@ -234,7 +235,7 @@ class CartController
                         session()->put('commerce:anonymousCartWithCredentialedCustomer:' . $this->cart->number, true);
                     }
                 } catch (\Exception $e) {
-                    $this->cart->addError('email', $e->getMessage());
+                    $this->cart->errors()->add('email', $e->getMessage());
                 }
             }
         } else {
@@ -276,7 +277,8 @@ class CartController
         // Set Payment Gateway on cart
         if ($gatewayId = $request->input('gatewayId')) {
             $gatewayId = (int)$gatewayId;
-            if (app(Gateways::class)->getGatewayById($gatewayId)) {
+            $gateway = app(Gateways::class)->getGatewayById($gatewayId);
+            if ($gateway && !$gateway->isArchived) {
                 $this->cart->setGatewayId($gatewayId);
             }
         }
@@ -420,7 +422,7 @@ class CartController
         try {
             $lock->block(10);
         } catch (LockTimeoutException) {
-            $this->cart->addError('isComplete', t('Unable to complete order: another request is already in progress.', category: 'commerce'));
+            $this->cart->errors()->add('isComplete', t('Unable to complete order: another request is already in progress.', category: 'commerce'));
             return $this->returnCart($request);
         }
 
@@ -455,7 +457,9 @@ class CartController
         }
 
         if (!empty($errors)) {
-            $this->cart->addErrors($errors);
+            foreach ($errors as $attribute => $message) {
+                $this->cart->errors()->add($attribute, $message);
+            }
         }
 
         if (empty($errors)) {
@@ -466,7 +470,7 @@ class CartController
             }
 
             if (!$completedSuccess) {
-                $this->cart->addError('isComplete', t('Completing order failed.', category: 'commerce'));
+                $this->cart->errors()->add('isComplete', t('Completing order failed.', category: 'commerce'));
             }
         }
 
@@ -539,6 +543,7 @@ class CartController
         abort_if(!$cart, 404, 'Cart not found');
 
         return pageTemplate('commerce/_cart/email-sent', [
+            ...$this->challengePageVariables(),
             'email' => $cart->getMaskedEmail(),
         ], TemplateMode::Cp);
     }
@@ -781,8 +786,23 @@ class CartController
     private function renderCartEmailChallenge(Order $cart, string $cartNumber): string
     {
         return pageTemplate('commerce/_cart/email-challenge', [
+            ...$this->challengePageVariables(),
             'cart' => $cart,
             'cartNumber' => $cartNumber,
         ], TemplateMode::Cp);
+    }
+
+    /**
+     * The logo, system name and error message the email challenge pages show.
+     *
+     * @return array{logoUrl: ?string, systemName: string, error: mixed}
+     */
+    private function challengePageVariables(): array
+    {
+        return [
+            'logoUrl' => Cms::config()->cpLogoUrl,
+            'systemName' => Cms::systemName(),
+            'error' => session('error'),
+        ];
     }
 }

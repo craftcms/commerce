@@ -8,7 +8,6 @@ use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Number;
@@ -50,10 +49,6 @@ class PurchasableAllowedQtyField extends BaseNativeField
         }
 
         $static = $context->mode !== ControlMode::Editable || $context->ui->mode !== ControlMode::Editable;
-        $status = $this->showStatus() ? $this->statusClass($element, $static) : null;
-        $statusLabel = $status !== null
-            ? ($this->statusLabel($element, $static) ?? ucfirst($status))
-            : null;
 
         return Group::make($this->uid, [
             Field::make(t('Minimum allowed quantity', category: 'commerce'))
@@ -77,15 +72,11 @@ class PurchasableAllowedQtyField extends BaseNativeField
         ])
             ->asField()
             ->label($this->label())
-            ->showStatus($this->showStatus())
-            ->orientation($this->orientation($element, $static))
-            ->translatable(Sites::isMultiSite() && $this->translatable($element, $static), $this->translationDescription($element, $static))
             ->instructions($this->instructionsText($element, $static))
             ->instructionsPosition($this->instructionsPosition)
             ->tip($this->tipText($element, $static))
             ->warning($this->warningText($element, $static))
             ->required(!$static && $this->required)
-            ->status($status, $statusLabel)
             ->layoutUid($this->uid)
             ->width($this->width);
     }

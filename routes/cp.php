@@ -9,6 +9,7 @@ use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesContro
 use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\IndexController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
@@ -40,6 +41,8 @@ use Illuminate\Support\Facades\Route;
 use function CraftCms\Cms\cp_url;
 
 Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
+    Route::get('commerce', IndexController::class);
+
     Route::middleware('can:commerce-manageDonationSettings')
         ->get('commerce/donations', [DonationsController::class, 'edit']);
 
@@ -173,10 +176,6 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
             });
     });
 
-    // PromotionsController extends BaseCpController (not BaseStoreManagementController) — it
-    // only ever needed accessPlugin-commerce, not commerce-manageStoreSettings.
-    Route::get('commerce/promotions', fn() => redirect('commerce/promotions/sales'));
-
     // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init()
     // only ever checked commerce-manageOrders, not accessPlugin-commerce.
     Route::middleware('can:commerce-manageOrders')->group(function () {
@@ -191,6 +190,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     Route::middleware('can:commerce-manageInventoryStockLevels')->group(function () {
         Route::get('commerce/inventory/item/{inventoryItemId}', [InventoryController::class, 'editItem'])->whereNumber('inventoryItemId');
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}/orders', [InventoryController::class, 'unfulfilledOrders']);
+        Route::get('commerce/inventory/levels/{inventoryLocationHandle}/reserved-orders', [InventoryController::class, 'reservedOrders']);
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}', [InventoryController::class, 'index']);
         Route::get('commerce/inventory/levels', [InventoryController::class, 'index']);
         Route::get('commerce/inventory', [InventoryController::class, 'index']);

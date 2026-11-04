@@ -6,6 +6,8 @@ use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Tests\Support\VariantQueryFixture;
 
+use function CraftCms\Cms\renderSandboxedObjectTemplate;
+
 beforeEach(function() {
     $this->fixture = VariantQueryFixture::seed();
 });
@@ -18,6 +20,24 @@ test('ownerType resolves to Product', function() {
 
 test('product is included in extraFields', function() {
     expect((new Variant())->extraFields())->toContain('product');
+});
+
+test('object templates can reference the product without triggering a deprecation', function() {
+    $deprecations = [];
+    set_error_handler(function(int $errno, string $message) use (&$deprecations) {
+        $deprecations[] = $message;
+
+        return true;
+    }, E_DEPRECATED | E_USER_DEPRECATED);
+
+    try {
+        $title = renderSandboxedObjectTemplate('{product.title}', $this->fixture->hoodieVariant);
+    } finally {
+        restore_error_handler();
+    }
+
+    expect($title)->toBe($this->fixture->hoodieVariant->getOwner()->title)
+        ->and($deprecations)->toBeEmpty();
 });
 
 test('getOwner returns the owning product', function() {

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Elements;
 
-use craft\events\ElementCriteriaEvent;
-use CraftCms\Cms\Asset\Actions\CopyReferenceTag;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Cp\Html\ElementHtml;
 use CraftCms\Cms\Database\Table as CraftTable;
+use CraftCms\Cms\Element\Actions\ClientAction;
 use CraftCms\Cms\Element\Actions\Delete;
 use CraftCms\Cms\Element\Actions\Duplicate;
 use CraftCms\Cms\Element\Actions\Restore;
@@ -25,9 +24,6 @@ use CraftCms\Cms\Element\Enums\ElementActionContext;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Element\NestedElementManager;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
-use CraftCms\Cms\Entry\Actions\NewChild;
-use CraftCms\Cms\Entry\Actions\NewSiblingAfter;
-use CraftCms\Cms\Entry\Actions\NewSiblingBefore;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\Http\Controllers\NestedElementsController;
@@ -57,6 +53,7 @@ use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Conditions\ProductCondition;
 use CraftCms\Commerce\Product\Conditions\ProductTypeConditionRule;
+use CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving;
 use CraftCms\Commerce\Product\Jobs\ResaveProductVariantsJob;
 use CraftCms\Commerce\Product\Models\Product as ProductRecord;
 use CraftCms\Commerce\Product\Products;
@@ -119,6 +116,8 @@ class Product extends Element implements HasStoreInterface
      * @event ElementCriteriaEvent The event that is triggered when defining the parent selection criteria.
      *
      * @see parentOptionCriteria()
+     *
+     * @deprecated 6.0.0 Use {@see \CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving} instead.
      */
     public const string EVENT_DEFINE_PARENT_SELECTION_CRITERIA = 'defineParentSelectionCriteria';
 
@@ -426,11 +425,6 @@ class Product extends Element implements HasStoreInterface
 
         $actions = [];
 
-        // Copy Reference Tag
-        $actions[] = ElementActions::createAction([
-            'type' => CopyReferenceTag::class,
-        ], static::class);
-
         // Restore
         $actions[] = ElementActions::createAction([
             'type' => Restore::class,
@@ -480,28 +474,37 @@ class Product extends Element implements HasStoreInterface
                         ];
                     }
 
-                    $newProductUrl = 'commerce/products/' . $productType->handle . '/new';
+                    $newProductUrl = Url::cpUrl(
+                        'commerce/products/' . $productType->handle . '/new',
+                        Sites::isMultiSite() ? ['site' => $site->handle] : [],
+                    );
+                    $type = static::lowerDisplayName();
 
-                    if (Sites::isMultiSite()) {
-                        $newProductUrl .= '?site=' . $site->handle;
-                    }
+                    $actions[] = new ClientAction(
+                        key: 'new-sibling-before',
+                        label: t('Create a new {type} before', ['type' => $type]),
+                        event: 'craft:new-element',
+                        detail: ['url' => $newProductUrl, 'param' => 'before'],
+                        bulk: false,
+                    );
 
-                    $actions[] = ElementActions::createAction([
-                        'type' => NewSiblingBefore::class,
-                        'newSiblingUrl' => $newProductUrl,
-                    ], static::class);
-
-                    $actions[] = ElementActions::createAction([
-                        'type' => NewSiblingAfter::class,
-                        'newSiblingUrl' => $newProductUrl,
-                    ], static::class);
+                    $actions[] = new ClientAction(
+                        key: 'new-sibling-after',
+                        label: t('Create a new {type} after', ['type' => $type]),
+                        event: 'craft:new-element',
+                        detail: ['url' => $newProductUrl, 'param' => 'after'],
+                        bulk: false,
+                    );
 
                     if ($productType->maxLevels != 1) {
-                        $actions[] = ElementActions::createAction([
-                            'type' => NewChild::class,
-                            'maxLevels' => $productType->maxLevels,
-                            'newChildUrl' => $newProductUrl,
-                        ], static::class);
+                        $actions[] = new ClientAction(
+                            key: 'new-child',
+                            label: t('Create a new child {type}', ['type' => $type]),
+                            event: 'craft:new-element',
+                            detail: ['url' => $newProductUrl, 'param' => 'parentId'],
+                            bulk: false,
+                            selectionAttribute: 'acceptsChildren',
+                        );
                     }
                 }
             }
@@ -994,9 +997,10 @@ class Product extends Element implements HasStoreInterface
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
+        $variants = $this->getVariants($includeDisabled);
+        $defaultVariant = $variants->firstWhere('id', $this->defaultVariantId);
 
-        return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
+        return $defaultVariant ?: $variants->first();
     }
 
     /**
@@ -1476,12 +1480,7 @@ class Product extends Element implements HasStoreInterface
         }
 
         // Fire a 'defineParentSelectionCriteria' event
-        $event = new ElementCriteriaEvent(['criteria' => $parentOptionCriteria]);
-        event($event);
-
-        if ($this->hasEventHandlers(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA)) {
-            $this->trigger(self::EVENT_DEFINE_PARENT_SELECTION_CRITERIA, $event);
-        }
+        event($event = new ProductParentSelectionCriteriaResolving($this, $parentOptionCriteria));
 
         return $event->criteria;
     }
@@ -1546,7 +1545,13 @@ class Product extends Element implements HasStoreInterface
             $record->typeId = $this->typeId;
 
             $defaultVariant = $this->getDefaultVariant();
-            $record->defaultVariantId = $defaultVariant->id ?? null;
+            $defaultVariantId = $defaultVariant->id ?? null;
+
+            if ($defaultVariantId && $this->getIsCanonical() && $defaultVariant->getIsDerivative()) {
+                $defaultVariantId = $defaultVariant->getCanonicalId();
+            }
+
+            $record->defaultVariantId = $defaultVariantId;
             $record->defaultSku = $defaultVariant?->getSkuAsText() ?? '';
             $record->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0.0;
@@ -1555,7 +1560,7 @@ class Product extends Element implements HasStoreInterface
             $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // Make sure to update the object
-            $this->defaultVariantId = $defaultVariant->id ?? null;
+            $this->defaultVariantId = $defaultVariantId;
             $this->defaultSku = $defaultVariant?->getSkuAsText();
             $this->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $this->defaultHeight = $defaultVariant->height ?? 0;
@@ -1574,6 +1579,22 @@ class Product extends Element implements HasStoreInterface
             $this->id = $record->id;
 
             $this->setDirtyAttributes($dirtyAttributes);
+
+            if ($this->getIsCanonical()) {
+                // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
+                DB::table(Table::VARIANTS)
+                    ->where('primaryOwnerId', $this->id)
+                    ->where('isDefault', true)
+                    ->when($defaultVariantId, fn($query) => $query->where('id', '!=', $defaultVariantId))
+                    ->update(['isDefault' => false]);
+
+                if ($defaultVariantId) {
+                    DB::table(Table::VARIANTS)
+                        ->where('id', $defaultVariantId)
+                        ->where('isDefault', false)
+                        ->update(['isDefault' => true]);
+                }
+            }
 
             if ($this->getIsCanonical() &&
                 isset($this->typeId) &&

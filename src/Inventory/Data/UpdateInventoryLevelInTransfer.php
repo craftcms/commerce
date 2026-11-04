@@ -15,7 +15,13 @@ class UpdateInventoryLevelInTransfer extends UpdateInventoryLevel
         $rules = parent::getRules();
 
         $incomingTypes = array_map(fn($t) => $t->value, InventoryTransactionType::incoming());
-        $rules['type'] = ['required', Rule::in([...$incomingTypes, 'onHand'])];
+        // Only allow incoming, available, reserved (for order-linked transfer debits) and onHand
+        $rules['type'] = ['required', Rule::in([
+            ...$incomingTypes,
+            InventoryTransactionType::AVAILABLE->value,
+            InventoryTransactionType::RESERVED->value,
+            'onHand',
+        ])];
 
         return $rules;
     }

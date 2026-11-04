@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
-use craft\db\Query;
 use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Shared\Enums\Color;
@@ -247,10 +246,7 @@ class OrderStatusesController extends BaseSettingsController
         $emailIds = $request->input('emails', []) ?: [];
 
         if (!$id) {
-            $orderStatus->sortOrder = new Query()
-                    ->from(DbTable::ORDERSTATUSES)
-                    ->where(['storeId' => $storeId])
-                    ->max('[[sortOrder]]') + 1;
+            $orderStatus->sortOrder = (int)DB::table(DbTable::ORDERSTATUSES)->where('storeId', $storeId)->max('sortOrder') + 1;
         }
 
         if (!app(OrderStatuses::class)->saveOrderStatus($orderStatus, $emailIds)) {
