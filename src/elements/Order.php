@@ -2272,6 +2272,29 @@ class Order extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    public function beforeSave(bool $isNew): bool
+    {
+        // An order can never be un-completed. If this instance is stale (loaded as a cart before another request
+        // completed the order), saving it would overwrite `isCompleted`, `orderStatusId` and `paidStatus`
+        // and wipe the completed state. See: https://github.com/craftcms/commerce/issues/4398
+        if (!$isNew && $this->id && !$this->isCompleted) {
+            $completedInDb = (new Query())
+                ->from([Table::ORDERS])
+                ->where(['id' => $this->id, 'isCompleted' => true])
+                ->exists();
+
+            if ($completedInDb) {
+                Craft::warning("Refusing to save a stale, incomplete copy of order $this->number that is already completed.", __METHOD__);
+                return false;
+            }
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function afterSave(bool $isNew): void
     {
         $lockKey = "order-after-save:$this->number";
@@ -3860,6 +3883,7 @@ class Order extends Element implements HasStoreInterface
     private function _saveAdjustments(): void
     {
         $newAdjustmentIds = [];
+        $isStale = false;
 
         foreach ($this->getAdjustments() as $adjustment) {
             try {
@@ -3868,11 +3892,20 @@ class Order extends Element implements HasStoreInterface
             } catch (OrderAdjustmentNotFoundException) {
                 // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
                 // See: https://github.com/craftcms/commerce/issues/3283
+                $isStale = true;
                 continue;
             }
 
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
+        }
+
+        // If any adjustment was missing, this order instance is stale: another request has replaced the adjustments
+        // since it was loaded. Deleting "everything not in our list" would remove that request's newer adjustments.
+        // See: https://github.com/craftcms/commerce/issues/4398
+        if ($isStale) {
+            Craft::warning("Order $this->number has stale adjustments; skipping adjustment cleanup.", __METHOD__);
+            return;
         }
 
         // Make sure all other adjustments have been cleaned up.

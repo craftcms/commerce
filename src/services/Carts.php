@@ -210,7 +210,11 @@ class Carts extends Component
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
         if (($this->_cart->id && $hasSomethingChangedOnCart) || $forceSave) {
-            Craft::$app->getElements()->saveElement($this->_cart, false);
+            // The cart may have been completed by another request (e.g. a payment webhook) since it was loaded.
+            // Saving a stale cart would force a recalculation over a completed order. See: https://github.com/craftcms/commerce/issues/4398
+            if (!$this->_cart->id || !$this->_isCartCompletedInDb($this->_cart)) {
+                Craft::$app->getElements()->saveElement($this->_cart, false);
+            }
         }
 
         return $this->_cart;
@@ -274,6 +278,14 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      */
+    private function _isCartCompletedInDb(Order $cart): bool
+    {
+        return (new Query())
+            ->from([Table::ORDERS])
+            ->where(['id' => $cart->id, 'isCompleted' => true])
+            ->exists();
+    }
+
     private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();
