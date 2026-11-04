@@ -160,7 +160,7 @@ it('filters products by variant SKU', function() {
             'operator' => '=',
             'value' => 'plain-tee',
         ]],
-    ]]))
+    ], 'viewMode' => 'table']))
         ->assertOk()
         ->assertInertia(fn(AssertableInertia $page) => $page
             ->has('data', 1)
