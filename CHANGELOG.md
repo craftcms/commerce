@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a PHP error that could occur when matching shipping methods with a “Discounted Item Subtotal” condition on a cart or order containing a deleted purchasable. ([#4432](https://github.com/craftcms/commerce/issues/4432))
 - Fixed an error that could occur when updating a cart with an unsupported payment currency.
 - Fixed a bug where the last variant of an enabled product could be deleted.
 - Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
