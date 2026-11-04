@@ -87,7 +87,7 @@
             {% if cart.paymentSourceId or cart.gateway.showPaymentFormSubmitButton() %}
               {{ tag('button', {
                 type: 'submit',
-                class: 'w-full py-3 text-base inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                class: 'mt-6 w-full py-3 text-base inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
                 text: 'Pay now'|t
               }) }}
               <p class="text-center text-xs text-gray-500">{{ 'Your payment details are sent securely to the payment gateway.'|t }}</p>

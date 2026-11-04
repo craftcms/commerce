@@ -35,8 +35,8 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
 
-  <div class="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12">
-    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 lg:col-span-7">
+  <div class="{{ cart ? 'lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12' : 'mx-auto max-w-md' }}">
+    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 {{ cart ? 'lg:col-span-7' }}">
 
       <h1 class="text-xl font-semibold">
         {{- 'Payment'|t -}}
@@ -60,7 +60,7 @@
         <form method="get" class="space-y-4">
           <div>
             <label for="number" class="block text-sm font-medium text-gray-700">
-              {{- 'Cart/Order Number'|t -}}
+              {{- 'Order number'|t -}}
             </label>
             <div>
               {{ input('text', 'number', number, {
@@ -71,7 +71,7 @@
           </div>
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700">
-              {{- 'Email Address'|t -}}
+              {{- 'Email address'|t -}}
             </label>
             <div>
               {{ input('email', 'email', email, {
@@ -223,7 +223,7 @@
                   {% if cart.paymentSourceId or cart.gateway.showPaymentFormSubmitButton() %}
                     {{ tag('button', {
                       type: 'submit',
-                      class: 'w-full py-3 text-base inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                      class: 'mt-6 w-full py-3 text-base inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
                       text: 'Pay now'|t
                     }) }}
                   {% endif %}
@@ -235,15 +235,15 @@
       {% endif %}
     </div>
 
-    <div class="mt-10 lg:col-span-5 lg:mt-0">
-      {% if cart %}
+    {% if cart %}
+      <div class="mt-10 lg:col-span-5 lg:mt-0">
         {{ include('shop/checkout/_includes/order-summary', {
           showShippingAddress: true,
           showShippingMethod: true,
           cart: cart
         }) }}
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
   </div>
 
   {% js %}

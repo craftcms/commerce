@@ -87,7 +87,7 @@
             {% if cart.paymentSourceId or cart.gateway.showPaymentFormSubmitButton() %}
               {{ tag('button', {
                 type: 'submit',
-                class: 'w-full py-3 text-base [[classes.btn.base]] [[classes.btn.mainColor]]',
+                class: 'mt-6 w-full py-3 text-base [[classes.btn.base]] [[classes.btn.mainColor]]',
                 text: 'Pay now'|t
               }) }}
               <p class="text-center text-xs text-gray-500">{{ 'Your payment details are sent securely to the payment gateway.'|t }}</p>
