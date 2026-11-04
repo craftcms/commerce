@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.8 - 2026-11-04
 
 - Fixed a PHP error that could occur when matching shipping methods with a “Discounted Item Subtotal” condition on a cart or order containing a deleted purchasable. ([#4432](https://github.com/craftcms/commerce/issues/4432))
 - Fixed an error that could occur when updating a cart with an unsupported payment currency.
