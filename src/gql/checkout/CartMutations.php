@@ -302,6 +302,11 @@ class CartMutations
 
         $address->setAttributes($values);
 
+        // Craft doesn't require anything beyond a country, so apply the country's own rules for what an address needs
+        if ($missing = self::missingAddressFields($address)) {
+            return ['address' => null, 'addresses' => $user->getAddresses()->all(), 'errors' => $missing];
+        }
+
         // Address-book entries need a label, which customers aren’t asked for at checkout
         if (trim((string)$address->title) === '') {
             $address->title = trim((string)($address->addressLine1 ?: $address->locality ?: $address->getCountryCode()));
@@ -336,6 +341,48 @@ class CartMutations
         }
 
         return ['address' => null, 'addresses' => self::freshAddresses($user), 'errors' => []];
+    }
+
+    /**
+     * Returns an error for each field the address’s country requires that hasn’t been filled in.
+     *
+     * @return array<int, array{field: string, message: string}>
+     */
+    private static function missingAddressFields(Address $address): array
+    {
+        $countryCode = $address->getCountryCode();
+
+        if (!$countryCode) {
+            return [['field' => 'countryCode', 'message' => 'Choose a country.']];
+        }
+
+        $labels = [
+            'givenName' => ['firstName', 'First name'],
+            'familyName' => ['lastName', 'Last name'],
+            'organization' => ['organization', 'Company'],
+            'addressLine1' => ['addressLine1', 'Address'],
+            'addressLine2' => ['addressLine2', 'Apartment, suite, etc.'],
+            'locality' => ['locality', 'City'],
+            'administrativeArea' => ['administrativeArea', 'State / province'],
+            'postalCode' => ['postalCode', 'Postal code'],
+        ];
+
+        try {
+            $required = Craft::$app->getAddresses()->getAddressFormatRepository()->get($countryCode)->getRequiredFields();
+        } catch (Throwable) {
+            return [];
+        }
+
+        $errors = [];
+        foreach ($required as $format) {
+            [$attribute, $label] = $labels[$format] ?? [null, null];
+
+            if ($attribute && trim((string)$address->$attribute) === '') {
+                $errors[] = ['field' => $attribute, 'message' => "$label is required."];
+            }
+        }
+
+        return $errors;
     }
 
     private static function requireUser(?User $user): User

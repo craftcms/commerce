@@ -135,6 +135,45 @@ function removeSaved(id) {
   deleteAddress(id);
 }
 
+// Editing a saved address happens in an inline form below the list
+const editingId = ref(null);
+const editForm = reactive({...blank(), title: ''});
+const savingEdit = ref(false);
+const editErrors = ref([]);
+
+function startEdit(a) {
+  pendingDelete.value = null;
+  editErrors.value = [];
+  editingId.value = a.id;
+  Object.assign(editForm, fromAddress(a), {title: a.title && a.title !== a.addressLine1 ? a.title : ''});
+}
+
+function cancelEdit() {
+  editingId.value = null;
+  editErrors.value = [];
+}
+
+async function saveEdit() {
+  const id = editingId.value;
+  if (!isComplete(editForm)) {
+    editErrors.value = ['Fill in the required address fields.'];
+    return;
+  }
+
+  savingEdit.value = true;
+  const ok = await saveAddress({...editForm}, id);
+  savingEdit.value = false;
+
+  if (!ok) {
+    editErrors.value = Object.values(state.errors).flat();
+    return;
+  }
+
+  editingId.value = null;
+  // The cart holds its own copy of the address, so bring it up to date if this is the one in use
+  if (shippingChoice.value === id) await applySaved('shipping');
+}
+
 const addressLine = (a) => [a.addressLine1, a.locality, a.administrativeArea, a.postalCode, a.countryCode].filter(Boolean).join(', ');
 const selectedMethod = computed(() => cart.value?.shippingMethods.find((m) => m.handle === cart.value.shippingMethodHandle));
 
@@ -330,12 +369,24 @@ async function pay() {
                   <span class="block truncate font-medium"><template v-if="a.title && a.title !== a.addressLine1">{{ a.title }} · </template>{{ a.fullName || [a.firstName, a.lastName].filter(Boolean).join(' ') }}</span>
                   <span class="block truncate text-zinc-500">{{ [a.addressLine1, a.locality, a.administrativeArea, a.postalCode, a.countryCode].filter(Boolean).join(', ') }}</span>
                 </span>
+                <button type="button" class="mr-3 text-xs text-zinc-500 hover:text-brand" :aria-label="`Edit saved address ${a.addressLine1}`" @click.prevent="startEdit(a)">Edit</button>
                 <button type="button" class="text-xs" :class="pendingDelete === a.id ? 'font-medium text-red-600' : 'text-zinc-500 hover:text-red-600'" :aria-label="`Delete saved address ${a.addressLine1}`" @click.prevent="removeSaved(a.id)">{{ pendingDelete === a.id ? 'Confirm delete' : 'Delete' }}</button>
               </label>
               <label class="choice">
                 <input v-model="shippingChoice" type="radio" name="shipping-choice" value="new" class="accent-brand">
                 <span class="font-medium">Use a new address</span>
               </label>
+            </div>
+
+            <div v-if="editingId !== null" role="group" class="mb-3 space-y-3 rounded-lg border border-zinc-300 bg-zinc-50 p-4" aria-label="Edit saved address" @keydown.enter.prevent="saveEdit">
+              <p class="text-sm font-medium">Edit address</p>
+              <input v-model="editForm.title" class="field" placeholder="Label (optional), such as Home or Office" aria-label="Label">
+              <AddressFields v-model="editForm" prefix="edit" :errors="[]"/>
+              <p v-for="e in editErrors" :key="e" class="text-sm text-red-600">{{ e }}</p>
+              <div class="flex gap-2">
+                <button type="button" class="btn-primary !w-auto" :disabled="savingEdit" @click="saveEdit">{{ savingEdit ? 'Saving…' : 'Save address' }}</button>
+                <button type="button" class="btn-secondary" @click="cancelEdit">Cancel</button>
+              </div>
             </div>
 
             <p v-if="!state.countries.length" class="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">This store hasn’t been set up to ship anywhere yet. Add countries in the store’s settings.</p>
