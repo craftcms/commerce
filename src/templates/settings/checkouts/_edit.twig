@@ -1,0 +1,277 @@
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
+{% import "_includes/forms" as forms %}
+
+{% set supportedGateways = gateways|filter(g => g.supported) %}
+{% set unsupportedGateways = gateways|filter(g => not g.supported) %}
+
+{% block content %}
+    {% if not readOnly %}
+        {{ actionInput('commerce/checkouts/save') }}
+        {{ redirectInput('commerce/settings/checkouts') }}
+    {% endif %}
+
+    {% if checkout.id %}
+        {{ hiddenInput('id', checkout.id) }}
+    {% endif %}
+
+    <div id="general">
+    {{ forms.textField({
+        first: true,
+        label: 'Name'|t('commerce'),
+        instructions: 'What this checkout will be called in the control panel.'|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: checkout.name,
+        errors: checkout.getErrors('name'),
+        autofocus: true,
+        required: true,
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Handle'|t('commerce'),
+        instructions: 'How you’ll refer to this checkout in your templates.'|t('commerce'),
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: checkout.handle,
+        errors: checkout.getErrors('handle'),
+        required: true,
+        disabled: readOnly,
+    }) }}
+
+
+    {{ forms.checkboxGroupField({
+        label: 'Stores'|t('commerce'),
+        instructions: 'The stores whose orders this checkout can take payment for.'|t('commerce'),
+        id: 'storeIds',
+        name: 'storeIds',
+        options: stores|map(s => { label: s.name|t('site'), value: s.id }),
+        values: checkout.storeIds,
+        errors: checkout.getErrors('storeIds'),
+        required: true,
+        disabled: readOnly,
+    }) }}
+
+    </div>
+
+    <div id="payments" class="hidden">
+    {% set gatewayInput %}
+        <div id="gatewayIds" class="checkbox-group">
+            {% for gateway in supportedGateways %}
+                <div>
+                    <input type="checkbox" class="checkbox" id="gatewayIds-{{ gateway.id }}" name="gatewayIds[]" value="{{ gateway.id }}"
+                        {%- if gateway.id in checkout.gatewayIds %} checked{% endif %}{% if readOnly %} disabled{% endif %}>
+                    <label for="gatewayIds-{{ gateway.id }}">
+                        {{ gateway.name|t('site') }}
+                        {% if not gateway.frontendEnabled %}
+                            <span class="light">— {{ 'not enabled on the front end'|t('commerce') }}</span>
+                        {% endif %}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+        {% if unsupportedGateways %}
+            <p class="light" style="margin-top: 10px;">
+                {{ 'Not available in the hosted checkout: {gateways}.'|t('commerce', { gateways: unsupportedGateways|map(g => g.name|t('site'))|join(', ') }) }}
+            </p>
+        {% endif %}
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Payment Methods'|t('commerce'),
+        instructions: 'The gateways customers can pay with. Leave all unchecked to allow every supported gateway. A gateway still needs to be enabled for the front end, and match its own order conditions, to show up.'|t('commerce'),
+        id: 'gatewayIds',
+        errors: checkout.getErrors('gatewayIds'),
+    }, gatewayInput) }}
+
+
+    {{ forms.lightswitchField({
+        label: 'Allow Partial Payments'|t('commerce'),
+        instructions: 'Let customers pay a percentage of the total now. Stores that don’t allow partial payments ignore this.'|t('commerce'),
+        id: 'allowPartialPayment',
+        name: 'allowPartialPayment',
+        on: checkout.allowPartialPayment,
+        toggle: 'partial-payment-options',
+        disabled: readOnly,
+    }) }}
+
+    <div id="partial-payment-notice" class="readable" style="display: none;">
+        <div class="pane" style="margin-bottom: 14px; background: var(--yellow-050, #fffbeb); border: 1px solid var(--yellow-300, #fcd34d);">
+            <p style="margin: 0;"><span data-icon="alert" aria-hidden="true"></span> <span id="partial-payment-notice-text"></span></p>
+        </div>
+    </div>
+
+    <div id="partial-payment-options" class="{{ not checkout.allowPartialPayment ? 'hidden' }}">
+        {{ forms.textField({
+            label: 'Partial Payment Percentages'|t('commerce'),
+            instructions: 'The percentages of the total customers can choose to pay up front, separated by commas.'|t('commerce'),
+            id: 'partialPaymentPercentages',
+            name: 'partialPaymentPercentages',
+            class: 'code',
+            placeholder: '25, 50',
+            value: checkout.partialPaymentPercentages|join(', '),
+            errors: checkout.getErrors('partialPaymentPercentages'),
+            size: 20,
+            disabled: readOnly,
+        }) }}
+    </div>
+
+    {{ forms.selectField({
+        label: 'Require Billing Address'|t('commerce'),
+        instructions: 'Overrides the store’s setting for this checkout.'|t('commerce'),
+        id: 'requireBillingAddress',
+        name: 'requireBillingAddress',
+        options: [
+            { label: 'Follow the store'|t('commerce'), value: '' },
+            { label: 'Required'|t('commerce'), value: '1' },
+            { label: 'Not required'|t('commerce'), value: '0' },
+        ],
+        value: checkout.requireBillingAddress is null ? '' : (checkout.requireBillingAddress ? '1' : '0'),
+        disabled: readOnly,
+    }) }}
+
+    </div>
+
+    <div id="appearance" class="hidden">
+
+    {{ forms.colorField({
+        label: 'Accent Color'|t('commerce'),
+        instructions: 'Used for buttons, links and focus rings.'|t('commerce'),
+        id: 'brandColor',
+        name: 'brandColor',
+        value: checkout.brandColor,
+        errors: checkout.getErrors('brandColor'),
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Color Scheme'|t('commerce'),
+        id: 'colorScheme',
+        name: 'colorScheme',
+        options: colorSchemeOptions|map((label, value) => { label: label, value: value }),
+        value: checkout.colorScheme,
+        errors: checkout.getErrors('colorScheme'),
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Corners'|t('commerce'),
+        id: 'cornerStyle',
+        name: 'cornerStyle',
+        options: cornerStyleOptions|map((label, value) => { label: label, value: value }),
+        value: checkout.cornerStyle,
+        errors: checkout.getErrors('cornerStyle'),
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Logo URL'|t('commerce'),
+        instructions: 'An image shown in place of the site name at the top of the checkout. It’s shown up to 32 px tall and 192 px wide, so use an SVG, or a transparent PNG or WebP at least 64 px tall (for example 384 × 64 px) so it stays sharp on high-density screens.'|t('commerce'),
+        placeholder: 'https://example.com/logo.svg',
+        id: 'logoUrl',
+        name: 'logoUrl',
+        class: 'code ltr',
+        value: checkout.logoUrl,
+        errors: checkout.getErrors('logoUrl'),
+        disabled: readOnly,
+    }) }}
+
+    </div>
+
+    <div id="links" class="hidden">
+
+    {{ forms.textField({
+        label: 'Return URL'|t('commerce'),
+        instructions: 'Where customers go after paying. Use {number}, {shortNumber} or {id} to include the order’s, such as {example}. Leave blank to use the order’s own return URL.'|t('commerce', { example: '<code>shop/order?number={number}</code>' }),
+        id: 'returnUrl',
+        name: 'returnUrl',
+        class: 'code ltr',
+        value: checkout.returnUrl,
+        errors: checkout.getErrors('returnUrl'),
+        placeholder: 'shop/order?number={number}',
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Continue Shopping URL'|t('commerce'),
+        instructions: 'Where the “Continue shopping” and logo links go. Leave blank to use the site’s home page.'|t('commerce'),
+        id: 'continueShoppingUrl',
+        name: 'continueShoppingUrl',
+        class: 'code ltr',
+        value: checkout.continueShoppingUrl,
+        errors: checkout.getErrors('continueShoppingUrl'),
+        placeholder: 'shop',
+        disabled: readOnly,
+    }) }}
+
+    </div>
+
+    <div id="requirements" class="hidden">
+
+    {% set orderConditionInput %}
+        {{ checkout.getOrderCondition().getBuilderHtml(readOnly)|raw }}
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Allowed Orders'|t('commerce'),
+        instructions: 'Customers can only pay when their order matches these rules. With none, any order can be paid for.'|t('commerce'),
+        errors: checkout.getErrors('orderCondition'),
+    }, orderConditionInput) }}
+
+    {{ forms.textField({
+        label: 'Message When Not Allowed'|t('commerce'),
+        instructions: 'Shown to customers whose order doesn’t match.'|t('commerce'),
+        id: 'orderConditionMessage',
+        name: 'orderConditionMessage',
+        value: checkout.orderConditionMessage,
+        errors: checkout.getErrors('orderConditionMessage'),
+        placeholder: 'Your order can’t be checked out right now.'|t('commerce'),
+        disabled: readOnly,
+    }) }}
+    </div>
+{% endblock %}
+
+{% js %}
+    (function() {
+        var stores = {{ storePartialPayments|json_encode|raw }};
+        var toggle = document.getElementById('allowPartialPayment');
+        var notice = document.getElementById('partial-payment-notice');
+        var text = document.getElementById('partial-payment-notice-text');
+
+        function selectedStoreIds() {
+            return Array.prototype.slice.call(document.querySelectorAll('#storeIds input[type=checkbox]:checked'))
+                .map(function(el) { return el.value; });
+        }
+
+        function update() {
+            var blocked = selectedStoreIds()
+                .filter(function(id) { return stores[id] && !stores[id].allowed; })
+                .map(function(id) { return stores[id].name; });
+            var on = toggle && toggle.classList.contains('on');
+
+            if (!blocked.length || !on) {
+                notice.style.display = 'none';
+                return;
+            }
+
+            text.textContent = Craft.t('commerce', 'Partial payments aren’t allowed in {stores}, so customers there will only be able to pay in full. Turn on “Allow Partial Payments” in the store’s settings to change that.', {
+                stores: blocked.join(', ')
+            });
+            notice.style.display = '';
+        }
+
+        document.querySelectorAll('#storeIds input[type=checkbox]').forEach(function(el) {
+            el.addEventListener('change', update);
+        });
+        if (toggle) {
+            new MutationObserver(update).observe(toggle, {attributes: true, attributeFilter: ['class', 'aria-checked']});
+        }
+        update();
+    })();
+{% endjs %}

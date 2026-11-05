@@ -1,0 +1,75 @@
+{% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Default?',
+    'Handle',
+    'Name',
+    'No checkouts exist yet.',
+    'Stores',
+    'Yes',
+]) %}
+
+{% set crumbs = [
+  { label: 'Commerce'|t('commerce'), url: url('commerce') },
+] %}
+
+{% if readOnly %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
+{% block actionButton %}
+    {% if not readOnly %}
+        <a href="{{ url('commerce/settings/checkouts/new') }}" class="btn submit add icon">{{ 'New checkout'|t('commerce') }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <p class="light">{{ 'Checkouts control how the hosted checkout looks and behaves. Send customers to one with {example}.'|t('commerce', {
+        example: '<code>{{ craft.commerce.checkout.url({ checkout: \'handle\' }) }}</code>'
+    })|raw }}</p>
+    <div id="checkouts-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for checkout in checkouts %}
+    {% set tableData = tableData|merge([{
+        id: checkout.id,
+        title: checkout.name|t('site'),
+        handle: checkout.handle,
+        status: checkout.enabled ? true : false,
+        url: checkout.getCpEditUrl(),
+        isDefault: checkout.isDefault ? true : false,
+        stores: checkout.stores|map(s => s.name)|join(', '),
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'stores', title: Craft.t('commerce', 'Stores') },
+        {
+            name: 'isDefault',
+            title: Craft.t('commerce', 'Default?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="' + Craft.escapeHtml(Craft.t('commerce', 'Yes')) + '"></span>';
+                }
+            }
+        }
+    ];
+
+    var config = {
+        columns: columns,
+        fullPane: false,
+        container: '#checkouts-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No checkouts exist yet.'),
+        tableData: {{ tableData|json_encode|raw }},
+    };
+
+    {% if not readOnly %}
+    config['deleteAction'] = 'commerce/checkouts/delete';
+    {% endif %}
+
+    new Craft.VueAdminTable(config);
+{% endjs %}

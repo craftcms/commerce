@@ -25,7 +25,9 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
+use craft\commerce\errors\PaymentException;
 use craft\commerce\events\EmailEvent;
+use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
@@ -76,6 +78,8 @@ use craft\commerce\plugin\Variables;
 use craft\commerce\services\Carts;
 use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\CatalogPricingRules;
+use craft\commerce\services\Checkout;
+use craft\commerce\services\Checkouts;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -216,6 +220,8 @@ class Plugin extends BasePlugin
                 'carts' => ['class' => Carts::class],
                 'catalogPricing' => ['class' => CatalogPricing::class],
                 'catalogPricingRules' => ['class' => CatalogPricingRules::class],
+                'checkout' => ['class' => Checkout::class],
+                'checkouts' => ['class' => Checkouts::class],
                 'coupons' => ['class' => Coupons::class],
                 'currencies' => ['class' => Currencies::class],
                 'customers' => ['class' => Customers::class],
@@ -325,6 +331,7 @@ class Plugin extends BasePlugin
         $this->_registerCraftEventListeners();
         $this->_registerProjectConfigEventListeners();
         $this->_registerVariables();
+        $this->_registerCheckoutEnforcement();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
@@ -806,6 +813,11 @@ class Plugin extends BasePlugin
             ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
             ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleDeletedSiteStore']);
 
+        $checkoutsService = $this->getCheckouts();
+        $projectConfigService->onAdd(Checkouts::CONFIG_CHECKOUTS_KEY . '.{uid}', [$checkoutsService, 'handleChangedCheckout'])
+            ->onUpdate(Checkouts::CONFIG_CHECKOUTS_KEY . '.{uid}', [$checkoutsService, 'handleChangedCheckout'])
+            ->onRemove(Checkouts::CONFIG_CHECKOUTS_KEY . '.{uid}', [$checkoutsService, 'handleDeletedCheckout']);
+
         $pdfService = $this->getPdfs();
         $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
             ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
@@ -989,6 +1001,48 @@ class Plugin extends BasePlugin
             /** @var CraftVariable $variable */
             $variable = $event->sender;
             $variable->attachBehavior('commerce', CraftVariableBehavior::class);
+        });
+    }
+
+    /**
+     * Applies a checkout’s rules when a payment is made through it. The checkout page records which checkout a cart is
+     * being paid through in the session, so payments made some other way aren’t affected.
+     */
+    private function _registerCheckoutEnforcement(): void
+    {
+        Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, function(ProcessPaymentEvent $event) {
+            $request = Craft::$app->getRequest();
+
+            if ($request->getIsConsoleRequest() || !$request->getIsSiteRequest()) {
+                return;
+            }
+
+            $order = $event->order;
+            $uid = Craft::$app->getSession()->get('commerce:checkout:' . $order->number);
+            $checkout = $uid ? $this->getCheckouts()->getCheckoutByUid($uid) : null;
+
+            if (!$checkout) {
+                return;
+            }
+
+            if ($reason = $checkout->getBlockedReason($order)) {
+                throw new PaymentException($reason);
+            }
+
+            $gateway = $order->getGateway();
+            if ($gateway && !$checkout->allowsGateway($gateway)) {
+                throw new PaymentException(Craft::t('commerce', 'That payment method isn’t available.'));
+            }
+
+            if ($order->isPaymentAmountPartial()) {
+                $balance = $order->getOutstandingBalance();
+                $allowed = $checkout->allowsPartialPayment($order->getStore()) && collect($checkout->partialPaymentPercentages)
+                    ->contains(fn(int $percentage) => abs(round($balance * $percentage / 100, 2) - $order->getPaymentAmount()) < 0.01);
+
+                if (!$allowed) {
+                    throw new PaymentException(Craft::t('commerce', 'That payment amount isn’t available.'));
+                }
+            }
         });
     }
 

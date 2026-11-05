@@ -12,6 +12,7 @@ use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\services\Checkouts;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\LineItemStatuses;
@@ -66,6 +67,7 @@ class ProjectConfigData
 
         $output[self::_getProjectConfigKey(Emails::CONFIG_EMAILS_KEY)] = self::_getEmailData();
         $output[self::_getProjectConfigKey(Pdfs::CONFIG_PDFS_KEY)] = self::_getPdfData();
+        $output[self::_getProjectConfigKey(Checkouts::CONFIG_CHECKOUTS_KEY)] = self::_getCheckoutData();
         $output[self::_getProjectConfigKey(Gateways::CONFIG_GATEWAY_KEY)] = self::_rebuildGatewayProjectConfig();
         $output[self::_getProjectConfigKey(Stores::CONFIG_STORES_KEY)] = self::_getStoresData();
         $output[self::_getProjectConfigKey(Stores::CONFIG_SITESTORES_KEY)] = self::_getSiteStoresData();
@@ -165,6 +167,19 @@ class ProjectConfigData
                 $data[$email->uid] = $email->getConfig();
             }
         });
+        return $data;
+    }
+
+    /**
+     * Return checkout data config array.
+     */
+    private static function _getCheckoutData(): array
+    {
+        $data = [];
+        foreach (Plugin::getInstance()->getCheckouts()->getAllCheckouts() as $checkout) {
+            $data[$checkout->uid] = $checkout->getConfig();
+        }
+
         return $data;
     }
 

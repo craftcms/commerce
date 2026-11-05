@@ -1,0 +1,36 @@
+{% import "_includes/forms" as forms %}
+
+<div class="meta">
+    {{ forms.lightswitchField({
+        label: 'Enabled'|t('commerce'),
+        instructions: 'Customers can only be sent to enabled checkouts.'|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        on: checkout.enabled,
+        errors: checkout.getErrors('enabled'),
+        disabled: readOnly,
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Default'|t('commerce'),
+        instructions: 'Used when a link to the checkout doesn’t name one.'|t('commerce'),
+        id: 'isDefault',
+        name: 'isDefault',
+        on: checkout.isDefault,
+        errors: checkout.getErrors('isDefault'),
+        disabled: readOnly,
+    }) }}
+</div>
+
+{% if checkout.id %}
+    <div class="meta read-only">
+        <div class="data">
+            <h5 class="heading">{{ 'Created at'|t('app') }}</h5>
+            <div id="date-created-value" class="value">{{ checkout.dateCreated ? checkout.dateCreated|datetime('short') : '—' }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ 'Updated at'|t('app') }}</h5>
+            <div id="date-updated-value" class="value">{{ checkout.dateUpdated ? checkout.dateUpdated|datetime('short') : '—' }}</div>
+        </div>
+    </div>
+{% endif %}

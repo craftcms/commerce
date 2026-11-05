@@ -14,6 +14,9 @@
 - Added the `save_<productType>_ProductDraft`, `createProductDraft`, and `publishProductDraft` GraphQL mutations, which work like their entry counterparts.
 - Products’ GraphQL data now includes `drafts`, `draftCreator`, `revisions`, `revisionCreator`, `currentRevision`, and other draft and revision fields, when drafts or revisions can be queried.
 - Added the `save_Order` and `deleteOrder` GraphQL mutations, enabled via new per-store “Edit orders” schema components. Orders’ line items, addresses, customers, and custom fields can be set, and orders can be marked as complete.
+- Added a hosted checkout: a single-page checkout built with Vue and Tailwind that talks to a cart-scoped GraphQL API, for guests and signed-in customers. Send customers to it with `{{ craft.commerce.checkout.url() }}`. It supports the Dummy, Manual, and Stripe (Payment Intents) gateways.
+- Added “Checkouts” settings (Commerce → Settings → Checkouts), stored in project config, for configuring the hosted checkout’s appearance, return and “Continue shopping” URLs (the return URL can include `{number}`, `{shortNumber}`, and `{id}`), allowed stores, allowed gateways, partial payments, billing address requirement, and an order condition that stops payment for orders that don’t match.
+- Craft Commerce now creates a default checkout on install, with only the Dummy gateway allowed.
 
 ### Extensibility
 
@@ -62,6 +65,13 @@
 - Added `craft\commerce\gql\types\Store`.
 - Added `craft\commerce\gql\types\TransferDetail`.
 - Added `craft\commerce\helpers\Gql::canQueryOrders()`.
+- Added `craft\commerce\models\Checkout`.
+- Added `craft\commerce\controllers\CheckoutController`.
+- Added `craft\commerce\controllers\CheckoutsController`.
+- Added `craft\commerce\elements\conditions\orders\CheckoutOrderCondition`.
+- Added `craft\commerce\records\Checkout`.
+- Added `craft\commerce\services\Checkout`, which issues cart-scoped checkout tokens and runs the checkout GraphQL API.
+- Added `craft\commerce\services\Checkouts`, and `craft\commerce\Plugin::getCheckout()` and `getCheckouts()`.
 
 ### System
 

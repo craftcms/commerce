@@ -15,6 +15,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\Checkout;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
@@ -23,6 +24,7 @@ use craft\commerce\records\CatalogPricingQueue;
 use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
+use craft\commerce\services\Checkouts;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\Stores;
@@ -53,6 +55,8 @@ class Install extends Migration
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
+        // The checkouts tables reference the stores and gateways tables, so they're created once those exist
+        (new m261105_000000_create_checkouts_tables(['db' => $this->db]))->safeUp();
         $this->insertDefaultData();
 
         return true;
@@ -1369,6 +1373,7 @@ class Install extends Migration
         if (!$installedInProjectConfig && !$configExists) {
             $this->_insertPrimaryStore();
             $this->_defaultGateways();
+            $this->_defaultCheckout();
         } elseif ($installedInProjectConfig) {
 
             // Start fix for a bad commerce project config from the 5.0.0-beta.1
@@ -1395,6 +1400,11 @@ class Install extends Migration
             $gateways = $projectConfig->get(Gateways::CONFIG_GATEWAY_KEY, true);
             if (!$configExists || !$gateways) {
                 $this->_defaultGateways();
+            }
+
+            // Install the default checkout if there aren't any in the config
+            if (!$configExists || !$projectConfig->get(Checkouts::CONFIG_CHECKOUTS_KEY, true)) {
+                $this->_defaultCheckout();
             }
         }
 
@@ -1469,6 +1479,26 @@ class Install extends Migration
     /**
      * Add a payment method.
      */
+    /**
+     * Adds the default checkout: all of the primary store’s customers can use it, and it only accepts the Dummy gateway.
+     */
+    private function _defaultCheckout(): void
+    {
+        $plugin = Plugin::getInstance();
+        $store = $plugin->getStores()->getPrimaryStore();
+        $dummy = $plugin->getGateways()->getGatewayByHandle('dummy');
+
+        $checkout = new Checkout([
+            'name' => 'Default',
+            'handle' => 'default',
+            'isDefault' => true,
+        ]);
+        $checkout->setStoreIds([$store->id]);
+        $checkout->setGatewayIds($dummy ? [$dummy->id] : []);
+
+        $plugin->getCheckouts()->saveCheckout($checkout);
+    }
+
     private function _defaultGateways(): void
     {
         $data = [

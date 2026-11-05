@@ -285,6 +285,11 @@ Outputs cart.
                         >
                           {{- 'Checkout'|t -}}
                         </a>
+                        <a href="{{ craft.commerce.checkout.url({ redirect: '[[folderName]]/customer/order' }) }}"
+                           class="[[classes.btn.base]] [[classes.btn.mainColor]]"
+                        >
+                          {{- 'Express Checkout'|t -}}
+                        </a>
                       {% endif %}
                     </div>
                   </div>

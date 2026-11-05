@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="{{ craft.app.language|slice(0, 2) }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>{{ 'Checkout'|t('commerce') }} · {{ siteName }}</title>
+    <link rel="stylesheet" href="{{ cssUrl }}">
+</head>
+<body>
+    <div id="checkout"></div>
+    <noscript>{{ 'JavaScript is required to complete your purchase.'|t('commerce') }}</noscript>
+    <script id="checkout-config" type="application/json">{{ config|raw }}</script>
+    <script type="module" src="{{ jsUrl }}"></script>
+</body>
+</html>
