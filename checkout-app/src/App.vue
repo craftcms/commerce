@@ -44,6 +44,11 @@ onMounted(async () => {
   Object.assign(shipping, fromAddress(cart.value.shippingAddress));
   Object.assign(billing, fromAddress(cart.value.billingAddress));
   billingSame.value = !cart.value.billingAddress || cart.value.billingSameAsShipping;
+  // If the cart's address is one from the address book (it's a copy, so compare contents), show that one as chosen
+  const current = cart.value.shippingAddress;
+  const match = current && state.savedAddresses.find((a) => a.addressLine1 === current.addressLine1 && a.postalCode === current.postalCode && a.countryCode === current.countryCode);
+  if (match) shippingChoice.value = match.id;
+
   if (state.savedAddresses.length && !cart.value.shippingAddress) {
     shippingChoice.value = state.savedAddresses[0].id;
     await applySaved('shipping');
@@ -84,10 +89,24 @@ const collapsed = computed(() => ({
   shipping: stepDone.value.shipping && !editing.shipping,
 }));
 
+// Focus on the summary row's “Change” button doesn't count as working in the step: expanding the step on mouse
+// down would hide the button before the click completes
+function enter(step, event) {
+  if (event.target.closest('.step-row')) return;
+  focus[step] = true;
+}
+
 function leave(step, event) {
-  if (event.currentTarget.contains(event.relatedTarget)) return;
-  focus[step] = false;
-  editing[step] = false;
+  const section = event.currentTarget;
+  if (section.contains(event.relatedTarget)) return;
+
+  // Clicking “Change” hides the button that had focus, which looks like focus leaving before it moves into the
+  // form, so wait a tick and see where focus ended up
+  setTimeout(() => {
+    if (section.contains(document.activeElement)) return;
+    focus[step] = false;
+    editing[step] = false;
+  }, 0);
 }
 
 async function edit(step) {
@@ -99,6 +118,21 @@ async function edit(step) {
 function pickShippingMethod(handle) {
   editing.shipping = false;
   return updateShippingMethod(handle);
+}
+
+// Deleting from the address book can't be undone, so it takes a second click
+const pendingDelete = ref(null);
+let pendingTimer;
+function removeSaved(id) {
+  if (pendingDelete.value !== id) {
+    pendingDelete.value = id;
+    clearTimeout(pendingTimer);
+    pendingTimer = setTimeout(() => (pendingDelete.value = null), 4000);
+    return;
+  }
+  pendingDelete.value = null;
+  if (shippingChoice.value === id) shippingChoice.value = 'new';
+  deleteAddress(id);
 }
 
 const addressLine = (a) => [a.addressLine1, a.locality, a.administrativeArea, a.postalCode, a.countryCode].filter(Boolean).join(', ');
@@ -129,7 +163,9 @@ async function pushAddresses() {
   const ok = await updateAddresses(vars);
   if (ok && vars.shippingAddress && !isGuest && saveToBook.value && shippingChoice.value === 'new') {
     const exists = state.savedAddresses.some((a) => a.addressLine1 === shipping.addressLine1 && a.postalCode === shipping.postalCode);
-    if (!exists) await saveAddress({...shipping});
+    if (!exists && !(await saveAddress({...shipping}))) {
+      state.banner = 'We couldn’t save this address to your address book.';
+    }
   }
 }
 
@@ -138,7 +174,9 @@ async function applySaved(kind) {
   if (id === 'new') return;
   const vars = kind === 'shipping' ? {shippingAddressId: id} : {billingAddressId: id};
   if (kind === 'shipping') vars.billingSameAsShipping = billingSame.value;
-  await updateAddresses(vars);
+  const ok = await updateAddresses(vars);
+  // Picking a saved address is the whole step, like picking a shipping method
+  if (ok && kind === 'shipping') editing.delivery = false;
 }
 
 watch(billingSame, (same) => {
@@ -264,7 +302,7 @@ async function pay() {
           <input type="hidden" name="gatewayId" :value="cart.gatewayId">
           <input v-if="config.returnUrlHash" type="hidden" name="redirect" :value="config.returnUrlHash">
           <!-- Contact -->
-          <section id="step-contact" aria-labelledby="h-contact" :class="{'step-collapsed': collapsed.contact}" @focusin="focus.contact = true" @focusout="leave('contact', $event)">
+          <section id="step-contact" aria-labelledby="h-contact" :class="{'step-collapsed': collapsed.contact}" @focusin="enter('contact', $event)" @focusout="leave('contact', $event)">
             <StepSummary v-if="collapsed.contact" title="Contact" @change="edit('contact')">{{ cart.email }}</StepSummary>
             <div v-show="!collapsed.contact">
             <div class="mb-3 flex items-baseline justify-between">
@@ -278,7 +316,7 @@ async function pay() {
           </section>
 
           <!-- Delivery -->
-          <section v-if="cart.requiresShipping" id="step-delivery" aria-labelledby="h-delivery" :class="{'step-collapsed': collapsed.delivery}" @focusin="focus.delivery = true" @focusout="leave('delivery', $event)">
+          <section v-if="cart.requiresShipping" id="step-delivery" aria-labelledby="h-delivery" :class="{'step-collapsed': collapsed.delivery}" @focusin="enter('delivery', $event)" @focusout="leave('delivery', $event)">
             <StepSummary v-if="collapsed.delivery" title="Ship to" @change="edit('delivery')">
               {{ cart.shippingAddress.fullName || [cart.shippingAddress.firstName, cart.shippingAddress.lastName].filter(Boolean).join(' ') }}, {{ addressLine(cart.shippingAddress) }}
             </StepSummary>
@@ -289,10 +327,10 @@ async function pay() {
               <label v-for="a in state.savedAddresses" :key="a.id" class="choice">
                 <input v-model="shippingChoice" type="radio" name="shipping-choice" :value="a.id" class="accent-brand" @change="applySaved('shipping')">
                 <span class="min-w-0 flex-1">
-                  <span class="block truncate font-medium">{{ a.fullName || [a.firstName, a.lastName].join(' ') }}</span>
+                  <span class="block truncate font-medium"><template v-if="a.title && a.title !== a.addressLine1">{{ a.title }} · </template>{{ a.fullName || [a.firstName, a.lastName].filter(Boolean).join(' ') }}</span>
                   <span class="block truncate text-zinc-500">{{ [a.addressLine1, a.locality, a.administrativeArea, a.postalCode, a.countryCode].filter(Boolean).join(', ') }}</span>
                 </span>
-                <button type="button" class="text-xs text-zinc-500 hover:text-red-600" :aria-label="`Delete saved address ${a.addressLine1}`" @click.prevent="deleteAddress(a.id)">Delete</button>
+                <button type="button" class="text-xs" :class="pendingDelete === a.id ? 'font-medium text-red-600' : 'text-zinc-500 hover:text-red-600'" :aria-label="`Delete saved address ${a.addressLine1}`" @click.prevent="removeSaved(a.id)">{{ pendingDelete === a.id ? 'Confirm delete' : 'Delete' }}</button>
               </label>
               <label class="choice">
                 <input v-model="shippingChoice" type="radio" name="shipping-choice" value="new" class="accent-brand">

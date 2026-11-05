@@ -52,6 +52,7 @@ class CheckoutSchema
 
         $addressFields = [
             'id' => Type::int(),
+            'title' => ['type' => Type::string(), 'description' => 'The label of an address-book entry, such as “Home”.'],
             'fullName' => Type::string(),
             'firstName' => Type::string(),
             'lastName' => Type::string(),

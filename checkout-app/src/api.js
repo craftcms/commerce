@@ -3,7 +3,7 @@ const config = JSON.parse(document.getElementById('checkout-config').textContent
 export {config};
 
 const MONEY = 'amount formatted';
-const ADDRESS = `id fullName firstName lastName organization addressLine1 addressLine2 addressLine3 locality administrativeArea postalCode countryCode`;
+const ADDRESS = `id title fullName firstName lastName organization addressLine1 addressLine2 addressLine3 locality administrativeArea postalCode countryCode`;
 
 export const CART_FIELDS = `
   number email currency couponCode isCompleted totalQty requiresShipping requireShippingAddress requireBillingAddress storeName

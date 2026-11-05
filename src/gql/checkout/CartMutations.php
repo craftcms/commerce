@@ -302,6 +302,11 @@ class CartMutations
 
         $address->setAttributes($values);
 
+        // Address-book entries need a label, which customers aren’t asked for at checkout
+        if (trim((string)$address->title) === '') {
+            $address->title = trim((string)($address->addressLine1 ?: $address->locality ?: $address->getCountryCode()));
+        }
+
         if (!Craft::$app->getElements()->saveElement($address)) {
             return ['address' => null, 'addresses' => $user->getAddresses()->all(), 'errors' => self::errors($address)];
         }
