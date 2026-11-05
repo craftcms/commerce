@@ -69,6 +69,7 @@
             label: string;
             summary: string | null;
         }>;
+        stock: Array<{text: string; warning: string | null}>;
         originalTotal: string | null;
         newTotal: string | null;
         totals: Array<{
@@ -1720,6 +1721,17 @@
                 </craft-button>
             </li>
         </ul>
+        <section v-if="session.stock.length" class="review-stock">
+            <h3>{{ labels.stock }}</h3>
+            <ul>
+                <li v-for="change in session.stock" :key="change.text">
+                    {{ change.text }}
+                    <span v-if="change.warning" class="review-stock__warning">
+                        ({{ change.warning }})
+                    </span>
+                </li>
+            </ul>
+        </section>
         <dl v-if="session.totals.length" class="review-totals">
             <div
                 v-for="row in session.totals"
@@ -2488,6 +2500,24 @@
         display: grid;
         justify-items: start;
         gap: var(--c-spacing-sm, 0.5rem);
+    }
+
+    .review-stock {
+        margin: 1rem 0 0;
+    }
+
+    .review-stock h3 {
+        margin: 0 0 0.25rem;
+        font-size: 0.875em;
+    }
+
+    .review-stock ul {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+
+    .review-stock__warning {
+        color: var(--c-color-danger-text, #b91c1c);
     }
 
     .review-totals {

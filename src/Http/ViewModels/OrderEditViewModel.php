@@ -54,6 +54,7 @@ use CraftCms\Commerce\Order\OrderFulfillment;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderSnapshots;
 use CraftCms\Commerce\Order\OrderStatuses;
+use CraftCms\Commerce\Order\OrderStockReconciliation;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
@@ -395,6 +396,7 @@ class OrderEditViewModel extends ViewModel
             'originalTotal' => $mine && $this->originalSummary ? $this->currency($this->originalSummary->totalPrice) : null,
             'newTotal' => $mine ? $this->order->totalPriceAsCurrency : null,
             'totals' => $mine ? $this->sessionTotals() : [],
+            'stock' => $mine ? $this->sessionStock() : [],
         ];
     }
 
@@ -442,6 +444,27 @@ class OrderEditViewModel extends ViewModel
         }
 
         return $rows;
+    }
+
+    /**
+     * What the edit does to the order's committed stock.
+     *
+     * @return list<array{text: string, warning: string|null}>
+     */
+    private function sessionStock(): array
+    {
+        if (!$this->original) {
+            return [];
+        }
+
+        return array_map(fn(array $change) => [
+            'text' => $change['quantity'] > 0
+                ? t('Commits {quantity} × {item}', ['quantity' => $change['quantity'], 'item' => $change['description']], category: 'commerce')
+                : t('Releases {quantity} × {item}', ['quantity' => -$change['quantity'], 'item' => $change['description']], category: 'commerce'),
+            'warning' => $change['short'] > 0
+                ? t('{quantity} more than is in stock', ['quantity' => $change['short']], category: 'commerce')
+                : null,
+        ], app(OrderStockReconciliation::class)->changes($this->original, $this->order));
     }
 
     /**

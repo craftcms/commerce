@@ -8,6 +8,7 @@ use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
+use CraftCms\Commerce\Order\OrderStockReconciliation;
 
 use function CraftCms\Cms\t;
 
@@ -173,6 +174,12 @@ final readonly class UpdateLineItem extends OrderOperation
         $changes = $this->changes;
 
         if (isset($changes['qty'])) {
+            $fulfilled = $order->isCompleted ? app(OrderStockReconciliation::class)->fulfilledQuantity($lineItem) : 0;
+
+            if ($changes['qty'] < $fulfilled) {
+                throw new OperationNotApplicableException(t('{item} has {fulfilled} fulfilled, so its quantity can’t go below that.', ['item' => $lineItem->getDescription(), 'fulfilled' => $fulfilled], category: 'commerce'));
+            }
+
             $lineItem->qty = $changes['qty'];
         }
 

@@ -11,8 +11,11 @@ use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Commerce\Order\Activity\OrderEdited;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
+use CraftCms\Commerce\Order\Edit\Exceptions\OrderNotSavedException;
 use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Orders;
+use CraftCms\Commerce\Order\OrderStockReconciliation;
 use CraftCms\Commerce\Payment\PaymentLinks;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -208,15 +211,35 @@ class OrderOperations
             }
 
             $originalTotal = $order->getTotalPriceAsCurrency();
+            $before = $order->isCompleted ? app(Orders::class)->getOrderById($order->id) : null;
+            $before?->getLineItems();
             $summaries = $this->apply($order, $edit->operations);
 
             $order->ruleset->useScenario(ElementRules::SCENARIO_LIVE);
 
-            if (!$order->validate(null, false) || !Elements::saveElement($order, false)) {
+            if (!$order->validate(null, false)) {
+                return false;
+            }
+
+            try {
+                DB::transaction(function() use ($order, $before): void {
+                    if ($before) {
+                        app(OrderStockReconciliation::class)->releaseRemoved($before, $order);
+                    }
+
+                    if (!Elements::saveElement($order, false)) {
+                        throw new OrderNotSavedException();
+                    }
+                });
+            } catch (OrderNotSavedException) {
                 return false;
             }
 
             $newTotal = $order->getTotalPriceAsCurrency();
+
+            if ($before) {
+                $summaries = [...$summaries, ...app(OrderStockReconciliation::class)->reconcile($before, $order)];
+            }
 
             Activities::record(new OrderEdited(
                 subject: $order,

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit\Operations;
 
+use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\OrderStockReconciliation;
 
 use function CraftCms\Cms\t;
 
@@ -53,6 +55,12 @@ final readonly class RemoveLineItem extends OrderOperation
 
     public function apply(Order $order): void
     {
-        $order->removeLineItem($this->lineItem($order, $this->lineItemUid));
+        $lineItem = $this->lineItem($order, $this->lineItemUid);
+
+        if ($order->isCompleted && app(OrderStockReconciliation::class)->fulfilledQuantity($lineItem) > 0) {
+            throw new OperationNotApplicableException(t('{item} has fulfilled stock, so it can’t be removed.', ['item' => $lineItem->getDescription()], category: 'commerce'));
+        }
+
+        $order->removeLineItem($lineItem);
     }
 }
