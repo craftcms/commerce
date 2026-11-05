@@ -304,7 +304,7 @@ readonly class InventoryController
             ], category: 'commerce')),
             Field::make(
                 $isSet ? t('Set to', category: 'commerce') : t('Adjust by', category: 'commerce'),
-                Number::make('quantity')->autofocus(),
+                Number::make('quantity')->autofocus()->selectOnFocus(),
             )->required(),
             Field::make(t('Notes', category: 'commerce'), Textarea::make('note')->rows(3)),
         ]);

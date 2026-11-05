@@ -165,6 +165,8 @@ it('returns the set and adjust quantity modal forms', function(string $updateAct
     expect($response['title'])->toBe($title)
         ->and($response['submitLabel'])->toBe('Update')
         ->and($fields[0]['props']['label'])->toBe($label)
+        // The quantity is focused and selected when the modal opens, so it can be typed over.
+        ->and(json_encode($fields[0]))->toContain('"autofocus":true', '"selectOnFocus":true')
         ->and($response['ui']['values'])->toBe(['quantity' => $quantity, 'note' => ''])
         ->and(collect($response['ui']['nodes'])->firstWhere('uid', 'current-level')['props']['html'])
         ->toContain('currently has 7 Available');
