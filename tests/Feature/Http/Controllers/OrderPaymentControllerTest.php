@@ -200,6 +200,16 @@ it('opens the record payment form defaulting to the outstanding balance', functi
         ->assertJsonPath('ui.values.amount.value', $order->outstandingBalance);
 });
 
+it('says recording a payment or refund does not move money', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    paymentTestRecord($order)->assertOk();
+
+    expect(getJson(paymentTestUrl('record-payment-form', ['orderId' => $order->id]))->assertOk()->getContent())
+        ->toContain('charge the customer');
+    expect(getJson(paymentTestUrl('record-refund-form', ['orderId' => $order->id]))->assertOk()->getContent())
+        ->toContain('refund the customer');
+});
+
 it('records a manual refund up to what the order has been paid', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
     paymentTestRecord($order)->assertOk();

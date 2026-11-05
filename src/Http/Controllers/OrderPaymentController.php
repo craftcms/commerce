@@ -11,6 +11,7 @@ use CraftCms\Cms\Ui\Controls\Checkbox;
 use CraftCms\Cms\Ui\Controls\Money as MoneyControl;
 use CraftCms\Cms\Ui\Controls\Text;
 use CraftCms\Cms\Ui\Controls\Textarea;
+use CraftCms\Cms\Ui\Nodes\Callout;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
@@ -125,6 +126,8 @@ class OrderPaymentController
     {
         $order = $this->recordableOrder($request);
         $ui = Ui::make([
+            Callout::make('external-payment-notice', t('This doesn’t charge the customer. Only record money you’ve already received outside the gateway.'))
+                ->variant('warning'),
             Field::make(t('Amount', category: 'commerce'), MoneyControl::make('amount')->currency($order->currency)->size(12))
                 ->instructions($this->outstandingNote($order))
                 ->required(),
@@ -138,7 +141,7 @@ class OrderPaymentController
                 'reference' => '',
                 'note' => '',
             ])),
-            'title' => t('Record Payment', category: 'commerce'),
+            'title' => t('Record External Payment', category: 'commerce'),
             'submitLabel' => t('Record', category: 'commerce'),
         ]);
     }
@@ -179,6 +182,8 @@ class OrderPaymentController
         abort_unless($maximum > 0, 422, t('There is nothing left to refund.', category: 'commerce'));
 
         $nodes = [
+            Callout::make('external-refund-notice', t('This doesn’t refund the customer. Only record money you’ve already returned outside the gateway.'))
+                ->variant('warning'),
             Field::make(t('Amount', category: 'commerce'), MoneyControl::make('amount')->currency($order->currency)->max($maximum)->size(12))
                 ->instructions(t('Up to {amount} can be refunded.', ['amount' => Currency::formatAsCurrency($maximum, $order->currency)], category: 'commerce'))
                 ->required(),
@@ -200,7 +205,7 @@ class OrderPaymentController
                 'note' => '',
                 'confirmed' => false,
             ])),
-            'title' => t('Record Refund', category: 'commerce'),
+            'title' => t('Record External Refund', category: 'commerce'),
             'submitLabel' => t('Record', category: 'commerce'),
         ]);
     }
