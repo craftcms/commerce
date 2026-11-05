@@ -405,32 +405,6 @@ it('forbids deleting an order without the delete orders permission', function() 
     expect(Order::find()->id($order->id)->exists())->toBeTrue();
 });
 
-it('renders the payment modal with each gateway that supports control panel payments', function() {
-    $order = OrdersFixture::seed()->orders['completed-new'];
-    ordersControllerDummyGateway($order);
-
-    $response = postJson(Url::actionUrl('commerce/orders/get-payment-modal'), [
-        'orderId' => $order->id,
-    ])->assertOk();
-
-    expect($response->json('modalHtml'))->toContain('Dummy');
-    expect($response->json())->toHaveKeys(['headHtml', 'footHtml']);
-});
-
-it('caps a payment amount at the order’s outstanding balance', function() {
-    $order = OrdersFixture::seed()->orders['completed-new'];
-
-    $response = postJson(Url::actionUrl('commerce/orders/payment-amount-data'), [
-        'orderId' => $order->id,
-        'paymentCurrency' => $order->currency,
-        'paymentAmount' => (string)($order->outstandingBalance + 100),
-        'locale' => 'en-US',
-    ])->assertOk();
-
-    expect((float)$response->json('baseCurrencyPaymentAmount'))->toBe((float)$order->outstandingBalance);
-    expect($response->json('message'))->toContain($order->outstandingBalanceAsCurrency);
-});
-
 it('records a capture the gateway declines and reports the failure', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
     ordersControllerDummyGateway($order);
@@ -535,33 +509,6 @@ it('fulfills committed stock on an order', function() {
 
     expect($level->fulfilledQuantity)->toBe(2);
     expect($level->outstandingCommittedQuantity)->toBe(1);
-});
-
-it('takes a payment on a completed order from the control panel', function() {
-    $order = OrdersFixture::seed()->orders['completed-new'];
-    $gateway = ordersControllerDummyGateway($order);
-
-    postJson(Url::cpUrl('actions/commerce/payments/pay'), [
-        'number' => $order->number,
-        'gatewayId' => $gateway->id,
-        'paymentAmount' => (string)$order->outstandingBalance,
-        'paymentCurrency' => $order->currency,
-        'paymentForm' => [
-            $gateway->handle => [
-                'firstName' => 'Tim',
-                'lastName' => 'Cook',
-                'number' => '4242424242424242',
-                'expiry' => '12/' . ((int)date('Y') + 2),
-                'cvv' => '123',
-            ],
-        ],
-    ])->assertOk();
-
-    $purchase = collect(app(Transactions::class)->getAllTransactionsByOrderId($order->id))
-        ->firstWhere('type', TransactionRecord::TYPE_PURCHASE);
-
-    expect($purchase?->status)->toBe(TransactionRecord::STATUS_SUCCESS);
-    expect(Order::find()->id($order->id)->one()->getIsPaid())->toBeTrue();
 });
 
 it('rejects an invalid address type when updating an order address', function() {

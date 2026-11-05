@@ -31,6 +31,8 @@ use CraftCms\Commerce\Http\Controllers\OrderActionsController;
 use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
+use CraftCms\Commerce\Http\Controllers\OrderPaymentController;
+use CraftCms\Commerce\Http\Controllers\OrderPaymentLinksController;
 use CraftCms\Commerce\Http\Controllers\OrderPurchasablesController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Inventory\Inventory;
@@ -53,6 +55,10 @@ use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderSnapshots;
 use CraftCms\Commerce\Order\OrderStatuses;
 use CraftCms\Commerce\Payment\Data\Transaction;
+use CraftCms\Commerce\Payment\Gateway\Gateway;
+use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\ManualTransactions;
+use CraftCms\Commerce\Payment\PaymentLinks;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Shipping\Data\ShippingMethodOption;
 use DateTimeImmutable;
@@ -284,6 +290,19 @@ class OrderEditViewModel extends ViewModel
             'emailForm' => action([OrderActionsController::class, 'emailForm']),
             'sendEmail' => action([OrderActionsController::class, 'sendEmail']),
             'shareCart' => action([OrderActionsController::class, 'shareCart']),
+            'transactionDetails' => action([OrderPaymentController::class, 'transaction']),
+            'refundForm' => action([OrderPaymentController::class, 'refundForm']),
+            'refund' => action([OrdersController::class, 'transactionRefund']),
+            'capture' => action([OrdersController::class, 'transactionCapture']),
+            'recordPaymentForm' => action([OrderPaymentController::class, 'recordPaymentForm']),
+            'recordPayment' => action([OrderPaymentController::class, 'recordPayment']),
+            'recordRefundForm' => action([OrderPaymentController::class, 'recordRefundForm']),
+            'recordRefund' => action([OrderPaymentController::class, 'recordRefund']),
+            'linkForm' => action([OrderPaymentLinksController::class, 'createForm']),
+            'link' => action([OrderPaymentLinksController::class, 'create']),
+            'linkUrl' => action([OrderPaymentLinksController::class, 'url']),
+            'linkEmail' => action([OrderPaymentLinksController::class, 'email']),
+            'terminal' => action([OrderPaymentLinksController::class, 'terminal']),
             'copyAddressToUser' => action([OrdersController::class, 'copyAddressToUser']),
             'start' => action([OrderEditController::class, 'start']),
             'takeOver' => action([OrderEditController::class, 'takeOver']),
@@ -639,7 +658,14 @@ class OrderEditViewModel extends ViewModel
     }
 
     /**
-     * @return array{paid: string, outstanding: string}|null
+     * @return array{
+     *     paid: string,
+     *     outstanding: string,
+     *     canRecordPayment: bool,
+     *     canRecordRefund: bool,
+     *     canCreateLink: bool,
+     *     terminals: list<array{id: int, name: string}>,
+     * }|null
      */
     public function payments(): ?array
     {
@@ -647,9 +673,20 @@ class OrderEditViewModel extends ViewModel
             return null;
         }
 
+        $canCollect = $this->order->hasOutstandingBalance() && $this->userCan('commerce-manageOrders');
+        $gateways = $canCollect ? app(Gateways::class)->getAllGateways()->filter(fn(Gateway $gateway) => !$gateway->isArchived && $gateway->availableForUseWithOrder($this->order) !== false) : collect();
+
         return [
             'paid' => $this->order->totalPaidAsCurrency,
             'outstanding' => $this->order->outstandingBalanceAsCurrency,
+            'canRecordPayment' => $this->userCan('commerce-recordPayments'),
+            'canRecordRefund' => $this->userCan('commerce-recordRefunds') && $this->order->getTotalPaid() > 0,
+            'canCreateLink' => $gateways->contains(fn(Gateway $gateway) => $gateway->supportsCollectPaymentLink()),
+            'terminals' => $gateways
+                ->filter(fn(Gateway $gateway) => $gateway->getVirtualTerminalUrl($this->order) !== null)
+                ->map(fn(Gateway $gateway) => ['id' => (int)$gateway->id, 'name' => (string)$gateway->name])
+                ->values()
+                ->all(),
         ];
     }
 
@@ -808,12 +845,21 @@ class OrderEditViewModel extends ViewModel
      *     reference: string|null,
      *     message: string|null,
      *     note: string,
+     *     canCapture: bool,
+     *     canRefund: bool,
+     *     canRecordRefund: bool,
+     *     openLink: bool,
      * }>
      */
     public function transactions(): array
     {
         $transactions = $this->order->getTransactions();
         $levels = [];
+        $links = app(PaymentLinks::class);
+        $openLinkIds = array_map(fn(Transaction $link) => $link->id, $links->openLinks($this->order));
+        $canCapture = $this->userCan('commerce-capturePayment');
+        $canRefund = $this->userCan('commerce-refundPayment');
+        $canRecordRefund = $this->userCan('commerce-recordRefunds');
 
         foreach ($transactions as $transaction) {
             $levels[$transaction->id] = $transaction->parentId !== null ? ($levels[$transaction->parentId] ?? 0) + 1 : 0;
@@ -826,11 +872,20 @@ class OrderEditViewModel extends ViewModel
             'status' => t(Str::title((string)$transaction->status), category: 'commerce'),
             'amount' => $transaction->getAmountAsCurrency(),
             'paymentAmount' => $transaction->getPaymentAmountAsCurrency(),
-            'gateway' => $transaction->getGateway()->name ?? t('Missing Gateway', category: 'commerce'),
+            'gateway' => $transaction->isManual()
+                ? t('Manual', category: 'commerce')
+                : ($transaction->getGateway()->name ?? t('Missing Gateway', category: 'commerce')),
             'date' => $this->datetime($transaction->dateUpdated),
             'reference' => $transaction->reference,
             'message' => $transaction->message,
             'note' => $transaction->note,
+            'canCapture' => $canCapture && $transaction->canCapture(),
+            'canRefund' => $canRefund && $transaction->canRefund(),
+            'canRecordRefund' => $canRecordRefund
+                && $transaction->status === 'success'
+                && in_array($transaction->type, ['purchase', 'capture'], true)
+                && app(ManualTransactions::class)->maximumRefund($this->order, $transaction) > 0,
+            'openLink' => in_array($transaction->id, $openLinkIds, true),
         ], $transactions));
     }
 
@@ -1014,6 +1069,23 @@ class OrderEditViewModel extends ViewModel
             'downloadPdf' => t('Download PDF', category: 'commerce'),
             'sendEmail' => t('Send Email', category: 'commerce'),
             'shareCart' => t('Share Cart', category: 'commerce'),
+            'recordPayment' => t('Record Payment', category: 'commerce'),
+            'recordRefund' => t('Record Refund', category: 'commerce'),
+            'collectPayment' => t('Collect Payment', category: 'commerce'),
+            'createPaymentLink' => t('Create payment link…', category: 'commerce'),
+            'openTerminal' => t('Open {gateway} virtual terminal', category: 'commerce'),
+            'paymentLinkTitle' => t('Payment Link', category: 'commerce'),
+            'paymentLinkHint' => t('The customer can pay this order with this link. The gateway completes the payment.', category: 'commerce'),
+            'copyLink' => t('Copy link', category: 'commerce'),
+            'emailLink' => t('Email link', category: 'commerce'),
+            'confirmEmailLink' => t('Email this payment link to the customer?', category: 'commerce'),
+            'capture' => t('Capture', category: 'commerce'),
+            'confirmCapture' => t('Capture this transaction?', category: 'commerce'),
+            'refund' => t('Refund', category: 'commerce'),
+            'recordRefundLinked' => t('Record refund…', category: 'commerce'),
+            'transactionDetails' => t('Transaction Details', category: 'commerce'),
+            'gatewayResponse' => t('Gateway Response', category: 'commerce'),
+            'transactionsLocked' => t('Transactions are unavailable while the order is being edited.', category: 'commerce'),
             'linkCopied' => t('Link copied.', category: 'commerce'),
             'copy' => t('Copy', category: 'commerce'),
             'shareCartHint' => t('Anyone with this link can load the cart.', category: 'commerce'),

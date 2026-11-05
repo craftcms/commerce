@@ -8,7 +8,6 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\helpers\AdminTable;
 use craft\helpers\Localization;
-use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Cp\SiteSwitcher;
@@ -38,7 +37,6 @@ use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\Locale;
-use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Helpers\Purchasable;
 use CraftCms\Commerce\Http\ViewModels\OrderEditViewModel;
 use CraftCms\Commerce\Http\ViewModels\OrderIndexViewModel;
@@ -50,6 +48,7 @@ use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
+use CraftCms\Commerce\Order\Edit\OrderEditGuard;
 use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
@@ -67,7 +66,6 @@ use CraftCms\Commerce\Payment\Gateway\Gateway;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
 use CraftCms\Commerce\Payment\Gateway\Types\MissingGateway;
 use CraftCms\Commerce\Payment\Models\Transaction as TransactionRecord;
-use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Payment\Payments;
 use CraftCms\Commerce\Payment\Transactions;
 use CraftCms\Commerce\Pdf\Data\Pdf;
@@ -727,88 +725,11 @@ JS, []);
         return $this->asSuccess(data: compact('counts', 'total'));
     }
 
-    public function paymentModal(Request $request): Response
-    {
-        abort_unless($request->expectsJson(), 400);
-
-        $orderId = $request->input('orderId');
-        $paymentFormData = $request->input('paymentForm');
-
-        $order = app(Orders::class)->getOrderById((int)$orderId);
-        abort_unless($order !== null, 404, 'Order not found');
-        $gateways = app(Gateways::class)->getAllGateways();
-
-        if ($paymentAmount = $request->input('paymentAmount')) {
-            $order->setPaymentAmount($paymentAmount);
-        }
-        if ($paymentCurrency = $request->input('paymentCurrency')) {
-            $order->setPaymentCurrency($paymentCurrency);
-        }
-
-        $formHtml = '';
-        /** @var Gateway $gateway */
-        foreach ($gateways as $key => $gateway) {
-            // If gateway adapter does no support backend cp payments.
-            if ($gateway->availableForUseWithOrder($order) === false || !$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
-                unset($gateways[$key]);
-                continue;
-            }
-
-            // Add the errors and data back to the current form model.
-            if ($gateway->id == $order->gatewayId) {
-                $paymentFormModel = $gateway->getPaymentFormModel();
-
-                if ($paymentFormData) {
-                    // Re-add submitted data to payment form model
-                    if (isset($paymentFormData['attributes'])) {
-                        $paymentFormModel->setAttributes($paymentFormData['attributes']);
-                    }
-
-                    // Re-add errors to payment form model
-                    if (isset($paymentFormData['errors'])) {
-                        $paymentFormModel->addErrors($paymentFormData['errors']);
-                    }
-                }
-            } else {
-                $paymentFormModel = $gateway->getPaymentFormModel();
-            }
-
-            $paymentFormHtml = $gateway->getPaymentFormHtml([
-                'paymentForm' => $paymentFormModel,
-                'order' => $order,
-            ]);
-
-            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
-
-            $paymentFormHtml = template('commerce/_components/gateways/_modalWrapper', [
-                'formHtml' => $paymentFormHtml,
-                'gateway' => $gateway,
-                'paymentForm' => $paymentFormModel,
-                'order' => $order,
-            ], TemplateMode::Cp);
-
-            $formHtml .= $paymentFormHtml;
-        }
-
-        \Craft::$app->getView()->registerAssetBundle(InputmaskAsset::class);
-
-        $modalHtml = template('commerce/orders/_paymentmodal', [
-            'gateways' => $gateways,
-            'order' => $order,
-            'paymentForms' => $formHtml,
-        ], TemplateMode::Cp);
-
-        return $this->asSuccess(data: [
-            'modalHtml' => $modalHtml,
-            'headHtml' => HtmlStack::headHtml(),
-            'footHtml' => HtmlStack::bodyHtml(),
-        ]);
-    }
-
     public function transactionCapture(Request $request): Response
     {
         $id = $request->input('id');
         $transaction = app(Transactions::class)->getTransactionById((int)$id);
+        $this->abortIfEditing($transaction?->getOrder());
 
         if ($transaction->canCapture()) {
             // capture transaction and display result
@@ -836,6 +757,8 @@ JS, []);
         if (!$transaction) {
             return $this->asFailure(t('Can not find the transaction to refund', category: 'commerce'));
         }
+
+        $this->abortIfEditing($transaction->getOrder());
 
         $amount = $request->input('amount');
         $amount = Money::toMoney(array_merge($amount, ['currency' => $transaction->paymentCurrency]));
@@ -874,45 +797,14 @@ JS, []);
         return $this->asFailure(t('Couldn’t refund transaction.', category: 'commerce'));
     }
 
-    public function paymentAmountData(Request $request): Response
+    private function abortIfEditing(?Order $order): void
     {
-        abort_unless($request->expectsJson(), 400);
-
-        $paymentCurrencies = app(PaymentCurrencies::class);
-        $paymentCurrency = $request->input('paymentCurrency');
-        $paymentAmount = $request->input('paymentAmount');
-        $locale = $request->input('locale');
-        $orderId = $request->input('orderId');
-        abort_if(!$paymentCurrency || !$paymentAmount || !$locale || !$orderId, 400, 'Missing required param');
-
-        /** @var Order $order */
-        $order = Order::find()->id($orderId)->one();
-        $baseCurrency = $order->currency;
-
-        $paymentAmount = Money::toMoney(['value' => $paymentAmount, 'currency' => $baseCurrency, 'locale' => $locale]);
-        $paymentAmount = Money::toDecimal($paymentAmount);
-
-        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency((float)$paymentAmount, $paymentCurrency, $baseCurrency);
-        $baseCurrencyPaymentAmountAsCurrency = t('Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency], category: 'commerce');
-
-        $outstandingBalance = $order->outstandingBalance;
-        $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
-
-        $message = '';
-        if (Currency::round($baseCurrencyPaymentAmount) > Currency::round($outstandingBalance)) {
-            $baseCurrencyPaymentAmount = $outstandingBalance;
-            $baseCurrencyPaymentAmountAsCurrency = t('Pay {amount} of {currency} on the order.', ['amount' => $outstandingBalanceAsCurrency, 'currency' => $baseCurrency], category: 'commerce');
-            $message = t('Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency], category: 'commerce');
+        if (!$order) {
+            return;
         }
 
-        return $this->asSuccess($message, data: [
-            'paymentCurrency' => $paymentCurrency,
-            'paymentAmount' => $paymentAmount,
-            'outstandingBalance' => $outstandingBalance,
-            'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
-            'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
-            'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
-        ]);
+        $reason = app(OrderEditGuard::class)->blockReason($order, currentUserElement()?->id);
+        abort_if($reason !== null, 423, (string)$reason);
     }
 
     public function reassignModal(Request $request): CpModalResponse

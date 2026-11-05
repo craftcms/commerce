@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Commerce\Helpers\PaymentForm;
 use CraftCms\Commerce\Http\Controllers\Concerns\HasCartArray;
 use CraftCms\Commerce\Order\Carts;
@@ -47,16 +46,15 @@ readonly class PaymentsController
         $plugin = $this->plugin;
         $currentUser = currentUserElement();
         $isSiteRequest = !$request->isCpRequest();
-        $isCpRequest = $request->isCpRequest();
 
         $number = $request->input('number');
 
-        $useMutex = $number || (!$isCpRequest && app(Carts::class)->getHasSessionCartNumber());
+        $useMutex = $number || (!$request->isCpRequest() && app(Carts::class)->getHasSessionCartNumber());
 
         $mutex = null;
 
         if ($useMutex) {
-            $lockOrderNumber = $number ?: (!$isCpRequest ? $request->cookie(app(Carts::class)->cartCookie['name']) : null);
+            $lockOrderNumber = $number ?: (!$request->isCpRequest() ? $request->cookie(app(Carts::class)->cartCookie['name']) : null);
 
             if ($lockOrderNumber) {
                 $mutex = Cache::lock("order:$lockOrderNumber", 5);
@@ -98,8 +96,7 @@ readonly class PaymentsController
          * it requires the user have the correct permission.
          */
         $isSiteRequestAndAllowed = $isSiteRequest && $order->getEmail() == $request->input('email');
-        $isCpAndAllowed = $isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders');
-        $checkPaymentCanBeMade = $number && ($isSiteRequestAndAllowed || $isCpAndAllowed);
+        $checkPaymentCanBeMade = $number && $isSiteRequestAndAllowed;
 
         if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
             return $this->asFailure(t('Email required to make payments on a completed order.', category: 'commerce'));
@@ -207,7 +204,7 @@ readonly class PaymentsController
         $gateway = $order->getGateway();
 
         /** @phpstan-ignore-next-line method.notFound (getIsFrontendEnabled() is declared on CraftCms\Commerce\Payment\Gateway\Gateway, reached here via the legacy craft\commerce\base\Gateway class_alias chain, which PHPStan can't trace) */
-        if (!$gateway || $gateway->isArchived || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpAndAllowed)) {
+        if (!$gateway || $gateway->isArchived || !$gateway->availableForUseWithOrder($order) || !$gateway->getIsFrontendEnabled()) {
             $error = t('There is no gateway or payment source available for use with this order.', category: 'commerce');
 
             if ($order->gatewayId) {
@@ -384,23 +381,10 @@ readonly class PaymentsController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $partialAllowed = ($isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $isCpAndAllowed;
+        $partialAllowed = $isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout();
 
-        if ($partialAllowed) {
-            if ($isCpAndAllowed) {
-                // Payment amount in the CP accepts number based in the user's formatting locale
-                $cpPaymentAmount = $request->input('paymentAmount');
-
-                if (is_array($cpPaymentAmount)) {
-                    $cpPaymentAmount = $cpPaymentAmount['value'];
-                }
-                $cpPaymentAmount = (float)I18N::normalizeNumber($cpPaymentAmount);
-
-                $order->setPaymentAmount($cpPaymentAmount);
-            } elseif ($request->input('paymentAmount')) {
-                $paymentAmount = (float)$request->input('paymentAmount');
-                $order->setPaymentAmount($paymentAmount);
-            }
+        if ($partialAllowed && $request->input('paymentAmount')) {
+            $order->setPaymentAmount((float)$request->input('paymentAmount'));
         }
 
         if ((!$partialAllowed || !$gateway->supportsPartialPayment()) && $order->isPaymentAmountPartial()) {

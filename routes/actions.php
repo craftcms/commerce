@@ -10,6 +10,8 @@ use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
 use CraftCms\Commerce\Http\Controllers\OrderPurchasablesController;
 use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
+use CraftCms\Commerce\Http\Controllers\OrderPaymentController;
+use CraftCms\Commerce\Http\Controllers\OrderPaymentLinksController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
@@ -222,8 +224,6 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
     Route::post('orders/send-email', [OrdersController::class, 'sendEmail']);
     Route::get('orders/update-order-address', [OrdersController::class, 'updateOrderAddress']);
     Route::get('orders/get-index-sources-badge-counts', [OrdersController::class, 'indexSourcesBadgeCounts']);
-    Route::match(['get', 'post'], 'orders/get-payment-modal', [OrdersController::class, 'paymentModal']);
-    Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
 
     Route::get('orders/snapshot', [OrderEditController::class, 'snapshot']);
     Route::get('orders/actions/email-form', [OrderActionsController::class, 'emailForm']);
@@ -260,8 +260,24 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
 
     Route::middleware('can:commerce-capturePayment')
         ->post('orders/transaction-capture', [OrdersController::class, 'transactionCapture']);
-    Route::middleware('can:commerce-refundPayment')
-        ->post('orders/transaction-refund', [OrdersController::class, 'transactionRefund']);
+    Route::middleware('can:commerce-refundPayment')->group(function () {
+        Route::get('orders/payment/refund-form', [OrderPaymentController::class, 'refundForm']);
+        Route::post('orders/transaction-refund', [OrdersController::class, 'transactionRefund']);
+    });
+    Route::get('orders/payment/transaction', [OrderPaymentController::class, 'transaction']);
+    Route::middleware('can:commerce-recordPayments')->group(function () {
+        Route::get('orders/payment/record-payment-form', [OrderPaymentController::class, 'recordPaymentForm']);
+        Route::post('orders/payment/record-payment', [OrderPaymentController::class, 'recordPayment']);
+    });
+    Route::get('orders/payment/terminal', [OrderPaymentLinksController::class, 'terminal']);
+    Route::get('orders/payment/link-form', [OrderPaymentLinksController::class, 'createForm']);
+    Route::post('orders/payment/link', [OrderPaymentLinksController::class, 'create']);
+    Route::get('orders/payment/link-url', [OrderPaymentLinksController::class, 'url']);
+    Route::post('orders/payment/link-email', [OrderPaymentLinksController::class, 'email']);
+    Route::middleware('can:commerce-recordRefunds')->group(function () {
+        Route::get('orders/payment/record-refund-form', [OrderPaymentController::class, 'recordRefundForm']);
+        Route::post('orders/payment/record-refund', [OrderPaymentController::class, 'recordRefund']);
+    });
 
     Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function () {
         Route::get('orders/reassign-modal', [OrdersController::class, 'reassignModal']);

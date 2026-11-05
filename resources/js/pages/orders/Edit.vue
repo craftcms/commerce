@@ -100,6 +100,16 @@
         reference: string | null;
         message: string | null;
         note: string;
+        canCapture: boolean;
+        canRefund: boolean;
+        canRecordRefund: boolean;
+        openLink: boolean;
+    }
+
+    interface TransactionDetails {
+        title: string;
+        rows: Array<{label: string; value: string}>;
+        response: string | null;
     }
 
     interface HistoryRow {
@@ -156,7 +166,14 @@
         adjustments: Adjustment[];
         totals: Array<{label: string; amount: string}>;
         totalPrice: string;
-        payments: {paid: string; outstanding: string} | null;
+        payments: {
+            paid: string;
+            outstanding: string;
+            canRecordPayment: boolean;
+            canRecordRefund: boolean;
+            canCreateLink: boolean;
+            terminals: Array<{id: number; name: string}>;
+        } | null;
         couponCode: string | null;
         shippingMethodName: string | null;
         shippingMethodHandle: string;
@@ -469,6 +486,237 @@
         },
         {label: props.labels.recalculate, onClick: recalculate},
     ]);
+
+    const transactionDetails = ref<TransactionDetails | null>(null);
+    const transactionsLocked = computed(() => !!props.session);
+    const paymentLinkUrl = ref<string | null>(null);
+
+    function paymentsChanged(): void {
+        activityRefresh.value++;
+        window.Cp.$router.reload();
+    }
+
+    async function showTransactionDetails(
+        transaction: TransactionRow
+    ): Promise<void> {
+        try {
+            const {data} =
+                await window.Craft.sendActionRequest<TransactionDetails>(
+                    'GET',
+                    props.editUrls.transactionDetails,
+                    {params: {id: transaction.id}}
+                );
+            transactionDetails.value = data;
+        } catch (error: any) {
+            showError(error);
+        }
+    }
+
+    function openRefund(transaction: TransactionRow): void {
+        void openUiModal({
+            modalUrl: props.editUrls.refundForm,
+            actionUrl: props.editUrls.refund,
+            params: {id: String(transaction.id)},
+            onSubmitted: paymentsChanged,
+        });
+    }
+
+    async function captureTransaction(
+        transaction: TransactionRow
+    ): Promise<void> {
+        if (
+            window.confirm(props.labels.confirmCapture) &&
+            (await post(props.editUrls.capture, {id: transaction.id}))
+        ) {
+            paymentsChanged();
+        }
+    }
+
+    function recordPayment(): void {
+        void openUiModal({
+            modalUrl: props.editUrls.recordPaymentForm,
+            actionUrl: props.editUrls.recordPayment,
+            params: {orderId: String(props.orderId)},
+            onSubmitted: paymentsChanged,
+        });
+    }
+
+    function recordRefund(transaction?: TransactionRow): void {
+        void openUiModal({
+            modalUrl: props.editUrls.recordRefundForm,
+            actionUrl: props.editUrls.recordRefund,
+            params: {
+                orderId: String(props.orderId),
+                ...(transaction ? {id: String(transaction.id)} : {}),
+            },
+            onSubmitted: paymentsChanged,
+        });
+    }
+
+    function createPaymentLink(): void {
+        void openUiModal({
+            modalUrl: props.editUrls.linkForm,
+            actionUrl: props.editUrls.link,
+            params: {orderId: String(props.orderId)},
+            onSubmitted: (data) => {
+                paymentLinkUrl.value = (data.url as string | undefined) ?? null;
+                paymentsChanged();
+            },
+        });
+    }
+
+    async function showPaymentLink(transaction: TransactionRow): Promise<void> {
+        try {
+            const {data} = await window.Craft.sendActionRequest<{url: string}>(
+                'GET',
+                props.editUrls.linkUrl,
+                {params: {orderId: props.orderId, id: transaction.id}}
+            );
+            paymentLinkUrl.value = data.url;
+        } catch (error: any) {
+            showError(error);
+        }
+    }
+
+    async function copyPaymentLink(): Promise<void> {
+        if (paymentLinkUrl.value) {
+            await navigator.clipboard.writeText(paymentLinkUrl.value);
+            window.Craft.cp?.displayNotice(props.labels.linkCopied);
+        }
+    }
+
+    async function emailPaymentLink(
+        transaction: TransactionRow
+    ): Promise<void> {
+        if (
+            window.confirm(props.labels.confirmEmailLink) &&
+            (await post(props.editUrls.linkEmail, {id: transaction.id}))
+        ) {
+            activityRefresh.value++;
+        }
+    }
+
+    async function openTerminal(gatewayId: number): Promise<void> {
+        try {
+            const {data} = await window.Craft.sendActionRequest<{url: string}>(
+                'GET',
+                props.editUrls.terminal,
+                {params: {orderId: props.orderId, gatewayId}}
+            );
+            window.open(data.url, '_blank', 'noopener');
+            recordPayment();
+        } catch (error: any) {
+            showError(error);
+        }
+    }
+
+    const paymentActions = computed<ActionItem[]>(() => {
+        const payments = props.payments;
+        const blocked = props.immediateActionsBlockedReason;
+        const blockedState = {
+            disabled: !!blocked,
+            disabledReason: blocked ?? undefined,
+        };
+
+        if (!payments) {
+            return [];
+        }
+
+        return [
+            ...(payments.canCreateLink
+                ? [
+                      {
+                          label: props.labels.createPaymentLink,
+                          onClick: createPaymentLink,
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+            ...payments.terminals.map((terminal) => ({
+                label: props.labels.openTerminal.replace(
+                    '{gateway}',
+                    terminal.name
+                ),
+                onClick: () => void openTerminal(terminal.id),
+                ...blockedState,
+            })),
+            ...(payments.canRecordPayment
+                ? [
+                      {
+                          label: props.labels.recordPayment,
+                          onClick: () => recordPayment(),
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+            ...(payments.canRecordRefund
+                ? [
+                      {
+                          label: props.labels.recordRefund,
+                          onClick: () => recordRefund(),
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+        ];
+    });
+
+    function transactionActions(transaction: TransactionRow): ActionItem[] {
+        const blocked = props.immediateActionsBlockedReason;
+        const blockedState = {
+            disabled: !!blocked,
+            disabledReason: blocked ?? undefined,
+        };
+
+        return [
+            {
+                label: props.labels.details,
+                icon: 'circle-info',
+                onClick: () => void showTransactionDetails(transaction),
+            },
+            ...(transaction.openLink
+                ? [
+                      {
+                          label: props.labels.copyLink,
+                          onClick: () => void showPaymentLink(transaction),
+                          ...blockedState,
+                      },
+                      {
+                          label: props.labels.emailLink,
+                          onClick: () => void emailPaymentLink(transaction),
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+            ...(transaction.canCapture
+                ? [
+                      {
+                          label: props.labels.capture,
+                          onClick: () => void captureTransaction(transaction),
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+            ...(transaction.canRefund
+                ? [
+                      {
+                          label: props.labels.refund,
+                          onClick: () => openRefund(transaction),
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+            ...(transaction.canRecordRefund
+                ? [
+                      {
+                          label: props.labels.recordRefundLinked,
+                          onClick: () => recordRefund(transaction),
+                          ...blockedState,
+                      },
+                  ]
+                : []),
+        ];
+    }
 
     function editParams(): Record<string, string> {
         return {
@@ -1025,6 +1273,14 @@
                     header: props.labels.date,
                     cell: ({row}) => row.original.date,
                 }),
+                transactionColumns.display({
+                    id: 'actions',
+                    cell: ({row}) =>
+                        h(ActionMenu, {
+                            actions: transactionActions(row.original),
+                            label: props.labels.actions,
+                        }),
+                }),
             ];
         },
     });
@@ -1123,10 +1379,22 @@
             session?.mine ||
             canChangeStatus ||
             canComplete ||
+            paymentActions.length ||
             !isCompleted
         "
         name="additional-buttons"
     >
+        <ActionMenu
+            v-if="paymentActions.length"
+            :label="labels.collectPayment"
+            :actions="paymentActions"
+        >
+            <template #invoker="{label}">
+                <craft-button slot="invoker" type="button">
+                    {{ label }}
+                </craft-button>
+            </template>
+        </ActionMenu>
         <craft-button
             v-if="canComplete"
             type="button"
@@ -1160,6 +1428,15 @@
                 :key="tab.id"
                 slot="tab"
                 :controls="`order-tab-${tab.id}`"
+                :disabled="
+                    (tab.id === 'transactions' && transactionsLocked) ||
+                    undefined
+                "
+                :title="
+                    tab.id === 'transactions' && transactionsLocked
+                        ? labels.transactionsLocked
+                        : undefined
+                "
             >
                 {{ tab.label }}
             </craft-tab>
@@ -1488,6 +1765,50 @@
                 {{ labels.copy }}
             </craft-button>
         </div>
+    </craft-dialog>
+
+    <craft-dialog
+        v-if="paymentLinkUrl"
+        open
+        :label="labels.paymentLinkTitle"
+        @craft-after-hide="paymentLinkUrl = null"
+    >
+        <p>{{ labels.paymentLinkHint }}</p>
+        <div class="flex items-center gap-2">
+            <input
+                class="text"
+                style="flex: 1; min-width: 0"
+                type="text"
+                readonly
+                :value="paymentLinkUrl"
+                @focus="($event.target as HTMLInputElement).select()"
+            />
+            <craft-button type="button" @click="copyPaymentLink">
+                {{ labels.copy }}
+            </craft-button>
+        </div>
+    </craft-dialog>
+
+    <craft-dialog
+        v-if="transactionDetails"
+        open
+        :label="transactionDetails.title"
+        @craft-after-hide="transactionDetails = null"
+    >
+        <dl class="cp-metadata-list">
+            <div
+                v-for="row in transactionDetails.rows"
+                :key="row.label"
+                class="cp-metadata-list__item"
+            >
+                <dt class="font-bold text-xs">{{ row.label }}</dt>
+                <dd>{{ row.value }}</dd>
+            </div>
+        </dl>
+        <template v-if="transactionDetails.response">
+            <h3 class="font-bold">{{ labels.gatewayResponse }}</h3>
+            <pre><code>{{ transactionDetails.response }}</code></pre>
+        </template>
     </craft-dialog>
 
     <MetadataDetails :html="metadataHtml">

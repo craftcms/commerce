@@ -13,6 +13,7 @@ use CraftCms\Commerce\Order\Activity\OrderEdited;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\PaymentLinks;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -222,6 +223,10 @@ class OrderOperations
                 summaries: $summaries,
                 changes: $originalTotal === $newTotal ? [] : [new ActivityChange(t('Total Price', category: 'commerce'), $originalTotal, $newTotal)],
             ));
+
+            if ($originalTotal !== $newTotal) {
+                DB::afterCommit(fn() => app(PaymentLinks::class)->expireOpenLinks($order));
+            }
 
             return true;
         });

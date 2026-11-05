@@ -20,11 +20,14 @@ use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\Ui\UiHtmlRenderer;
 use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
+use CraftCms\Commerce\Exceptions\NotImplementedException;
 use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Data\CollectPaymentLink;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use DateTime;
+use DateTimeInterface;
 use Override;
 
 use function CraftCms\Cms\t;
@@ -96,14 +99,6 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
         }
 
         return $url;
-    }
-
-    /**
-     * Returns whether this gateway allows payments in control panel.
-     */
-    public function cpPaymentsEnabled(): bool
-    {
-        return true;
     }
 
     public function getCpEditUrl(): string
@@ -193,6 +188,26 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
     public function supportsPartialPayment(): bool
     {
         return true;
+    }
+
+    public function supportsCollectPaymentLink(): bool
+    {
+        return false;
+    }
+
+    public function createCollectPaymentLink(Transaction $transaction, Order $order, DateTimeInterface $expiresAt): CollectPaymentLink
+    {
+        throw new NotImplementedException('Collecting payment through a link is not supported by this gateway.');
+    }
+
+    public function expireCollectPaymentLink(Transaction $transaction): bool
+    {
+        return false;
+    }
+
+    public function getVirtualTerminalUrl(Order $order): ?string
+    {
+        return null;
     }
 
     /**
