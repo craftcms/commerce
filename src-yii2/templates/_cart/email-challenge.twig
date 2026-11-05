@@ -1,5 +1,4 @@
 {% extends '_layouts/basecp.twig' %}
-{% import '_includes/forms.twig' as forms %}
 {% set title = "Recover Cart"|t('commerce') %}
 {% set bodyClass = 'login' %}
 
@@ -36,10 +35,10 @@
             {{ actionInput('commerce/cart/cart-challenge') }}
             {{ hiddenInput('cartNumberHash', cartNumber|hash) }}
 
-            {{ forms.submitButton({
-                class: ['fullwidth', 'last'],
-                label: 'Send'|t('app'),
-                spinner: true,
+            {{ tag('button', {
+                type: 'submit',
+                class: ['btn', 'submit', 'fullwidth', 'last'],
+                text: 'Send'|t('app'),
             }) }}
             {% endtag %}
 

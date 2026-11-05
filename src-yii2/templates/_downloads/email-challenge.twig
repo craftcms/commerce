@@ -1,5 +1,4 @@
 {% extends '_layouts/basecp.twig' %}
-{% import '_includes/forms.twig' as forms %}
 {% set title = "Download PDF"|t('commerce') %}
 {% set bodyClass = 'login' %}
 
@@ -39,10 +38,10 @@
             {{ hiddenInput('option', option) }}
             {{ hiddenInput('inline', inline) }}
 
-            {{ forms.submitButton({
-                class: ['fullwidth', 'last'],
-                label: 'Send'|t('app'),
-                spinner: true,
+            {{ tag('button', {
+                type: 'submit',
+                class: ['btn', 'submit', 'fullwidth', 'last'],
+                text: 'Send'|t('app'),
             }) }}
             {% endtag %}
 

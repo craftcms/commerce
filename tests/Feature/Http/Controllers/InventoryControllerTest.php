@@ -5,11 +5,13 @@ declare(strict_types=1);
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
+use CraftCms\Commerce\Inventory\Data\InventoryLocation;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Plugin;
+use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\VariantQueryFixture;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
@@ -163,6 +165,8 @@ it('returns the set and adjust quantity modal forms', function(string $updateAct
     expect($response['title'])->toBe($title)
         ->and($response['submitLabel'])->toBe('Update')
         ->and($fields[0]['props']['label'])->toBe($label)
+        // The quantity is focused and selected when the modal opens, so it can be typed over.
+        ->and(json_encode($fields[0]))->toContain('"autofocus":true', '"selectOnFocus":true')
         ->and($response['ui']['values'])->toBe(['quantity' => $quantity, 'note' => ''])
         ->and(collect($response['ui']['nodes'])->firstWhere('uid', 'current-level')['props']['html'])
         ->toContain('currently has 7 Available');
@@ -356,11 +360,84 @@ it('renders the inventory item page with its history', function() {
             ->where('title', $this->fixture->blueVariant->getSku())
             ->where('submit.url', Url::actionUrl('commerce/inventory/item-save'))
             ->where('ui.values.inventoryItemId', $this->inventoryItem->id)
-            ->where('ui.nodes.0.props.label', 'Details')
-            ->where('ui.nodes.1.props.label', 'History')
-            ->where('ui.nodes.1.children.1.props.rows.0.quantity', 7)
-            ->where('ui.nodes.1.children.1.props.rows.0.type', 'Available')
+            ->where('ui.nodes.0.props.label', 'Inventory')
+            ->where('ui.nodes.0.children.0.props.dataUrl', Url::actionUrl('commerce/inventory/item-levels-table-data', ['inventoryItemId' => $this->inventoryItem->id]))
+            ->where('ui.nodes.0.children.0.props.columnsToggleable', true)
+            ->where('ui.nodes.0.children.0.props.columns.0.sortable', true)
+            ->where('ui.nodes.1.props.label', 'Details')
+            ->where('ui.nodes.2.props.label', 'History')
+            ->where('ui.nodes.2.children.1.props.rows.0.quantity', 7)
+            ->where('ui.nodes.2.children.1.props.rows.0.type', 'Available')
         );
+});
+
+it('returns an inventory item’s stock levels at each location with their actions', function() {
+    setInventoryLevelForController($this->inventoryItem->id, $this->location->id, 'available', 5);
+
+    $rows = postJson(Url::actionUrl('commerce/inventory/item-levels-table-data'), [
+        'inventoryItemId' => $this->inventoryItem->id,
+    ])->assertOk()->json('data');
+
+    $row = collect($rows)->firstWhere('id', $this->location->id);
+
+    expect($row['location'])->toBe($this->location->getUiLabel())
+        ->and($row['available']['label'])->toBe('5')
+        ->and(array_column($row['available']['items'], 'label'))->toContain('Set Quantity', 'Adjust Quantity', 'Move Inventory')
+        ->and($row['available']['items'][0]['params'])->toMatchArray([
+            'inventoryLocationId' => $this->location->id,
+            'inventoryItemId' => $this->inventoryItem->id,
+            'type' => 'available',
+        ]);
+});
+
+it('sorts an inventory item’s stock levels', function() {
+    $warehouse = new InventoryLocation(['name' => 'Warehouse', 'handle' => 'warehouse']);
+    expect(app(InventoryLocations::class)->saveInventoryLocation($warehouse))->toBeTrue();
+    app(InventoryLocations::class)->saveStoreInventoryLocations(
+        app(Stores::class)->getPrimaryStore(),
+        app(InventoryLocations::class)->getAllInventoryLocations()->pluck('id')->all(),
+    );
+
+    setInventoryLevelForController($this->inventoryItem->id, $this->location->id, 'available', 5);
+    setInventoryLevelForController($this->inventoryItem->id, $warehouse->id, 'available', 9);
+
+    $locationIds = fn(string $field, string $direction) => array_column(postJson(Url::actionUrl('commerce/inventory/item-levels-table-data'), [
+        'inventoryItemId' => $this->inventoryItem->id,
+        'sort' => [['field' => $field, 'direction' => $direction]],
+    ])->assertOk()->json('data'), 'id');
+
+    expect($locationIds('available', 'desc'))->toBe([$warehouse->id, $this->location->id])
+        ->and($locationIds('available', 'asc'))->toBe([$this->location->id, $warehouse->id])
+        ->and($locationIds('location', 'desc'))->toBe([$warehouse->id, $this->location->id]);
+});
+
+it('groups a movement’s transactions together in the inventory item’s history', function() {
+    setInventoryLevelForController($this->inventoryItem->id, $this->location->id, 'available', 10);
+    $this->travel(1)->minutes();
+
+    postJson(Url::actionUrl('commerce/inventory/save-inventory-movement'), [
+        'inventoryMovement' => [
+            'inventoryItemId' => $this->inventoryItem->id,
+            'fromInventoryLocationId' => $this->location->id,
+            'toInventoryLocationId' => $this->location->id,
+            'fromInventoryTransactionType' => 'available',
+            'toInventoryTransactionType' => 'damaged',
+            'quantity' => 2,
+        ],
+    ])->assertOk();
+
+    get(Url::cpUrl('commerce/inventory/item/' . $this->inventoryItem->id))
+        ->assertOk()
+        ->assertInertia(function(AssertableInertia $page) {
+            $rows = $page->toArray()['props']['ui']['nodes'][2]['children'][1]['props']['rows'];
+
+            // The movement's two transactions come first, dated once; the earlier set has its own date.
+            expect($rows)->toHaveCount(3)
+                ->and($rows[0]['date'])->not->toBe('')
+                ->and($rows[1]['date'])->toBe('')
+                ->and(collect([$rows[0], $rows[1]])->pluck('type')->sort()->values()->all())->toBe(['Available', 'Damaged'])
+                ->and($rows[2]['date'])->not->toBe('');
+        });
 });
 
 it('renders the inventory item screen for a slideout', function() {

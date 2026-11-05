@@ -4,22 +4,28 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Purchasable\FieldLayoutElements;
 
-use CraftCms\Cms\Cp\FormFields;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
 use CraftCms\Cms\FieldLayout\FieldLayoutElementContext;
 use CraftCms\Cms\FieldLayout\LayoutElements\BaseNativeField;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Lightswitch;
 use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\Enums\FieldWidth;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Nodes\Group;
+use CraftCms\Cms\Ui\Nodes\MarkdownContent;
+use CraftCms\Cms\Ui\Nodes\Table;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Commerce\Http\Controllers\InventoryController;
+use CraftCms\Commerce\Inventory\Data\InventoryLevel;
+use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
+use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
 use Override;
 
+use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
 class PurchasableStockField extends BaseNativeField
@@ -69,7 +75,7 @@ class PurchasableStockField extends BaseNativeField
 
         return Group::make($this->uid, [
             Field::make(t('Track Inventory', category: 'commerce'))
-                ->width(FieldWidth::Half)
+                ->width(FieldWidth::Full)
                 ->control(
                     Lightswitch::make('inventoryTracked')
                         ->size('small')
@@ -77,9 +83,10 @@ class PurchasableStockField extends BaseNativeField
                         ->mode($context->mode)
                         ->reactive(),
                 ),
+            ...($inventoryTracked ? $this->inventoryNodes($element, $static) : []),
             Field::make(t('Allow out of stock purchases', category: 'commerce'))
                 ->visible($inventoryTracked)
-                ->width(FieldWidth::Half)
+                ->width(FieldWidth::Full)
                 ->control(
                     Lightswitch::make('allowOutOfStockPurchases')
                         ->size('small')
@@ -98,44 +105,54 @@ class PurchasableStockField extends BaseNativeField
             ->width($this->width);
     }
 
-    protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
+    /**
+     * A summary of the purchasable's available stock at each inventory location, with menus to set or
+     * adjust each location's available stock and a “Manage” link that opens its inventory item in a slideout.
+     *
+     * @return list<Node>
+     */
+    private function inventoryNodes(Purchasable $purchasable, bool $static): array
     {
-        if (!$element instanceof Purchasable) {
-            throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
+        if (!$purchasable->id || $purchasable->getIsFresh() || !$purchasable->inventoryItemId) {
+            return [
+                MarkdownContent::make($this->uid . '-inventory-unsaved', t('Inventory can be managed once this {type} is saved.', [
+                    'type' => $purchasable::lowerDisplayName(),
+                ], category: 'commerce'))->displayInPane(false),
+            ];
         }
 
-        // If this is a revision get the canonical element to show the stock for.
-        // @TODO Re-evaluate swapping in the canonical element once revisions support tracking inventory independently
-        if ($element->getIsRevision()) {
-            /** @var Purchasable $element */
-            $element = $element->getCanonical();
-        }
+        $inventoryLevels = app(Inventory::class)->getInventoryLevelsForPurchasable($purchasable);
+        $manageUrl = !$static && currentUser()?->can('commerce-manageInventoryStockLevels')
+            ? Url::cpUrl('commerce/inventory/item/' . $purchasable->inventoryItemId)
+            : null;
 
-        $inventoryItemTrackedId = sprintf('store-inventory-item-tracked-%s', mt_rand());
-        $storeInventoryTrackedLightswitchConfig = [
-            'id' => 'store-inventory-item-tracked',
-            'name' => 'inventoryTracked',
-            'small' => true,
-            'on' => $element->getIsFresh() ? $this->defaultInventoryTracked : $element->inventoryTracked,
-            'toggle' => $inventoryItemTrackedId,
-            'disabled' => $static,
+        $table = Table::make($this->uid . '-inventory-levels')
+            ->columns([
+                ['key' => 'location', 'label' => t('Location', category: 'commerce')],
+                ['key' => 'available', 'label' => t('Available', category: 'commerce')],
+                ...($manageUrl ? [['key' => 'manage', 'label' => '']] : []),
+            ])
+            ->rows($inventoryLevels->map(fn(InventoryLevel $inventoryLevel) => [
+                'location' => $inventoryLevel->getInventoryLocation()->getUiLabel(),
+                'available' => $manageUrl ? [
+                    'label' => (string)$inventoryLevel->availableTotal,
+                    'items' => InventoryController::updateQuantityActions(
+                        $inventoryLevel->getInventoryLocation()->id,
+                        $purchasable->inventoryItemId,
+                        InventoryTransactionType::AVAILABLE->value,
+                    ),
+                ] : $inventoryLevel->availableTotal,
+                ...($manageUrl ? ['manage' => ['label' => t('Manage', category: 'commerce'), 'url' => $manageUrl, 'slideout' => true, 'refreshOnClose' => true]] : []),
+            ])->values()->all())
+            ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'));
+
+        return [
+            $table,
+            MarkdownContent::make($this->uid . '-inventory-total', t('{total} saleable across {count, plural, =1{# location} other{# locations}}', [
+                'total' => $purchasable->getStock(),
+                'count' => $inventoryLevels->count(),
+            ], category: 'commerce'))->displayInPane(false),
         ];
-
-        $storeAllowOutOfStockPurchasesLightswitchConfig = [
-            'label' => t('Allow out of stock purchases', category: 'commerce'),
-            'id' => 'store-backorder-allowed',
-            'name' => 'allowOutOfStockPurchases',
-            'small' => true,
-            'on' => $element->getIsFresh() ? $this->defaultAllowOutOfStockPurchases : $element->getIsOutOfStockPurchasingAllowed(),
-            'disabled' => $static,
-        ];
-
-        return Html::beginTag('div') .
-            FormFields::lightswitchFromConfig($storeInventoryTrackedLightswitchConfig)->toHtml() .
-            Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
-            FormFields::lightswitchFieldHtml($storeAllowOutOfStockPurchasesLightswitchConfig) .
-            Html::endTag('div') .
-            Html::endTag('div');
     }
 
     #[Override]
