@@ -1,5 +1,11 @@
 # Craft Commerce agent guidance
 
+## Translations
+
+Whenever translatable strings in the `commerce` category are added, modified, or removed, always update the English source translations in `src/translations/en/commerce.php` accordingly.
+
+Commerce may freely use existing `app`-category translations from Craft CMS's `src/translations/en/app.php`, available here at `vendor/craftcms/cms/src/translations/en/app.php`. Do not modify `app`-category translations or their catalog.
+
 ## Commit messages
 
 For commits touching only genuinely inconsequential, nonfunctional files, put `[ci skip]` at the end of the extended commit message, in the commit body rather than the subject. Judge eligibility by the actual effect of the full commit, not filenames alone. Code, dependencies, executable configuration, workflows, and behavior-changing generated artifacts are not eligible.
