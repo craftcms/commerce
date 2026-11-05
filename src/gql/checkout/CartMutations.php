@@ -374,7 +374,9 @@ class CartMutations
         }
 
         $errors = [];
-        foreach ($required as $format) {
+        foreach ($required as $field) {
+            // Depending on the version of the addressing library, fields are strings or enums
+            $format = CheckoutSchema::addressFieldName($field);
             [$attribute, $label] = $labels[$format] ?? [null, null];
 
             if ($attribute && trim((string)$address->$attribute) === '') {

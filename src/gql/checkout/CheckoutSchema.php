@@ -415,6 +415,15 @@ class CheckoutSchema
     }
 
     /**
+     * Returns the name of an address format field. Depending on the version of the addressing library, fields are
+     * strings or enums.
+     */
+    public static function addressFieldName(mixed $field): string
+    {
+        return is_object($field) ? (string)($field->value ?? $field->name) : (string)$field;
+    }
+
+    /**
      * Returns the kind of payment form the checkout has for a gateway, or `null` if it isn’t supported.
      */
     public static function gatewayType(GatewayInterface $gateway): ?string
@@ -442,8 +451,8 @@ class CheckoutSchema
             $used = $required = null;
             try {
                 $format = $addresses->getAddressFormatRepository()->get($code);
-                $used = $format->getUsedFields();
-                $required = $format->getRequiredFields();
+                $used = array_map([self::class, 'addressFieldName'], $format->getUsedFields());
+                $required = array_map([self::class, 'addressFieldName'], $format->getRequiredFields());
             } catch (Throwable) {
             }
 
