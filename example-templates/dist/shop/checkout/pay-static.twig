@@ -6,23 +6,23 @@
 {% endset %}
 
 {# @var number string #}
-{% set number = craft.app.request.getParam('number') %}
+{% set number = Request.get('number') %}
 {# @var email string #}
-{% set email = craft.app.request.getParam('email') %}
+{% set email = Request.get('email') %}
 {# @var paymentMethod string #}
-{% set paymentMethod = craft.app.request.getParam('paymentMethod') %}
+{% set paymentMethod = Request.get('paymentMethod') %}
 {# @var gatewayId string #}
-{% set gatewayId = craft.app.request.getParam('gatewayId') %}
+{% set gatewayId = Request.get('gatewayId') %}
 {# @var paymentSourceId string #}
-{% set paymentSourceId = craft.app.request.getParam('paymentSourceId') %}
+{% set paymentSourceId = Request.get('paymentSourceId') %}
 {# @var paymentCurrency string #}
-{% set paymentCurrency = craft.app.request.getParam('paymentCurrency') %}
+{% set paymentCurrency = Request.get('paymentCurrency') %}
 {# @var url string #}
 {% set url = 'shop/checkout/pay-static' %}
 
 {% set cart = null %}
 {% if number and email %}
-  {# @var cart \craft\commerce\elements\Order #}
+  {# @var cart \CraftCms\Commerce\Order\Elements\Order #}
   {% set cart = craft.orders()
     .number(number)
     .email(email)
@@ -35,17 +35,17 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
 
-  <div class="md:flex md:-mx-8">
-    <div class="md:w-2/3 md:px-8">
+  <div class="{{ cart ? 'lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12' : 'mx-auto max-w-md' }}">
+    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 {{ cart ? 'lg:col-span-7' }}">
 
-      <h1 class="font-bold text-xl">
+      <h1 class="text-xl font-semibold">
         {{- 'Payment'|t -}}
       </h1>
 
       {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
         {% if number and email and (not cart or (cart and not cart.hasOutstandingBalance)) %}
-          <div class="bg-red-500 text-white mb-4">
-            <div class="flash container mx-auto px-6 py-4">
+          <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            <div>
               {% if cart and not cart.hasOutstandingBalance %}
                 {{ 'No outstanding balance on this order.'|t }}
               {% else %}
@@ -55,36 +55,36 @@
           </div>
         {% endif %}
 
-        <p>{{ 'Enter cart/order number and corresponding email address to be able to pay.'|t }}</p>
+        <p class="text-sm text-gray-500">{{ 'Enter your order number and the email address used to place the order.'|t }}</p>
 
-        <form method="get">
-          <div class="mt-3">
-            <label for="number">
-              {{- 'Cart/Order Number'|t -}}
+        <form method="get" class="space-y-4">
+          <div>
+            <label for="number" class="block text-sm font-medium text-gray-700">
+              {{- 'Order number'|t -}}
             </label>
             <div>
               {{ input('text', 'number', number, {
                 id: 'number',
-                class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+                class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
               }) }}
             </div>
           </div>
-          <div class="mt-3">
-            <label for="email">
-              {{- 'Email Address'|t -}}
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">
+              {{- 'Email address'|t -}}
             </label>
             <div>
               {{ input('email', 'email', email, {
                 id: 'email',
-                class: ['w-2/3', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+                class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
               }) }}
             </div>
           </div>
-          <div class="mt-3 text-right">
+          <div class="mt-6 flex justify-end gap-3">
             {{ tag('button', {
               type: 'submit',
-              class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-              text: 'Submit'|t
+              class: 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+              text: 'Find order'|t
             }) }}
           </div>
         </form>
@@ -99,36 +99,28 @@
           {% set availableGateways = cart.availableGateways %}
 
           {% if availableGateways|length %}
-            <form action="" method="get" class="form-inline">
+            <form action="" method="get" class="space-y-8">
               {{ hiddenInput('number', number) }}
               {{ hiddenInput('email', email) }}
 
-              <div class="mt-3">
+              <div>
                 {{ include('shop/checkout/_includes/gateways', {
                   availableGateways: availableGateways,
                   paymentSources: paymentSources
                 }) }}
               </div>
 
-              <div class="mt-3">
-                {{ include('shop/checkout/_includes/currencies') }}
-              </div>
+              {{ include('shop/checkout/_includes/currencies') }}
 
-              <div class="mt-4">
-                <div class="flex w-full">
-                  <div class="w-1/2">
-                    <a href="{{ siteUrl(url) }}" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
-                      {{- 'Back'|t -}}
-                    </a>
-                  </div>
-                  <div class="w-1/2 text-right">
-                    {{ tag('button', {
-                      type: 'submit',
-                      class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-                      text: 'Submit'|t
-                    }) }}
-                  </div>
-                </div>
+              <div class="flex items-center justify-between gap-3">
+                <a href="{{ siteUrl(url) }}" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+                  {{- 'Back'|t -}}
+                </a>
+                {{ tag('button', {
+                  type: 'submit',
+                  class: 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                  text: 'Continue'|t
+                }) }}
               </div>
             </form>
           {% endif %}
@@ -137,7 +129,7 @@
           {% set finalPaymentCurrency = paymentCurrency ?? cart.paymentCurrency %}
           {% do cart.setPaymentCurrency(finalPaymentCurrency) %}
           {% set canPay = true %}
-          <div class="mt-3">
+          <div>
             <form id="paymentForm"
                   method="post"
                   action=""
@@ -145,20 +137,20 @@
               {{ csrfInput() }}
               {{ hiddenInput('action', 'commerce/payments/pay') }}
               {{ redirectInput('shop/customer/order?number=' ~ cart.number ~ '&success=true') }}
-              {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
+              {{ hiddenInput('cancelUrl', Request.getRequestUri()|hash) }}
               {{ hiddenInput('email', email) }}
               {{ hiddenInput('number', cart.number) }}
               {{ hiddenInput('paymentCurrency', finalPaymentCurrency) }}
 
-              <fieldset>
+              <fieldset class="space-y-6">
                 {% if gatewayId %}
-                  {# @var gateway \craft\commerce\base\GatewayInterface #}
+                  {# @var gateway \CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface #}
                   {% set gateway = craft.commerce.gateways.getGatewayById(gatewayId) ?? null %}
 
                   {% if not gateway %}
                     {% set canPay = false %}
-                    <div class="bg-red-500 text-white mb-4">
-                      <div class="flash container mx-auto px-6 py-4">
+                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+                      <div>
                         {{ 'Unable to retrieve gateway.'|t }}
                       </div>
                     </div>
@@ -185,30 +177,28 @@
                           }
                         },
                         order: cart,
-                        submitButtonClasses: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white my-2',
+                        submitButtonClasses: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
                         submitButtonText: 'Pay',
-                        errorMessageClasses: 'bg-red-200 text-red-600 my-2 p-2 rounded',
+                        errorMessageClasses: 'rounded-md bg-red-50 p-3 text-sm text-red-700',
                       } %}
                     {% endif %}
 
                     <a href="{{ siteUrl(url, {
                       number: number,
                       email: email,
-                    }) }}" class="text-blue-500 hover:text-blue-600">&larr; {{ 'Back'|t }}</a>
+                    }) }}" class="font-medium text-blue-600 hover:text-blue-500">&larr; {{ 'Back'|t }}</a>
 
-                    <div class="gateway-payment-form max-w-3/4">
+                    <div class="gateway-payment-form space-y-4 [&_craft-input]:block [&_fieldset]:space-y-1 [&_legend]:mb-1 [&_legend]:text-sm [&_legend]:font-medium [&_legend]:text-gray-700 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:block [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:w-full [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:rounded-md [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:bg-white [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:px-3 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:py-2 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:text-sm [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:outline-1 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:-outline-offset-1 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:outline-gray-300 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:focus:outline-2 [&_input:not([type=checkbox]):not([type=radio]):not([type=hidden])]:focus:outline-blue-600">
                       {% namespace gateway.handle|commercePaymentFormNamespace %}
                         {{ gateway.getPaymentFormHtml(params)|raw }}
                       {% endnamespace %}
                     </div>
 
                     {% if gateway.supportsPaymentSources() and currentUserIsCartUser %}
-                      <div class="checkbox">
-                        <label>
-                          {{ input('checkbox', 'savePaymentSource', 1) }}
-                          {{ 'Save card for future purchases'|t }}
-                        </label>
-                      </div><br/>
+                      <label class="flex items-center gap-2 text-sm text-gray-700">
+                        {{ input('checkbox', 'savePaymentSource', 1, { class: 'size-4' }) }}
+                        {{ 'Save card for future purchases'|t }}
+                      </label>
                     {% endif %}
                   {% endif %}
 
@@ -216,13 +206,13 @@
                   {% set paymentSource = craft.commerce.paymentSources.getPaymentSourceById(paymentSourceId) ?? null %}
                   {% if not paymentSource or not currentUserIsCartUser %}
                     {% set canPay = false %}
-                    <div class="bg-red-500 text-white mb-4">
-                      <div class="flash container mx-auto px-6 py-4">
+                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+                      <div>
                         {{ 'Payment source not applicable for current user.'|t }}
                       </div>
                     </div>
                   {% else %}
-                    <p>{{ 'Pay with'|t }}: {{ paymentSource.description }}</p>
+                    <p class="text-sm">{{ 'Pay with'|t }} <span class="font-medium">{{ paymentSource.description }}</span></p>
                     {{ hiddenInput('paymentSourceId', paymentMethodParts[1]) }}
                   {% endif %}
                 {% endif %}
@@ -231,13 +221,11 @@
                   {{ include('shop/checkout/_includes/partial-payment') }}
 
                   {% if cart.paymentSourceId or cart.gateway.showPaymentFormSubmitButton() %}
-                    <div class="mt-3 text-right">
-                      {{ tag('button', {
-                        type: 'submit',
-                        class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-                        text: 'Pay'|t
-                      }) }}
-                    </div>
+                    {{ tag('button', {
+                      type: 'submit',
+                      class: 'mt-6 w-full py-3 text-base inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+                      text: 'Pay now'|t
+                    }) }}
                   {% endif %}
                 {% endif %}
               </fieldset>
@@ -247,15 +235,15 @@
       {% endif %}
     </div>
 
-    <div class="mt-8 md:w-1/3 md:px-8 md:mt-0">
-      {% if cart %}
+    {% if cart %}
+      <div class="mt-10 lg:col-span-5 lg:mt-0">
         {{ include('shop/checkout/_includes/order-summary', {
           showShippingAddress: true,
           showShippingMethod: true,
           cart: cart
         }) }}
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
   </div>
 
   {% js %}

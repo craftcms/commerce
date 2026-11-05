@@ -3,42 +3,45 @@
 Outputs address form fields for editing an address.
 #}
 {% set showPrimaryCheckboxes = showPrimaryCheckboxes is defined ? showPrimaryCheckboxes : false %}
-{% set addressFieldLayout = craft.app.getAddresses().getFieldLayout() %}
-{% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'craft\\fields\\PlainText') %}
-{# @var address \craft\elements\Address #}
+{% set addressFieldLayout = Addresses.getFieldLayout() %}
+{% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'CraftCms\\Cms\\Field\\PlainText') %}
+{# @var address \CraftCms\Cms\Address\Elements\Address #}
 {% set addressName = addressName is defined ? addressName : '' %}
 {% set showLabelField = showLabelField is defined ? showLabelField : false %}
 
+{# A failed save redirects back with each field's errors in the `errors` bag, and what was submitted in `old()` #}
+{% set errorPrefix = addressName ? addressName ~ '.' : '' %}
+
 {# Define a simple a Twig macro for outputting validation errors and making template less redundant #}
-{% macro displayErrors(address, fieldName) %}
-  {% if address and address.getErrors(fieldName) %}
-    <div class="text-red-700">{{ address.getErrors(fieldName)|join }}</div>
+{% macro displayErrors(key) %}
+  {% if errors.has(key) %}
+    <div class="mt-1 text-sm text-red-600">{{ errors.get(key)|join }}</div>
   {% endif %}
 {% endmacro %}
 
 <div class="">
   {# First and last name fields #}
-  <div class="my-2 {{ not showLabelField ? 'hidden' : '' }}">
-    <label for="title">
-      {{- 'Address Label (Work, School, etc)'|t -}}
+  <div class="mt-4 {{ not showLabelField ? 'hidden' : '' }}">
+    <label for="title" class="block text-sm font-medium text-gray-700">
+      {{- 'Address Label (Work, School, etc)'|t }}{{ addressFieldLayout.getField('title').required ? ' *' -}}
     </label>
-    {{ input('text', 'title', address ? address.title : '', {
+    {{ input('text', 'title', old(errorPrefix ~ 'title', address ? address.title : ''), {
       id: 'title',
-      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
     }) }}
-    {{ _self.displayErrors(address, 'title') }}
+    {{ _self.displayErrors(errorPrefix ~ 'title') }}
   </div>
   {% set countries = cart.store.settings.getCountriesList() %}
-  {% set countryCode = address.countryCode ?? null %}
+  {% set countryCode = old(errorPrefix ~ 'countryCode', address.countryCode ?? null) %}
 
-  <div class="my-2">
-    <label for="countryCode">
+  <div class="mt-4">
+    <label for="countryCode" class="block text-sm font-medium text-gray-700">
       {{- 'Country'|t }} *
     </label>
     {% tag 'select' with {
       id: 'countryCode',
       name: 'countryCode',
-      class: ['w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded', countries|length == 0 ? 'hidden' : ''],
+      class: ['mt-1', 'w-full', 'max-w-full', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600', countries|length == 0 ? 'hidden' : ''],
     } %}
       {{ tag('option', {
         value: '',
@@ -55,56 +58,56 @@ Outputs address form fields for editing an address.
         }) }}
       {% endfor %}
     {% endtag %}
-    {{ _self.displayErrors(address, 'countryCode') }}
+    {{ _self.displayErrors(errorPrefix ~ 'countryCode') }}
   </div>
 
-  <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <label for="fullName">
+  <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <label for="fullName" class="block text-sm font-medium text-gray-700">
       {{- 'Full Name'|t -}}
     </label>
-    {{ input('text', 'fullName', address.fullName ?? '', {
+    {{ input('text', 'fullName', old(errorPrefix ~ 'fullName', address.fullName ?? ''), {
       id: 'fullName',
-      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
     }) }}
-    {{ _self.displayErrors(address, 'fullName') }}
+    {{ _self.displayErrors(errorPrefix ~ 'fullName') }}
   </div>
 
-  <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <label for="addressLine1">
+  <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <label for="addressLine1" class="block text-sm font-medium text-gray-700">
       {{- 'Address 1'|t -}}
     </label>
-    {{ input('text', 'addressLine1', address.addressLine1 ?? '', {
+    {{ input('text', 'addressLine1', old(errorPrefix ~ 'addressLine1', address.addressLine1 ?? ''), {
       id: 'addressLine1',
-      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
     }) }}
-    {{ _self.displayErrors(address, 'addressLine1') }}
+    {{ _self.displayErrors(errorPrefix ~ 'addressLine1') }}
   </div>
 
-  <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <label for="addressLine2">
+  <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <label for="addressLine2" class="block text-sm font-medium text-gray-700">
       {{- 'Address 2'|t -}}
     </label>
-    {{ input('text', 'addressLine2', address ? address.addressLine2 : '', {
+    {{ input('text', 'addressLine2', old(errorPrefix ~ 'addressLine2', address ? address.addressLine2 : ''), {
       id: 'addressLine2',
-      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
     }) }}
-    {{ _self.displayErrors(address, 'addressLine2') }}
+    {{ _self.displayErrors(errorPrefix ~ 'addressLine2') }}
   </div>
 
   {# City, state, and postal code fields #}
-  <div class="md:flex md:-mx-4">
-    <div class="md:w-1/3 md:mx-4 my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-      <label for="locality">
+  <div class="grid gap-x-4 sm:grid-cols-3">
+    <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+      <label for="locality" class="block text-sm font-medium text-gray-700">
         {{- 'City'|t -}}
       </label>
-      {{ input('text', 'locality', address.locality ?? '', {
+      {{ input('text', 'locality', old(errorPrefix ~ 'locality', address.locality ?? ''), {
         id: 'locality',
-        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+        class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
       }) }}
-      {{ _self.displayErrors(address, 'locality') }}
+      {{ _self.displayErrors(errorPrefix ~ 'locality') }}
     </div>
-    <div class="md:w-1/3 md:mx-4 my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-      <label for="state">
+    <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+      <label for="state" class="block text-sm font-medium text-gray-700">
         {{- 'State'|t -}}
       </label>
 
@@ -113,9 +116,9 @@ Outputs address form fields for editing an address.
       {% tag 'select' with {
         id: 'administrativeArea',
         name: 'administrativeArea',
-        class: ['w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'],
+        class: ['mt-1', 'w-full', 'max-w-full', 'block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'],
         data: {
-          'selected': address.administrativeArea ?? null
+          'selected': old(errorPrefix ~ 'administrativeArea', address.administrativeArea ?? null)
         }
       } %}
         {{ tag('option', {
@@ -126,84 +129,84 @@ Outputs address form fields for editing an address.
         }) }}
       {% endtag %}
 
-      {{ input('text', 'administrativeArea', address.administrativeArea ?? '', {
+      {{ input('text', 'administrativeArea', old(errorPrefix ~ 'administrativeArea', address.administrativeArea ?? ''), {
         id: 'administrativeArea',
-        class: ['w-full hidden', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+        class: ['mt-1', 'w-full hidden', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
       }) }}
-      {{ _self.displayErrors(address, 'administrativeArea') }}
+      {{ _self.displayErrors(errorPrefix ~ 'administrativeArea') }}
     </div>
 
-    <div class="md:w-1/3 md:mx-4 my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
       {% set zipCode = address.postalCode ?? '' %}
-      <label for="zipCode">
+      <label for="zipCode" class="block text-sm font-medium text-gray-700">
         {{- 'Postal Code'|t -}}
       </label>
-      {{ input('text', 'postalCode', address.postalCode ?? '', {
+      {{ input('text', 'postalCode', old(errorPrefix ~ 'postalCode', address.postalCode ?? ''), {
         id: 'postalCode',
-        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+        class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
       }) }}
-      {{ _self.displayErrors(address, 'postalCode') }}
+      {{ _self.displayErrors(errorPrefix ~ 'postalCode') }}
     </div>
   </div>
 
-  <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <label for="organization">
+  <div class="mt-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <label for="organization" class="block text-sm font-medium text-gray-700">
       {{- 'Organization'|t -}}
     </label>
-    {{ input('text', 'organization', address ? address.organization : '', {
+    {{ input('text', 'organization', old(errorPrefix ~ 'organization', address ? address.organization : ''), {
       id: 'organization',
-      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
     }) }}
-    {{ _self.displayErrors(address, 'organization') }}
+    {{ _self.displayErrors(errorPrefix ~ 'organization') }}
   </div>
 
   <div class="{{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <div class="md:flex md:-mx-4">
-      <div class="md:w-1/2 md:mx-4 my-2">
-        <label for="organizationTaxId">
+    <div class="grid gap-x-4 sm:grid-cols-3">
+      <div class="mt-4">
+        <label for="organizationTaxId" class="block text-sm font-medium text-gray-700">
           {{- 'Organization Tax ID'|t -}}
         </label>
-        {{ input('text', 'organizationTaxId', address ? address.organizationTaxId : '', {
+        {{ input('text', 'organizationTaxId', old(errorPrefix ~ 'organizationTaxId', address ? address.organizationTaxId : ''), {
           id: 'organizationTaxId',
-          class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+          class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
         }) }}
-        {{ _self.displayErrors(address, 'organizationTaxId') }}
+        {{ _self.displayErrors(errorPrefix ~ 'organizationTaxId') }}
       </div>
     </div>
   </div>
 
   {% if addressCustomFields|length %}
-    <hr class="my-2">
+    <hr class="my-6 border-gray-200">
     <div class="{{ 'js-address-custom-fields'|namespaceInputId(addressName) }} {{ 'js-address-field'|namespaceInputId(addressName) }}">
-      <div class="my-2">
+      <div class="mt-4">
         <h2 class="text-l">{{ 'Custom Fields'|t }}</h2>
         <p><small>{{ 'Note: The example templates only show plain text custom fields.'|t }}</small></p>
       </div>
 
       {% for customField in addressCustomFields %}
-        <div class="my-2">
-          <label for="custom-field-{{ customField.handle }}">
+        <div class="mt-4">
+          <label for="custom-field-{{ customField.handle }}" class="block text-sm font-medium text-gray-700">
             {{ customField.name }}
           </label>
-          {{ input('text', 'fields[' ~ customField.handle ~ ']', address ? address[customField.handle] : '', {
+          {{ input('text', 'fields[' ~ customField.handle ~ ']', old(errorPrefix ~ 'fields.' ~ customField.handle, address ? address[customField.handle] : ''), {
             id: 'custom-field-' ~ customField.handle,
-            class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+            class: ['mt-1', 'w-full', 'block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600']
           }) }}
-          {{ _self.displayErrors(address, customField.handle) }}
+          {{ _self.displayErrors(errorPrefix ~ customField.handle) }}
         </div>
       {% endfor %}
     </div>
   {% endif %}
 
   {% if showPrimaryCheckboxes %}
-    <hr class="my-2">
-    <div class="my-2">
+    <hr class="my-6 border-gray-200">
+    <div class="mt-4">
       {{ hiddenInput('isPrimaryBilling', 0) }}
-      <label>{{ input('checkbox', 'isPrimaryBilling', 1, { checked: address.isPrimaryBilling }) }} {{ 'Use as the primary billing address'|t }}</label>
+      <label class="flex items-center gap-2 text-sm text-gray-700">{{ input('checkbox', 'isPrimaryBilling', 1, { checked: address.isPrimaryBilling, class: 'size-4' }) }} {{ 'Use as my default billing address'|t }}</label>
     </div>
-    <div class="my-2">
+    <div class="mt-4">
       {{ hiddenInput('isPrimaryShipping', 0) }}
-      <label>{{ input('checkbox', 'isPrimaryShipping', 1, { checked: address.isPrimaryShipping }) }} {{ 'Use as the primary shipping address'|t }}</label>
+      <label class="flex items-center gap-2 text-sm text-gray-700">{{ input('checkbox', 'isPrimaryShipping', 1, { checked: address.isPrimaryShipping, class: 'size-4' }) }} {{ 'Use as my default shipping address'|t }}</label>
     </div>
   {% endif %}
 </div>

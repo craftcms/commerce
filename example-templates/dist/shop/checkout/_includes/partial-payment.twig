@@ -2,13 +2,13 @@
 {% set percentageOptions = [ 0.2, 0.5, 0.75, 1 ] %}
 
 {% if cart.store.allowPartialPaymentOnCheckout %}
-  <div class="mt-3">
-    <p>{{ 'Make partial payment'|t }}...</p>
+  <div>
+    <label for="paymentAmount" class="block text-sm font-medium text-gray-700">{{ 'Amount to pay now'|t }}</label>
     <div>
       {% tag 'select' with {
         name: 'paymentAmount',
         id: 'paymentAmount',
-        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
+        class: 'mt-1 w-full block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'
       } %}
         {% for percentageOption in percentageOptions %}
           {# Calculate the desired amount in the target currency #}

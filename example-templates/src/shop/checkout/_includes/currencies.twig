@@ -3,30 +3,29 @@
 Outputs radio inputs for currency selection.
 #}
 
-{# @var currencies \craft\commerce\models\Currency[] #}
+{# @var currencies \CraftCms\Commerce\Payment\Data\PaymentCurrency[] #}
 {% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
-{# @var cart \craft\commerce\elements\Order #}
+{# @var cart \CraftCms\Commerce\Order\Elements\Order #}
 {% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
 
 {% if currencies|length > 1 %}
-  <label class="block font-semibold mt-6">
-    {{- 'Choose payment currency'|t }}:
-  </label>
-  {% for currency in currencies %}
-    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-      <span class="flex justify-start items-center">
-        <span class="pr-2">
+  <fieldset>
+    <legend class="text-sm font-medium text-gray-700">{{ 'Payment currency'|t }}</legend>
+    <div class="mt-3 grid gap-3 sm:grid-cols-2">
+      {% for currency in currencies %}
+        <label class="flex items-center gap-4 [[classes.box.selection]]">
           {{ input('radio', 'paymentCurrency', currency.iso, {
-            checked: currency.iso == cart.paymentCurrency
+            checked: currency.iso == cart.paymentCurrency,
+            class: 'size-4'
           }) }}
-        </span>
-        <span>
-          <strong>{{ currency.name }} {{ currency.iso }}</strong><br>
-          <span class="text-gray-600">{{ cart.outstandingBalance|commerceCurrency(currency.iso,convert=true) }}</span>
-        </span>
-      </span>
-    </label>
-  {% endfor %}
+          <span class="flex-1">
+            <span class="block text-sm font-medium">{{ currency.iso }}</span>
+            <span class="block text-xs text-gray-500">{{ cart.outstandingBalance|commerceCurrency(currency.iso, convert=true) }}</span>
+          </span>
+        </label>
+      {% endfor %}
+    </div>
+  </fieldset>
 {% elseif currencies|length == 1 %}
   {# If there's only one currency, include it as a hidden field #}
   {{ hiddenInput('paymentCurrency', currencies[0].iso) }}

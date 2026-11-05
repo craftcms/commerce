@@ -1,131 +1,121 @@
 {#
 Common, top-level layout template.
 
-@var cart        \craft\commerce\elements\Cart
+@var cart        \CraftCms\Commerce\Order\Elements\Order
 @var extraHead   string
 @var flashNotice string
 @var flashError  string
 #}
-<html lang="en">
+<!DOCTYPE html>
+<html lang="{{ currentSite.language }}" class="h-full bg-gray-50">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>{{ siteName ~ ' Shop' }}</title>
 
-  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   {% if extraHead is defined %}
     {{ extraHead }}
   {% endif %}
 </head>
-<body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
-<div id="body">
+<body class="flex min-h-full flex-col text-gray-900 antialiased accent-blue-600">
 {% if cart is not defined %}
   {% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
-{% set flashNotice = craft.app.session.getFlash('notice') %}
-{% set flashError = craft.app.session.getFlash('error') %}
+{% set flashNotice = session().get('success') ?? session().get('notice') %}
+{% set flashError = session().get('error') %}
 
 {% macro docs(text, link) %}
-    <small class="">
-        {{ tag('a', {
-            text: 'ℹ︎ ' ~ text,
-            href: link,
-            class: 'text-gray-400 hover:text-gray-600 hover:underline',
-            target: '_blank',
-        }) }}
-    </small>
+  {{ tag('a', {
+    text: 'ℹ︎ ' ~ text,
+    href: link,
+    class: 'text-xs text-gray-400 hover:text-gray-600 hover:underline',
+    target: '_blank',
+  }) }}
 {% endmacro %}
 
-<header>
+<header class="border-b border-gray-200 bg-white">
   {{ include('shop/_private/layouts/includes/header') }}
-  {{ include('shop/_private/layouts/includes/nav-main') }}
-  {{ include('shop/_private/layouts/includes/nav-checkout') }}
-  {{ include('shop/_private/layouts/includes/nav-customer') }}
 </header>
+{{ include('shop/_private/layouts/includes/nav-checkout') }}
+{{ include('shop/_private/layouts/includes/nav-customer') }}
 
-<div id="main">
-  {% if flashNotice %}
-    <div class="bg-blue-500 text-white">
-      <div class="container mx-auto px-6 py-4">
-        {{ flashNotice ?? 'Test flash notice' }}
+<main class="flex-1">
+  <div class="mx-auto max-w-7xl space-y-3 px-4 pt-6 empty:hidden sm:px-6 lg:px-8">
+    {%- if flashNotice %}
+      <div class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800" role="status">
+        {{ flashNotice }}
       </div>
-    </div>
-  {% endif %}
+    {% endif -%}
 
-  {% if flashError %}
-    <div class="bg-red-500 text-white">
-      <div class="container mx-auto px-6 py-4">
-        {{ flashError ?? 'Test flash error' }}
+    {%- if flashError %}
+      <div class="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+        {{ flashError }}
       </div>
-    </div>
-  {% endif %}
+    {% endif -%}
 
-  {% if cart and cart.hasNotices() %}
-    <div class="bg-blue-400 text-white">
-      <div class="container mx-auto px-6 py-4 relative">
-        <span>{{ 'Cart Notices'|t }}</span>
-        {% set entriesByType = cart.getNotices()|group('type') %}
-        {% for type, notices in entriesByType %}
-          {% for notice in notices %}
-            <li class="list-disc"
-                data-type="{{ notice.type }}"
-                data-attribute="{{ notice.attribute }}"
-                data-message="{{ notice.message }}"
-            >
-              {{- notice -}}
-            </li>
-          {% endfor %}
-        {% endfor %}
+    {%- if cart and cart.hasNotices() %}
+      <div class="flex items-start justify-between gap-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800" role="status">
+        <div>
+          <p class="font-semibold">{{ 'Your cart was updated'|t }}</p>
+          <ul class="mt-1 list-disc space-y-1 pl-5">
+            {% for notice in cart.getNotices() %}
+              <li data-type="{{ notice.type }}"
+                  data-attribute="{{ notice.attribute }}"
+                  data-message="{{ notice.message }}"
+              >
+                {{- notice -}}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
         <form method="post">
+          {{ csrfInput() }}
           {{ actionInput('commerce/cart/update') }}
           {{ successMessageInput('Notices dismissed') }}
           {{ hiddenInput('clearNotices') }}
-          {{ csrfInput() }}
           {{ tag('button', {
             type: 'submit',
-            class: ['absolute', 'mt-4', 'mr-4', 'top-0', 'right-0', 'cursor-pointer rounded px-2 py-1 text-sm inline-block', '[[classes.btn.blue]]'],
+            class: 'inline-flex cursor-pointer items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold shadow-xs transition bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50',
             text: 'Dismiss'|t
           }) }}
         </form>
       </div>
-    </div>
-  {% endif %}
+    {% endif -%}
 
-  {% if cart and cart.errors|length %}
-    <div class="bg-red-500 text-white">
-      <div class="container mx-auto px-6 py-4">
-        {% for attribute, errors in cart.errors %}
-          {% if loop.first %}<ul>{% endif %}
-          {% for key, error in errors %}
-            <li>{{ attribute }}: {{ error }}</li>
+    {# A failed cart update redirects back with the cart's errors in the `errors` bag #}
+    {%- if session().get('modelName') == 'cart' and errors.any() %}
+      <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+        <ul class="list-disc space-y-1 pl-5">
+          {% for attribute, messages in errors.getMessages() %}
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
           {% endfor %}
-          {% if loop.last %}</ul>{% endif %}
-        {% endfor %}
+        </ul>
       </div>
-    </div>
-  {% endif %}
+    {% endif -%}
+  </div>
 
   {% block body %}
-    <div class="container mx-auto p-6 flex-grow">
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       {% block main %}{% endblock %}
     </div>
   {% endblock %}
-</div>
+</main>
 
-<footer>
+<footer class="mt-16 border-t border-gray-200 bg-white">
   {{ include('shop/_private/layouts/includes/footer') }}
 </footer>
-</div>
 </body>
 </html>
 {% js at head %}
 let states = {{ craft.commerce.getStores().getCurrentStore().settings.getAdministrativeAreasListByCountryCode()|json_encode|raw }};
 {% set usedFields = {} %}
-{% for countryCode in craft.app.addresses.getCountryRepository().getAll()|keys %}
-	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getUsedFields(countryCode)|merge([
+{% for countryCode in Addresses.getCountryRepository().getAll()|keys %}
+	{% set usedFields = usedFields|merge({ (countryCode): Addresses.getUsedFields(countryCode)|merge([
       'fullName',
       'latLong',
       'organizationTaxId',

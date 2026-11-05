@@ -1,90 +1,87 @@
 <!-- Template: {{ _self }}.twig -->
-{# @var products \craft\commerce\elements\Product[] #}
-<div class="my-6">
-  <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    {% for product in products %}
-      <div class="relative bg-gray-50 rounded hover:shadow-md">
-        <div>
-          <a class="block" href="{{ product.url }}">
-            {% include "shop/_private/images/placeholder.svg" with {
-              class: 'w-full h-auto rounded rounded-b-none',
-              width: 320,
-              height: 140
-            } %}
-          </a>
-        </div>
-        <div class="m-4">
-          <div class="relative text-lg text-bold mb-2">
-            <div class="w-2/3">
-              <a class="leading-tight text-blue-500 hover:text-blue-600" href="{{ product.url }}">
-                {{ product.title|title }}
-              </a>
-            </div>
-            <div>
-              <span class="absolute top-0 right-0">{{ product.defaultPriceAsCurrency }}</span>
-            </div>
-          </div>
-          <p class="text-sm">
-            {{ 'This is a pretend product description, placeholdering here for you to swap with something better.'|t }}
+{# @var products \CraftCms\Commerce\Product\Elements\Product[] #}
+<div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  {% for product in products %}
+    {% set variants = product.getVariants() %}
+    {% set defaultVariant = product.defaultVariant %}
+    <article class="group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xs transition hover:shadow-md">
+      <a href="{{ product.url }}" class="block aspect-[4/3] overflow-hidden bg-gray-100">
+        {% include "shop/_private/images/placeholder.svg" with {
+          class: 'h-full w-full object-cover transition group-hover:scale-105',
+          width: 320,
+          height: 240
+        } %}
+      </a>
+
+      <div class="flex flex-1 flex-col p-4">
+        <div class="flex items-start justify-between gap-3">
+          <h2 class="text-sm font-semibold">
+            <a href="{{ product.url }}" class="hover:text-blue-600">{{ product.title }}</a>
+          </h2>
+          <p class="shrink-0 text-sm font-semibold">
+            {% if defaultVariant and defaultVariant.onPromotion %}
+              <del class="mr-1 font-normal text-gray-400">{{ defaultVariant.price|currency(cart.currency) }}</del>
+            {% endif %}
+            {{ product.defaultPriceAsCurrency }}
           </p>
-          <form method="post" class="mt-6">
-            {{ csrfInput() }}
-            {{ actionInput('commerce/cart/update') }}
-            {{ successMessageInput('{product} added to cart.'|t({
-              product: product.title
-            })) }}
-
-            <div class="text-right text-xs text-gray-400">
-              {% set totalVariants = product.getVariants()|length %}
-              {{ '{total} variant(s)'|t({ total: totalVariants }) }}
-            </div>
-
-            <div style="overflow-y: scroll; max-height: 6rem;">
-              {% for variant in product.getVariants() %}
-                {# @var variant \craft\commerce\elements\Variant #}
-                <label class="flex w-full items-center">
-                  {{ tag('input', {
-                    name: 'purchasableId',
-                    type: 'radio',
-                    value: variant.id,
-                    checked: loop.first,
-                    class: not variant.getIsAvailable() ? 'opacity-10' : '',
-                    disabled: not variant.availableForPurchase,
-                  }) }}
-                  <span class="pl-1">{{ variant.sku }}
-                    {% if variant.hasInventory and variant.inventoryTracked %}
-                      ({{ variant.stock ? variant.stock ~ ' available' : 'out of stock'}})
-                      {% if variant.allowOutOfStockPurchases %}
-                        <span class="text-xs text-gray-400">{{ "Continue selling when out of stock."|t }}</span>
-                      {% endif %}
-                    {% endif %}
-                  </span>
-                  <span class="ml-auto">{% if variant.onPromotion %} <del class="text-gray-400 text-xs">{{ variant.price|currency(cart.currency) }}</del>{% endif %} {{ variant.salePrice|currency(cart.currency) }}</span>
-                </label>
-              {% endfor %}
-            </div>
-            <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
-              {{ input('number', 'qty', 1, {
-                class: 'mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring',
-                step: 1,
-                min: 1,
-                placeholder: 'Quantity'|t
-              }) }}
-              {{ tag('button', {
-                type: 'submit',
-                class: ['m-0', 'text-center', 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white'],
-                text: 'Add to cart'|t
-              }) }}
-            </div>
-            <div class="mt-1">
-              <label>
-                {{ input('checkbox', 'options[giftWrapped]', 'yes') }}
-                {{ 'Gift wrap item'|t }}
-              </label>
-            </div>
-          </form>
         </div>
+        <p class="mt-1 text-sm text-gray-500">
+          {{ 'This is a pretend product description, placeholdering here for you to swap with something better.'|t }}
+        </p>
+
+        <form method="post" class="mt-auto space-y-3 pt-4">
+          {{ csrfInput() }}
+          {{ actionInput('commerce/cart/update') }}
+          {{ successMessageInput('{product} added to cart.'|t({
+            product: product.title
+          })) }}
+
+          {% if variants|length > 1 %}
+            <label class="sr-only" for="variant-{{ product.id }}">{{ 'Variant'|t }}</label>
+            {% tag 'select' with {
+              id: 'variant-' ~ product.id,
+              name: 'purchasableId',
+              class: 'w-full block appearance-none rounded-md bg-white bg-[url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%236b7280%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.22%208.22a.75.75%200%200%201%201.06%200L10%2011.94l3.72-3.72a.75.75%200%201%201%201.06%201.06l-4.25%204.25a.75.75%200%200%201-1.06%200L5.22%209.28a.75.75%200%200%201%200-1.06Z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E")] bg-size-[1.25rem] bg-position-[right_0.5rem_center] bg-no-repeat py-2 pr-9 pl-3 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600',
+            } %}
+              {% for variant in variants %}
+                {# @var variant \CraftCms\Commerce\Product\Variant\Elements\Variant #}
+                {% set stockNote = variant.hasInventory and variant.inventoryTracked
+                  ? (variant.stock ? '{stock} in stock'|t({ stock: variant.stock }) : 'Out of stock'|t)
+                  : null %}
+                {{ tag('option', {
+                  value: variant.id,
+                  disabled: not variant.availableForPurchase or not variant.getIsAvailable(),
+                  text: variant.title ~ ' — ' ~ variant.salePrice|currency(cart.currency) ~ (stockNote ? ' (' ~ stockNote ~ ')' : ''),
+                }) }}
+              {% endfor %}
+            {% endtag %}
+          {% elseif variants|length %}
+            {{ hiddenInput('purchasableId', variants|first.id) }}
+          {% endif %}
+
+          <div class="flex gap-2">
+            <label class="sr-only" for="qty-{{ product.id }}">{{ 'Quantity'|t }}</label>
+            {{ input('number', 'qty', 1, {
+              id: 'qty-' ~ product.id,
+              class: 'w-20 block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600',
+              step: 1,
+              min: 1,
+            }) }}
+            {{ tag('button', {
+              type: 'submit',
+              class: 'flex-1 inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+              text: 'Add to cart'|t
+            }) }}
+          </div>
+
+          <label class="flex items-center gap-2 text-sm text-gray-600">
+            {{ input('checkbox', 'options[giftWrapped]', 'yes', {
+              class: 'size-4 rounded border-gray-300 accent-blue-600',
+            }) }}
+            {{ 'Gift wrap this item'|t }}
+          </label>
+        </form>
       </div>
-    {% endfor %}
-  </div>
+    </article>
+  {% endfor %}
 </div>

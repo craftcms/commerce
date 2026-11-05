@@ -328,3 +328,38 @@ it('sets shipping and/or billing addresses on the cart from the customer\'s addr
     'sets both addresses' => ['both', true, true],
     'fails validation when the shipping address is invalid' => ['shipping', false, true],
 ]);
+
+it('sets the cart\'s addresses from address IDs posted as form values', function() {
+    $salesFixture = SalesFixture::seed();
+    $cartsFixture = CartsFixture::seed();
+
+    actingAs($cartsFixture->credentialedUser);
+
+    // A form posts every value as a string.
+    postJson(Url::actionUrl('commerce/cart/update'), [
+        'purchasableId' => (string)$salesFixture->hoodie->getDefaultVariant()->id,
+        'shippingAddressId' => (string)$cartsFixture->credentialedUserAddressId,
+        'billingAddressId' => (string)$cartsFixture->credentialedUserAddressId,
+    ])
+        ->assertOk()
+        ->assertJsonPath('cart.sourceShippingAddressId', $cartsFixture->credentialedUserAddressId)
+        ->assertJsonPath('cart.sourceBillingAddressId', $cartsFixture->credentialedUserAddressId);
+});
+
+it('clears the cart\'s notices when clearNotices is posted as an empty form value', function() {
+    $salesFixture = SalesFixture::seed();
+
+    $cart = postJson(Url::actionUrl('commerce/cart/update'), [
+        'purchasableId' => $salesFixture->hoodie->getDefaultVariant()->id,
+        'couponCode' => 'NOT-A-COUPON',
+    ])->assertOk()->json('cart');
+
+    expect($cart['notices'])->not->toBeEmpty();
+
+    // A hidden input with no value posts an empty string.
+    postJson(Url::actionUrl('commerce/cart/update'), [
+        'clearNotices' => '',
+    ])
+        ->assertOk()
+        ->assertJsonPath('cart.notices', []);
+});
