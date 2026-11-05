@@ -137,6 +137,9 @@ class Checkout extends Component
             return ['errors' => [['message' => 'The checkout session has expired.', 'extensions' => ['code' => 'EXPIRED']]]];
         }
 
+        // Thumbnails are transforms of assets, which have to exist by the time the response is sent
+        Craft::$app->getConfig()->getGeneral()->generateTransformsBeforePageLoad = true;
+
         $plugin = Plugin::getInstance();
         $context['user'] = $context['userId'] ? User::find()->id($context['userId'])->one() : null;
         $context['plugin'] = $plugin;

@@ -17,6 +17,7 @@
 - Added a hosted checkout: a single-page checkout built with Vue and Tailwind that talks to a cart-scoped GraphQL API, for guests and signed-in customers. Send customers to it with `{{ craft.commerce.checkout.url() }}`. It supports the Dummy, Manual, and Stripe (Payment Intents) gateways.
 - Added “Checkouts” settings (Commerce → Settings → Checkouts), stored in project config, for configuring the hosted checkout’s appearance, return and “Continue shopping” URLs (the return URL can include `{number}`, `{shortNumber}`, and `{id}`), allowed stores, allowed gateways, partial payments, billing address requirement, and an order condition that stops payment for orders that don’t match.
 - Craft Commerce now creates a default checkout on install, with only the Dummy gateway allowed.
+- The hosted checkout shows line items’ thumbnails, using the “Thumbnail Source” of their variant’s field layout, or of their product’s if the variant doesn’t have one.
 
 ### Extensibility
 
@@ -65,6 +66,7 @@
 - Added `craft\commerce\gql\types\Store`.
 - Added `craft\commerce\gql\types\TransferDetail`.
 - Added `craft\commerce\helpers\Gql::canQueryOrders()`.
+- Added `craft\commerce\helpers\Purchasable::thumbnailAsset()` and `thumbnailUrl()`.
 - Added `craft\commerce\models\Checkout`.
 - Added `craft\commerce\controllers\CheckoutController`.
 - Added `craft\commerce\controllers\CheckoutsController`.

@@ -8,11 +8,13 @@
 namespace craft\commerce\gql\checkout;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\helpers\PaymentForm;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\Checkout;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -374,15 +376,15 @@ class CheckoutSchema
         return $labels;
     }
 
+    /**
+     * Returns the URL of a line item’s image: the thumbnail source of its purchasable (or of its product, for a
+     * variant that doesn’t have one). Shown at 64 px, so it’s twice that for high density screens.
+     */
     private static function imageUrl(LineItem $item): ?string
     {
         $purchasable = $item->getPurchasable();
 
-        if (!$purchasable || !method_exists($purchasable, 'getCheckoutImageUrl')) {
-            return null;
-        }
-
-        return $purchasable->getCheckoutImageUrl();
+        return $purchasable instanceof ElementInterface ? PurchasableHelper::thumbnailUrl($purchasable, 128) : null;
     }
 
     /**
