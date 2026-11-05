@@ -216,6 +216,14 @@ async function pay() {
     </div>
   </div>
 
+  <div v-else-if="!state.loading && !cart" class="grid min-h-screen place-items-center p-6 text-center">
+    <div>
+      <h1 class="text-xl font-semibold">We couldn’t load your checkout</h1>
+      <p v-if="state.banner" class="mt-2 text-zinc-600">{{ state.banner }}</p>
+      <a :href="config.homeUrl" class="btn-secondary mt-6">Continue shopping</a>
+    </div>
+  </div>
+
   <div v-else-if="state.loading" class="grid min-h-screen place-items-center">
     <div class="size-8 animate-spin rounded-full border-2 border-zinc-200 border-t-brand" role="status" aria-label="Loading"/>
   </div>

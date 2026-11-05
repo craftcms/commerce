@@ -51,7 +51,8 @@ class CheckoutController extends BaseFrontEndController
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
-        $cart = $plugin->getCarts()->getCart();
+        // The checkout’s GraphQL API looks the cart up by number, so it has to exist in the database
+        $cart = $plugin->getCarts()->getCart(true);
         $user = Craft::$app->getUser()->getIdentity();
 
         // A link can name the checkout to use; otherwise it’s the store’s default
