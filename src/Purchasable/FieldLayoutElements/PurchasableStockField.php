@@ -17,7 +17,9 @@ use CraftCms\Cms\Ui\Nodes\Group;
 use CraftCms\Cms\Ui\Nodes\MarkdownContent;
 use CraftCms\Cms\Ui\Nodes\Table;
 use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Inventory\Data\InventoryLevel;
+use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use CraftCms\Commerce\Inventory\Inventory;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use InvalidArgumentException;
@@ -104,8 +106,8 @@ class PurchasableStockField extends BaseNativeField
     }
 
     /**
-     * A read-only summary of the purchasable's available stock at each inventory location, with a
-     * “Manage” link on each row that opens its inventory item in a slideout.
+     * A summary of the purchasable's available stock at each inventory location, with menus to set or
+     * adjust each location's available stock and a “Manage” link that opens its inventory item in a slideout.
      *
      * @return list<Node>
      */
@@ -132,7 +134,14 @@ class PurchasableStockField extends BaseNativeField
             ])
             ->rows($inventoryLevels->map(fn(InventoryLevel $inventoryLevel) => [
                 'location' => $inventoryLevel->getInventoryLocation()->getUiLabel(),
-                'available' => $inventoryLevel->availableTotal,
+                'available' => $manageUrl ? [
+                    'label' => (string)$inventoryLevel->availableTotal,
+                    'items' => InventoryController::updateQuantityActions(
+                        $inventoryLevel->getInventoryLocation()->id,
+                        $purchasable->inventoryItemId,
+                        InventoryTransactionType::AVAILABLE->value,
+                    ),
+                ] : $inventoryLevel->availableTotal,
                 ...($manageUrl ? ['manage' => ['label' => t('Manage', category: 'commerce'), 'url' => $manageUrl, 'slideout' => true, 'refreshOnClose' => true]] : []),
             ])->values()->all())
             ->emptyMessage(t('No inventory locations exist for this store.', category: 'commerce'));

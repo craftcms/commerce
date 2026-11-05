@@ -724,6 +724,36 @@ readonly class InventoryController
     }
 
     /**
+     * The Set Quantity and Adjust Quantity menu items for an inventory level, which open the
+     * quantity modal for that level.
+     *
+     * @return list<array{label: string, modalUrl: string, actionUrl: string, params: array<string, mixed>}>
+     */
+    public static function updateQuantityActions(int $inventoryLocationId, int $inventoryItemId, string $type): array
+    {
+        $items = [];
+
+        foreach ([
+            [InventoryUpdateQuantityType::SET, t('Set Quantity', category: 'commerce')],
+            [InventoryUpdateQuantityType::ADJUST, t('Adjust Quantity', category: 'commerce')],
+        ] as [$updateAction, $label]) {
+            $items[] = [
+                'label' => $label,
+                'modalUrl' => action([self::class, 'prepareUpdateLevelsModal']),
+                'actionUrl' => action([self::class, 'updateLevels']),
+                'params' => [
+                    'inventoryLocationId' => $inventoryLocationId,
+                    'inventoryItemId' => $inventoryItemId,
+                    'type' => $type,
+                    'updateAction' => $updateAction->value,
+                ],
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
      * The actions offered on one stock level cell, as menu items. Setting, adjusting and moving
      * open a modal Form.
      *
@@ -754,17 +784,7 @@ readonly class InventoryController
         }
 
         if ($this->canAdjust($type)) {
-            foreach ([
-                [InventoryUpdateQuantityType::SET, t('Set Quantity', category: 'commerce')],
-                [InventoryUpdateQuantityType::ADJUST, t('Adjust Quantity', category: 'commerce')],
-            ] as [$updateAction, $label]) {
-                $items[] = [
-                    'label' => $label,
-                    'modalUrl' => action([self::class, 'prepareUpdateLevelsModal']),
-                    'actionUrl' => action([self::class, 'updateLevels']),
-                    'params' => [...$params, 'updateAction' => $updateAction->value],
-                ];
-            }
+            array_push($items, ...self::updateQuantityActions($inventoryLocation->id, $inventoryItemId, $type));
         }
 
         if (

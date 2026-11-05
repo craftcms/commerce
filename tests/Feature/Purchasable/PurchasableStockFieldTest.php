@@ -9,6 +9,7 @@ use CraftCms\Cms\Ui\Nodes\MarkdownContent;
 use CraftCms\Cms\Ui\Nodes\Table;
 use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Inventory\Collections\UpdateInventoryLevelCollection;
 use CraftCms\Commerce\Inventory\Data\UpdateInventoryLevel;
 use CraftCms\Commerce\Inventory\Enums\InventoryUpdateQuantityType;
@@ -44,7 +45,7 @@ function stockFieldChildren(PurchasableStockField $field, Variant $variant, Cont
     return $field->uiNode(new FieldLayoutElementContext($variant, new UiContext(), $mode))->children();
 }
 
-it('shows the stock available at each location with a manage link that opens a slideout', function() {
+it('shows the stock available at each location with set and adjust menus and a manage link that opens a slideout', function() {
     $children = stockFieldChildren($this->field, $this->variant);
 
     /** @var Table $table */
@@ -55,7 +56,10 @@ it('shows the stock available at each location with a manage link that opens a s
         ->and(array_column($props['columns'], 'key'))->toBe(['location', 'available', 'manage'])
         ->and($props['rows'])->toContain([
             'location' => $this->location->getUiLabel(),
-            'available' => 4,
+            'available' => [
+                'label' => '4',
+                'items' => InventoryController::updateQuantityActions($this->location->id, $this->variant->inventoryItemId, 'available'),
+            ],
             'manage' => [
                 'label' => 'Manage',
                 'url' => Url::cpUrl('commerce/inventory/item/' . $this->variant->inventoryItemId),
@@ -70,22 +74,24 @@ it('shows the stock available at each location with a manage link that opens a s
     expect($summary->props()['html'])->toContain('saleable across ' . count($props['rows']));
 });
 
-it('hides the manage links when the field is read-only', function() {
+it('hides the manage links and quantity menus when the field is read-only', function() {
     $table = collect(stockFieldChildren($this->field, $this->variant, ControlMode::ReadOnly))
         ->first(fn($child) => $child instanceof Table);
 
     expect(array_column($table->props()['columns'], 'key'))->toBe(['location', 'available'])
-        ->and(array_column($table->props()['rows'], 'manage'))->toBe([]);
+        ->and(array_column($table->props()['rows'], 'manage'))->toBe([])
+        ->and(array_column($table->props()['rows'], 'available'))->each->toBeInt();
 });
 
-it('hides the manage links without the manage inventory stock levels permission', function() {
+it('hides the manage links and quantity menus without the manage inventory stock levels permission', function() {
     Gate::before(fn($user, $ability) => $ability === 'commerce-manageInventoryStockLevels' ? false : null);
 
     $table = collect(stockFieldChildren($this->field, $this->variant))
         ->first(fn($child) => $child instanceof Table);
 
     expect(array_column($table->props()['columns'], 'key'))->toBe(['location', 'available'])
-        ->and(array_column($table->props()['rows'], 'manage'))->toBe([]);
+        ->and(array_column($table->props()['rows'], 'manage'))->toBe([])
+        ->and(array_column($table->props()['rows'], 'available'))->each->toBeInt();
 });
 
 it('doesn’t show inventory when it isn’t tracked', function() {
