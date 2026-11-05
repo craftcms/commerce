@@ -5,6 +5,8 @@ import {
   updateEmail, updateAddresses, updateShippingMethod, updateGateway, saveAddress, deleteAddress,
 } from './store.js';
 import AddressFields from './components/AddressFields.vue';
+import SavedAddressList from './components/SavedAddressList.vue';
+import {blank, fromAddress, isComplete} from './address.js';
 import OrderSummary from './components/OrderSummary.vue';
 import StepSummary from './components/StepSummary.vue';
 import DummyForm from './components/payment/DummyForm.vue';
@@ -21,6 +23,7 @@ const billingSame = ref(true);
 const shippingChoice = ref('new'); // saved address ID or 'new'
 const billingChoice = ref('new');
 const saveToBook = ref(true);
+const saveBillingToBook = ref(true);
 const summaryOpen = ref(false);
 const paying = ref(false);
 const payError = ref(null);
@@ -28,14 +31,6 @@ const payForm = ref(null);
 const stripeForm = ref(null);
 const stripeReady = ref(false);
 const reload = () => window.location.reload();
-
-function blank() {
-  return {countryCode: '', firstName: '', lastName: '', organization: '', addressLine1: '', addressLine2: '', locality: '', administrativeArea: '', postalCode: ''};
-}
-
-function fromAddress(a) {
-  return a ? Object.fromEntries(Object.keys(blank()).map((k) => [k, a[k] ?? ''])) : blank();
-}
 
 onMounted(async () => {
   await load();
@@ -48,6 +43,9 @@ onMounted(async () => {
   const current = cart.value.shippingAddress;
   const match = current && state.savedAddresses.find((a) => a.addressLine1 === current.addressLine1 && a.postalCode === current.postalCode && a.countryCode === current.countryCode);
   if (match) shippingChoice.value = match.id;
+  const currentBilling = cart.value.billingAddress;
+  const billingMatch = !billingSame.value && currentBilling && state.savedAddresses.find((a) => a.addressLine1 === currentBilling.addressLine1 && a.postalCode === currentBilling.postalCode && a.countryCode === currentBilling.countryCode);
+  if (billingMatch) billingChoice.value = billingMatch.id;
 
   if (state.savedAddresses.length && !cart.value.shippingAddress) {
     shippingChoice.value = state.savedAddresses[0].id;
@@ -57,13 +55,6 @@ onMounted(async () => {
   }
 });
 
-const fieldMap = {givenName: 'firstName', familyName: 'lastName'};
-function isComplete(address) {
-  const country = countryByCode.value[address.countryCode];
-  if (!country) return false;
-  const required = (country.requiredFields || ['addressLine1', 'locality']).map((f) => fieldMap[f] || f);
-  return required.every((f) => String(address[f] ?? '').trim() !== '');
-}
 
 const validEmail = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()));
 const contactDone = computed(() => !!cart.value?.email && validEmail.value);
@@ -120,58 +111,16 @@ function pickShippingMethod(handle) {
   return updateShippingMethod(handle);
 }
 
-// Deleting from the address book can't be undone, so it takes a second click
-const pendingDelete = ref(null);
-let pendingTimer;
-function removeSaved(id) {
-  if (pendingDelete.value !== id) {
-    pendingDelete.value = id;
-    clearTimeout(pendingTimer);
-    pendingTimer = setTimeout(() => (pendingDelete.value = null), 4000);
-    return;
-  }
-  pendingDelete.value = null;
-  if (shippingChoice.value === id) shippingChoice.value = 'new';
-  deleteAddress(id);
-}
-
-// Editing a saved address happens in an inline form below the list
-const editingId = ref(null);
-const editForm = reactive({...blank(), title: ''});
-const savingEdit = ref(false);
-const editErrors = ref([]);
-
-function startEdit(a) {
-  pendingDelete.value = null;
-  editErrors.value = [];
-  editingId.value = a.id;
-  Object.assign(editForm, fromAddress(a), {title: a.title && a.title !== a.addressLine1 ? a.title : ''});
-}
-
-function cancelEdit() {
-  editingId.value = null;
-  editErrors.value = [];
-}
-
-async function saveEdit() {
-  const id = editingId.value;
-  if (!isComplete(editForm)) {
-    editErrors.value = ['Fill in the required address fields.'];
-    return;
-  }
-
-  savingEdit.value = true;
-  const ok = await saveAddress({...editForm}, id);
-  savingEdit.value = false;
-
-  if (!ok) {
-    editErrors.value = Object.values(state.errors).flat();
-    return;
-  }
-
-  editingId.value = null;
-  // The cart holds its own copy of the address, so bring it up to date if this is the one in use
+// The address book list handles choosing, editing and deleting; these keep the cart in step with it
+async function onSavedUpdated(id) {
+  // The cart holds its own copy of an address, so bring it up to date if this is one in use
   if (shippingChoice.value === id) await applySaved('shipping');
+  if (!billingSame.value && billingChoice.value === id) await applySaved('billing');
+}
+
+function onSavedDeleted(id) {
+  if (shippingChoice.value === id) shippingChoice.value = 'new';
+  if (billingChoice.value === id) billingChoice.value = 'new';
 }
 
 const addressLine = (a) => [a.addressLine1, a.locality, a.administrativeArea, a.postalCode, a.countryCode].filter(Boolean).join(', ');
@@ -200,11 +149,17 @@ async function pushAddresses() {
   if (billingSame.value && cart.value.requiresShipping && !vars.shippingAddress && shippingChoice.value === 'new') return;
   vars.billingSameAsShipping = billingSame.value && cart.value.requiresShipping;
   const ok = await updateAddresses(vars);
-  if (ok && vars.shippingAddress && !isGuest && saveToBook.value && shippingChoice.value === 'new') {
-    const exists = state.savedAddresses.some((a) => a.addressLine1 === shipping.addressLine1 && a.postalCode === shipping.postalCode);
-    if (!exists && !(await saveAddress({...shipping}))) {
-      state.banner = 'We couldn’t save this address to your address book.';
-    }
+  if (ok && !isGuest) {
+    if (vars.shippingAddress && saveToBook.value && shippingChoice.value === 'new') await remember(shipping);
+    if (vars.billingAddress && saveBillingToBook.value && billingChoice.value === 'new') await remember(billing);
+  }
+}
+
+// Adds an address to the customer's address book, unless it's already there
+async function remember(address) {
+  const exists = state.savedAddresses.some((a) => a.addressLine1 === address.addressLine1 && a.postalCode === address.postalCode);
+  if (!exists && !(await saveAddress({...address}))) {
+    state.banner = 'We couldn’t save this address to your address book.';
   }
 }
 
@@ -362,32 +317,7 @@ async function pay() {
             <div v-show="!collapsed.delivery">
             <h2 id="h-delivery" class="mb-3 text-lg font-semibold">Delivery</h2>
 
-            <div v-if="!isGuest && state.savedAddresses.length" class="choice-group mb-3">
-              <label v-for="a in state.savedAddresses" :key="a.id" class="choice">
-                <input v-model="shippingChoice" type="radio" name="shipping-choice" :value="a.id" class="accent-brand" @change="applySaved('shipping')">
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate font-medium"><template v-if="a.title && a.title !== a.addressLine1">{{ a.title }} · </template>{{ a.fullName || [a.firstName, a.lastName].filter(Boolean).join(' ') }}</span>
-                  <span class="block truncate text-zinc-500">{{ [a.addressLine1, a.locality, a.administrativeArea, a.postalCode, a.countryCode].filter(Boolean).join(', ') }}</span>
-                </span>
-                <button type="button" class="mr-3 text-xs text-zinc-500 hover:text-brand" :aria-label="`Edit saved address ${a.addressLine1}`" @click.prevent="startEdit(a)">Edit</button>
-                <button type="button" class="text-xs" :class="pendingDelete === a.id ? 'font-medium text-red-600' : 'text-zinc-500 hover:text-red-600'" :aria-label="`Delete saved address ${a.addressLine1}`" @click.prevent="removeSaved(a.id)">{{ pendingDelete === a.id ? 'Confirm delete' : 'Delete' }}</button>
-              </label>
-              <label class="choice">
-                <input v-model="shippingChoice" type="radio" name="shipping-choice" value="new" class="accent-brand">
-                <span class="font-medium">Use a new address</span>
-              </label>
-            </div>
-
-            <div v-if="editingId !== null" role="group" class="mb-3 space-y-3 rounded-lg border border-zinc-300 bg-zinc-50 p-4" aria-label="Edit saved address" @keydown.enter.prevent="saveEdit">
-              <p class="text-sm font-medium">Edit address</p>
-              <input v-model="editForm.title" class="field" placeholder="Label (optional), such as Home or Office" aria-label="Label">
-              <AddressFields v-model="editForm" prefix="edit" :errors="[]"/>
-              <p v-for="e in editErrors" :key="e" class="text-sm text-red-600">{{ e }}</p>
-              <div class="flex gap-2">
-                <button type="button" class="btn-primary !w-auto" :disabled="savingEdit" @click="saveEdit">{{ savingEdit ? 'Saving…' : 'Save address' }}</button>
-                <button type="button" class="btn-secondary" @click="cancelEdit">Cancel</button>
-              </div>
-            </div>
+            <SavedAddressList v-if="!isGuest && state.savedAddresses.length" v-model="shippingChoice" name="shipping-choice" @select="applySaved('shipping')" @saved="onSavedUpdated" @deleted="onSavedDeleted"/>
 
             <p v-if="!state.countries.length" class="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">This store hasn’t been set up to ship anywhere yet. Add countries in the store’s settings.</p>
             <template v-else-if="shippingChoice === 'new'">
@@ -457,7 +387,14 @@ async function pay() {
                 <label v-if="cart.requiresShipping" class="choice"><input v-model="billingSame" type="radio" :value="true" class="accent-brand"><span class="font-medium">Same as shipping address</span></label>
                 <label class="choice"><input v-model="billingSame" type="radio" :value="false" class="accent-brand"><span class="font-medium">Use a different billing address</span></label>
               </div>
-              <AddressFields v-if="!billingSame || !cart.requiresShipping" v-model="billing" prefix="billing" :errors="state.errors.billingAddress" @change="queueAddresses"/>
+              <template v-if="!billingSame || !cart.requiresShipping">
+                <SavedAddressList v-if="!isGuest && state.savedAddresses.length" v-model="billingChoice" name="billing-choice" @select="applySaved('billing')" @saved="onSavedUpdated" @deleted="onSavedDeleted"/>
+                <template v-if="billingChoice === 'new' || isGuest || !state.savedAddresses.length">
+                  <AddressFields v-model="billing" prefix="billing" :errors="state.errors.billingAddress" @change="queueAddresses"/>
+                  <label v-if="!isGuest" class="mt-3 flex items-center gap-2 text-sm"><input v-model="saveBillingToBook" type="checkbox" class="size-4 accent-brand"> Save this address for next time</label>
+                </template>
+                <p v-for="e in state.errors.billingAddress" v-else :key="e" class="mt-2 text-sm text-red-600">{{ e }}</p>
+              </template>
             </div>
           </section>
 
