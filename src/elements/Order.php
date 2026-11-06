@@ -2330,6 +2330,7 @@ class Order extends Element implements HasStoreInterface
             }
 
             $oldStatusId = $orderRecord->orderStatusId;
+            $wasCompleted = (bool)$orderRecord->isCompleted;
 
             $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
             $orderRecord->number = $this->number;
@@ -2462,6 +2463,13 @@ class Order extends Element implements HasStoreInterface
             }
 
             $orderRecord->save(false);
+
+            if (
+                $orderRecord->isCompleted &&
+                (!$wasCompleted || $oldStatusId != $orderRecord->orderStatusId)
+            ) {
+                Plugin::getInstance()->getOrderStatuses()->invalidateOrderCountByStatus($orderRecord->storeId);
+            }
 
             $this->_saveAdjustments();
             $this->_saveLineItems();
@@ -3860,6 +3868,7 @@ class Order extends Element implements HasStoreInterface
         parent::afterDelete();
 
         if ($this->isCompleted) {
+            Plugin::getInstance()->getOrderStatuses()->invalidateOrderCountByStatus($this->storeId);
             foreach ($this->_deletingLineItems as $lineItem) {
                 if ($lineItem->type === LineItemType::Custom) {
                     continue;
@@ -3870,6 +3879,18 @@ class Order extends Element implements HasStoreInterface
                     Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable, true);
                 }
             }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterRestore(): void
+    {
+        parent::afterRestore();
+
+        if ($this->isCompleted) {
+            Plugin::getInstance()->getOrderStatuses()->invalidateOrderCountByStatus($this->storeId);
         }
     }
 
