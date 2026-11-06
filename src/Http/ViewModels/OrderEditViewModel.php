@@ -303,7 +303,6 @@ class OrderEditViewModel extends ViewModel
             'link' => action([OrderPaymentLinksController::class, 'create']),
             'linkUrl' => action([OrderPaymentLinksController::class, 'url']),
             'linkEmail' => action([OrderPaymentLinksController::class, 'email']),
-            'terminal' => action([OrderPaymentLinksController::class, 'terminal']),
             'copyAddressToUser' => action([OrdersController::class, 'copyAddressToUser']),
             'start' => action([OrderEditController::class, 'start']),
             'takeOver' => action([OrderEditController::class, 'takeOver']),
@@ -724,7 +723,7 @@ class OrderEditViewModel extends ViewModel
      *     canRecordPayment: bool,
      *     canRecordRefund: bool,
      *     canCreateLink: bool,
-     *     terminals: list<array{id: int, name: string}>,
+     *     terminals: list<array{id: int, name: string, url: string}>,
      * }|null
      */
     public function payments(): ?array
@@ -743,8 +742,8 @@ class OrderEditViewModel extends ViewModel
             'canRecordRefund' => $this->userCan('commerce-recordRefunds') && $this->order->getTotalPaid() > 0,
             'canCreateLink' => $gateways->contains(fn(Gateway $gateway) => $gateway->supportsCollectPaymentLink()),
             'terminals' => $gateways
-                ->filter(fn(Gateway $gateway) => $gateway->getVirtualTerminalUrl($this->order) !== null)
-                ->map(fn(Gateway $gateway) => ['id' => (int)$gateway->id, 'name' => (string)$gateway->name])
+                ->map(fn(Gateway $gateway) => ['id' => (int)$gateway->id, 'name' => (string)$gateway->name, 'url' => $gateway->getVirtualTerminalUrl($this->order)])
+                ->filter(fn(array $terminal) => $terminal['url'] !== null)
                 ->values()
                 ->all(),
         ];
@@ -1134,6 +1133,8 @@ class OrderEditViewModel extends ViewModel
             'collectPayment' => t('Payments', category: 'commerce'),
             'createPaymentLink' => t('Create payment link…', category: 'commerce'),
             'openTerminal' => t('Open {gateway} virtual terminal', category: 'commerce'),
+            'terminalHint' => t('Take the payment in {gateway}, then come back here. If {gateway} reports it to Commerce, it appears in Transactions. If it doesn’t, record it as an external payment.', category: 'commerce'),
+            'refreshPayments' => t('Refresh payments', category: 'commerce'),
             'paymentLinkTitle' => t('Payment Link', category: 'commerce'),
             'paymentLinkHint' => t('The customer can pay this order with this link. The gateway completes the payment.', category: 'commerce'),
             'copyLink' => t('Copy link', category: 'commerce'),

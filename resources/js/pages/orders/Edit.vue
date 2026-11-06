@@ -175,7 +175,7 @@
             canRecordPayment: boolean;
             canRecordRefund: boolean;
             canCreateLink: boolean;
-            terminals: Array<{id: number; name: string}>;
+            terminals: Array<{id: number; name: string; url: string}>;
         } | null;
         couponCode: string | null;
         shippingMethodName: string | null;
@@ -603,18 +603,11 @@
         }
     }
 
-    async function openTerminal(gatewayId: number): Promise<void> {
-        try {
-            const {data} = await window.Craft.sendActionRequest<{url: string}>(
-                'GET',
-                props.editUrls.terminal,
-                {params: {orderId: props.orderId, gatewayId}}
-            );
-            window.open(data.url, '_blank', 'noopener');
-            recordPayment();
-        } catch (error: any) {
-            showError(error);
-        }
+    const terminal = ref<{name: string; url: string} | null>(null);
+
+    function recordFromTerminal(): void {
+        terminal.value = null;
+        recordPayment();
     }
 
     const paymentActions = computed<ActionItem[]>(() => {
@@ -639,12 +632,12 @@
                       },
                   ]
                 : []),
-            ...payments.terminals.map((terminal) => ({
+            ...payments.terminals.map((gatewayTerminal) => ({
                 label: props.labels.openTerminal.replace(
                     '{gateway}',
-                    terminal.name
+                    gatewayTerminal.name
                 ),
-                onClick: () => void openTerminal(terminal.id),
+                onClick: () => (terminal.value = gatewayTerminal),
                 ...blockedState,
             })),
             ...(payments.canRecordPayment
@@ -1794,6 +1787,36 @@
                 {{ labels.copy }}
             </craft-button>
         </div>
+    </craft-dialog>
+
+    <craft-dialog
+        v-if="terminal"
+        open
+        :label="labels.openTerminal.replace('{gateway}', terminal.name)"
+        @craft-after-hide="terminal = null"
+    >
+        <p>{{ labels.terminalHint.replaceAll('{gateway}', terminal.name) }}</p>
+        <craft-button
+            :href="terminal.url"
+            target="_blank"
+            rel="noopener"
+            data-inertia="false"
+            icon="arrow-up-right-from-square"
+        >
+            {{ labels.openTerminal.replace('{gateway}', terminal.name) }}
+        </craft-button>
+        <craft-button slot="footer" type="button" @click="paymentsChanged">
+            {{ labels.refreshPayments }}
+        </craft-button>
+        <craft-button
+            v-if="payments?.canRecordPayment"
+            slot="footer"
+            type="button"
+            variant="primary"
+            @click="recordFromTerminal"
+        >
+            {{ labels.recordPayment }}
+        </craft-button>
     </craft-dialog>
 
     <craft-dialog

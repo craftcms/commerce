@@ -287,7 +287,6 @@ it('refuses every payment action while the order has an edit session with change
     getJson(paymentTestUrl('record-payment-form', ['orderId' => $order->id]))->assertStatus(423);
     getJson(paymentTestUrl('record-refund-form', ['orderId' => $order->id]))->assertStatus(423);
     getJson(paymentTestUrl('link-form', ['orderId' => $order->id]))->assertStatus(423);
-    getJson(paymentTestUrl('terminal', ['orderId' => $order->id, 'gatewayId' => $order->gatewayId]))->assertStatus(423);
     paymentTestRecord($order)->assertStatus(423);
     postJson(Url::actionUrl('commerce/orders/transaction-capture'), ['id' => $authorize->id])->assertStatus(423);
     postJson(Url::actionUrl('commerce/orders/transaction-refund'), [
@@ -405,28 +404,18 @@ it('treats a link past its expiry as closed', function() {
         ->and(app(PaymentLinks::class)->openLinks(Order::find()->id($order->id)->one()))->toBe([]);
 });
 
-it('gives the virtual terminal URL of a gateway that has one', function() {
-    $order = OrdersFixture::seed()->orders['completed-new'];
-    $gateway = paymentTestGateway($order, LinkGateway::class);
-
-    getJson(paymentTestUrl('terminal', ['orderId' => $order->id, 'gatewayId' => $gateway->id]))
-        ->assertOk()
-        ->assertJsonPath('url', 'https://terminal.example.test/?ref=' . $order->number);
-
-    $plain = app(Gateways::class)->createGateway(['type' => Dummy::class, 'name' => 'Plain', 'handle' => 'plainDummy', 'isFrontendEnabled' => true]);
-    app(Gateways::class)->saveGateway($plain);
-
-    getJson(paymentTestUrl('terminal', ['orderId' => $order->id, 'gatewayId' => $plain->id]))->assertNotFound();
-});
-
 it('offers collecting a payment while the order has an outstanding balance', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
     paymentTestGateway($order, LinkGateway::class);
+    $plain = app(Gateways::class)->createGateway(['type' => Dummy::class, 'name' => 'Plain', 'handle' => 'plainDummy', 'isFrontendEnabled' => true]);
+    app(Gateways::class)->saveGateway($plain);
     $path = '/' . Cms::config()->cpTrigger . "/commerce/orders/{$order->id}";
 
     get($path)->assertOk()->assertInertia(fn(AssertableInertia $page) => $page
         ->where('payments.canCreateLink', true)
         ->where('payments.terminals.0.name', 'Dummy')
+        ->where('payments.terminals.0.url', 'https://terminal.example.test/?ref=' . $order->number)
+        ->has('payments.terminals', 1)
         ->etc()
     );
 });

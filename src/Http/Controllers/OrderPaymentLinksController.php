@@ -35,8 +35,8 @@ use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
 /**
- * Collecting a payment through a gateway: a hosted payment link for the customer, emailed or copied, or a
- * jump to the gateway’s own virtual terminal. The gateway completes the payment through its webhook.
+ * Collecting a payment through a gateway with a hosted payment link for the customer, emailed or copied. The
+ * gateway completes the payment through its webhook.
  *
  * Each action refuses while the order has an edit session with changes waiting. See {@see OrderEditGuard}.
  *
@@ -156,21 +156,6 @@ class OrderPaymentLinksController
         $order = $this->order($request);
 
         return new JsonResponse(['url' => $this->links->url($this->openLink($request, $order))]);
-    }
-
-    /**
-     * The URL of a gateway’s virtual terminal for the order.
-     */
-    public function terminal(Request $request): JsonResponse
-    {
-        $order = $this->order($request);
-        $request->validate(['gatewayId' => ['required', 'integer']]);
-
-        $gateway = app(Gateways::class)->getGatewayById((int)$request->input('gatewayId'));
-        $url = $gateway && !$gateway->isArchived ? $gateway->getVirtualTerminalUrl($order) : null;
-        abort_if($url === null, 404, t('This gateway has no virtual terminal.', category: 'commerce'));
-
-        return new JsonResponse(['url' => $url]);
     }
 
     /**

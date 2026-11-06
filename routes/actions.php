@@ -269,7 +269,6 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
         Route::get('orders/payment/record-payment-form', [OrderPaymentController::class, 'recordPaymentForm']);
         Route::post('orders/payment/record-payment', [OrderPaymentController::class, 'recordPayment']);
     });
-    Route::get('orders/payment/terminal', [OrderPaymentLinksController::class, 'terminal']);
     Route::get('orders/payment/link-form', [OrderPaymentLinksController::class, 'createForm']);
     Route::post('orders/payment/link', [OrderPaymentLinksController::class, 'create']);
     Route::get('orders/payment/link-url', [OrderPaymentLinksController::class, 'url']);
