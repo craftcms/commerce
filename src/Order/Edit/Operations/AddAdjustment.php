@@ -119,7 +119,7 @@ final readonly class AddAdjustment extends OrderOperation
         $adjustment->description = $this->description;
         $adjustment->amount = $this->amount;
         $adjustment->included = $this->included;
-        $adjustment->setSourceSnapshot([]);
+        $adjustment->setSourceSnapshot(['manual' => true]);
 
         if ($this->lineItemUid !== null) {
             $adjustment->setLineItem($this->lineItem($order, $this->lineItemUid));

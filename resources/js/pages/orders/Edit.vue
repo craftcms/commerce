@@ -68,7 +68,9 @@
             index: number;
             label: string;
             summary: string | null;
+            note: string | null;
         }>;
+        chargesKept: boolean;
         stock: Array<{text: string; warning: string | null}>;
         originalTotal: string | null;
         newTotal: string | null;
@@ -484,6 +486,10 @@
         {
             label: props.labels.addAdjustment,
             onClick: () => openForm('addAdjustment'),
+        },
+        {
+            label: props.labels.recalculateCharges,
+            onClick: () => void apply([{type: 'recalculateCharges'}]),
         },
         {label: props.labels.recalculate, onClick: recalculate},
     ]);
@@ -1710,6 +1716,9 @@
                     >
                         {{ operation.summary }}
                     </div>
+                    <div v-if="operation.note" class="review-note">
+                        {{ operation.note }}
+                    </div>
                 </div>
                 <craft-button
                     type="button"
@@ -1721,6 +1730,14 @@
                 </craft-button>
             </li>
         </ul>
+        <craft-button
+            v-if="session.chargesKept"
+            type="button"
+            size="small"
+            @click="apply([{type: 'recalculateCharges'}])"
+        >
+            {{ labels.recalculateCharges }}
+        </craft-button>
         <section v-if="session.stock.length" class="review-stock">
             <h3>{{ labels.stock }}</h3>
             <ul>
@@ -2500,6 +2517,11 @@
         display: grid;
         justify-items: start;
         gap: var(--c-spacing-sm, 0.5rem);
+    }
+
+    .review-note {
+        font-size: 0.875em;
+        color: var(--c-color-warning-text, #b45309);
     }
 
     .review-stock {

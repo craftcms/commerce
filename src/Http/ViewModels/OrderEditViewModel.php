@@ -397,6 +397,7 @@ class OrderEditViewModel extends ViewModel
             'newTotal' => $mine ? $this->order->totalPriceAsCurrency : null,
             'totals' => $mine ? $this->sessionTotals() : [],
             'stock' => $mine ? $this->sessionStock() : [],
+            'chargesKept' => $mine && $this->chargesKept(),
         ];
     }
 
@@ -467,20 +468,56 @@ class OrderEditViewModel extends ViewModel
         ], app(OrderStockReconciliation::class)->changes($this->original, $this->order));
     }
 
+    private const array CHARGE_OPERATIONS = ['setAddress', 'copyAddress', 'removeAddress', 'setShippingMethod', 'setCouponCode'];
+
+    private const array CHARGE_RECALCULATIONS = ['recalculate', 'recalculateCharges'];
+
     /**
-     * @return list<array{index: int, label: string, summary: string|null}>
+     * The indexes of the session's operations that change what shipping, tax or discounts should be, but
+     * haven't been followed by a recalculation.
+     *
+     * @return list<int>
+     */
+    private function operationsKeepingCharges(): array
+    {
+        if (!$this->order->isCompleted) {
+            return [];
+        }
+
+        $keeping = [];
+
+        foreach ($this->session->edit->operations as $index => $operation) {
+            if (in_array($operation::type(), self::CHARGE_RECALCULATIONS, true)) {
+                $keeping = [];
+            } elseif (in_array($operation::type(), self::CHARGE_OPERATIONS, true)) {
+                $keeping[] = $index;
+            }
+        }
+
+        return $keeping;
+    }
+
+    private function chargesKept(): bool
+    {
+        return $this->operationsKeepingCharges() !== [];
+    }
+
+    /**
+     * @return list<array{index: int, label: string, summary: string|null, note: string|null}>
      */
     private function sessionOperations(): array
     {
         $operations = $this->session->edit->operations;
         $base = $operations ? app(Orders::class)->getOrderById($this->order->id) : null;
         $summaries = $base ? app(OrderOperations::class)->summaries($base, $operations) : [];
+        $keeping = $this->operationsKeepingCharges();
 
         return array_map(
             fn(OrderOperation $operation, int $index) => [
                 'index' => $index,
                 'label' => $operation->label(),
                 'summary' => $summaries[$index] ?? null,
+                'note' => in_array($index, $keeping, true) ? t('Existing shipping, tax and discount charges are being kept.', category: 'commerce') : null,
             ],
             $operations,
             array_keys($operations),
@@ -1116,6 +1153,7 @@ class OrderEditViewModel extends ViewModel
             'editAdjustment' => t('Edit Adjustment', category: 'commerce'),
             'removeAdjustment' => t('Remove Adjustment', category: 'commerce'),
             'recalculate' => t('Recalculate Order', category: 'commerce'),
+            'recalculateCharges' => t('Recalculate Charges', category: 'commerce'),
             'confirmRecalculate' => t('Recalculate the order? Prices are refreshed from the purchasables and manual adjustments are replaced.', category: 'commerce'),
             'editFields' => t('Edit Fields', category: 'commerce'),
             'fieldModified' => t('This field has been modified.'),

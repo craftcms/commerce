@@ -11,6 +11,7 @@ use CraftCms\Commerce\Order\Edit\Operations\AddLineItem;
 use CraftCms\Commerce\Order\Edit\Operations\ClearNotices;
 use CraftCms\Commerce\Order\Edit\Operations\CopyAddress;
 use CraftCms\Commerce\Order\Edit\Operations\Recalculate;
+use CraftCms\Commerce\Order\Edit\Operations\RecalculateCharges;
 use CraftCms\Commerce\Order\Edit\Operations\RemoveAddress;
 use CraftCms\Commerce\Order\Edit\Operations\RemoveAdjustment;
 use CraftCms\Commerce\Order\Edit\Operations\RemoveLineItem;
@@ -71,6 +72,7 @@ class OrderOperationTypes extends TypeRegistry
         ClearNotices::class,
         SetFieldValues::class,
         Recalculate::class,
+        RecalculateCharges::class,
     ];
 
     /** @return class-string<OrderOperation>|null */

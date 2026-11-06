@@ -51,6 +51,15 @@ class OrderAdjustment extends Component
         return $this->_sourceSnapshot;
     }
 
+    /**
+     * Whether staff added the adjustment by hand, rather than an adjuster generating it. Only adjustments
+     * added from the order edit page are marked, as adjusters can leave their snapshot empty too.
+     */
+    public function isManual(): bool
+    {
+        return !empty($this->_sourceSnapshot['manual']);
+    }
+
     public function setSourceSnapshot(array|string $snapshot): void
     {
         if (is_string($snapshot)) {
