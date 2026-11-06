@@ -176,7 +176,7 @@ class Checkouts extends Component
 
         if ($isNew) {
             $checkout->uid = StringHelper::UUID();
-            $checkout->sortOrder ??= ((int)(new Query())->from(Table::CHECKOUTS)->max('sortOrder')) + 1;
+            $checkout->sortOrder ??= ((int)(new Query())->from(Table::CHECKOUTS)->max('[[sortOrder]]')) + 1;
         }
 
         // The first checkout is the default
