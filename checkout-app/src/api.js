@@ -1,4 +1,6 @@
-const config = JSON.parse(document.getElementById('checkout-config').textContent);
+const config = JSON.parse(
+  document.getElementById('checkout-config').textContent
+);
 
 export {config};
 

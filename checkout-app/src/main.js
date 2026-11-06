@@ -7,6 +7,7 @@ import './style.css';
 const root = document.documentElement;
 root.dataset.scheme = config.theme.colorScheme;
 root.dataset.corners = config.theme.cornerStyle;
-if (config.theme.brandColor) root.style.setProperty('--checkout-brand', config.theme.brandColor);
+if (config.theme.brandColor)
+  root.style.setProperty('--checkout-brand', config.theme.brandColor);
 
 createApp(App).mount('#checkout');

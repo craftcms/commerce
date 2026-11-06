@@ -15,7 +15,9 @@ export default defineConfig({
         entryFileNames: 'checkout.js',
         chunkFileNames: 'checkout-[name].js',
         assetFileNames: (asset) =>
-          asset.names?.some((n) => n.endsWith('.css')) ? 'checkout.css' : 'assets/[name]-[hash][extname]',
+          asset.names?.some((n) => n.endsWith('.css'))
+            ? 'checkout.css'
+            : 'assets/[name]-[hash][extname]',
       },
     },
   },

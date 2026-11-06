@@ -10,7 +10,11 @@ export async function postPay(body) {
   body.set('action', 'commerce/payments/pay');
   body.set(config.csrf.name, config.csrf.token);
 
-  const response = await fetch(config.payUrl, {method: 'POST', body, headers: {Accept: 'application/json'}});
+  const response = await fetch(config.payUrl, {
+    method: 'POST',
+    body,
+    headers: {Accept: 'application/json'},
+  });
   let json = {};
   try {
     json = await response.json();
@@ -26,7 +30,12 @@ export async function postPay(body) {
  */
 export function payErrorMessage(json) {
   const fieldErrors = Object.values(json.paymentFormErrors || {}).flat();
-  return fieldErrors[0] || json.error || json.message || 'Your payment could not be processed.';
+  return (
+    fieldErrors[0] ||
+    json.error ||
+    json.message ||
+    'Your payment could not be processed.'
+  );
 }
 
 /**
@@ -34,10 +43,23 @@ export function payErrorMessage(json) {
  * data it needs), or to the order’s return URL.
  */
 export function followRedirect(json) {
-  if (json.redirect && json.redirectData && Object.keys(json.redirectData).length) {
-    const form = Object.assign(document.createElement('form'), {method: 'POST', action: json.redirect});
+  if (
+    json.redirect &&
+    json.redirectData &&
+    Object.keys(json.redirectData).length
+  ) {
+    const form = Object.assign(document.createElement('form'), {
+      method: 'POST',
+      action: json.redirect,
+    });
     for (const [name, value] of Object.entries(json.redirectData)) {
-      form.appendChild(Object.assign(document.createElement('input'), {type: 'hidden', name, value}));
+      form.appendChild(
+        Object.assign(document.createElement('input'), {
+          type: 'hidden',
+          name,
+          value,
+        })
+      );
     }
     document.body.appendChild(form);
     form.submit();

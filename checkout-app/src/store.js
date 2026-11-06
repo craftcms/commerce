@@ -14,7 +14,9 @@ export const state = reactive({
 
 export const isGuest = config.isGuest;
 
-export const countryByCode = computed(() => Object.fromEntries(state.countries.map((c) => [c.code, c])));
+export const countryByCode = computed(() =>
+  Object.fromEntries(state.countries.map((c) => [c.code, c]))
+);
 
 function setErrors(list) {
   const errors = {};
@@ -44,7 +46,9 @@ async function wrap(fn) {
 
 export async function load() {
   await wrap(async () => {
-    const data = await gql(`{ cart { ${CART_FIELDS} } countries { code name usedFields requiredFields administrativeAreas { code name } } savedAddresses { ${ADDRESS} } }`);
+    const data = await gql(
+      `{ cart { ${CART_FIELDS} } countries { code name usedFields requiredFields administrativeAreas { code name } } savedAddresses { ${ADDRESS} } }`
+    );
     state.cart = data.cart;
     state.countries = data.countries;
     state.savedAddresses = data.savedAddresses;
@@ -58,8 +62,10 @@ export async function load() {
 async function mutate(name, args, argDefs, vars) {
   const result = await wrap(async () => {
     const data = await gql(
-      `mutation${argDefs ? `(${argDefs})` : ''} { ${name}(${args}) { cart { ${CART_FIELDS} } errors { field message } } }`,
-      vars,
+      `mutation${
+        argDefs ? `(${argDefs})` : ''
+      } { ${name}(${args}) { cart { ${CART_FIELDS} } errors { field message } } }`,
+      vars
     );
     return data[name];
   });
@@ -69,9 +75,16 @@ async function mutate(name, args, argDefs, vars) {
 }
 
 const TYPES = {
-  id: 'Int!', qty: 'Int!', email: 'String!', code: 'String', handle: 'String!',
-  shippingAddress: 'CheckoutAddressInput', billingAddress: 'CheckoutAddressInput',
-  shippingAddressId: 'Int', billingAddressId: 'Int', billingSameAsShipping: 'Boolean',
+  id: 'Int!',
+  qty: 'Int!',
+  email: 'String!',
+  code: 'String',
+  handle: 'String!',
+  shippingAddress: 'CheckoutAddressInput',
+  billingAddress: 'CheckoutAddressInput',
+  shippingAddressId: 'Int',
+  billingAddressId: 'Int',
+  billingSameAsShipping: 'Boolean',
 };
 
 // Only declares the variables that are actually passed, as GraphQL rejects unused ones
@@ -86,7 +99,8 @@ export const updateQty = (id, qty) => run('updateLineItem', {id, qty});
 export const removeItem = (id) => run('removeLineItem', {id});
 export const updateEmail = (email) => run('updateEmail', {email});
 export const updateCoupon = (code) => run('updateCoupon', {code});
-export const updateShippingMethod = (handle) => run('updateShippingMethod', {handle});
+export const updateShippingMethod = (handle) =>
+  run('updateShippingMethod', {handle});
 export const updateGateway = (id) => run('updateGateway', {id});
 export const updateAddresses = (vars) => run('updateAddresses', vars);
 
@@ -94,7 +108,7 @@ export async function saveAddress(address, id = null) {
   const result = await wrap(async () => {
     const data = await gql(
       `mutation($id: Int, $address: CheckoutAddressInput!) { saveAddress(id: $id, address: $address) { addresses { ${ADDRESS} } errors { field message } } }`,
-      {id, address},
+      {id, address}
     );
     return data.saveAddress;
   });
@@ -107,7 +121,7 @@ export async function deleteAddress(id) {
   const result = await wrap(async () => {
     const data = await gql(
       `mutation($id: Int!) { deleteAddress(id: $id) { addresses { ${ADDRESS} } errors { field message } } }`,
-      {id},
+      {id}
     );
     return data.deleteAddress;
   });
