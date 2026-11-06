@@ -26,6 +26,8 @@ trait Routes
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce/webhooks/process-webhook/gateway/<gatewayId:\d+>'] = 'commerce/webhooks/process-webhook';
+            // A regular route rather than an `actions/…` URL, so gateways can POST back to the page with an `action` param
+            $event->rules['commerce/checkout'] = 'commerce/checkout/index';
         });
     }
 
@@ -95,6 +97,10 @@ trait Routes
             $event->rules['commerce/settings/emails'] = 'commerce/emails/index';
             $event->rules['commerce/settings/emails/<storeHandle:{handle}>/new'] = 'commerce/emails/edit';
             $event->rules['commerce/settings/emails/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/emails/edit';
+
+            $event->rules['commerce/settings/checkouts'] = 'commerce/checkouts/index';
+            $event->rules['commerce/settings/checkouts/new'] = 'commerce/checkouts/edit';
+            $event->rules['commerce/settings/checkouts/<id:\d+>'] = 'commerce/checkouts/edit';
 
             $event->rules['commerce/settings/pdfs'] = 'commerce/pdfs/index';
             $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/new'] = 'commerce/pdfs/edit';

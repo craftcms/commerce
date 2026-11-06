@@ -36,6 +36,9 @@ abstract class Table
     public const ORDERSTATUSES = '{{%commerce_orderstatuses}}';
     public const PAYMENTCURRENCIES = '{{%commerce_paymentcurrencies}}';
     public const PAYMENTSOURCES = '{{%commerce_paymentsources}}';
+    public const CHECKOUTS = '{{%commerce_checkouts}}';
+    public const CHECKOUTS_GATEWAYS = '{{%commerce_checkouts_gateways}}';
+    public const CHECKOUTS_STORES = '{{%commerce_checkouts_stores}}';
     public const PDFS = '{{%commerce_pdfs}}';
     public const PLANS = '{{%commerce_plans}}';
     public const PRODUCTS = '{{%commerce_products}}';

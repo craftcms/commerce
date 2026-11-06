@@ -10,6 +10,8 @@ namespace craft\commerce\plugin;
 use craft\commerce\services\Carts;
 use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\CatalogPricingRules;
+use craft\commerce\services\Checkout;
+use craft\commerce\services\Checkouts;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -106,6 +108,30 @@ trait Services
     public function getCarts(): Carts
     {
         return $this->get('carts');
+    }
+
+    /**
+     * Returns the checkout service
+     *
+     * @return Checkout The checkout service
+     * @throws InvalidConfigException
+     * @since 5.8.0
+     */
+    public function getCheckout(): Checkout
+    {
+        return $this->get('checkout');
+    }
+
+    /**
+     * Returns the checkouts service
+     *
+     * @return Checkouts The checkouts service
+     * @throws InvalidConfigException
+     * @since 5.8.0
+     */
+    public function getCheckouts(): Checkouts
+    {
+        return $this->get('checkouts');
     }
 
     /**

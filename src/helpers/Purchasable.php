@@ -8,11 +8,18 @@
 namespace craft\commerce\helpers;
 
 use Craft;
+use craft\base\ElementInterface;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use craft\elements\Asset;
+use craft\elements\db\AssetQuery;
 use craft\errors\SiteNotFoundException;
+use craft\fieldlayoutelements\CustomField;
+use craft\fields\Assets as AssetsField;
 use craft\helpers\Cp;
 use craft\helpers\StringHelper;
 use Illuminate\Support\Collection;
+use Throwable;
 use yii\base\InvalidConfigException;
 
 /**
@@ -43,6 +50,62 @@ class Purchasable
     public static function isTempSku(string $sku): bool
     {
         return str_starts_with($sku, static::TEMPORARY_SKU_PREFIX);
+    }
+
+    /**
+     * Returns the asset a purchasable’s field layout uses as its thumbnail, if any.
+     *
+     * That’s the asset in the layout’s “Thumbnail Source”, which has to be an Assets field. A variant without one
+     * falls back to its product’s.
+     *
+     * @since 5.8.0
+     */
+    public static function thumbnailAsset(ElementInterface $element): ?Asset
+    {
+        $fieldLayout = $element->getFieldLayout();
+        $layoutElement = null;
+
+        if ($fieldLayout?->thumbFieldKey && str_starts_with($fieldLayout->thumbFieldKey, 'layoutElement:')) {
+            $layoutElement = $fieldLayout->getElementByKey($fieldLayout->thumbFieldKey);
+        }
+
+        if ($layoutElement instanceof CustomField && $layoutElement->getField() instanceof AssetsField) {
+            $value = $element->getFieldValue($layoutElement->attribute());
+            $asset = $value instanceof AssetQuery ? $value->one() : null;
+
+            if ($asset instanceof Asset && $asset->kind === Asset::KIND_IMAGE) {
+                return $asset;
+            }
+        }
+
+        if ($element instanceof Variant && $product = $element->getProduct()) {
+            return static::thumbnailAsset($product);
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the URL of a square thumbnail of a purchasable’s thumbnail source, or `null` if it doesn’t have one.
+     *
+     * @param int $size The width and height, in pixels
+     * @since 5.8.0
+     */
+    public static function thumbnailUrl(ElementInterface $element, int $size): ?string
+    {
+        $asset = static::thumbnailAsset($element);
+
+        if (!$asset) {
+            return null;
+        }
+
+        try {
+            return $asset->getUrl(['width' => $size, 'height' => $size, 'mode' => 'crop']);
+        } catch (Throwable $e) {
+            Craft::warning("Couldn’t get a thumbnail URL for asset $asset->id: {$e->getMessage()}", __METHOD__);
+
+            return null;
+        }
     }
 
     /**
