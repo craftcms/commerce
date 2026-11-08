@@ -1125,6 +1125,7 @@
 - Added `CraftCms\Commerce\Support\ObjectState`, a `WeakMap`-backed per-instance state store used by the `Site`/`User`/`Address` `Macroable` macros above.
 - Added GraphQL schema component and eager-loadable field registration via `CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving` and `GqlEagerLoadableFieldsResolving`.
 - Added garbage collection registration via `CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection`, purging incomplete carts, orphaned variants, and partial Donation/Order/Product/Variant/Transfer elements.
+- Commerce’s foreign keys are now restored when Fix FKs 3.0 restores Craft’s, via `CraftCms\FixFks\Events\ForeignKeysRestoring`. Fix FKs 2.x isn’t compatible with Craft 6.
 - Added `craft.commerce`, `craft.orders`, `craft.products`, and `craft.variants` Twig variables via `CraftCms\Cms\Twig\Variables\CraftVariable::macro()`.
 - Added `Plugin::getDonation()`, reachable in Twig as `craft.commerce.getDonation()`, matching the legacy `craft\commerce\plugin\Variables::getDonation()` trait method.
 - The `commerce/products/<productTypeHandle>/<id>` and `commerce/variants/<id>` element-edit screens, previously Craft core's generic `elements/edit` action registered via a legacy `UrlManager` rule, are now registered directly in `routes/cp.php` against `CraftCms\Cms\Http\Controllers\Elements\EditElementController`. `commerce/inventory/transfers/<id>` is registered against `CraftCms\Commerce\Http\Controllers\EditTransferController`.
