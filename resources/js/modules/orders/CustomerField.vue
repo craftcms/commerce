@@ -283,9 +283,6 @@
 
         await combobox.updateComplete;
         const value = String(combobox.modelValue ?? '');
-        const chosen = intended;
-        intended = false;
-
         const option = options.value.find(
             (option) => !option.disabled && option.value === value
         );
@@ -293,6 +290,9 @@
         if (!option) {
             return;
         }
+
+        const chosen = intended;
+        intended = false;
 
         if (!chosen) {
             combobox.modelValue = '';

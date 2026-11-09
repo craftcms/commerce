@@ -182,6 +182,20 @@ it('fulfils committed stock by the submitted quantities', function() {
     expect(app(Inventory::class)->getInventoryFulfillmentLevels($order)->first()->fulfilledQuantity)->toBe(1);
 });
 
+it('refuses fulfilment without the edit orders permission', function() {
+    $order = actionsCommittedOrder(OrdersFixture::seed());
+    $key = '1-1-1';
+
+    Gate::before(fn($user, $ability) => $ability === 'commerce-editOrders' ? false : null);
+
+    getJson(actionsUrl('fulfillment-form', ['orderId' => $order->id]))->assertForbidden();
+    postJson(actionsUrl('fulfill'), ['orderId' => $order->id, 'fulfillment' => [$key => 1]])->assertForbidden();
+
+    $level = app(Inventory::class)->getInventoryFulfillmentLevels($order)->first();
+
+    expect($level->fulfilledQuantity)->toBe(0);
+});
+
 it('ignores quantities for stock the order doesn’t have', function() {
     $order = actionsCommittedOrder(OrdersFixture::seed());
 

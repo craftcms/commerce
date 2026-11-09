@@ -810,6 +810,7 @@ class Discounts
         }
 
         $user = $order->getCustomer();
+        $email = $order->getEmail();
 
         foreach ($discounts as $discount) {
             if ($user && $user->getIsCredentialed()) {
@@ -831,21 +832,23 @@ class Discounts
                 }
             }
 
-            $emailRecord = EmailDiscountUseRecord::where('email', $order->getEmail())
-                ->where('discountId', $discount['discountUseId'])
-                ->first();
-
-            if (!$emailRecord) {
-                $emailRecord = new EmailDiscountUseRecord();
-                $emailRecord->email = $order->getEmail();
-                $emailRecord->discountId = $discount['discountUseId'];
-                $emailRecord->uses = 1;
-                $emailRecord->save();
-            } else {
-                DB::table(Table::EMAIL_DISCOUNTUSES)
-                    ->where('email', $order->getEmail())
+            if ($email) {
+                $emailRecord = EmailDiscountUseRecord::where('email', $email)
                     ->where('discountId', $discount['discountUseId'])
-                    ->increment('uses');
+                    ->first();
+
+                if (!$emailRecord) {
+                    $emailRecord = new EmailDiscountUseRecord();
+                    $emailRecord->email = $email;
+                    $emailRecord->discountId = $discount['discountUseId'];
+                    $emailRecord->uses = 1;
+                    $emailRecord->save();
+                } else {
+                    DB::table(Table::EMAIL_DISCOUNTUSES)
+                        ->where('email', $email)
+                        ->where('discountId', $discount['discountUseId'])
+                        ->increment('uses');
+                }
             }
 
             DB::table(Table::DISCOUNTS)->where('id', $discount['discountUseId'])->increment('totalDiscountUses');

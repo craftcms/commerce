@@ -179,7 +179,7 @@ class OrderEditViewModel extends ViewModel
     public function canFulfil(): bool
     {
         return $this->order->isCompleted
-            && $this->userCan('commerce-manageOrders')
+            && $this->userCan('commerce-editOrders')
             && app(OrderFulfillment::class)->levels($this->order)->isNotEmpty();
     }
 

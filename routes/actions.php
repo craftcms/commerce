@@ -228,11 +228,11 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function() {
     Route::get('orders/snapshot', [OrderEditController::class, 'snapshot']);
     Route::get('orders/actions/email-form', [OrderActionsController::class, 'emailForm']);
     Route::post('orders/actions/send-email', [OrderActionsController::class, 'sendEmail']);
-    Route::get('orders/actions/fulfillment-form', [OrderActionsController::class, 'fulfillmentForm']);
-    Route::post('orders/actions/fulfill', [OrderActionsController::class, 'fulfill']);
     Route::get('orders/actions/share-cart', [OrderActionsController::class, 'shareCart']);
 
     Route::middleware('can:commerce-editOrders')->group(function () {
+        Route::get('orders/actions/fulfillment-form', [OrderActionsController::class, 'fulfillmentForm']);
+        Route::post('orders/actions/fulfill', [OrderActionsController::class, 'fulfill']);
         Route::post('orders/apply', [OrderEditController::class, 'apply']);
         Route::get('orders/purchasables/search', [OrderPurchasablesController::class, 'search']);
         Route::get('orders/customers/search', [OrderCustomersController::class, 'search']);
