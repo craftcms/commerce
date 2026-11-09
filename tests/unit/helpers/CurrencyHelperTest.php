@@ -271,7 +271,9 @@ class CurrencyHelperTest extends Unit
             'CHF-DE-CH' => [
                 'CHF',
                 'de-CH',
-                'CHF-1’234.56',
+                // ICU versions use different Swiss monetary grouping separators.
+                'CHF-1' . (new \NumberFormatter('de-CH', \NumberFormatter::CURRENCY))
+                    ->getSymbol(\NumberFormatter::MONETARY_GROUPING_SEPARATOR_SYMBOL) . '234.56',
             ],
         ];
     }
