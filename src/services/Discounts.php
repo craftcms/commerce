@@ -1252,7 +1252,11 @@ SQL;
             }
 
             // if there was a coupon on the order update its usage
-            if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
+            /** @var CouponRecord|null $coupon */
+            $coupon = $order->couponCode ? CouponRecord::find()
+                ->where(['LOWER([[code]])' => strtolower($order->couponCode), 'discountId' => $discount['discountUseId']])
+                ->one() : null;
+            if ($coupon) {
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::COUPONS, [
                         'uses' => new Expression('[[uses]] + 1'),

@@ -291,12 +291,18 @@ class DiscountsTest extends Unit
     // @TODO Add coverage for lineItemMatching against category and purchasableIds based discount conditions #COM-54
 
     /**
+     * @dataProvider orderCompleteCouponCodesDataProvider
+     * @param string $storedCode
+     * @param string $orderCode
      * @throws Exception
      * @throws InvalidConfigException
      */
-    public function testOrderCompleteHandler(): void
+    public function testOrderCompleteHandler(string $storedCode, string $orderCode): void
     {
         $discountId = $this->tester->grabFixture('discounts')['discount_with_coupon']['id'];
+        Craft::$app->getDb()->createCommand()
+            ->update(Table::COUPONS, ['code' => $storedCode, 'maxUses' => 1], ['discountId' => $discountId])
+            ->execute();
 
         // @TODO Replace the mocked Order with a fully saved real order to exercise the complete code path #COM-54
         /** @var Order $order */
@@ -308,13 +314,16 @@ class DiscountsTest extends Unit
                 return [$adjustment];
             },
         ]);
-        $order->couponCode = 'discount_1';
+        $order->couponCode = $orderCode;
         $order->setCustomerId($this->_user->id);
 
         $this->updateOrderCoupon([
             'perUserLimit' => '0',
             'perEmailLimit' => '0',
         ]);
+
+        $explanation = '';
+        self::assertTrue($this->discounts->orderCouponAvailable($order, $explanation));
 
         $this->discounts->orderCompleteHandler($order);
 
@@ -350,10 +359,27 @@ class DiscountsTest extends Unit
         $couponUses = (new Query())
             ->select('uses')
             ->from(Table::COUPONS)
-            ->where(['code' => 'discount_1'])
+            ->where(['code' => $storedCode])
             ->scalar();
 
         self::assertEquals(1, $couponUses);
+        self::assertFalse($this->discounts->orderCouponAvailable($order, $explanation));
+        self::assertSame('Coupon not valid.', $explanation);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public function orderCompleteCouponCodesDataProvider(): array
+    {
+        return [
+            'lowercase' => ['discount_1', 'discount_1'],
+            'uppercase' => ['DISCOUNT_1', 'DISCOUNT_1'],
+            'lowercase input' => ['DISCOUNT_1', 'discount_1'],
+            'uppercase input' => ['discount_1', 'DISCOUNT_1'],
+            'mixed case input' => ['DISCOUNT_1', 'DiScOuNt_1'],
+            'mixed case stored' => ['DiScOuNt_1', 'dIsCoUnT_1'],
+        ];
     }
 
     /**
