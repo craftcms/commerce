@@ -1,6 +1,6 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
-{# @var cart \craft\commerce\elements\Order #}
+{# @var cart \CraftCms\Commerce\Order\Elements\Order #}
 
 {% if cart is not defined %}
     {% set cart = craft.commerce.carts.cart %}
@@ -23,14 +23,14 @@
 {% endif %}
 
 {% block main %}
-  <div class="md:flex md:-mx-8">
-    <div class="md:w-2/3 md:px-8">
+  <div class="lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12">
+    <div class="space-y-8 rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8 lg:col-span-7">
 
-      <h1 class="font-bold text-xl">
-        {{- 'Options'|t -}}
+      <h1 class="text-xl font-semibold">
+        {{- 'Before you pay'|t -}}
       </h1>
 
-      <form action="" method="post">
+      <form action="" method="post" class="space-y-4">
         {{ csrfInput() }}
         {{ actionInput('commerce/cart/update') }}
         {{ redirectInput(siteUrl('[[folderName]]/checkout/payment')) }}
@@ -38,15 +38,15 @@
 
         {% set user = cart.email ? craft.users.email(cart.email).one() : null %}
         {% if not user or not user.getIsCredentialed() %}
-          <div class="mt-3">
-            <label for="registerUserOnOrderComplete">
+          <div>
+            <label for="registerUserOnOrderComplete" class="flex items-center gap-2 text-sm text-gray-700">
               {{ hiddenInput('registerUserOnOrderComplete', false) }}
               {{ input('checkbox', 'registerUserOnOrderComplete', 1, {
                 id: 'registerUserOnOrderComplete'
               }) }}
               {{ 'Create my account after ordering'|t }}
             </label>
-            <div>
+            <div class="mt-1 pl-6">
               {{ _self.docs('Registering a user on order complete.', 'https://craftcms.com/docs/commerce/4.x/customers.html#registration-at-checkout') }}
             </div>
           </div>
@@ -56,7 +56,7 @@
         {% if currentUser and cart.billingAddressId and not cart.sourceBillingAddressId %}
           {% set saveAddressCheckboxesShown = true %}
           <div class="mt-3">
-            <label for="saveBillingAddressOnOrderComplete">
+            <label for="saveBillingAddressOnOrderComplete" class="flex items-center gap-2 text-sm text-gray-700">
               {{ hiddenInput('saveBillingAddressOnOrderComplete', false) }}
               {{ input('checkbox', 'saveBillingAddressOnOrderComplete', 1, {
                 id: 'saveBillingAddressOnOrderComplete',
@@ -70,7 +70,7 @@
         {% if currentUser and cart.shippingAddressId and not cart.sourceShippingAddressId %}
           <div class="mt-3">
             {% set saveAddressCheckboxesShown = true %}
-            <label for="saveShippingAddressOnOrderComplete">
+            <label for="saveShippingAddressOnOrderComplete" class="flex items-center gap-2 text-sm text-gray-700">
               {{ hiddenInput('saveShippingAddressOnOrderComplete', false) }}
               {{ input('checkbox', 'saveShippingAddressOnOrderComplete', 1, {
                 id: 'saveShippingAddressOnOrderComplete',
@@ -93,13 +93,13 @@
             type: 'submit',
             name: 'submit',
             class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-            text: 'Next'|t
+            text: 'Continue to payment'|t
           }) }}
         </div>
       </form>
     </div>
 
-    <div class="mt-8 md:w-1/3 md:px-8 md:mt-0">
+    <div class="mt-10 lg:col-span-5 lg:mt-0">
       {{ include('[[folderName]]/checkout/_includes/order-summary', {
         showShippingAddress: true,
         showShippingMethod: true

@@ -316,12 +316,12 @@ readonly class PaymentsController
         }
 
         // Save the return and cancel URLs to the order
-        $returnUrl = $request->input('redirect');
+        $returnUrl = $request->getSigned('redirect');
         if ($returnUrl !== null) {
             $order->returnUrl = renderSandboxedObjectTemplate($returnUrl, $order, $order->getObjectTemplateVariables());
         }
 
-        $cancelUrl = $request->input('cancelUrl');
+        $cancelUrl = $request->getSigned('cancelUrl');
         if ($cancelUrl !== null) {
             $order->cancelUrl = renderSandboxedObjectTemplate($cancelUrl, $order, $order->getObjectTemplateVariables());
         }

@@ -33,7 +33,7 @@ readonly class PaymentSourcesController
         abort_if(!$gatewayId, 400, 'Missing gatewayId');
         $gatewayId = (int)$gatewayId;
 
-        $isPrimaryPaymentSource = $request->input('isPrimaryPaymentSource', false);
+        $isPrimaryPaymentSource = $request->boolean('isPrimaryPaymentSource');
 
         $gateway = app(Gateways::class)->getGatewayById($gatewayId);
 

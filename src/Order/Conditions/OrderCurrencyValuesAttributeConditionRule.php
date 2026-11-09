@@ -42,7 +42,6 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends BaseNumberCondi
         if ($condition instanceof HasStoreInterface) {
             $this->currency = $condition->getStore()->getCurrency();
         } else {
-            /** @phpstan-ignore-next-line method.notFound (getStore() is added to Site via a Macroable macro registered in Plugin::registerBehaviorMacros(), not visible to static analysis) */
             $this->currency = Sites::getCurrentSite()->getStore()->getCurrency();
         }
 

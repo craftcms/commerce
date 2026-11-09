@@ -4,11 +4,11 @@ Outputs an SVG to be used as an image placeholder, optionally including target d
 @var width          int     Desired element width
 @var height         int     Desired element height
 @var showDimensions bool    Whether to display target dimensions (defaults to `true`)
-@var fill           string  Background fill color (defaults to `'#D0D0D0'`)
+@var fill           string  Background fill color (defaults to `'#E5E7EB'`)
 #}
 
 {% set showDimensions = showDimensions ?? true %}
-{% set fill = fill ?? '#D0D0D0' %}
+{% set fill = fill ?? '#E5E7EB' %}
 <svg class="{{ class ?? '' }}"
      xmlns="http://www.w3.org/2000/svg"
      width="{{ width }}"
@@ -17,10 +17,10 @@ Outputs an SVG to be used as an image placeholder, optionally including target d
 >
   <g clip-path="url(#clip0)">
     <rect fill="{{ fill }}" width="{{ width }}" height="{{ height }}"/>
-    <line x1="0" y1="0" x2="{{ width }}" y2="{{ height }}" stroke="rgba(255,255,255,0.3)"/>
-    <line x1="0" y1="{{ height }}" x2="{{ width }}" y2="0" stroke="rgba(255,255,255,0.3)"/>
+    <line x1="0" y1="0" x2="{{ width }}" y2="{{ height }}" stroke="rgba(255,255,255,0.7)"/>
+    <line x1="0" y1="{{ height }}" x2="{{ width }}" y2="0" stroke="rgba(255,255,255,0.7)"/>
   </g>
-  <text fill="rgba(0,0,0,0.1)"
+  <text fill="rgba(0,0,0,0.25)"
         font-family="ui-sans-serif,system-ui,-apple-system,sans-serif"
         font-size="16"
         dy="3%"

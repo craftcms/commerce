@@ -4,33 +4,24 @@
   {% exit 404 %}
 {% endif %}
 
-{# @var primaryBillingAddress \craft\commerce\models\Address #}
+{# @var primaryBillingAddress \CraftCms\Cms\Address\Elements\Address #}
 {% set primaryBillingAddress = currentUser.getPrimaryBillingAddress() %}
-{# @var primaryShippingAddress \craft\commerce\models\Address #}
+{# @var primaryShippingAddress \CraftCms\Cms\Address\Elements\Address #}
 {% set primaryShippingAddress = currentUser.getPrimaryShippingAddress() %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-3xl font-bold tracking-tight">{{ 'Addresses'|t }}</h1>
+  <p class="mt-1 text-sm text-gray-500">{{ 'Manage the addresses you use at checkout.'|t }}</p>
 
-  <div class="lg:flex lg:justify-between">
-    <h1 class="text-3xl block sm:inline">
-      {{- 'My Addresses'|t -}}
-    </h1>
-  </div>
-
-  {% if currentUser.addresses|length %}
+  <div class="mt-6">
     {{ include('shop/_private/address/list', {
       addresses: currentUser.addresses,
       selectable: false,
       primaryBillingAddressId: currentUser.primaryBillingAddressId,
       primaryShippingAddressId: currentUser.primaryShippingAddressId,
-      cardWidth: 'md:w-1/3',
       showDelete: true,
       showAdd: true
     }) }}
-  {% else %}
-    <div class="mt-10">
-      <span>{{ 'You don’t have any addresses yet.'|t }}</span>
-    </div>
-  {% endif %}
+  </div>
 {% endblock %}

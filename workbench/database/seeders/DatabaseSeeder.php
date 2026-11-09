@@ -9,7 +9,6 @@ use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\Sites;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Context;
-use Illuminate\Support\Facades\File;
 use RuntimeException;
 
 class DatabaseSeeder extends Seeder
@@ -52,16 +51,6 @@ class DatabaseSeeder extends Seeder
 
         if (!Plugins::isPluginEnabled('commerce')) {
             Plugins::enablePlugin('commerce');
-        }
-
-        Plugins::createPlugin('commerce')->publishFrontendAssets();
-
-        if ($assetsPath = config('workbench.cms_assets_path')) {
-            if (!File::isDirectory($assetsPath)) {
-                throw new RuntimeException('WORKBENCH_CMS_ASSETS_PATH must point to a built CMS assets resources directory.');
-            }
-
-            File::copyDirectory($assetsPath, public_path('vendor/craft'));
         }
     }
 }

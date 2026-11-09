@@ -1,66 +1,38 @@
-<form method="post" action="" accept-charset="UTF-8">
+<form method="post" action="" accept-charset="UTF-8" class="mt-6 space-y-5">
   {{ csrfInput() }}
   {{ actionInput('users/login') }}
   {{ redirectInput(redirectUrl ?? '') }}
 
-  <div class="field mt-3">
-    <label for="loginName">
-      {{- 'Email / Username'|t -}}
-    </label>
-    <div class="mt-1">
-      {{ input('text', 'loginName', craft.app.user.getRememberedUsername(), {
-        id: 'loginName',
-        placeholder: 'email@site.com',
-        required: true,
-        class: [
-          'appearance-none',
-          'block',
-          'w-full',
-          'px-3',
-          'py-2',
-          'border',
-          'border-gray-300',
-          'rounded-md',
-          'shadow-sm',
-          'placeholder-gray-400',
-          'focus:outline-none',
-          'sm:text-sm',
-          'focus:ring-[[color]]-500',
-          'focus:border-[[color]]-500',
-        ]
-      }) }}
-    </div>
-  </div>
-
-  <div class="field mt-3">
-    <label for="loginPassword">
-      {{- 'Password'|t -}}
-    </label>
-    {{ input('password', 'password', null, {
-      id: 'loginPassword',
-      class: ['mt-1', 'w-full', '[[classes.input]]']
+  <div>
+    <label for="loginName" class="block text-sm font-medium text-gray-700">{{ 'Email or username'|t }}</label>
+    {{ input('text', 'loginName', old('loginName', AuthMethods.getRememberedUsername()), {
+      id: 'loginName',
+      autocomplete: 'username',
+      required: true,
+      class: 'mt-1 w-full [[classes.input]]'
     }) }}
   </div>
 
-  <div class="field mt-3">
-    <label>
-      {{ input('checkbox', 'rememberMe', 1) }}
-      {{ 'Remember me'|t }}
-    </label>
+  <div>
+    <div class="flex items-center justify-between">
+      <label for="loginPassword" class="block text-sm font-medium text-gray-700">{{ 'Password'|t }}</label>
+      <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="text-sm [[classes.a]]">{{ 'Forgot password?'|t }}</a>
+    </div>
+    {{ input('password', 'password', null, {
+      id: 'loginPassword',
+      autocomplete: 'current-password',
+      class: 'mt-1 w-full [[classes.input]]'
+    }) }}
   </div>
 
-  <div class="mt-3 flex justify-between items-center">
-    <div>
-      <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="[[classes.a]]">
-        {{- 'Forgot your password?'|t -}}
-      </a>
-    </div>
-    <div>
-      {{ tag('button', {
-        type: 'submit',
-        class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-        text: 'Sign in'|t
-      }) }}
-    </div>
-  </div>
+  <label class="flex items-center gap-2 text-sm text-gray-700">
+    {{ input('checkbox', 'rememberMe', 1, { class: 'size-4' }) }}
+    {{ 'Remember me'|t }}
+  </label>
+
+  {{ tag('button', {
+    type: 'submit',
+    class: 'w-full [[classes.btn.base]] [[classes.btn.mainColor]]',
+    text: 'Sign in'|t
+  }) }}
 </form>

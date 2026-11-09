@@ -1,44 +1,59 @@
 {% extends 'shop/_private/layouts' %}
 
-{# @var donation \craft\commerce\elements\Donation #}
+{# @var donation \CraftCms\Commerce\Purchasable\Elements\Donation #}
 {% set donation = craft.commerce.donation %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">
-    {{- 'Donation'|t -}}
-  </h1>
-  {% if donation and donation.isAvailable %}
-    <form method="post" action="" class="pt-2 pb-8">
-      {{ csrfInput() }}
-      {{ actionInput('commerce/cart/update') }}
-      {{ successMessageInput('Donation added.'|t) }}
-      {{ redirectInput('shop/cart') }}
-      {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
+  <div class="mx-auto max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
+    <h1 class="text-2xl font-bold tracking-tight">{{ 'Make a donation'|t }}</h1>
 
-      <div>
-        <label for="donation-amount">
-          {{- 'Enter a donation amount e.g. 10, 15, 20'|t -}}
-        </label>
-      </div>
-      <div>
-        {{ input('text', 'options[donationAmount]', '', {
-          id: 'donation-amount',
-          placeholder: 10,
-          class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
-        }) }}
-      </div>
-      <div class="mt-3">
+    {% if donation and donation.isAvailable %}
+      <p class="mt-1 text-sm text-gray-500">{{ 'Choose an amount, or enter your own.'|t }}</p>
+
+      <form method="post" action="" class="mt-6 space-y-6">
+        {{ csrfInput() }}
+        {{ actionInput('commerce/cart/update') }}
+        {{ successMessageInput('Donation added.'|t) }}
+        {{ redirectInput('shop/cart') }}
+        {{ hiddenInput('purchasableId', donation.id) }}
+
+        <div class="grid grid-cols-3 gap-3">
+          {% for amount in [10, 25, 50] %}
+            <button type="button" data-amount="{{ amount }}" class="js-donation-amount inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-white text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+              {{- amount|currency(cart.currency, stripZeros=true) -}}
+            </button>
+          {% endfor %}
+        </div>
+
+        <div>
+          <label for="donation-amount" class="block text-sm font-medium text-gray-700">{{ 'Amount'|t }}</label>
+          {{ input('number', 'options[donationAmount]', '', {
+            id: 'donation-amount',
+            min: 1,
+            step: 'any',
+            required: true,
+            placeholder: '10',
+            class: 'mt-1 w-full block rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600'
+          }) }}
+        </div>
+
         {{ tag('button', {
           type: 'submit',
-          class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
-          text: 'Add donation'|t
+          class: 'w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
+          text: 'Add donation to cart'|t
         }) }}
-      </div>
-    </form>
-  {% else %}
-    <h2 class="text-lg font-semibold text-gray-600 mt-4">
-      {{- 'No donation set up.'|t -}}
-    </h2>
-  {% endif %}
+      </form>
+
+      {% js %}
+        document.querySelectorAll('.js-donation-amount').forEach(function(button) {
+          button.addEventListener('click', function() {
+            document.querySelector('#donation-amount').value = button.dataset.amount;
+          });
+        });
+      {% endjs %}
+    {% else %}
+      <p class="mt-2 text-sm text-gray-500">{{ 'Donations aren’t available right now.'|t }}</p>
+    {% endif %}
+  </div>
 {% endblock %}

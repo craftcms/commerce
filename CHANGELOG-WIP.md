@@ -621,6 +621,7 @@
 - Added `CraftCms\Commerce\Http\Middleware\LogDeprecatedAction`.
 - Cart recovery URLs now point to the `commerce/cart/load` action.
 - The example templates now use the `commerce/cart/update` and `commerce/cart/load` actions.
+- The example templates now use Tailwind CSS 4, with a redesigned storefront, cart, checkout, and customer account.
 - Removed `craft\commerce\controllers\OrderStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\LineItemStatusesController`. `CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController` should be used instead.
 - Removed `craft\commerce\controllers\UserOrdersController`. `CraftCms\Commerce\Http\Controllers\UserOrdersController` should be used instead.
@@ -1147,6 +1148,15 @@
 - Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
+
+### Command Palette
+
+- Added `CraftCms\Commerce\CommandPalette\CommercePages`.
+- Added `CraftCms\Commerce\CommandPalette\CommerceActions`.
+- Added `CraftCms\Commerce\CommandPalette\OrderSearchProvider`.
+- Added product type, store management, catalog pricing, and Commerce settings pages to the Control Panel command palette.
+- Added actions for creating orders, products, inventory locations, and store management and Commerce settings items to the Control Panel command palette.
+- Added order, product, and variant search to the Control Panel command palette.
 
 ### Translations
 

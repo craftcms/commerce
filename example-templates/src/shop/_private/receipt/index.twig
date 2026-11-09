@@ -44,10 +44,10 @@
       <td valign="top"><img src="" alt="Logo" width="150"/></td>
       <td align="right">
         <h3 class="font-semibold">
-          {{- craft.app.systemName -}}
+          {{- craft.systemName() -}}
         </h3>
         {% if order.shippingAddress %}
-          {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
+          {{ Addresses.formatAddress(order.shippingAddress)|raw }}
         {% endif %}
       </td>
     </tr>
@@ -127,8 +127,8 @@
     <tfoot>
     <tr>
       <td colspan="4"></td>
-      <td align="right">{{ 'Item Subtotal'|t }} $</td>
-      <td align="right">{{ order.totalAsCurrency }}</td>
+      <td align="right">{{ 'Item Subtotal'|t }}</td>
+      <td align="right">{{ order.itemSubtotalAsCurrency }}</td>
     </tr>
     {% for orderAdjustment in order.orderAdjustments %}
       <tr>

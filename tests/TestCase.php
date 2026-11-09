@@ -49,9 +49,15 @@ class TestCase extends Orchestra
         // reads `vendor/craftcms/plugins.php` relative to `app()->basePath()`)
         // is already created by the time that attribute's `beforeEach()` fires.
         // Create the symlink once, persistently, before the app exists at all.
+        // The link is relative when the skeleton is inside the package (the Workbench app), so it
+        // works wherever the package is checked out.
         $skeletonVendorPath = default_skeleton_path() . '/vendor';
+        if (is_link($skeletonVendorPath) && !file_exists($skeletonVendorPath)) {
+            unlink($skeletonVendorPath);
+        }
         if (!is_link($skeletonVendorPath) && !is_dir($skeletonVendorPath)) {
-            symlink(package_path('vendor'), $skeletonVendorPath);
+            $target = dirname($skeletonVendorPath, 2) === package_path() ? '../vendor' : package_path('vendor');
+            symlink($target, $skeletonVendorPath);
         }
 
         // Craft defaults to the Solo edition (max 1 user) when CRAFT_EDITION/`system.edition`

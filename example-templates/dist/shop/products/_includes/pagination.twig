@@ -1,51 +1,37 @@
 <!-- Template: {{ _self }}.twig -->
-{# @var products  \craft\commerce\elements\Product[] #}
-{# @var pageInfo  \craft\web\twig\variables\Paginate #}
-<div class="my-6">
-  <div class="mb-2">
-    {{ 'Showing {num} of {total}.'|t({
-      num: products|length,
+{# @var products  \CraftCms\Commerce\Product\Elements\Product[] #}
+{# @var pageInfo  \CraftCms\Cms\Twig\Variables\Paginate #}
+{% set linkClasses = 'inline-flex min-w-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 ring-1 ring-gray-300 ring-inset hover:bg-gray-50' %}
+<nav class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-6 sm:flex-row" aria-label="{{ 'Pagination'|t }}">
+  <p class="text-sm text-gray-500">
+    {{ 'Showing {first}–{last} of {total}'|t({
+      first: pageInfo.first,
+      last: pageInfo.last,
       total: pageInfo.total
     }) }}
-  </div>
-
-  {% if pageInfo.currentPage != 1 %}
-    <a href="{{ pageInfo.firstUrl }}" class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'First'|t -}}
-    </a>
-  {% endif %}
-
-  {% if pageInfo.prevUrl %}
-    <a href="{{ pageInfo.prevUrl }}" class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'Previous'|t -}}
-    </a>
-  {% endif %}
-
-  {% for page, url in pageInfo.getPrevUrls(5) %}
-    <a href="{{ url }}" class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- page -}}
-    </a>
-  {% endfor %}
+  </p>
 
   {% if pageInfo.totalPages > 1 %}
-    <span class="px-2 py-1">{{ pageInfo.currentPage }}</span>
-  {% endif %}
+    <div class="flex items-center gap-1">
+      {% if pageInfo.prevUrl %}
+        <a href="{{ pageInfo.prevUrl }}" class="{{ linkClasses }}">{{ 'Previous'|t }}</a>
+      {% endif %}
 
-  {% for page, url in pageInfo.getNextUrls(5) %}
-    <a href="{{ url }}" class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- page -}}
-    </a>
-  {% endfor %}
+      {% for page, url in pageInfo.getPrevUrls(3) %}
+        <a href="{{ url }}" class="{{ linkClasses }}">{{ page }}</a>
+      {% endfor %}
 
-  {% if pageInfo.nextUrl %}
-    <a href="{{ pageInfo.nextUrl }}" class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'Next'|t -}}
-    </a>
-  {% endif %}
+      <span class="inline-flex min-w-9 items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white" aria-current="page">
+        {{- pageInfo.currentPage -}}
+      </span>
 
-  {% if pageInfo.currentPage != pageInfo.totalPages %}
-    <a href="{{ pageInfo.lastUrl }}" class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'Last'|t -}}
-    </a>
+      {% for page, url in pageInfo.getNextUrls(3) %}
+        <a href="{{ url }}" class="{{ linkClasses }}">{{ page }}</a>
+      {% endfor %}
+
+      {% if pageInfo.nextUrl %}
+        <a href="{{ pageInfo.nextUrl }}" class="{{ linkClasses }}">{{ 'Next'|t }}</a>
+      {% endif %}
+    </div>
   {% endif %}
-</div>
+</nav>

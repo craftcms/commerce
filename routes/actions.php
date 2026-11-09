@@ -12,36 +12,36 @@ use CraftCms\Commerce\Http\Controllers\OrderEditController;
 use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
 use CraftCms\Commerce\Http\Controllers\OrderPaymentController;
 use CraftCms\Commerce\Http\Controllers\OrderPaymentLinksController;
-use CraftCms\Commerce\Http\Controllers\OrdersController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
 use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
-use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\FormulasController;
-use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
-use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
+use CraftCms\Commerce\Http\Controllers\OrdersController;
+use CraftCms\Commerce\Http\Controllers\PaymentsController;
+use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
+use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
+use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
+use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
-use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
-use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
+use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
+use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingRulesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingZonesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\StoreManagementController;
-use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxZonesController;
-use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
@@ -57,7 +57,7 @@ Route::match(['get', 'post'], 'user-orders/get-orders', [UserOrdersController::c
 
 // Anonymous by design — carts are usable by guests. Rate-limited (not auth-gated) to blunt
 // enumeration/brute-force attempts against the number/couponCode params.
-Route::middleware('throttle:' . CartRateLimiter::NAME)->group(function () {
+Route::middleware('throttle:' . CartRateLimiter::NAME)->group(function() {
     Route::get('cart/show', [CartController::class, 'show']);
     Route::post('cart/update', [CartController::class, 'update']);
     Route::match(['get', 'post'], 'cart/load', [CartController::class, 'load']);
@@ -95,12 +95,12 @@ Route::post('payment-sources/delete', [PaymentSourcesController::class, 'destroy
 // These are also reachable, unauthenticated, at their site-side action URL (per
 // CraftCms\Cms\Plugin\Concerns\HasRoutes::registerActionRoutes()) — the `auth`/`can`
 // middleware below is what actually protects them, not the URL prefix.
-Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageDonationSettings'])->group(function () {
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageDonationSettings'])->group(function() {
     Route::post('donations/save', [DonationsController::class, 'store']);
     Route::post('donations/render-ui', [DonationsController::class, 'renderUi']);
 });
 
-Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
+Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function() {
     Route::post('gateways/save', [GatewaysController::class, 'store']);
     Route::match(['post', 'delete'], 'gateways/archive', [GatewaysController::class, 'archive']);
     Route::post('gateways/reorder', [GatewaysController::class, 'reorder']);
@@ -130,16 +130,16 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
 // whichever more specific permission each feature area's own controller adds — every route in
 // this group must check both, matching that legacy compound check exactly.
-Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function () {
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStoreSettings'])->group(function() {
     Route::post('store-management/save', [StoreManagementController::class, 'store']);
     Route::post('store-management/render-ui', [StoreManagementController::class, 'renderUi']);
 
-    Route::middleware('can:commerce-managePaymentCurrencies')->group(function () {
+    Route::middleware('can:commerce-managePaymentCurrencies')->group(function() {
         Route::post('payment-currencies/save', [PaymentCurrenciesController::class, 'store']);
         Route::match(['post', 'delete'], 'payment-currencies/delete', [PaymentCurrenciesController::class, 'destroy']);
     });
 
-    Route::middleware('can:commerce-manageShipping')->group(function () {
+    Route::middleware('can:commerce-manageShipping')->group(function() {
         Route::post('shipping-zones/save', [ShippingZonesController::class, 'store']);
         Route::match(['post', 'delete'], 'shipping-zones/delete', [ShippingZonesController::class, 'destroy']);
         Route::post('shipping-zones/test-zip', [ShippingZonesController::class, 'testZip']);
@@ -160,7 +160,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('shipping-categories/render-ui', [ShippingCategoriesController::class, 'renderUi']);
     });
 
-    Route::middleware('can:commerce-manageTaxes')->group(function () {
+    Route::middleware('can:commerce-manageTaxes')->group(function() {
         Route::post('tax-zones/save', [TaxZonesController::class, 'store']);
         Route::match(['post', 'delete'], 'tax-zones/delete', [TaxZonesController::class, 'destroy']);
         Route::post('tax-zones/test-zip', [TaxZonesController::class, 'testZip']);
@@ -175,7 +175,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
         Route::post('tax-rates/render-ui', [TaxRatesController::class, 'renderUi']);
     });
 
-    Route::middleware('can:commerce-managePromotions')->group(function () {
+    Route::middleware('can:commerce-managePromotions')->group(function() {
         Route::post('sales/save', [SalesController::class, 'store']);
         Route::post('sales/render-ui', [SalesController::class, 'renderUi']);
         Route::post('sales/reorder', [SalesController::class, 'reorder']);
@@ -207,7 +207,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
 
 // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init() only
 // ever checked commerce-manageOrders, not accessPlugin-commerce.
-Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
+Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function() {
     Route::post('orders/fulfill', [OrdersController::class, 'fulfill']);
     Route::get('orders/fulfillment-modal', [OrdersController::class, 'fulfillmentModal']);
     Route::post('orders/save', [OrdersController::class, 'store']);
@@ -278,7 +278,7 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
         Route::post('orders/payment/record-refund', [OrderPaymentController::class, 'recordRefund']);
     });
 
-    Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function () {
+    Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function() {
         Route::get('orders/reassign-modal', [OrdersController::class, 'reassignModal']);
         Route::post('orders/reassign', [OrdersController::class, 'reassign']);
         Route::get('orders/remove-customer-data-modal', [OrdersController::class, 'removeCustomerDataModal']);
@@ -288,30 +288,31 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function () {
 
 // InventoryController checks commerce-manageInventoryStockLevels inline on every action
 // (not via init()) — replicated here as a route-group-wide permission instead.
-Route::middleware(['auth', 'can:commerce-manageInventoryStockLevels'])->group(function () {
+Route::middleware(['auth', 'can:commerce-manageInventoryStockLevels'])->group(function() {
     Route::post('inventory/item-save', [InventoryController::class, 'storeItem']);
     Route::post('inventory/inventory-levels-table-data', [InventoryController::class, 'tableData']);
+    Route::post('inventory/item-levels-table-data', [InventoryController::class, 'itemTableData']);
     Route::get('inventory/prepare-update-levels-modal', [InventoryController::class, 'prepareUpdateLevelsModal']);
     Route::post('inventory/update-levels', [InventoryController::class, 'updateLevels']);
     Route::get('inventory/prepare-movement-modal', [InventoryController::class, 'prepareMovementModal']);
     Route::post('inventory/save-inventory-movement', [InventoryController::class, 'storeMovement']);
 });
 
-Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(function () {
+Route::middleware(['auth', 'can:commerce-manageInventoryLocations'])->group(function() {
     Route::post('inventory-locations/save', [InventoryLocationsController::class, 'store']);
     Route::post('inventory-locations/render-ui', [InventoryLocationsController::class, 'renderUi']);
     Route::get('inventory-locations/prepare-delete-modal', [InventoryLocationsController::class, 'prepareDeleteModal']);
     Route::match(['post', 'delete'], 'inventory-locations/deactivate', [InventoryLocationsController::class, 'deactivate']);
 });
 
-Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(function () {
+Route::middleware(['auth', 'can:commerce-manageInventoryTransfers'])->group(function() {
     Route::get('transfers/create', [TransfersController::class, 'create']);
     Route::post('transfers/mark-as-pending', [TransfersController::class, 'markAsPending']);
     Route::post('transfers/receive-transfer', [TransfersController::class, 'receive']);
     Route::get('transfers/prepare-receive-modal', [TransfersController::class, 'prepareReceiveModal']);
 });
 
-Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function () {
+Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->group(function() {
     Route::post('emails/save', [EmailsController::class, 'store']);
     Route::match(['post', 'delete'], 'emails/delete', [EmailsController::class, 'destroy']);
 
@@ -320,7 +321,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('pdfs/reorder', [PdfsController::class, 'reorder']);
 });
 
-Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
+Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function() {
     Route::post('formulas/validate-condition', [FormulasController::class, 'validateCondition']);
     Route::post('formulas/validate-formula', [FormulasController::class, 'validateFormula']);
 
