@@ -36,22 +36,23 @@ readonly class UsersController
     private function sections(int $customerId): array
     {
         $edge = app(Carts::class)->getActiveCartEdgeDuration();
+        $base = ['customerId' => $customerId, 'storeId' => null];
 
         return [
             [
                 'key' => 'completed-orders',
                 'heading' => t('Orders', category: 'commerce'),
-                'criteria' => ['customerId' => $customerId, 'isCompleted' => true],
+                'criteria' => [...$base, 'isCompleted' => true],
             ],
             [
                 'key' => 'active-carts',
                 'heading' => t('Active Carts', category: 'commerce'),
-                'criteria' => ['customerId' => $customerId, 'isCompleted' => false, 'dateUpdated' => '>= ' . $edge],
+                'criteria' => [...$base, 'isCompleted' => false, 'dateUpdated' => '>= ' . $edge],
             ],
             [
                 'key' => 'inactive-carts',
                 'heading' => t('Inactive Carts', category: 'commerce'),
-                'criteria' => ['customerId' => $customerId, 'isCompleted' => false, 'dateUpdated' => '< ' . $edge],
+                'criteria' => [...$base, 'isCompleted' => false, 'dateUpdated' => '< ' . $edge],
             ],
         ];
     }

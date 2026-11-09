@@ -32,3 +32,11 @@ it('lists the customer’s orders and carts as read-only indexes', function() {
             ->where('sections.1.criteria.isCompleted', false)
             ->where('sections.2.criteria.isCompleted', false));
 });
+
+it('lists the customer’s orders from every store', function() {
+    get($this->path)
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('sections.0.criteria.storeId', null)
+            ->where('sections.1.criteria.storeId', null)
+            ->where('sections.2.criteria.storeId', null));
+});
