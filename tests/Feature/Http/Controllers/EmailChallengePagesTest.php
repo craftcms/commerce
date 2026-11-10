@@ -9,7 +9,6 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
-use Illuminate\Foundation\AliasLoader;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function Pest\Laravel\get;
@@ -18,12 +17,6 @@ use function Pest\Laravel\post;
 beforeEach(function() {
     $this->withoutVite();
     prioritizeCommerceRoutes();
-
-    // A Craft project registers the CMS's facade aliases, which the control panel layout uses.
-    $cmsComposer = json_decode((string)file_get_contents(dirname(__DIR__, 4) . '/vendor/craftcms/cms/composer.json'), true);
-    foreach ($cmsComposer['extra']['laravel']['aliases'] ?? [] as $alias => $class) {
-        AliasLoader::getInstance()->alias($alias, $class);
-    }
     config(['mail.default' => 'array']);
 
     $this->fixture = OrdersFixture::seed();

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\DeletionBlockers;
 
-use CraftCms\Cms\Cp\Html\ElementIndexHtml;
 use CraftCms\Cms\Element\DeletionBlockers\BaseDeletionBlocker;
 use CraftCms\Cms\Element\ElementCollection;
 use CraftCms\Cms\Support\Html;
@@ -127,21 +126,9 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
     #[Override]
     public function getDetails(): ?string
     {
-        return app(ElementIndexHtml::class)->html(Order::class, [
-            'context' => 'pane',
-            'defaultTableColumns' => [
-                ['customer'],
-                ['orderStatus'],
-                ['dateOrdered'],
-            ],
-            'defaultSort' => ['dateOrdered', 'desc'],
-            'sources' => false,
-            'jsSettings' => [
-                'criteria' => [
-                    'customerId' => $this->elements->ids()->all(),
-                    'status' => null,
-                ],
-            ],
-        ]);
+        return $this->elementChipsHtml(Order::find()
+            ->id($this->orderIds->all())
+            ->status(null)
+            ->orderBy(['dateOrdered' => SORT_DESC]));
     }
 }

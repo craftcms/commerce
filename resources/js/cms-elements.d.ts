@@ -3,7 +3,7 @@
  * with plugin bundles through the import map (see `cms`'s `Cp::sharedModules()`
  * and `resources/js/cp-module.ts`). Hand-authored for the same reason as
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
- * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
+ * `ElementEditor.vue`, `ReadOnlyElementIndex.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
  * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`,
  * `AdminTable.vue`, `SearchForm.vue`, `common/table/craftTable.ts` and
  * `common/table/createCraftColumnHelper.ts`. The table types are loose: the
@@ -105,6 +105,13 @@ declare module '@craftcms/cp' {
     buttonVariant?: string;
     searchable?: boolean;
     flush?: boolean | string;
+  }>;
+
+  export const ReadOnlyElementIndex: DefineComponent<{
+    elementType: string;
+    criteria?: Record<string, unknown>;
+    source?: string;
+    storageKey?: string;
   }>;
 
   export const CpButtonLink: DefineComponent<{

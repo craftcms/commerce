@@ -12,6 +12,7 @@ use CraftCms\Cms\User\Models\User as UserModel;
 use CraftCms\Commerce\Tests\Support\DatabaseLock;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
@@ -80,6 +81,8 @@ class TestCase extends Orchestra
 
         parent::setUp();
 
+        $this->registerCmsFacadeAliases();
+
         // Craft's model factories (autoloaded from the CMS package's `database/Factories`) create
         // related models with `Model::factory()`, which needs to know where to find them.
         Factory::guessFactoryNamesUsing(
@@ -93,6 +96,15 @@ class TestCase extends Orchestra
 
         File::cleanDirectory(config_path('craft/project'));
         File::cleanDirectory(storage_path('runtime/compiled_classes'));
+    }
+
+    private function registerCmsFacadeAliases(): void
+    {
+        $cmsComposer = json_decode((string)file_get_contents(package_path('vendor/craftcms/cms/composer.json')), true);
+
+        foreach ($cmsComposer['extra']['laravel']['aliases'] ?? [] as $alias => $class) {
+            AliasLoader::getInstance()->alias($alias, $class);
+        }
     }
 
     protected function connectionsToTransact(): array
