@@ -632,7 +632,7 @@
 ### Payments
 
 > [!WARNING]
-> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
+> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()` and payment forms with `paymentFormUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
 
 - Added `CraftCms\Commerce\Payment\Transactions`.
 - Added `CraftCms\Commerce\Support\Facades\Transactions`.
@@ -674,6 +674,8 @@
 - Deprecated `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`. `CraftCms\Commerce\Payment\Gateway\GatewayTypes::register()` should be used instead.
 - Added `CraftCms\Commerce\Payment\Gateway\Gateway`.
 - Public properties declared on abstract subclasses of `CraftCms\Commerce\Payment\Gateway\Gateway` are now treated as gateway settings.
+- Added `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface::paymentFormUi()` and `paymentConfirmationFormUi()`, which return the gateway’s payment form and payment source confirmation form as a `CraftCms\Cms\Ui\Ui`.
+- `CraftCms\Commerce\Payment\Gateway\Gateway::getPaymentFormHtml()` is no longer abstract. It now renders `paymentFormUi()` with the payment form’s values and errors, and `getPaymentConfirmationFormHtml()` renders `paymentConfirmationFormUi()`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Dummy`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
