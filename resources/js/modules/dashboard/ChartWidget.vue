@@ -14,6 +14,7 @@
     Tooltip,
     type ChartConfiguration,
   } from 'chart.js';
+  import {t} from '@craftcms/cp';
 
   Chart.register(
     ArcElement,
@@ -54,7 +55,7 @@
 
   const container = ref<HTMLElement>();
   const canvas = ref<HTMLCanvasElement>();
-  const emptyLabel = window.Craft.t('commerce', 'No stats available.');
+  const emptyLabel = t('No stats available.', undefined, 'commerce');
   let chart: Chart | undefined;
 
   const locale = document.documentElement.lang || undefined;
@@ -155,7 +156,7 @@
         interaction: {mode: 'index', intersect: false},
         scales: {
           x: {display: false},
-          currency: {display: false, beginAtZero: true},
+          currency: {display: false, beginAtZero: true, axis: 'y'},
           number: {
             display: false,
             beginAtZero: true,
