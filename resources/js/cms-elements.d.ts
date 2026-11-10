@@ -253,4 +253,30 @@ declare module '@craftcms/cp' {
     order?: number;
     scrollsItself?: boolean;
   }>;
+
+  export interface ActionRequestOptions {
+    data?: Record<string, unknown>;
+    params?: Record<string, unknown>;
+    responseType?: 'json' | 'blob' | 'text';
+  }
+
+  export interface ActionRequestResponse<T> {
+    data: T;
+    headers: Record<string, string>;
+  }
+
+  export const actionClient: {
+    request<T = unknown>(
+      config: ActionRequestOptions & {method?: string; url?: string}
+    ): Promise<ActionRequestResponse<T>>;
+  };
+
+  export function showNotice(message: string): unknown;
+
+  export function showError(message?: string | null): unknown;
+
+  export function openSlideout(
+    href: string,
+    options?: {opener?: HTMLElement | null; onSaved?: () => void}
+  ): Promise<unknown>;
 }

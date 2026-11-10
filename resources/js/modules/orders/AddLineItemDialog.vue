@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import {displayNotice, sendActionRequest} from './cp-client';
     import {
         AdminTable,
         createCraftColumnHelper,
@@ -274,7 +275,7 @@
 
         try {
             const sort = sorting.value[0];
-            const {data} = await window.Craft.sendActionRequest<SearchResponse>(
+            const {data} = await sendActionRequest<SearchResponse>(
                 'GET',
                 props.searchUrl,
                 {
@@ -341,7 +342,7 @@
         rowErrors.value = {};
 
         try {
-            const {data} = await window.Craft.sendActionRequest<{
+            const {data} = await sendActionRequest<{
                 message?: string;
             }>('POST', props.submitUrl, {
                 data: {
@@ -355,7 +356,7 @@
             });
 
             if (data.message) {
-                window.Craft.cp?.displayNotice(data.message);
+                displayNotice(data.message);
             }
 
             emit('added');

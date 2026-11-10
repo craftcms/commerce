@@ -1,3 +1,5 @@
+import {sendActionRequest} from './cp-client';
+
 /**
  * The detail of the window events `OrderIndexViewModel::actions()` swaps the
  * order actions that need a settings step for. The bulk actions bar adds the
@@ -63,7 +65,7 @@ export async function performOrderAction(
   settings: Record<string, unknown>
 ): Promise<boolean> {
   try {
-    const {data} = await window.Craft.sendActionRequest<{message?: string}>(
+    const {data} = await sendActionRequest<{message?: string}>(
       'POST',
       detail.url,
       {data: requestData(detail, settings)}
@@ -93,11 +95,10 @@ export async function downloadOrderAction(
   settings: Record<string, unknown>
 ): Promise<boolean> {
   try {
-    const response = await window.Craft.sendActionRequest<Blob>(
-      'POST',
-      detail.url,
-      {data: requestData(detail, settings), responseType: 'blob'}
-    );
+    const response = await sendActionRequest<Blob>('POST', detail.url, {
+      data: requestData(detail, settings),
+      responseType: 'blob',
+    });
 
     saveBlob(
       response.data,
@@ -154,7 +155,7 @@ export async function promptLoadCartUrl(
   label: string
 ): Promise<void> {
   try {
-    const {data} = await window.Craft.sendActionRequest<{url?: string}>(
+    const {data} = await sendActionRequest<{url?: string}>(
       'GET',
       'commerce/orders/get-load-cart-url',
       {params: {id: detail.elementIds[0]}}

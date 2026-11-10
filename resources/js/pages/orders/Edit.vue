@@ -1,5 +1,10 @@
 <script setup lang="ts">
     import {
+        displayError,
+        displayNotice,
+        sendActionRequest,
+    } from '../../modules/orders/cp-client';
+    import {
         ActionMenu,
         ActivityTimeline,
         AdminTable,
@@ -7,6 +12,7 @@
         MetadataDetails,
         ScreenPanel,
         createCraftColumnHelper,
+        openSlideout as openCpSlideout,
         openUiModal,
         useCraftTable,
         type ActionItem,
@@ -358,7 +364,7 @@
         }
 
         try {
-            const {data} = await window.Craft.sendActionRequest<{json: string}>(
+            const {data} = await sendActionRequest<{json: string}>(
                 'GET',
                 props.editUrls.snapshot,
                 {params: {orderId: props.orderId, key: row.key}}
@@ -409,7 +415,7 @@
 
     async function shareCart(): Promise<void> {
         try {
-            const {data} = await window.Craft.sendActionRequest<{url: string}>(
+            const {data} = await sendActionRequest<{url: string}>(
                 'GET',
                 props.editUrls.shareCart,
                 {params: {orderId: props.orderId}}
@@ -423,7 +429,7 @@
     async function copySharedCartUrl(): Promise<void> {
         if (sharedCartUrl.value) {
             await navigator.clipboard.writeText(sharedCartUrl.value);
-            window.Craft.cp?.displayNotice(props.labels.linkCopied);
+            displayNotice(props.labels.linkCopied);
         }
     }
 
@@ -444,7 +450,7 @@
             addressId: copyableAddressId(addressType),
             userId: props.copyToUser?.userId,
         });
-        window.Craft.cp?.displayNotice(props.labels.addressCopied);
+        displayNotice(props.labels.addressCopied);
     }
 
     function recalculate(): void {
@@ -507,12 +513,11 @@
         transaction: TransactionRow
     ): Promise<void> {
         try {
-            const {data} =
-                await window.Craft.sendActionRequest<TransactionDetails>(
-                    'GET',
-                    props.editUrls.transactionDetails,
-                    {params: {id: transaction.id}}
-                );
+            const {data} = await sendActionRequest<TransactionDetails>(
+                'GET',
+                props.editUrls.transactionDetails,
+                {params: {id: transaction.id}}
+            );
             transactionDetails.value = data;
         } catch (error: any) {
             showError(error);
@@ -574,7 +579,7 @@
 
     async function showPaymentLink(transaction: TransactionRow): Promise<void> {
         try {
-            const {data} = await window.Craft.sendActionRequest<{url: string}>(
+            const {data} = await sendActionRequest<{url: string}>(
                 'GET',
                 props.editUrls.linkUrl,
                 {params: {orderId: props.orderId, id: transaction.id}}
@@ -588,7 +593,7 @@
     async function copyPaymentLink(): Promise<void> {
         if (paymentLinkUrl.value) {
             await navigator.clipboard.writeText(paymentLinkUrl.value);
-            window.Craft.cp?.displayNotice(props.labels.linkCopied);
+            displayNotice(props.labels.linkCopied);
         }
     }
 
@@ -746,8 +751,8 @@
     ): void {
         const query = new URLSearchParams({...editParams(), ...params});
 
-        void (window.Craft as any).openSlideout(`${url}?${query}`, {
-            opener,
+        void openCpSlideout(`${url}?${query}`, {
+            opener: opener as HTMLElement | null,
             onSaved: () => window.Cp.$router.reload(),
         });
     }
@@ -757,7 +762,7 @@
     }
 
     function showError(error: any): void {
-        window.Craft.cp?.displayError(error?.response?.data?.message);
+        displayError(error?.response?.data?.message);
     }
 
     async function post(
@@ -765,12 +770,12 @@
         data: Record<string, unknown>
     ): Promise<boolean> {
         try {
-            const {data: response} = await window.Craft.sendActionRequest<{
+            const {data: response} = await sendActionRequest<{
                 message?: string;
             }>('POST', url, {data: {orderId: props.orderId, ...data}});
 
             if (response.message) {
-                window.Craft.cp?.displayNotice(response.message);
+                displayNotice(response.message);
             }
 
             return true;

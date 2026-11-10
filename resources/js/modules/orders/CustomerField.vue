@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import {displayError, displayNotice, sendActionRequest} from './cp-client';
     import {computed, nextTick, onBeforeUnmount, ref, watch} from 'vue';
 
     interface Customer {
@@ -193,7 +194,7 @@
         }, SLOW_SEARCH_DELAY);
 
         try {
-            const {data} = await window.Craft.sendActionRequest<{
+            const {data} = await sendActionRequest<{
                 customers: Customer[];
                 canCreate: boolean;
             }>('GET', props.searchUrl, {params: {query: text}});
@@ -208,7 +209,7 @@
             void openList();
         } catch (error: any) {
             if (current === request) {
-                window.Craft.cp?.displayError(error?.response?.data?.message);
+                displayError(error?.response?.data?.message);
             }
         } finally {
             if (current === request) {
@@ -318,22 +319,20 @@
         combobox: HTMLElement & {modelValue?: string}
     ): Promise<void> {
         try {
-            const {data} = await window.Craft.sendActionRequest<{
+            const {data} = await sendActionRequest<{
                 message?: string;
                 customer: Customer;
             }>('POST', props.createUrl, {data: {email}});
 
             if (data.message) {
-                window.Craft.cp?.displayNotice(data.message);
+                displayNotice(data.message);
             }
 
             emit('select', data.customer.id);
         } catch (error: any) {
             const errors = error?.response?.data?.errors;
 
-            window.Craft.cp?.displayError(
-                errors?.email?.[0] ?? error?.response?.data?.message
-            );
+            displayError(errors?.email?.[0] ?? error?.response?.data?.message);
             combobox.modelValue = '';
         }
     }
