@@ -110,6 +110,7 @@ declare module '@craftcms/cp' {
   export const ReadOnlyElementIndex: DefineComponent<{
     elementType: string;
     criteria?: Record<string, unknown>;
+    source?: string;
     storageKey?: string;
   }>;
 
