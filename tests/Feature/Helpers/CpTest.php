@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use CraftCms\Cms\View\TemplateManager;
 use CraftCms\Commerce\Helpers\Cp;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\TaxCategories;
@@ -32,21 +31,3 @@ it('defaults the options and create action', function() {
         ->toContain(e($shippingCategory->name))
         ->not->toContain('commerce/shipping-categories/edit');
 });
-
-it('renders the component select templates', function(string $template) {
-    $html = app(TemplateManager::class)->renderTemplate("commerce/_includes/forms/$template", [
-        'name' => 'things',
-        'storeId' => 1,
-        'create' => true,
-    ]);
-
-    expect($html)
-        ->toContain('<craft-component-select')
-        ->toContain('name="things"')
-        ->toContain('create-action');
-})->with([
-    'inventoryLocationSelect',
-    'taxZoneSelect',
-    'taxCategorySelect',
-    'shippingCategorySelect',
-]);

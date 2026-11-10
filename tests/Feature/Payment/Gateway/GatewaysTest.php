@@ -56,11 +56,13 @@ test('the Dummy gateway renders its credit card payment form with errors', funct
     $gateway = new Dummy();
     $paymentForm = $gateway->getPaymentFormModel();
     $paymentForm->errors()->add('number', 'Card number is invalid.');
+    $paymentForm->errors()->add('month', 'Expiry month is invalid.');
 
     expect($gateway->getPaymentFormHtml(['paymentForm' => $paymentForm]))
         ->toContain('name="firstName"')
         ->toContain('name="number"')
         ->toContain('name="cvv"')
-        ->toContain('<ul class="errors">')
-        ->toContain('Card number is invalid.');
+        ->toContain('Card number is invalid.')
+        ->toContain('Expiry month is invalid.')
+        ->not->toContain('role="alert"');
 });

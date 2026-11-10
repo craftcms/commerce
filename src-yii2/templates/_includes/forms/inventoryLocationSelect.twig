@@ -1,4 +1,0 @@
-{{ craft.cp.componentSelect(_context|merge({
-    options: options ?? craft.commerce.inventoryLocations.getAllInventoryLocations().all(),
-    createAction: (create ?? false) ? 'commerce/inventory-locations/edit' : null,
-}))|raw }}

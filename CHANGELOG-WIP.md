@@ -366,6 +366,7 @@
 - Deprecated `craft\commerce\helpers\ProductQuery`. `CraftCms\Commerce\Helpers\ProductQuery` should be used instead.
 - Deprecated `craft\commerce\helpers\ProjectConfigData`. `CraftCms\Commerce\Helpers\ProjectConfigData` should be used instead.
 - Deprecated `craft\commerce\helpers\Purchasable`. `CraftCms\Commerce\Helpers\Purchasable` should be used instead.
+- Removed the `commerce/_includes/forms/inventoryLocationSelect`, `shippingCategorySelect`, `taxCategorySelect`, and `taxZoneSelect` templates.
 
 ### Inventory
 
@@ -716,6 +717,7 @@
 - Deprecated `craft\commerce\base\GatewayInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface` should be used instead.
 - Deprecated `craft\commerce\base\RequestResponseInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface` should be used instead.
 - Removed `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface::redirect()`.
+- Removed the `commerce/_components/gateways/_creditCardFields` template.
 - Gateway redirects that use POST now return a page that submits the redirect data to the gateway (or the `gatewayPostRedirectTemplate` template), rather than calling the gateway response’s `redirect()` method.
 - Deprecated `craft\commerce\events\PaymentSourceEvent` in favor of the following new events:
   - `craft\commerce\services\PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaving`
@@ -881,6 +883,7 @@
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
 - Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
+- Removed `Purchasable::taxCategoryFieldHtml()` and `shippingCategoryFieldHtml()`.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.
 
 #### Controllers

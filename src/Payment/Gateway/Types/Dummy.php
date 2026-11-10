@@ -6,7 +6,13 @@ namespace CraftCms\Commerce\Payment\Gateway\Types;
 
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Support\Str;
-use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\FieldWidth;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Exceptions\NotImplementedException;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\Data\Transaction;
@@ -20,7 +26,7 @@ use Illuminate\Http\Response;
 use InvalidArgumentException;
 use Override;
 
-use function CraftCms\Cms\template;
+use function CraftCms\Cms\t;
 
 /**
  * Dummy represents a dummy gateway.
@@ -39,13 +45,41 @@ class Dummy extends Gateway
             $paymentFormModel->cvv = '123';
         }
 
-        $defaults = [
-            'paymentForm' => $paymentFormModel,
-        ];
+        /** @var CreditCardPaymentForm $paymentForm */
+        $paymentForm = $params['paymentForm'] ?? $paymentFormModel;
+        $errors = $paymentForm->errors();
 
-        $params = array_merge($defaults, $params);
+        $ui = Ui::make()
+            ->addGroup(t('Card Holder', category: 'commerce'), [
+                Field::make(t('First Name', category: 'commerce'))
+                    ->required()
+                    ->width(FieldWidth::Half)
+                    ->control(Text::make('firstName')->maxLength(70)->placeholder(t('First Name', category: 'commerce'))->value($paymentForm->firstName)),
+                Field::make(t('Last Name', category: 'commerce'))
+                    ->required()
+                    ->width(FieldWidth::Half)
+                    ->control(Text::make('lastName')->maxLength(70)->placeholder(t('Last Name', category: 'commerce'))->value($paymentForm->lastName)),
+            ])
+            ->addGroup(t('Card', category: 'commerce'), [
+                Field::make(t('Card Number', category: 'commerce'))
+                    ->control(Text::make('number')->maxLength(19)->placeholder(t('Card Number', category: 'commerce'))->inputMode('numeric')->value($paymentForm->number)),
+                Field::make(t('Expiry', category: 'commerce'))
+                    ->width(FieldWidth::Half)
+                    ->control(Text::make('expiry')
+                        ->placeholder(t('MM', category: 'commerce') . ' / ' . t('YYYY', category: 'commerce'))
+                        ->value($paymentForm->expiry)),
+                Field::make(t('CVV', category: 'commerce'))
+                    ->width(FieldWidth::Half)
+                    ->control(Text::make('cvv')->inputType('tel')->placeholder(t('CVV', category: 'commerce'))->value($paymentForm->cvv)),
+            ]);
 
-        return template('commerce/_components/gateways/_creditCardFields', $params, TemplateMode::Cp);
+        return app(UiHtmlRenderer::class)->render(app(UiResolver::class)->resolve($ui, new UiContext(errors: [
+            'firstName' => $errors->get('firstName'),
+            'lastName' => $errors->get('lastName'),
+            'number' => $errors->get('number'),
+            'expiry' => [...$errors->get('expiry'), ...$errors->get('month'), ...$errors->get('year')],
+            'cvv' => $errors->get('cvv'),
+        ])));
     }
 
     public function getPaymentFormModel(): DummyPaymentForm
