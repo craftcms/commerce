@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use CraftCms\Cms\Cms;
+use CraftCms\Cms\Element\Events\ElementActionMenuDescriptorsResolving;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Support\Url;
@@ -16,6 +17,7 @@ use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 
@@ -55,6 +57,29 @@ it('renders a completed order', function() {
             ->has('histories')
             ->has('transactions')
             ->where('crumbs.1.label', 'Orders')
+            ->etc()
+        );
+});
+
+it('lists plugin actions in the action menu', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+
+    Event::listen(ElementActionMenuDescriptorsResolving::class, function(ElementActionMenuDescriptorsResolving $event) {
+        if ($event->element instanceof Order) {
+            $event->items[] = [
+                'label' => 'Sync to accounting',
+                'icon' => 'refresh',
+                'behavior' => ['type' => 'link', 'href' => 'https://example.test/sync'],
+            ];
+        }
+    });
+
+    get(orderEditPagePath($order->id))
+        ->assertOk()
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('actionMenu', fn($items) => collect($items)->contains(
+                fn($item) => $item['label'] === 'Sync to accounting'
+            ))
             ->etc()
         );
 });
