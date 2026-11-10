@@ -9,12 +9,14 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Concerns\ConfigurableComponent;
 use CraftCms\Cms\Component\Concerns\SavableComponent;
 use CraftCms\Cms\Component\Contracts\ConfigurableComponentInterface;
+use CraftCms\Cms\Component\Events\DefineSettingsAttributes;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Support\Utils;
 use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\Ui\UiHtmlRenderer;
@@ -26,6 +28,7 @@ use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use DateTime;
 use Override;
+use ReflectionProperty;
 
 use function CraftCms\Cms\t;
 
@@ -151,6 +154,27 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
         $payload = app(UiResolver::class)->resolve($form, $context);
 
         return app(UiHtmlRenderer::class)->render($payload);
+    }
+
+    /**
+     * Returns the gateway’s settings attributes.
+     *
+     * Craft skips public properties declared on abstract classes, so it doesn’t treat a base class’s own properties
+     * (like `name` and `handle` here) as settings. Gateway types often share their settings via an abstract base
+     * class though, so properties declared on abstract subclasses of this class are included.
+     */
+    #[Override]
+    public function settingsAttributes(): array
+    {
+        $attributes = array_keys(Utils::getPublicProperties($this, function(ReflectionProperty $property) {
+            $class = $property->getDeclaringClass();
+
+            return !$class->isAbstract() || $class->isSubclassOf(self::class);
+        }));
+
+        event($event = new DefineSettingsAttributes(component: $this, attributes: $attributes));
+
+        return $event->attributes;
     }
 
     #[Override]

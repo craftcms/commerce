@@ -51,3 +51,25 @@ test('getAllGatewayTypes returns the built-in Dummy and Manual gateway types', f
         Manual::class,
     ]);
 });
+
+test('gateway settings include properties declared on abstract gateway subclasses', function() {
+    $gateway = app(Gateways::class)->createGateway([
+        'type' => GatewayWithSharedSettings::class,
+        'name' => 'Shared',
+        'handle' => 'shared',
+        'settings' => ['secretKey' => 'sk_test', 'publishableKey' => 'pk_test'],
+    ]);
+
+    expect($gateway->getSettings())->toEqualCanonicalizing(['secretKey' => 'sk_test', 'publishableKey' => 'pk_test'])
+        ->and($gateway->getConfig()['settings'])->toEqualCanonicalizing(['secretKey' => 'sk_test', 'publishableKey' => 'pk_test']);
+});
+
+abstract class GatewayWithSharedSettingsBase extends Dummy
+{
+    public ?string $secretKey = null;
+}
+
+class GatewayWithSharedSettings extends GatewayWithSharedSettingsBase
+{
+    public ?string $publishableKey = null;
+}

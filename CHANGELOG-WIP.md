@@ -673,6 +673,7 @@
 - Added `CraftCms\Commerce\Support\Facades\GatewayTypes`.
 - Deprecated `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`. `CraftCms\Commerce\Payment\Gateway\GatewayTypes::register()` should be used instead.
 - Added `CraftCms\Commerce\Payment\Gateway\Gateway`.
+- Public properties declared on abstract subclasses of `CraftCms\Commerce\Payment\Gateway\Gateway` are now treated as gateway settings.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Dummy`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
