@@ -51,3 +51,16 @@ test('getAllGatewayTypes returns the built-in Dummy and Manual gateway types', f
         Manual::class,
     ]);
 });
+
+test('the Dummy gateway renders its credit card payment form with errors', function() {
+    $gateway = new Dummy();
+    $paymentForm = $gateway->getPaymentFormModel();
+    $paymentForm->errors()->add('number', 'Card number is invalid.');
+
+    expect($gateway->getPaymentFormHtml(['paymentForm' => $paymentForm]))
+        ->toContain('name="firstName"')
+        ->toContain('name="number"')
+        ->toContain('name="cvv"')
+        ->toContain('<ul class="errors">')
+        ->toContain('Card number is invalid.');
+});
