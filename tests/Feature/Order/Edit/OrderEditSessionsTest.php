@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Activity\Data\ActivitySubject;
 use CraftCms\Cms\Database\Table as CmsTable;
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Activity\OrderEditTakenOver;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\Exceptions\OrderBeingEditedException;
 use CraftCms\Commerce\Order\Edit\Exceptions\StaleOrderException;
@@ -98,6 +101,25 @@ describe('starting', function() {
         expect($session->userId)->toBe($second->id);
         expect($session->hasChanges())->toBeFalse();
         expect(DB::table(Table::ORDER_EDIT_SESSIONS)->where('orderId', $order->id)->count())->toBe(1);
+    });
+    it('records the takeover in the order’s activity', function() {
+        $order = OrdersFixture::seed()->orders['completed-new'];
+        $sessions = app(OrderEditSessions::class);
+        $first = $sessions->start($order, sessionsAdmin('first'));
+        $sessions->addOperation($first, sessionsFreshOrder($order), sessionsOperation(['type' => 'setReference', 'reference' => 'NEW-REF']));
+        $second = sessionsAdmin('second');
+
+        $sessions->takeOver($order, $second);
+
+        $event = Activities::query()
+            ->subject(ActivitySubject::fromElement($order))
+            ->where('eventType', OrderEditTakenOver::class)
+            ->first();
+
+        expect($event)->not->toBeNull()
+            ->and($event->data['previousEditor'])->toBe('first')
+            ->and($event->data['discardedChanges'])->toBe(1)
+            ->and(OrderEditTakenOver::format($event))->toBe('Took over editing the order from first, discarding 1 staged change');
     });
 });
 

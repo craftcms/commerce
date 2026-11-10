@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Edit;
 
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Order\Activity\OrderEditTakenOver;
 use CraftCms\Commerce\Order\Edit\Data\OrderEditSession;
 use CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException;
 use CraftCms\Commerce\Order\Edit\Exceptions\OrderBeingEditedException;
@@ -90,6 +92,15 @@ class OrderEditSessions
 
             if ($existing) {
                 $this->discard($existing);
+
+                $previousEditor = $existing->userId ? User::find()->id($existing->userId)->status(null)->one() : null;
+
+                Activities::record(new OrderEditTakenOver(
+                    $order,
+                    $previousEditor?->getFriendlyName() ?? t('another user', category: 'commerce'),
+                    count($existing->edit->operations),
+                    $user,
+                ));
 
                 Log::info(sprintf(
                     'User %s took over the edit session for order %s from user %s, discarding %s change(s).',
