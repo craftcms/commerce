@@ -39,11 +39,6 @@ class Manual extends Gateway
         return $settings;
     }
 
-    public function getPaymentFormHtml(array $params): ?string
-    {
-        return '';
-    }
-
     #[Override]
     public function getPaymentFormModel(): BasePaymentForm
     {
