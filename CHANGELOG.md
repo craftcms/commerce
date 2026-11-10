@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (Hackrate #2243)
+
 ## 5.7.8 - 2026-11-04
 
 - Fixed a PHP error that could occur when matching shipping methods with a “Discounted Item Subtotal” condition on a cart or order containing a deleted purchasable. ([#4432](https://github.com/craftcms/commerce/issues/4432))

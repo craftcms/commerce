@@ -379,7 +379,7 @@ JS, []);
             throw new HttpException(400, Craft::t('commerce', 'Invalid Order ID'));
         }
 
-        $this->enforceManageOrderPermissions($order);
+        $this->enforceEditOrderPermissions($order);
 
         $alreadyCompleted = $order->isCompleted;
         // Set data from request to the order
@@ -1093,6 +1093,8 @@ JS, []);
         if (!$order) {
             return $this->asFailure(Craft::t('commerce', 'Bad order ID.'));
         }
+
+        $this->enforceEditOrderPermissions($order);
 
         // Return early if the address is already set.
         if ($order->{$type . 'Id'} == $addressId) {
@@ -2240,6 +2242,17 @@ JS, []);
     {
         if (!Craft::$app->getElements()->canView($order)) {
             throw new ForbiddenHttpException('User not authorized to view this order.');
+        }
+    }
+
+    /**
+     * @param Order $order
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceEditOrderPermissions(Order $order): void
+    {
+        if (!Craft::$app->getElements()->canSave($order)) {
+            throw new ForbiddenHttpException('User not authorized to save this order.');
         }
     }
 }
