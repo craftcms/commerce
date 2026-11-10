@@ -208,21 +208,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
 // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init() only
 // ever checked commerce-manageOrders, not accessPlugin-commerce.
 Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function() {
-    Route::post('orders/fulfill', [OrdersController::class, 'fulfill']);
-    Route::get('orders/fulfillment-modal', [OrdersController::class, 'fulfillmentModal']);
-    Route::post('orders/save', [OrdersController::class, 'store']);
-    Route::post('orders/delete-order', [OrdersController::class, 'destroy']);
-    Route::post('orders/refresh', [OrdersController::class, 'refresh']);
-    Route::post('orders/get-shipping-method-options', [OrdersController::class, 'shippingMethodOptions']);
     Route::get('orders/user-orders-table', [OrdersController::class, 'userOrdersTable']);
-    Route::get('orders/customer-search', [OrdersController::class, 'customerSearch']);
-    Route::get('orders/get-customer-addresses', [OrdersController::class, 'customerAddresses']);
-    Route::get('orders/get-order-address', [OrdersController::class, 'orderAddress']);
-    Route::post('orders/validate-address', [OrdersController::class, 'validateAddress']);
-    Route::post('orders/create-customer', [OrdersController::class, 'createCustomer']);
     Route::get('orders/get-load-cart-url', [OrdersController::class, 'loadCartUrl']);
-    Route::post('orders/send-email', [OrdersController::class, 'sendEmail']);
-    Route::get('orders/update-order-address', [OrdersController::class, 'updateOrderAddress']);
     Route::get('orders/get-index-sources-badge-counts', [OrdersController::class, 'indexSourcesBadgeCounts']);
 
     Route::get('orders/snapshot', [OrderEditController::class, 'snapshot']);

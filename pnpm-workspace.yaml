@@ -30,9 +30,8 @@ packageExtensions:
 
 catalogs:
   # @craftcms/commerce-legacy is intentionally held on Vue 2 — it builds the
-  # old commerceui/etc. webpack bundles that still power the Orders edit
-  # screen and friends, pre-dating the move to the new Vue 3/Vite CP `Form`
-  # system. Keeping it in its own catalog makes the split explicit instead of
+  # old webpack bundles that still power the screens not yet moved to the
+  # new Vue 3/Vite CP `Form` system. Keeping it in its own catalog makes the split explicit instead of
   # looking like drift (mirrors cms's own pnpm-workspace.yaml, which does the
   # same for its packages/craftcms-legacy).
   legacy:

@@ -30,11 +30,6 @@ use CraftCms\Commerce\Tests\Support\StoresFixture;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Holds the order operations to the behaviour today's order edit screen has when it applies a
- * draft (see tests/Feature/Http/Controllers/OrderEditSaveTest.php).
- */
-
 /** @param list<array<string, mixed>> $operations */
 function orderEditFromArray(array $operations): OrderEdit
 {

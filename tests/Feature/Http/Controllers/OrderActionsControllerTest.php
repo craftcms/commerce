@@ -28,6 +28,7 @@ use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -236,7 +237,7 @@ it('refuses every action while the order has an edit session with changes', func
     postJson(actionsUrl('send-email'), ['orderId' => $order->id, 'emailId' => $email->id])->assertStatus(423);
     getJson(actionsUrl('fulfillment-form', ['orderId' => $order->id]))->assertStatus(423);
     postJson(actionsUrl('fulfill'), ['orderId' => $order->id, 'fulfillment' => []])->assertStatus(423);
-    postJson(Url::actionUrl('commerce/orders/delete-order'), ['orderId' => $order->id])->assertStatus(423);
+    expect(fn() => Elements::deleteElement($order))->toThrow(HttpException::class);
 
     expect(Order::find()->id($order->id)->exists())->toBeTrue();
 

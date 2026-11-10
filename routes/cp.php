@@ -180,7 +180,6 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     // only ever checked commerce-manageOrders, not accessPlugin-commerce.
     Route::middleware('can:commerce-manageOrders')->group(function () {
         Route::get('commerce/orders/{orderId}', [OrdersController::class, 'edit'])->whereNumber('orderId');
-        Route::get('commerce/orders/{orderId}/legacy', [OrdersController::class, 'editLegacy'])->whereNumber('orderId');
         Route::get('commerce/orders/{storeHandle}/create', [OrdersController::class, 'create']);
         Route::get('commerce/orders/{orderStatusHandle?}', [OrdersController::class, 'index']);
     });
