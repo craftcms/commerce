@@ -6,11 +6,7 @@ import laravel from 'laravel-vite-plugin';
  * Commerce's own Vite build for the new CP `Form` system's Commerce-owned
  * Node/Control components (entry: `resources/js/cp.ts`) — a pnpm workspace
  * root, matching `cms`'s own top-level `vite.config.js` placement and
- * `resources/js/cp.ts` entry-point convention exactly. The legacy Vue 2/
- * webpack `commerceui` bundle lives in `./legacy`, a separate workspace
- * *member* package (own `package.json`, own `node_modules`) — the two can't
- * share a `vue` dependency (Vue 3 here, Vue 2 there), the same reason `cms`
- * itself keeps `packages/craftcms-legacy` separate from its own root build.
+ * `resources/js/cp.ts` entry-point convention exactly.
  *
  * Output lands at `public/build` — `CraftCms\Cms\Plugin\Concerns\
  * HasFrontendAssets`'s default `publicDirectory`/`buildDirectory`
