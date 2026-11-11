@@ -90,6 +90,7 @@ use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Event;
 
 class Plugin extends BasePlugin
 {
@@ -238,6 +239,16 @@ class Plugin extends BasePlugin
                 $this->registerCKEditorLinkOptions();
             }
         }
+    }
+
+    /**
+     * Restores Commerce’s foreign keys when the Fix FKs plugin restores Craft’s.
+     *
+     * Fix FKs only adds the keys that are missing. Its event is referenced by name, since Commerce doesn’t require Fix FKs.
+     */
+    private function registerForeignKeysRestore(): void
+    {
+        Event::listen('CraftCms\FixFks\Events\ForeignKeysRestoring', fn() => $this->createInstallMigration()?->addForeignKeys());
     }
 
     protected static function createSettings(): ?Settings
