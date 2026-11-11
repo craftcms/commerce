@@ -128,7 +128,6 @@
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
 - Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
-- Removed the `commerce/prices/*` templates.
 
 #### Controllers
 
@@ -185,7 +184,6 @@
 - Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
 - Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
 - Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
-- Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.
@@ -366,7 +364,6 @@
 - Deprecated `craft\commerce\helpers\ProductQuery`. `CraftCms\Commerce\Helpers\ProductQuery` should be used instead.
 - Deprecated `craft\commerce\helpers\ProjectConfigData`. `CraftCms\Commerce\Helpers\ProjectConfigData` should be used instead.
 - Deprecated `craft\commerce\helpers\Purchasable`. `CraftCms\Commerce\Helpers\Purchasable` should be used instead.
-- Removed the `commerce/_includes/forms/inventoryLocationSelect`, `shippingCategorySelect`, `taxCategorySelect`, and `taxZoneSelect` templates.
 
 ### Inventory
 
@@ -717,7 +714,6 @@
 - Deprecated `craft\commerce\base\GatewayInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface` should be used instead.
 - Deprecated `craft\commerce\base\RequestResponseInterface`. `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface` should be used instead.
 - Removed `CraftCms\Commerce\Payment\Gateway\Contracts\RequestResponseInterface::redirect()`.
-- Removed the `commerce/_components/gateways/_creditCardFields` template.
 - Gateway redirects that use POST now return a page that submits the redirect data to the gateway (or the `gatewayPostRedirectTemplate` template), rather than calling the gateway response’s `redirect()` method.
 - Deprecated `craft\commerce\events\PaymentSourceEvent` in favor of the following new events:
   - `craft\commerce\services\PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE` => `CraftCms\Commerce\Payment\Events\PaymentSourceSaving`
@@ -828,8 +824,6 @@
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
 - The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
-- Removed the `commerce/promotions/*` templates.
-- Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
 - Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
 #### Controllers
@@ -1150,7 +1144,7 @@
 - Deprecated `craft\commerce\events\*`. Cancelable Commerce events (previously extending `craft\events\CancelableEvent`) now use the `CraftCms\Cms\Shared\Concerns\ValidatableEvent` trait instead.
 - Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
-- Removed the `commerce/settings/*`, `commerce/store-management/*`, `commerce/inventory-locations/*`, `commerce/gateways/*`, `commerce/_cart/*`, `commerce/_downloads/*`, `commerce/_layouts/*`, `commerce/_data/*`, `commerce/_includes/forms/commerceForms`, `commerce/_includes/orders/address`, and `commerce/_includes/settings` templates.
+- Removed all control panel Twig templates.
 - Removed the `cp.commerce.catalogPricingRules.index`, `cp.commerce.catalogPricingRules.edit.content`, `cp.commerce.discounts.index`, `cp.commerce.discounts.edit.details`, `cp.commerce.inventoryLocation.edit`, and `cp.commerce.shippingMethods.edit.content` template hooks.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
