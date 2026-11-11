@@ -7,7 +7,6 @@ namespace CraftCms\Commerce\Product\Variant\Actions;
 use CraftCms\Cms\Element\Actions\ElementAction;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\Support\Facades\ElementCaches;
-use CraftCms\Cms\Support\Facades\HtmlStack;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use Illuminate\Support\Facades\DB;
@@ -19,20 +18,6 @@ class SetDefaultVariant extends ElementAction
     public function getTriggerLabel(): string
     {
         return t('Set default variant', category: 'commerce');
-    }
-
-    public function getTriggerHtml(): ?string
-    {
-        HtmlStack::jsWithVars(fn($type) => <<<JS
-(() => {
-    new Craft.ElementActionTrigger({
-        type: $type,
-        bulk: false,
-    });
-})();
-JS, [static::class]);
-
-        return null;
     }
 
     #[\Override]
