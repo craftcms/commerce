@@ -225,8 +225,8 @@ class Plugin extends BasePlugin
 
         Twig::registerExtension(new CommerceTwigExtension());
 
-        // TODO: remove once the remaining CP templates are ported to src/ (the conventional
-        // {basePath}/templates root only covers what's already been moved there).
+        // TODO: remove once the order edit page (and its payment, fulfillment and transaction
+        // fragments) is ported to Ui screens; it's the only thing still rendering these templates.
         app(TemplateRoots::class)->register(TemplateMode::Cp, $this->handle, dirname($this->getBasePath()) . '/src-yii2/templates');
 
         $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);

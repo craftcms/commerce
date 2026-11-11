@@ -1150,6 +1150,8 @@
 - Deprecated `craft\commerce\events\*`. Cancelable Commerce events (previously extending `craft\events\CancelableEvent`) now use the `CraftCms\Cms\Shared\Concerns\ValidatableEvent` trait instead.
 - Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
+- Removed the `commerce/settings/*`, `commerce/store-management/*`, `commerce/inventory-locations/*`, `commerce/gateways/*`, `commerce/_cart/*`, `commerce/_downloads/*`, `commerce/_layouts/*`, `commerce/_data/*`, `commerce/_includes/forms/commerceForms`, `commerce/_includes/orders/address`, and `commerce/_includes/settings` templates.
+- Removed the `cp.commerce.catalogPricingRules.index`, `cp.commerce.catalogPricingRules.edit.content`, `cp.commerce.discounts.index`, `cp.commerce.discounts.edit.details`, `cp.commerce.inventoryLocation.edit`, and `cp.commerce.shippingMethods.edit.content` template hooks.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
 ### Command Palette

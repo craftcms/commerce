@@ -179,9 +179,10 @@ readonly class DownloadsController
         $order = app(Orders::class)->getOrderByNumber($orderNumber);
         abort_if(!$order, 404, 'Order not found');
 
-        return pageTemplate('commerce/_downloads/email-sent', [
+        return pageTemplate('commerce/_special/email-sent', [
             ...$this->challengePageVariables(),
-            'email' => $order->getMaskedEmail(),
+            'title' => t('Email Sent'),
+            'message' => t('A new download link has been sent to {email}', ['email' => $order->getMaskedEmail()], category: 'commerce'),
         ], TemplateMode::Cp);
     }
 
@@ -192,13 +193,18 @@ readonly class DownloadsController
         string $option,
         bool $inline,
     ): string {
-        return pageTemplate('commerce/_downloads/email-challenge', [
+        return pageTemplate('commerce/_special/email-challenge', [
             ...$this->challengePageVariables(),
-            'order' => $order,
-            'orderNumber' => $orderNumber,
-            'pdfHandle' => $pdfHandle,
-            'option' => $option,
-            'inline' => $inline,
+            'title' => t('Download PDF', category: 'commerce'),
+            'heading' => t('Expired Link', category: 'commerce'),
+            'instructions' => t('A new download link will be sent to {email}', ['email' => $order->getMaskedEmail()], category: 'commerce'),
+            'action' => 'commerce/downloads/pdf-challenge',
+            'params' => [
+                'orderNumberHash' => Crypt::encrypt($orderNumber),
+                'pdfHandle' => $pdfHandle,
+                'option' => $option,
+                'inline' => $inline,
+            ],
         ], TemplateMode::Cp);
     }
 
