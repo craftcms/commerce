@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use CraftCms\Commerce\Order\Edit\Enums\OrderAddressType;
 use CraftCms\Commerce\Order\Edit\OrderEdit;
 use CraftCms\Commerce\Order\Edit\OrderOperations;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @param list<array<string, mixed>> $operations
@@ -80,12 +82,98 @@ it('says which address a change is about in its label', function() {
         ->and($labels(['type' => 'copyAddress', 'from' => 'billing']))->toBe('Copy Billing Address to Shipping Address');
 });
 
-it('summarises an address change as the address before and after', function() {
+it('summarises an address change as the fields that change', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
-
-    $summaries = orderOperationSummaries($order, [
-        ['type' => 'setAddress', 'addressType' => 'billing', 'address' => ['addressLine1' => '5 Elm St', 'locality' => 'Salem', 'countryCode' => 'US']],
+    $address = $order->getBillingAddress();
+    $attributes = OrderAddressType::attributesOf($address);
+    $expected = implode(' · ', [
+        $address->getAttributeLabel('locality') . ': ' . $address->locality . ' → Salem',
+        $address->getAttributeLabel('addressLine1') . ': ' . $address->addressLine1 . ' → 5 Elm St',
     ]);
 
-    expect($summaries[0])->toEndWith('→ 5 Elm St, Salem, US')->not->toContain('Billing');
+    $summaries = orderOperationSummaries($order, [
+        ['type' => 'setAddress', 'addressType' => 'billing', 'address' => [...$attributes, 'addressLine1' => '5 Elm St', 'locality' => 'Salem']],
+    ]);
+
+    expect($summaries[0])->toBe($expected)->not->toContain('Billing');
+});
+
+it('names an address field that changes even when the rest of the address reads the same', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $address = $order->getBillingAddress();
+    $attributes = OrderAddressType::attributesOf($address);
+    $expected = $address->getAttributeLabel('postalCode') . ': ' . $address->postalCode . ' → !!!';
+
+    $summaries = orderOperationSummaries($order, [
+        ['type' => 'setAddress', 'addressType' => 'billing', 'address' => [...$attributes, 'postalCode' => '!!!']],
+    ]);
+
+    expect($summaries[0])->toBe($expected);
+});
+
+it('shows the address before and after when there is no address to compare', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $order->setShippingAddress(null);
+
+    $summaries = orderOperationSummaries($order, [
+        ['type' => 'setAddress', 'addressType' => 'shipping', 'address' => ['addressLine1' => '5 Elm St', 'locality' => 'Salem', 'countryCode' => 'US']],
+    ]);
+
+    expect($summaries[0])->toBe('None → 5 Elm St, Salem, US');
+});
+
+it('summarises a line item change by only the fields that change', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $lineItem = $order->getLineItems()[0];
+    $description = $lineItem->getDescription();
+    $qty = $lineItem->qty;
+
+    $summary = orderOperationSummaries($order, [
+        ['type' => 'updateLineItem', 'lineItemUid' => $lineItem->uid, 'changes' => [
+            'qty' => $qty + 1,
+            'price' => $lineItem->getPrice(),
+            'taxCategoryId' => $lineItem->taxCategoryId,
+            'shippingCategoryId' => $lineItem->shippingCategoryId,
+        ]],
+    ])[0];
+
+    expect($summary)->toBe($description . ': Quantity: ' . $qty . ' → ' . ($qty + 1));
+});
+
+it('lists every field a line item change alters', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $lineItem = $order->getLineItems()[0];
+    $qty = $lineItem->qty;
+    $price = $lineItem->getPrice();
+
+    $summary = orderOperationSummaries($order, [
+        ['type' => 'updateLineItem', 'lineItemUid' => $lineItem->uid, 'changes' => ['qty' => $qty + 1, 'price' => $price + 5]],
+    ])[0];
+
+    expect($summary)->toContain('Quantity: ' . $qty . ' → ' . ($qty + 1) . ' · Price: ');
+});
+
+it('drops a line item edit that changes nothing', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $lineItem = $order->getLineItems()[0];
+
+    $edit = (new OrderEdit([]))->with(
+        app(OrderOperations::class)->operationFromArray(['type' => 'updateLineItem', 'lineItemUid' => $lineItem->uid, 'changes' => [
+            'qty' => $lineItem->qty,
+            'price' => $lineItem->getPrice(),
+            'taxCategoryId' => $lineItem->taxCategoryId,
+            'shippingCategoryId' => $lineItem->shippingCategoryId,
+        ]]),
+        $order,
+    );
+
+    expect($edit->operations)->toBe([]);
+});
+
+it('names the field in a validation message instead of its key', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $lineItem = $order->getLineItems()[0];
+
+    expect(fn() => app(OrderOperations::class)->operationFromArray(['type' => 'updateLineItem', 'lineItemUid' => $lineItem->uid, 'changes' => ['qty' => 0]]))
+        ->toThrow(ValidationException::class, 'The Quantity field must be at least 1.');
 });

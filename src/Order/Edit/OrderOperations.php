@@ -53,7 +53,7 @@ class OrderOperations
             ]);
         }
 
-        $validator = Validator::make($data, $class::rules());
+        $validator = Validator::make($data, $class::rules(), [], $class::attributes());
 
         if ($validator->fails()) {
             $messages = [];

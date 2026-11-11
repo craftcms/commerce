@@ -467,7 +467,17 @@ class OrderEditViewModel extends ViewModel
         ], app(OrderStockReconciliation::class)->changes($this->original, $this->order));
     }
 
-    private const array CHARGE_OPERATIONS = ['setAddress', 'copyAddress', 'removeAddress', 'setShippingMethod', 'setCouponCode'];
+    private const array CHARGE_OPERATIONS = [
+        'setAddress',
+        'copyAddress',
+        'removeAddress',
+        'setShippingMethod',
+        'setCouponCode',
+        'addLineItem',
+        'addCustomLineItem',
+        'updateLineItem',
+        'removeLineItem',
+    ];
 
     private const array CHARGE_RECALCULATIONS = ['recalculate', 'recalculateCharges'];
 
@@ -732,7 +742,7 @@ class OrderEditViewModel extends ViewModel
             return null;
         }
 
-        $canCollect = $this->order->hasOutstandingBalance() && $this->userCan('commerce-manageOrders');
+        $canCollect = $this->order->hasOutstandingBalance() && $this->userCan('commerce-recordPayments');
         $gateways = $canCollect ? app(Gateways::class)->getAllGateways()->filter(fn(Gateway $gateway) => !$gateway->isArchived && $gateway->availableForUseWithOrder($this->order) !== false) : collect();
 
         return [

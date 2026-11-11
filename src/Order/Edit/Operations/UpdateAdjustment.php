@@ -65,6 +65,17 @@ final readonly class UpdateAdjustment extends OrderOperation
         ];
     }
 
+    public static function attributes(): array
+    {
+        return [
+            'changes.adjustmentType' => t('Type', category: 'commerce'),
+            'changes.name' => t('Name', category: 'commerce'),
+            'changes.description' => t('Description', category: 'commerce'),
+            'changes.amount' => t('Amount', category: 'commerce'),
+            'changes.included' => t('Included', category: 'commerce'),
+        ];
+    }
+
     public static function fromArray(array $data): static
     {
         $changes = array_intersect_key($data['changes'], array_flip(['adjustmentType', 'name', 'description', 'amount', 'included']));

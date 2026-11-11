@@ -67,7 +67,8 @@ final readonly class SetAddress extends OrderOperation
 
     public function summary(Order $before): string
     {
-        $current = $this->addressText($this->addressType->getAddress($before));
+        $address = $this->addressType->getAddress($before);
+        $current = $this->addressText($address);
 
         if ($this->sourceAddressId !== null) {
             /** @var Address|null $source */
@@ -77,9 +78,42 @@ final readonly class SetAddress extends OrderOperation
         }
 
         $attributes = $this->address ?? [];
+
+        if ($address) {
+            $changes = $this->changedAttributes($address, $attributes);
+
+            if ($changes) {
+                return implode(' · ', $changes);
+            }
+        }
+
         $next = implode(', ', array_filter([$attributes['addressLine1'] ?? null, $attributes['locality'] ?? null, $attributes['countryCode'] ?? null]));
 
         return $this->change($current, $next);
+    }
+
+    /**
+     * Each of the address's fields the submitted attributes would change, with the field's label for the address's country.
+     *
+     * Fields left out of the attributes are cleared when the address is set.
+     *
+     * @param array<string, mixed> $attributes
+     * @return list<string>
+     */
+    private function changedAttributes(Address $address, array $attributes): array
+    {
+        $changes = [];
+
+        foreach (OrderAddressType::attributeNames() as $field) {
+            $from = (string)($address->$field ?? '');
+            $to = (string)($attributes[$field] ?? '');
+
+            if ($from !== $to) {
+                $changes[] = $this->labelledChange($address->getAttributeLabel($field), $from, $to);
+            }
+        }
+
+        return $changes;
     }
 
     public function apply(Order $order): void

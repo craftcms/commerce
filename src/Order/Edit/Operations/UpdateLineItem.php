@@ -9,6 +9,8 @@ use CraftCms\Commerce\Order\Edit\OrderOperation;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Order\OrderStockReconciliation;
+use CraftCms\Commerce\Shipping\ShippingCategories;
+use CraftCms\Commerce\Tax\TaxCategories;
 
 use function CraftCms\Cms\t;
 
@@ -115,47 +117,124 @@ final readonly class UpdateLineItem extends OrderOperation
         ];
     }
 
+    public static function attributes(): array
+    {
+        return [
+            'changes.qty' => t('Quantity', category: 'commerce'),
+            'changes.price' => t('Price', category: 'commerce'),
+            'changes.promotionalPrice' => t('Promotional Price', category: 'commerce'),
+            'changes.taxCategoryId' => t('Tax Category', category: 'commerce'),
+            'changes.shippingCategoryId' => t('Shipping Category', category: 'commerce'),
+            'changes.description' => t('Description', category: 'commerce'),
+            'changes.sku' => t('SKU', category: 'commerce'),
+            'changes.hasFreeShipping' => t('Free Shipping', category: 'commerce'),
+            'changes.isPromotable' => t('Promotable', category: 'commerce'),
+            'changes.isShippable' => t('Shippable', category: 'commerce'),
+            'changes.isTaxable' => t('Taxable', category: 'commerce'),
+        ];
+    }
+
     public function summary(Order $before): ?string
     {
-        $lineItem = $this->lineItem($before, $this->lineItemUid);
-        $parts = [];
-
-        if (isset($this->changes['qty']) && $this->changes['qty'] !== $lineItem->qty) {
-            $parts[] = $this->labelledChange(t('Quantity', category: 'commerce'), (string)$lineItem->qty, (string)$this->changes['qty']);
-        }
-
-        if (isset($this->changes['price']) && (float)$this->changes['price'] !== $lineItem->getPrice()) {
-            $parts[] = $this->labelledChange(t('Price', category: 'commerce'), $this->currency($before, $lineItem->getPrice()), $this->currency($before, (float)$this->changes['price']));
-        }
-
-        if (array_key_exists('promotionalPrice', $this->changes) && $this->changes['promotionalPrice'] !== $lineItem->getPromotionalPrice()) {
-            $next = $this->changes['promotionalPrice'] === null ? null : (float)$this->changes['promotionalPrice'];
-            $parts[] = $this->labelledChange(t('Promotional Price', category: 'commerce'), $this->currency($before, $lineItem->getPromotionalPrice()), $this->currency($before, $next));
-        }
-
-        $others = [];
-
-        foreach ([
-            'taxCategoryId' => t('Tax Category', category: 'commerce'),
-            'shippingCategoryId' => t('Shipping Category', category: 'commerce'),
-            'description' => t('Description', category: 'commerce'),
-            'sku' => t('SKU', category: 'commerce'),
-        ] as $key => $label) {
-            if (isset($this->changes[$key])) {
-                $others[] = $label;
-            }
-        }
-
-        if ($others) {
-            $parts[] = implode(', ', $others);
-        }
+        $parts = array_map(
+            fn(array $change) => $this->labelledChange($change['label'], $change['from'], $change['to']),
+            $this->changedFields($before),
+        );
 
         return $parts ? $this->itemSummary($before, $this->lineItemUid, implode(' · ', $parts)) : null;
     }
 
-    private function labelledChange(string $label, string $from, string $to): string
+    public function isUnchangedFor(Order $order): bool
     {
-        return t('{label}: {from} → {to}', ['label' => $label, 'from' => $from, 'to' => $to], category: 'commerce');
+        try {
+            return $this->changedFields($order) === [];
+        } catch (OperationNotApplicableException) {
+            return false;
+        }
+    }
+
+    /**
+     * The fields these changes would alter on the line item as it is in `$order`.
+     *
+     * @return list<array{label: string, from: string, to: string}>
+     */
+    private function changedFields(Order $order): array
+    {
+        $lineItem = $this->lineItem($order, $this->lineItemUid);
+        $changed = [];
+
+        if (isset($this->changes['qty']) && $this->changes['qty'] !== $lineItem->qty) {
+            $changed[] = $this->field(t('Quantity', category: 'commerce'), (string)$lineItem->qty, (string)$this->changes['qty']);
+        }
+
+        if (isset($this->changes['price']) && !$this->sameAmount($this->changes['price'], $lineItem->getPrice())) {
+            $changed[] = $this->field(t('Price', category: 'commerce'), $this->currency($order, $lineItem->getPrice()), $this->currency($order, (float)$this->changes['price']));
+        }
+
+        if (array_key_exists('promotionalPrice', $this->changes) && !$this->sameAmount($this->changes['promotionalPrice'], $lineItem->getPromotionalPrice())) {
+            $changed[] = $this->field(t('Promotional Price', category: 'commerce'), $this->currency($order, $lineItem->getPromotionalPrice()), $this->currency($order, $this->changes['promotionalPrice']));
+        }
+
+        if (isset($this->changes['taxCategoryId']) && $this->changes['taxCategoryId'] !== $lineItem->taxCategoryId) {
+            $changed[] = $this->field(t('Tax Category', category: 'commerce'), $this->taxCategoryName($lineItem->taxCategoryId), $this->taxCategoryName($this->changes['taxCategoryId']));
+        }
+
+        if (isset($this->changes['shippingCategoryId']) && $this->changes['shippingCategoryId'] !== $lineItem->shippingCategoryId) {
+            $changed[] = $this->field(t('Shipping Category', category: 'commerce'), $this->shippingCategoryName($order, $lineItem->shippingCategoryId), $this->shippingCategoryName($order, $this->changes['shippingCategoryId']));
+        }
+
+        if (isset($this->changes['description']) && $this->changes['description'] !== $lineItem->getDescription()) {
+            $changed[] = $this->field(t('Description', category: 'commerce'), $lineItem->getDescription(), $this->changes['description']);
+        }
+
+        if (isset($this->changes['sku']) && $this->changes['sku'] !== $lineItem->getSku()) {
+            $changed[] = $this->field(t('SKU', category: 'commerce'), $lineItem->getSku(), $this->changes['sku']);
+        }
+
+        foreach ([
+            'isTaxable' => [t('Taxable', category: 'commerce'), $lineItem->getIsTaxable()],
+            'isShippable' => [t('Shippable', category: 'commerce'), $lineItem->getIsShippable()],
+            'isPromotable' => [t('Promotable', category: 'commerce'), $lineItem->getIsPromotable()],
+            'hasFreeShipping' => [t('Free Shipping', category: 'commerce'), $lineItem->getHasFreeShipping()],
+        ] as $key => [$label, $current]) {
+            if (isset($this->changes[$key]) && $this->changes[$key] !== $current) {
+                $changed[] = $this->field($label, $this->yesNo($current), $this->yesNo($this->changes[$key]));
+            }
+        }
+
+        return $changed;
+    }
+
+    /**
+     * @return array{label: string, from: string, to: string}
+     */
+    private function field(string $label, string $from, string $to): array
+    {
+        return ['label' => $label, 'from' => $from, 'to' => $to];
+    }
+
+    private function sameAmount(float|int|null $next, ?float $current): bool
+    {
+        if ($next === null || $current === null) {
+            return $next === $current;
+        }
+
+        return abs((float)$next - $current) < 0.00001;
+    }
+
+    private function yesNo(bool $value): string
+    {
+        return $value ? t('Yes', category: 'commerce') : t('No', category: 'commerce');
+    }
+
+    private function taxCategoryName(?int $id): string
+    {
+        return ($id ? app(TaxCategories::class)->getTaxCategoryById($id)?->name : null) ?? $this->none();
+    }
+
+    private function shippingCategoryName(Order $order, ?int $id): string
+    {
+        return ($id ? app(ShippingCategories::class)->getShippingCategoryById($id, $order->storeId)?->name : null) ?? $this->none();
     }
 
     public function apply(Order $order): void

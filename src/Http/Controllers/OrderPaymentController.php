@@ -133,6 +133,8 @@ class OrderPaymentController
                 ->required(),
             Field::make(t('Reference', category: 'commerce'), Text::make('reference')),
             Field::make(t('Note', category: 'commerce'), Textarea::make('note')),
+            Field::make(t('Confirm', category: 'commerce'), Checkbox::make('confirmed')->label(t('Record more than the outstanding balance', category: 'commerce')))
+                ->instructions(t('Only needed when the amount is more than what is outstanding.', category: 'commerce')),
         ]);
 
         return new JsonResponse([
@@ -140,6 +142,7 @@ class OrderPaymentController
                 'amount' => ['value' => max(0, $order->getOutstandingBalance()), 'locale' => I18N::getFormattingLocale()->id],
                 'reference' => '',
                 'note' => '',
+                'confirmed' => false,
             ])),
             'title' => t('Record External Payment', category: 'commerce'),
             'submitLabel' => t('Record', category: 'commerce'),
@@ -153,11 +156,18 @@ class OrderPaymentController
     {
         $order = $this->recordableOrder($request);
         $data = $this->validated($request);
+        $amount = $this->amount($data['amount'], $order->currency);
+
+        if ($amount > Currency::round(max(0.0, $order->getOutstandingBalance())) && !$request->boolean('confirmed')) {
+            $message = t('Confirm that you want to record more than the outstanding balance.', category: 'commerce');
+
+            return new JsonResponse(['message' => $message, 'errors' => ['confirmed' => [$message]]], 422);
+        }
 
         try {
             $transaction = $this->manualTransactions->recordPayment(
                 $order,
-                $this->amount($data['amount'], $order->currency),
+                $amount,
                 $data['reference'] ?? null,
                 $data['note'] ?? null,
             );

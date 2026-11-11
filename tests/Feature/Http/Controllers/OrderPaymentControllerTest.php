@@ -159,12 +159,27 @@ it('records a manual payment that completes the order like a gateway payment', f
         ->and(OrderTransactionSaved::format($activity->first()))->toContain('Recorded a')->toContain('BT-1');
 });
 
-it('lets a manual payment go over the outstanding balance', function() {
+it('needs a confirmation to record a payment over the outstanding balance', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $overpayment = ['amount' => ['value' => (string)($order->outstandingBalance + 10), 'locale' => 'en-US']];
+
+    paymentTestRecord($order, $overpayment)->assertStatus(422)->assertJsonValidationErrorFor('confirmed', 'errors');
+
+    expect(app(Transactions::class)->getAllTransactionsByOrderId($order->id))->toBe([]);
+});
+
+it('lets a confirmed manual payment go over the outstanding balance', function() {
     $order = OrdersFixture::seed()->orders['completed-new'];
 
-    paymentTestRecord($order, ['amount' => ['value' => (string)($order->outstandingBalance + 10), 'locale' => 'en-US']])->assertOk();
+    paymentTestRecord($order, ['amount' => ['value' => (string)($order->outstandingBalance + 10), 'locale' => 'en-US'], 'confirmed' => true])->assertOk();
 
     expect(Order::find()->id($order->id)->one()->getPaidStatus())->toBe(Order::PAID_STATUS_OVERPAID);
+});
+
+it('doesn’t ask for a confirmation to record exactly the outstanding balance', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+
+    paymentTestRecord($order)->assertOk();
 });
 
 it('rejects a manual payment with no amount', function() {
@@ -190,6 +205,35 @@ it('forbids recording payments and refunds without their permissions', function(
     paymentTestRecord($order)->assertForbidden();
     getJson(paymentTestUrl('record-payment-form', ['orderId' => $order->id]))->assertForbidden();
     getJson(paymentTestUrl('record-refund-form', ['orderId' => $order->id]))->assertForbidden();
+});
+
+it('forbids creating and emailing payment links without the permission to record payments', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $gateway = paymentTestGateway($order, LinkGateway::class);
+    Gate::before(fn($user, $ability) => $ability === 'commerce-recordPayments' ? false : null);
+
+    getJson(paymentTestUrl('link-form', ['orderId' => $order->id]))->assertForbidden();
+    postJson(paymentTestUrl('link'), ['orderId' => $order->id, 'gatewayId' => $gateway->id])->assertForbidden();
+    getJson(paymentTestUrl('link-url', ['orderId' => $order->id, 'transactionId' => 1]))->assertForbidden();
+    postJson(paymentTestUrl('link-email'), ['orderId' => $order->id, 'transactionId' => 1])->assertForbidden();
+
+    expect(app(PaymentLinks::class)->openLinks($order))->toBe([]);
+});
+
+it('doesn’t offer payment links or virtual terminals to a user who can’t record payments', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    paymentTestGateway($order, LinkGateway::class);
+    $path = '/' . Cms::config()->cpTrigger . "/commerce/orders/{$order->id}";
+
+    get($path)->assertOk()->assertInertia(fn(AssertableInertia $page) => $page->where('payments.canCreateLink', true)->etc());
+
+    Gate::before(fn($user, $ability) => $ability === 'commerce-recordPayments' ? false : null);
+
+    get($path)->assertOk()->assertInertia(fn(AssertableInertia $page) => $page
+        ->where('payments.canCreateLink', false)
+        ->where('payments.terminals', [])
+        ->etc()
+    );
 });
 
 it('opens the record payment form defaulting to the outstanding balance', function() {

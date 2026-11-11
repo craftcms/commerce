@@ -256,10 +256,12 @@ Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function() {
         Route::get('orders/payment/record-payment-form', [OrderPaymentController::class, 'recordPaymentForm']);
         Route::post('orders/payment/record-payment', [OrderPaymentController::class, 'recordPayment']);
     });
-    Route::get('orders/payment/link-form', [OrderPaymentLinksController::class, 'createForm']);
-    Route::post('orders/payment/link', [OrderPaymentLinksController::class, 'create']);
-    Route::get('orders/payment/link-url', [OrderPaymentLinksController::class, 'url']);
-    Route::post('orders/payment/link-email', [OrderPaymentLinksController::class, 'email']);
+    Route::middleware('can:commerce-recordPayments')->group(function () {
+        Route::get('orders/payment/link-form', [OrderPaymentLinksController::class, 'createForm']);
+        Route::post('orders/payment/link', [OrderPaymentLinksController::class, 'create']);
+        Route::get('orders/payment/link-url', [OrderPaymentLinksController::class, 'url']);
+        Route::post('orders/payment/link-email', [OrderPaymentLinksController::class, 'email']);
+    });
     Route::middleware('can:commerce-recordRefunds')->group(function () {
         Route::get('orders/payment/record-refund-form', [OrderPaymentController::class, 'recordRefundForm']);
         Route::post('orders/payment/record-refund', [OrderPaymentController::class, 'recordRefund']);

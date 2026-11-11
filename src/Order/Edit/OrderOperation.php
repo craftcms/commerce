@@ -33,6 +33,16 @@ abstract readonly class OrderOperation implements JsonSerializable
      */
     abstract public static function rules(): array;
 
+    /**
+     * The names to show for the data's keys in validation messages, where the key alone wouldn't read well.
+     *
+     * @return array<string, string>
+     */
+    public static function attributes(): array
+    {
+        return [];
+    }
+
     /** @param array<string, mixed> $data Data that has passed {@see rules()}. */
     abstract public static function fromArray(array $data): static;
 
@@ -112,6 +122,15 @@ abstract readonly class OrderOperation implements JsonSerializable
     protected function change(?string $from, ?string $to): string
     {
         return t('{from} → {to}', [
+            'from' => $from === null || $from === '' ? $this->none() : $from,
+            'to' => $to === null || $to === '' ? $this->none() : $to,
+        ], category: 'commerce');
+    }
+
+    protected function labelledChange(string $label, ?string $from, ?string $to): string
+    {
+        return t('{label}: {from} → {to}', [
+            'label' => $label,
             'from' => $from === null || $from === '' ? $this->none() : $from,
             'to' => $to === null || $to === '' ? $this->none() : $to,
         ], category: 'commerce');

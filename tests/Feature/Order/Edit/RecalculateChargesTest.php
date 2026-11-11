@@ -102,3 +102,20 @@ it('tells the page when charges are being kept after an address, method or coupo
 
     get($path)->assertInertia(fn(AssertableInertia $page) => $page->where('session.chargesKept', false)->etc());
 });
+
+it('tells the page when charges are being kept after a line item change', function() {
+    $order = OrdersFixture::seed()->orders['completed-new'];
+    $lineItem = $order->getLineItems()[0];
+    $path = '/' . Cms::config()->cpTrigger . "/commerce/orders/{$order->id}";
+    postJson(Url::actionUrl('commerce/orders/edit/start'), ['orderId' => $order->id])->assertOk();
+    postJson(Url::actionUrl('commerce/orders/edit/add'), [
+        'orderId' => $order->id,
+        'operation' => ['type' => 'updateLineItem', 'lineItemUid' => $lineItem->uid, 'changes' => ['qty' => $lineItem->qty + 1]],
+    ])->assertOk();
+
+    get($path)->assertInertia(fn(AssertableInertia $page) => $page
+        ->where('session.chargesKept', true)
+        ->where('session.operations', fn($operations) => collect($operations)->firstWhere('label', 'Update Line Item')['note'] !== null)
+        ->etc()
+    );
+});
