@@ -128,7 +128,6 @@
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
 - Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
-- Removed the `commerce/prices/*` templates.
 
 #### Controllers
 
@@ -185,7 +184,6 @@
 - Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
 - Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
 - Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
-- Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.
@@ -829,8 +827,6 @@
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
 - The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
-- Removed the `commerce/promotions/*` templates.
-- Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
 - Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
 #### Controllers
@@ -884,6 +880,7 @@
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
 - Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
+- Removed `Purchasable::taxCategoryFieldHtml()` and `shippingCategoryFieldHtml()`.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.
 
 #### Controllers
@@ -1151,6 +1148,8 @@
 - Deprecated `craft\commerce\events\*`. Cancelable Commerce events (previously extending `craft\events\CancelableEvent`) now use the `CraftCms\Cms\Shared\Concerns\ValidatableEvent` trait instead.
 - Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
+- Removed all control panel Twig templates.
+- Removed the `cp.commerce.catalogPricingRules.index`, `cp.commerce.catalogPricingRules.edit.content`, `cp.commerce.discounts.index`, `cp.commerce.discounts.edit.details`, `cp.commerce.inventoryLocation.edit`, and `cp.commerce.shippingMethods.edit.content` template hooks.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
 ### Command Palette

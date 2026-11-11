@@ -1,0 +1,20 @@
+{% extends "_layouts/message" %}
+{% set includePane = false %}
+
+{% block message %}
+  {% if logoUrl %}
+    <h1 class="mb-4 flex justify-center">
+      {{ tag('img', {
+        id: 'login-logo',
+        src: logoUrl,
+        alt: systemName,
+        class: 'max-w-full',
+      }) }}
+    </h1>
+  {% endif %}
+
+  <craft-pane>
+    <h2 class="cp-h2 mb-3">{{ 'Link Sent'|t('commerce') }}</h2>
+    <p class="text-balance">{{ message }}</p>
+  </craft-pane>
+{% endblock %}
