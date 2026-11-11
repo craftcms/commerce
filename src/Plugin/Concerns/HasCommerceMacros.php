@@ -10,6 +10,8 @@ use CraftCms\Cms\Support\Typecast;
 use CraftCms\Cms\Twig\Variables\CraftVariable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
+use CraftCms\Commerce\DigitalProduct\DigitalProductsVariable;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
@@ -52,6 +54,11 @@ trait HasCommerceMacros
 
             return $query;
         });
+
+        // Until its data has been migrated, the Digital Products plugin provides `craft.digitalProducts`.
+        if (app(DigitalProducts::class)->isEnabled()) {
+            CraftVariable::macro('digitalProducts', fn() => new DigitalProductsVariable());
+        }
     }
 
     public function getDonation(): ?Donation

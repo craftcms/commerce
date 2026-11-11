@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\Cp\Data\NavItem;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
+use CraftCms\Commerce\DigitalProduct\DigitalProductTypes;
 use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use Override;
@@ -51,6 +53,22 @@ trait HasCpNavigation
                 ->icon('cart-shopping')
                 ->label(t('Products', category: 'commerce'))
                 ->url('commerce/products'));
+        }
+
+        if (app(DigitalProducts::class)->isEnabled()) {
+            if (app(DigitalProductTypes::class)->getEditableDigitalProductTypeIds()) {
+                $item->add(new NavItem()
+                    ->icon('file-arrow-down')
+                    ->label(t('Digital Products', category: 'commerce'))
+                    ->url('commerce/digital-products'));
+            }
+
+            if (currentUser()?->can('commerce-manageLicenses')) {
+                $item->add(new NavItem()
+                    ->icon('key')
+                    ->label(t('Licenses', category: 'commerce'))
+                    ->url('commerce/licenses'));
+            }
         }
 
         if (currentUser()?->can('commerce-manageDonationSettings')) {

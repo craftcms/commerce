@@ -6,6 +6,8 @@ namespace CraftCms\Commerce\Helpers;
 
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
+use CraftCms\Commerce\DigitalProduct\DigitalProductTypes;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItemStatuses;
@@ -58,6 +60,17 @@ class ProjectConfigData
         $output[self::_getProjectConfigKey(OrderStatuses::CONFIG_STATUSES_KEY)] = self::_getStatusData();
         $output[self::_getProjectConfigKey(LineItemStatuses::CONFIG_STATUSES_KEY)] = self::_getLineItemStatusData();
         $output[self::_getProjectConfigKey(ProductTypes::CONFIG_PRODUCTTYPES_KEY)] = self::_getProductTypeData();
+        $output[self::_getProjectConfigKey(DigitalProductTypes::CONFIG_KEY)] = app(DigitalProductTypes::class)->rebuildProjectConfig();
+
+        $licenseFieldLayout = app(DigitalProducts::class)->getLicenseFieldLayout();
+
+        if ($licenseFieldLayout->id && ($licenseFieldLayoutConfig = $licenseFieldLayout->getConfig())) {
+            $output['digitalProducts'] = [
+                'licenseFieldLayouts' => [
+                    $licenseFieldLayout->uid => $licenseFieldLayoutConfig,
+                ],
+            ];
+        }
 
         return array_filter($output);
     }

@@ -97,6 +97,35 @@
 - Removed `craft\commerce\controllers\ProductTypesController`. `CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController` should be used instead.
 - The "Product Types" settings screen is now searchable and has a "View" menu for choosing columns.
 
+### Digital Products
+
+> [!WARNING]
+> Digital products are now part of Commerce, replacing the Digital Products plugin. Commerce hides its own digital products features while the plugin’s tables have data, and leaves the GraphQL types and queries, `craft.digitalProducts` and `craft:resave:digital-products` to the plugin until then. Run `php craft commerce:digital-products:migrate` in each environment to move the plugin’s digital products, licenses, product types, field layouts, permissions and settings into Commerce, then uninstall the plugin.
+
+- Added digital products, which are purchasables with no inventory or shipping that issue a license for each unit purchased.
+- Added licenses, which are issued when an order is paid or completed, and can be created and edited in the control panel.
+- Added the “Digital Products” and “Licenses” control panel sections, and the “Digital Product Types” and “Digital Products” settings screens.
+- Added the “Manage digital products” (with a nested permission per digital product type) and “Manage licenses” permissions.
+- Added the “Digital Products” relation field type.
+- Added the `digitalProducts`, `digitalProductCount` and `digitalProduct` GraphQL queries, and the `DigitalProductInterface` GraphQL interface.
+- Added `craft.digitalProducts`, with `products()` and `licenses()`, which accept query criteria, and `getProductTypes()`.
+- Added the `commerce/digital-products/download` action, which streams an asset related to a license’s digital product.
+- Added the `commerce:digital-products:migrate` and `craft:resave:digital-products` commands.
+- Added the `autoAssignLicensesOnPurchase`, `autoAssignLicensesOnUserRegistration`, `generateLicenseOnOrderPaid`, `licenseKeyCharacters`, `licenseKeyLength` and `requireLoggedInUserForDigitalProducts` settings.
+- Added `CraftCms\Commerce\DigitalProduct\Elements\DigitalProduct`.
+- Added `CraftCms\Commerce\DigitalProduct\Elements\License`.
+- Added `CraftCms\Commerce\DigitalProduct\Queries\DigitalProductQuery`.
+- Added `CraftCms\Commerce\DigitalProduct\Queries\LicenseQuery`.
+- Added `CraftCms\Commerce\DigitalProduct\Data\DigitalProductType`.
+- Added `CraftCms\Commerce\DigitalProduct\Data\DigitalProductTypeSite`.
+- Added `CraftCms\Commerce\DigitalProduct\DigitalProducts`.
+- Added `CraftCms\Commerce\DigitalProduct\DigitalProductTypes`.
+- Added `CraftCms\Commerce\DigitalProduct\Licenses`.
+- Added `CraftCms\Commerce\DigitalProduct\Events\DigitalProductTypeSaving`.
+- Added `CraftCms\Commerce\DigitalProduct\Events\DigitalProductTypeSaved`.
+- Added `CraftCms\Commerce\DigitalProduct\Events\LicenseKeyGenerating`, which replaces the Digital Products plugin’s `craft\digitalproducts\elements\License::EVENT_GENERATE_LICENSE_KEY`.
+- Added `CraftCms\Commerce\DigitalProduct\Fields\DigitalProducts`.
+
 ### Catalog Pricing
 
 - Added `CraftCms\Commerce\CatalogPricing\CatalogPricing`.

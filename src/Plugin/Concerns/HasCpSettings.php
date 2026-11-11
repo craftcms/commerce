@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\Cp\Settings as CpSettings;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
 use CraftCms\Commerce\Plugin;
 use Override;
 
@@ -28,6 +29,12 @@ trait HasCpSettings
             'gateways' => ['credit-card', fn() => t('Gateways', category: 'commerce')],
             'transfers' => ['truck-arrow-right', fn() => t('Transfers', category: 'commerce')],
         ];
+
+        // Hidden until the Digital Products plugin's data has been migrated
+        if ($this->isInstalled && app(DigitalProducts::class)->isEnabled()) {
+            $settings['digital-product-types'] = ['file-arrow-down', fn() => t('Digital Product Types', category: 'commerce')];
+            $settings['digital-products'] = ['key', fn() => t('Digital Products', category: 'commerce')];
+        }
 
         foreach ($settings as $handle => [$icon, $label]) {
             $setting = fn() => [

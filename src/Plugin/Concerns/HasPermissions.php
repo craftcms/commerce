@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\User\Data\Permission;
+use CraftCms\Commerce\DigitalProduct\Data\DigitalProductType;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
+use CraftCms\Commerce\DigitalProduct\DigitalProductTypes;
+use CraftCms\Commerce\DigitalProduct\Elements\DigitalProduct;
+use CraftCms\Commerce\DigitalProduct\Elements\License;
+use CraftCms\Commerce\DigitalProduct\Policies\DigitalProductPolicy;
+use CraftCms\Commerce\DigitalProduct\Policies\LicensePolicy;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
@@ -25,6 +32,8 @@ trait HasPermissions
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Transfer::class, TransferPolicy::class);
         Gate::policy(Variant::class, VariantPolicy::class);
+        Gate::policy(DigitalProduct::class, DigitalProductPolicy::class);
+        Gate::policy(License::class, LicensePolicy::class);
     }
 
     #[Override]
@@ -32,6 +41,7 @@ trait HasPermissions
     {
         return [
             ...$this->productTypePermissions(),
+            ...$this->digitalProductPermissions(),
             new Permission(
                 key: 'commerce-manageOrders',
                 label: t('Manage orders', category: 'commerce'),
@@ -82,6 +92,31 @@ trait HasPermissions
             new Permission(
                 key: 'commerce-manageDonationSettings',
                 label: t('Manage donation settings', category: 'commerce'),
+            ),
+        ];
+    }
+
+    /**
+     * @return Permission[]
+     */
+    private function digitalProductPermissions(): array
+    {
+        if (!$this->isInstalled || !app(DigitalProducts::class)->isEnabled()) {
+            return [];
+        }
+
+        return [
+            new Permission(
+                key: 'commerce-manageDigitalProducts',
+                label: t('Manage digital products', category: 'commerce'),
+                nested: new Collection(array_map(fn(DigitalProductType $type) => new Permission(
+                    key: "commerce-manageDigitalProductType:$type->uid",
+                    label: t('Manage “{type}” digital products', ['type' => t($type->name, category: 'site')], category: 'commerce'),
+                ), app(DigitalProductTypes::class)->getAllDigitalProductTypes())),
+            ),
+            new Permission(
+                key: 'commerce-manageLicenses',
+                label: t('Manage licenses', category: 'commerce'),
             ),
         ];
     }

@@ -3,50 +3,55 @@
 use CraftCms\Cms\Http\Controllers\Elements\EditElementController;
 use CraftCms\Cms\Http\Controllers\Elements\ElementRevisionsController;
 use CraftCms\Cms\Http\Middleware\RequireAdmin;
+use CraftCms\Commerce\Http\Controllers\CreateProductController;
+use CraftCms\Commerce\Http\Controllers\DigitalProducts\DigitalProductsController;
+use CraftCms\Commerce\Http\Controllers\DigitalProducts\LicensesController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
-use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
-use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\IndexController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
+use CraftCms\Commerce\Http\Controllers\ProductsController;
+use CraftCms\Commerce\Http\Controllers\Settings\DigitalProductSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\DigitalProductTypesController;
+use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
+use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
-use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\Settings\PdfsController;
-use CraftCms\Commerce\Http\Controllers\CreateProductController;
-use CraftCms\Commerce\Http\Controllers\ProductsController;
 use CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController;
+use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
+use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\CatalogPricingRulesController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\DiscountsController;
+use CraftCms\Commerce\Http\Controllers\StoreManagement\PaymentCurrenciesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\SalesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingCategoriesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingMethodsController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingRulesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\ShippingZonesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\StoreManagementController;
-use CraftCms\Commerce\Http\Controllers\Settings\StoresController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxCategoriesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxRatesController;
 use CraftCms\Commerce\Http\Controllers\StoreManagement\TaxZonesController;
-use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
-use CraftCms\Commerce\Http\Controllers\VariantsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
+use CraftCms\Commerce\Http\Controllers\VariantsController;
+use CraftCms\Commerce\Http\Middleware\RequireDigitalProducts;
 use Illuminate\Support\Facades\Route;
 
 use function CraftCms\Cms\cp_url;
 
-Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
+Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function() {
     Route::get('commerce', IndexController::class);
 
     Route::middleware('can:commerce-manageDonationSettings')
         ->get('commerce/donations', [DonationsController::class, 'edit']);
 
-    Route::middleware(RequireAdmin::class)->group(function () {
+    Route::middleware(RequireAdmin::class)->group(function() {
         Route::get('commerce/settings', fn() => redirect(cp_url('commerce/settings/general')));
 
         Route::get('commerce/settings/gateways', [GatewaysController::class, 'index']);
@@ -111,13 +116,13 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
     // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on
     // top of whichever more specific permission each feature area's own controller adds — every
     // route in this group must check both, matching that legacy compound check exactly.
-    Route::middleware('can:commerce-manageStoreSettings')->group(function () {
+    Route::middleware('can:commerce-manageStoreSettings')->group(function() {
         Route::get('commerce/store-management', [StoreManagementController::class, 'index']);
         Route::get('commerce/store-management/{storeHandle}', [StoreManagementController::class, 'edit']);
 
         Route::middleware('can:commerce-manageShipping')
             ->prefix('commerce/store-management/{storeHandle}')
-            ->group(function () {
+            ->group(function() {
                 Route::get('shippingzones', [ShippingZonesController::class, 'index']);
                 Route::get('shippingzones/new', [ShippingZonesController::class, 'create']);
                 Route::get('shippingzones/{id}', [ShippingZonesController::class, 'edit'])->whereNumber('id');
@@ -135,7 +140,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::middleware('can:commerce-manageTaxes')
             ->prefix('commerce/store-management/{storeHandle}')
-            ->group(function () {
+            ->group(function() {
                 Route::get('taxcategories', [TaxCategoriesController::class, 'index']);
                 Route::get('taxcategories/new', [TaxCategoriesController::class, 'create']);
                 Route::get('taxcategories/{id}', [TaxCategoriesController::class, 'edit'])->whereNumber('id');
@@ -149,10 +154,10 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
                 Route::get('taxrates/{id}', [TaxRatesController::class, 'edit'])->whereNumber('id');
             });
 
-        Route::middleware('can:commerce-managePromotions')->group(function () {
+        Route::middleware('can:commerce-managePromotions')->group(function() {
             Route::get('commerce/catalog-pricing', [CatalogPricingController::class, 'index']);
 
-            Route::prefix('commerce/store-management/{storeHandle}')->group(function () {
+            Route::prefix('commerce/store-management/{storeHandle}')->group(function() {
                 Route::get('sales', [SalesController::class, 'index']);
                 Route::get('sales/new', [SalesController::class, 'create']);
                 Route::get('sales/{id}', [SalesController::class, 'edit'])->whereNumber('id');
@@ -169,7 +174,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
         Route::middleware('can:commerce-managePaymentCurrencies')
             ->prefix('commerce/store-management/{storeHandle}')
-            ->group(function () {
+            ->group(function() {
                 Route::get('payment-currencies', [PaymentCurrenciesController::class, 'index']);
                 Route::get('payment-currencies/new', [PaymentCurrenciesController::class, 'create']);
                 Route::get('payment-currencies/{id}', [PaymentCurrenciesController::class, 'edit'])->whereNumber('id');
@@ -178,7 +183,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
     // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init()
     // only ever checked commerce-manageOrders, not accessPlugin-commerce.
-    Route::middleware('can:commerce-manageOrders')->group(function () {
+    Route::middleware('can:commerce-manageOrders')->group(function() {
         Route::get('commerce/orders/{orderId}', [OrdersController::class, 'edit'])->whereNumber('orderId');
         Route::get('commerce/orders/{storeHandle}/create', [OrdersController::class, 'create']);
         Route::get('commerce/orders/{orderStatusHandle?}', [OrdersController::class, 'index']);
@@ -186,7 +191,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
     // InventoryController checks commerce-manageInventoryStockLevels inline on every action
     // (not via init()) — replicated here as a route-group-wide permission instead.
-    Route::middleware('can:commerce-manageInventoryStockLevels')->group(function () {
+    Route::middleware('can:commerce-manageInventoryStockLevels')->group(function() {
         Route::get('commerce/inventory/item/{inventoryItemId}', [InventoryController::class, 'editItem'])->whereNumber('inventoryItemId');
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}/orders', [InventoryController::class, 'unfulfilledOrders']);
         Route::get('commerce/inventory/levels/{inventoryLocationHandle}/reserved-orders', [InventoryController::class, 'reservedOrders']);
@@ -195,7 +200,7 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/inventory', [InventoryController::class, 'index']);
     });
 
-    Route::middleware('can:commerce-manageInventoryLocations')->group(function () {
+    Route::middleware('can:commerce-manageInventoryLocations')->group(function() {
         Route::get('commerce/inventory-locations', [InventoryLocationsController::class, 'index']);
         Route::get('commerce/inventory-locations/new', [InventoryLocationsController::class, 'create']);
         Route::get('commerce/inventory-locations/{inventoryLocationId}', [InventoryLocationsController::class, 'edit'])->whereNumber('inventoryLocationId');
@@ -203,13 +208,33 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
     Route::middleware('can:commerce-manageInventoryTransfers')
         ->get('commerce/inventory/transfers', [TransfersController::class, 'index']);
+
+    // Hidden until the Digital Products plugin's data has been migrated into Commerce.
+    Route::middleware(RequireDigitalProducts::class)->group(function() use ($idSlugParams) {
+        Route::middleware(RequireAdmin::class)->group(function() {
+            Route::get('commerce/settings/digital-products', [DigitalProductSettingsController::class, 'edit']);
+            Route::get('commerce/settings/digital-product-types', [DigitalProductTypesController::class, 'index']);
+            Route::get('commerce/settings/digital-product-types/new', [DigitalProductTypesController::class, 'create']);
+            Route::get('commerce/settings/digital-product-types/{typeId}', [DigitalProductTypesController::class, 'edit'])->whereNumber('typeId');
+        });
+
+        // Access to each digital product is enforced by DigitalProductPolicy.
+        Route::get('commerce/digital-products/{type}/new', [DigitalProductsController::class, 'create']);
+        Route::get('commerce/digital-products/{typeHandle}/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+        Route::get('commerce/digital-products/{typeHandle?}', [DigitalProductsController::class, 'index']);
+
+        Route::middleware('can:commerce-manageLicenses')->group(function() use ($idSlugParams) {
+            Route::get('commerce/licenses', [LicensesController::class, 'index']);
+            Route::get('commerce/licenses/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+        });
+    });
 });
 
 // The Commerce screen on the Edit User screen — permission is enforced inline via the
 // EditUserScreensResolving listener in src/Plugin.php (only shows the tab/registers the
 // screen if the viewer can access Commerce), matching every other Edit User screen's `auth`-only
 // route-level requirement.
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function() {
     Route::get('myaccount/commerce', [UsersController::class, 'index']);
     Route::get('users/{userId}/commerce', [UsersController::class, 'index'])->whereNumber('userId');
 });

@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Plugin\Concerns;
 use CraftCms\Cms\ProjectConfig\Events\ProjectConfigRebuilt;
 use CraftCms\Cms\ProjectConfig\ProjectConfig;
 use CraftCms\Cms\Site\Events\SiteDeleted;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
+use CraftCms\Commerce\DigitalProduct\DigitalProductTypes;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailDeleted;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
@@ -40,9 +42,18 @@ trait HasProjectConfigListeners
             ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleChangedProductType(...))
             ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleDeletedProductType(...));
 
+        $projectConfig->onAdd(DigitalProductTypes::CONFIG_KEY . '.{uid}', app(DigitalProductTypes::class)->handleChangedDigitalProductType(...))
+            ->onUpdate(DigitalProductTypes::CONFIG_KEY . '.{uid}', app(DigitalProductTypes::class)->handleChangedDigitalProductType(...))
+            ->onRemove(DigitalProductTypes::CONFIG_KEY . '.{uid}', app(DigitalProductTypes::class)->handleDeletedDigitalProductType(...));
+
+        $projectConfig->onAdd(DigitalProducts::LICENSE_FIELD_LAYOUT_CONFIG_KEY, app(DigitalProducts::class)->handleChangedLicenseFieldLayout(...))
+            ->onUpdate(DigitalProducts::LICENSE_FIELD_LAYOUT_CONFIG_KEY, app(DigitalProducts::class)->handleChangedLicenseFieldLayout(...))
+            ->onRemove(DigitalProducts::LICENSE_FIELD_LAYOUT_CONFIG_KEY, app(DigitalProducts::class)->handleDeletedLicenseFieldLayout(...));
+
         Event::listen(SiteDeleted::class, static function(SiteDeleted $event) {
             if (!app(ProjectConfig::class)->isApplyingExternalChanges) {
                 app(ProductTypes::class)->pruneDeletedSite($event);
+                app(DigitalProductTypes::class)->pruneDeletedSite($event);
             }
         });
 

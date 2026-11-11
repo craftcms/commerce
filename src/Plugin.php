@@ -8,23 +8,28 @@ use CraftCms\Cms\Auth\Events\ElementAuthorizing;
 use CraftCms\Cms\Element\Events\DefineDeletionBlockers;
 use CraftCms\Cms\Element\Events\ElementSaved;
 use CraftCms\Cms\Element\Queries\Events\ElementsHydrated;
+use CraftCms\Cms\Field\FieldTypes;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
 use CraftCms\Cms\Gql\Events\GqlArgumentsResolving;
 use CraftCms\Cms\Gql\Events\GqlEagerLoadableFieldsResolving;
 use CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving;
+use CraftCms\Cms\Gql\GqlTypes;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
+use CraftCms\Cms\User\Events\UserActivated;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateRoots;
+use CraftCms\Commerce\Console\Commands\DigitalProducts\MigrateDigitalProductsCommand;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
 use CraftCms\Commerce\Console\Commands\PricingCatalog\PricingCatalogGenerateCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveCartsCommand;
+use CraftCms\Commerce\Console\Commands\Resave\ResaveDigitalProductsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveOrdersCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveProductsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveVariantsCommand;
@@ -46,12 +51,22 @@ use CraftCms\Commerce\Dashboard\Widgets\TopPurchasables;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrders;
 use CraftCms\Commerce\Dashboard\Widgets\TotalOrdersByCountry;
 use CraftCms\Commerce\Dashboard\Widgets\TotalRevenue;
+use CraftCms\Commerce\DigitalProduct\DigitalProducts;
+use CraftCms\Commerce\DigitalProduct\Elements\DigitalProduct;
+use CraftCms\Commerce\DigitalProduct\Elements\License;
+use CraftCms\Commerce\DigitalProduct\Fields\DigitalProducts as DigitalProductsField;
+use CraftCms\Commerce\DigitalProduct\Gql\DigitalProductInterface;
+use CraftCms\Commerce\DigitalProduct\Gql\DigitalProductQuery;
+use CraftCms\Commerce\DigitalProduct\Licenses;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Product as ProductInterface;
 use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Events\OrderCompleted;
+use CraftCms\Commerce\Order\Events\OrderPaid;
+use CraftCms\Commerce\Payment\Events\PaymentProcessing;
 use CraftCms\Commerce\Plugin\Concerns\HasCacheOptions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommandPalette;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
@@ -86,10 +101,13 @@ use CraftCms\Commerce\Product\Fields\Variants as VariantsField;
 use CraftCms\Commerce\Product\LinkTypes\ProductLinkType;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
+use CraftCms\Commerce\Purchasable\PurchasableTypes;
 use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Console\Application as Artisan;
+use Illuminate\Support\Facades\Event;
 
 class Plugin extends BasePlugin
 {
@@ -126,6 +144,8 @@ class Plugin extends BasePlugin
         Order::class,
         Donation::class,
         Transfer::class,
+        DigitalProduct::class,
+        License::class,
     ];
 
     protected array $fieldTypes = [
@@ -180,6 +200,7 @@ class Plugin extends BasePlugin
     protected array $gqlQueries = [
         ProductQuery::class,
         VariantQuery::class,
+        DigitalProductQuery::class,
     ];
 
     /** The Ui Node/Control Vue components Commerce contributes to the shared CP `Ui` system's
@@ -198,6 +219,7 @@ class Plugin extends BasePlugin
     protected array $commands = [
         ResaveProductsCommand::class,
         ResaveVariantsCommand::class,
+        MigrateDigitalProductsCommand::class,
         ResaveOrdersCommand::class,
         ResaveCartsCommand::class,
         ExampleTemplatesCommand::class,
@@ -221,6 +243,7 @@ class Plugin extends BasePlugin
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
         $this->registerForeignKeysRestore();
+        $this->registerDigitalProducts();
         $this->registerLegacyEventBridges();
 
         Twig::registerExtension(new CommerceTwigExtension());
@@ -238,6 +261,44 @@ class Plugin extends BasePlugin
                 $this->registerCKEditorLinkOptions();
             }
         }
+    }
+
+    /**
+     * Registers the digital product purchasable, field and GraphQL types, unless the Digital Products plugin's
+     * data hasn't been migrated yet (or, for GraphQL, the plugin is still enabled). Deferred so the database is
+     * only checked when the types are needed. The license listeners check the same thing when they run.
+     */
+    private function registerDigitalProducts(): void
+    {
+        Event::listen(OrderPaid::class, [Licenses::class, 'handleOrderPaid']);
+        Event::listen(OrderCompleted::class, [Licenses::class, 'handleOrderCompleted']);
+        Event::listen(PaymentProcessing::class, [Licenses::class, 'handlePaymentProcessing']);
+        Event::listen(UserActivated::class, [Licenses::class, 'handleUserActivated']);
+
+        app(PurchasableTypes::class)->defer(function(PurchasableTypes $types) {
+            if ($this->isInstalled && app(DigitalProducts::class)->isEnabled()) {
+                $types->register(DigitalProduct::class);
+            }
+        });
+
+        app(FieldTypes::class)->defer(function(FieldTypes $types) {
+            if ($this->isInstalled && app(DigitalProducts::class)->isEnabled()) {
+                $types->register(DigitalProductsField::class);
+            }
+        });
+
+        // The plugin registers a GraphQL type and a command with the same names until its data has been migrated
+        app(GqlTypes::class)->defer(function(GqlTypes $types) {
+            if ($this->isInstalled && app(DigitalProducts::class)->isEnabled()) {
+                $types->register(DigitalProductInterface::class);
+            }
+        });
+
+        Artisan::starting(function(Artisan $artisan) {
+            if ($this->isInstalled && app(DigitalProducts::class)->isEnabled()) {
+                $artisan->resolve(ResaveDigitalProductsCommand::class);
+            }
+        });
     }
 
     protected static function createSettings(): ?Settings

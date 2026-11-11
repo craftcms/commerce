@@ -17,6 +17,12 @@ readonly class Table
 
     public const CUSTOMERS = 'commerce_customers';
 
+    public const DIGITALPRODUCTS = 'commerce_digitalproducts';
+
+    public const DIGITALPRODUCTTYPES = 'commerce_digitalproducttypes';
+
+    public const DIGITALPRODUCTTYPES_SITES = 'commerce_digitalproducttypes_sites';
+
     public const DISCOUNT_ENTRIES = 'commerce_discount_entries';
 
     public const DISCOUNT_PURCHASABLES = 'commerce_discount_purchasables';
@@ -30,6 +36,8 @@ readonly class Table
     public const EMAILS = 'commerce_emails';
 
     public const GATEWAYS = 'commerce_gateways';
+
+    public const LICENSES = 'commerce_licenses';
 
     public const LINEITEMS = 'commerce_lineitems';
 

@@ -7,6 +7,8 @@ namespace CraftCms\Commerce\Plugin\Listeners;
 use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\DigitalProduct\Elements\DigitalProduct;
+use CraftCms\Commerce\DigitalProduct\Elements\License;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Product\Elements\Product;
@@ -29,6 +31,8 @@ class RunningGarbageCollectionListener
             [Product::class, Table::PRODUCTS],
             [Variant::class, Table::VARIANTS],
             [Transfer::class, Table::TRANSFERS],
+            [DigitalProduct::class, Table::DIGITALPRODUCTS],
+            [License::class, Table::LICENSES],
         ] as [$elementType, $table]) {
             app(DeletePartialElements::class, [
                 'garbageCollection' => $event->garbageCollection,

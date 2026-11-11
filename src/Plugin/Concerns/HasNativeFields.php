@@ -7,7 +7,9 @@ namespace CraftCms\Commerce\Plugin\Concerns;
 use Closure;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\FieldLayout\LayoutElements\TitleField;
 use CraftCms\Commerce\Customer\FieldLayoutElements\UserAddressSettings;
+use CraftCms\Commerce\DigitalProduct\Elements\DigitalProduct;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
@@ -35,6 +37,14 @@ trait HasNativeFields
             switch ($fieldLayout->type) {
                 case Address::class:
                     $fields[] = UserAddressSettings::class;
+                    break;
+                case DigitalProduct::class:
+                    $fields[] = TitleField::class;
+                    $fields[] = PurchasableSkuField::class;
+                    $fields[] = PurchasablePriceField::class;
+                    $fields[] = PurchasableAvailableForPurchaseField::class;
+                    $fields[] = PurchasableAllowedQtyField::class;
+                    $fields[] = PurchasablePromotableField::class;
                     break;
                 case Product::class:
                     $fields[] = ProductTitleField::class;

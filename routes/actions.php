@@ -4,6 +4,7 @@ use CraftCms\Cms\Http\Middleware\RequireAdmin;
 use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
+use CraftCms\Commerce\Http\Controllers\DigitalProducts\LicensesController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
 use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
@@ -13,6 +14,8 @@ use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
+use CraftCms\Commerce\Http\Controllers\Settings\DigitalProductSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\DigitalProductTypesController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
@@ -39,6 +42,7 @@ use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
 use CraftCms\Commerce\Http\Middleware\LogDeprecatedAction;
+use CraftCms\Commerce\Http\Middleware\RequireDigitalProducts;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
@@ -81,6 +85,10 @@ Route::get('cart/cart-sent', [CartController::class, 'cartSent']);
 Route::post('payments/pay', [PaymentsController::class, 'pay']);
 Route::match(['get', 'post'], 'payments/complete-payment', [PaymentsController::class, 'complete']);
 
+// Anonymous by design: anyone with a license key can download the licensed product's related assets.
+Route::middleware(RequireDigitalProducts::class)
+    ->get('digital-products/download', [LicensesController::class, 'download']);
+
 Route::post('payment-sources/add', [PaymentSourcesController::class, 'store']);
 Route::post('payment-sources/set-primary-payment-source', [PaymentSourcesController::class, 'setPrimary']);
 Route::post('payment-sources/delete', [PaymentSourcesController::class, 'destroy']);
@@ -118,7 +126,16 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 
     Route::post('product-types/save-product-type', [ProductTypesController::class, 'store']);
     Route::match(['post', 'delete'], 'product-types/delete-product-type', [ProductTypesController::class, 'destroy']);
+
+    Route::middleware(RequireDigitalProducts::class)->group(function() {
+        Route::post('digital-product-types/save', [DigitalProductTypesController::class, 'store']);
+        Route::match(['post', 'delete'], 'digital-product-types/delete', [DigitalProductTypesController::class, 'destroy']);
+        Route::post('digital-products/save-settings', [DigitalProductSettingsController::class, 'store']);
+    });
 });
+
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageLicenses', RequireDigitalProducts::class])
+    ->get('licenses/create', [LicensesController::class, 'create']);
 
 // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
 // whichever more specific permission each feature area's own controller adds — every route in

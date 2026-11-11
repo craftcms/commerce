@@ -13,6 +13,8 @@ use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\DigitalProduct\Elements\DigitalProduct;
+use CraftCms\Commerce\DigitalProduct\Elements\License;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
@@ -237,6 +239,40 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
+        Schema::create(Table::DIGITALPRODUCTS, function(Blueprint $table) {
+            $table->integer('id');
+            $table->integer('typeId');
+            $table->dateTime('postDate')->nullable();
+            $table->dateTime('expiryDate')->nullable();
+            $table->dateTime('dateCreated');
+            $table->dateTime('dateUpdated');
+            $table->char('uid', 36)->default('0');
+            $table->primary('id');
+        });
+
+        Schema::create(Table::DIGITALPRODUCTTYPES, function(Blueprint $table) {
+            $table->integer('id', true);
+            $table->integer('fieldLayoutId')->nullable();
+            $table->string('name');
+            $table->string('handle');
+            $table->string('skuFormat')->nullable();
+            $table->dateTime('dateCreated');
+            $table->dateTime('dateUpdated');
+            $table->char('uid', 36)->default('0');
+        });
+
+        Schema::create(Table::DIGITALPRODUCTTYPES_SITES, function(Blueprint $table) {
+            $table->integer('id', true);
+            $table->integer('digitalProductTypeId');
+            $table->integer('siteId');
+            $table->text('uriFormat')->nullable();
+            $table->string('template', 500)->nullable();
+            $table->boolean('hasUrls')->default(false);
+            $table->dateTime('dateCreated');
+            $table->dateTime('dateUpdated');
+            $table->char('uid', 36)->default('0');
+        });
+
         Schema::create(Table::DONATIONS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->string('sku');
@@ -361,6 +397,20 @@ class Install extends Migration
             $table->integer('userId')->nullable(); // Can be null
             $table->dateTime('dateCreated');
             $table->char('uid', 36)->default('0');
+        });
+
+        Schema::create(Table::LICENSES, function(Blueprint $table) {
+            $table->integer('id');
+            $table->integer('productId')->nullable();
+            $table->integer('orderId')->nullable();
+            $table->string('licenseKey');
+            $table->string('ownerName')->nullable();
+            $table->string('ownerEmail')->nullable();
+            $table->integer('userId')->nullable();
+            $table->dateTime('dateCreated');
+            $table->dateTime('dateUpdated');
+            $table->char('uid', 36)->default('0');
+            $table->primary('id');
         });
 
         Schema::create(Table::LINEITEMS, function(Blueprint $table) {
@@ -1011,6 +1061,17 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
+        Schema::createIndex(Table::DIGITALPRODUCTS, ['typeId']);
+        Schema::createIndex(Table::DIGITALPRODUCTS, ['postDate']);
+        Schema::createIndex(Table::DIGITALPRODUCTS, ['expiryDate']);
+        Schema::createIndex(Table::DIGITALPRODUCTTYPES, ['handle'], unique: true);
+        Schema::createIndex(Table::DIGITALPRODUCTTYPES, ['fieldLayoutId']);
+        Schema::createIndex(Table::DIGITALPRODUCTTYPES_SITES, ['digitalProductTypeId', 'siteId'], unique: true);
+        Schema::createIndex(Table::DIGITALPRODUCTTYPES_SITES, ['siteId']);
+        Schema::createIndex(Table::LICENSES, ['licenseKey'], unique: true);
+        Schema::createIndex(Table::LICENSES, ['orderId']);
+        Schema::createIndex(Table::LICENSES, ['productId']);
+        Schema::createIndex(Table::LICENSES, ['userId']);
         Schema::createIndex(Table::CATALOG_PRICING, ['catalogPricingRuleId']);
         Schema::createIndex(Table::CATALOG_PRICING, ['isPromotionalPrice']);
         Schema::createIndex(Table::CATALOG_PRICING, ['purchasableId']);
@@ -1161,6 +1222,15 @@ class Install extends Migration
         Schema::table(Table::DISCOUNT_ENTRIES, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
         Schema::table(Table::DISCOUNT_PURCHASABLES, fn(Blueprint $table) => $table->foreign('discountId')->references('id')->on(Table::DISCOUNTS)->cascadeOnDelete()->cascadeOnUpdate());
         Schema::table(Table::DISCOUNT_PURCHASABLES, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(Table::PURCHASABLES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::DIGITALPRODUCTS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::DIGITALPRODUCTS, fn(Blueprint $table) => $table->foreign('typeId')->references('id')->on(Table::DIGITALPRODUCTTYPES)->cascadeOnDelete());
+        Schema::table(Table::DIGITALPRODUCTTYPES, fn(Blueprint $table) => $table->foreign('fieldLayoutId')->references('id')->on(CraftTable::FIELDLAYOUTS)->nullOnDelete());
+        Schema::table(Table::DIGITALPRODUCTTYPES_SITES, fn(Blueprint $table) => $table->foreign('digitalProductTypeId')->references('id')->on(Table::DIGITALPRODUCTTYPES)->cascadeOnDelete());
+        Schema::table(Table::DIGITALPRODUCTTYPES_SITES, fn(Blueprint $table) => $table->foreign('siteId')->references('id')->on(CraftTable::SITES)->cascadeOnDelete()->cascadeOnUpdate());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('productId')->references('id')->on(Table::DIGITALPRODUCTS)->nullOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->nullOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->nullOnDelete());
         Schema::table(Table::DONATIONS, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
         Schema::table(Table::EMAILS, fn(Blueprint $table) => $table->foreign('pdfId')->references('id')->on(Table::PDFS)->nullOnDelete());
         Schema::table(Table::EMAILS, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
@@ -1411,6 +1481,8 @@ class Install extends Migration
     public function dropFieldLayouts(): void
     {
         DB::table(CraftTable::FIELDLAYOUTS)->whereIn('type', [
+            DigitalProduct::class,
+            License::class,
             Order::class,
             Product::class,
             Transfer::class,

@@ -49,6 +49,36 @@ class Settings extends PluginSettings
 
     public bool $validateCartCustomFieldsOnSubmission = false;
 
+    /**
+     * Whether a new license should be assigned to the user account whose email matches the license’s owner email.
+     */
+    public bool $autoAssignLicensesOnPurchase = true;
+
+    /**
+     * Whether unassigned licenses should be assigned to a user when they activate an account with the licenses’ owner email.
+     */
+    public bool $autoAssignLicensesOnUserRegistration = true;
+
+    /**
+     * The characters license keys are generated from.
+     */
+    public string $licenseKeyCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    /**
+     * The length of generated license keys.
+     */
+    public int $licenseKeyLength = 24;
+
+    /**
+     * Whether customers must be logged in to pay for an order that contains digital products.
+     */
+    public bool $requireLoggedInUserForDigitalProducts = true;
+
+    /**
+     * Whether licenses are generated when an order is paid, rather than when it is completed.
+     */
+    public bool $generateLicenseOnOrderPaid = true;
+
     #[Override]
     public function setAttributes($values): void
     {
@@ -135,6 +165,8 @@ class Settings extends PluginSettings
         return [
             'weightUnits' => ['required', 'string'],
             'dimensionUnits' => ['required', 'string'],
+            'licenseKeyCharacters' => ['required', 'string'],
+            'licenseKeyLength' => ['required', 'integer', 'min:1', 'max:255'],
         ];
     }
 }
