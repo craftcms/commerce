@@ -37,7 +37,47 @@ trait QueriesPurchasablePricing
             static::applyPromotionalPrice($purchasableQuery, $purchasableQuery->promotionalPrice, $purchasableQuery->hasCatalogPricingRules);
             static::applyOnPromotion($purchasableQuery, $purchasableQuery->onPromotion, $purchasableQuery->hasCatalogPricingRules);
             static::applySalePrice($purchasableQuery, $purchasableQuery->salePrice, $purchasableQuery->hasCatalogPricingRules);
+            static::applyPriceOrderBy($purchasableQuery, $purchasableQuery->hasCatalogPricingRules);
         });
+    }
+
+    /**
+     * Points `orderBy('price')`, `orderBy('promotionalPrice')` and `orderBy('salePrice')` at the
+     * columns that hold them, since `salePrice` isn't selected (it's a read-only attribute on the
+     * element) and the others are only selected under an alias.
+     */
+    public static function applyPriceOrderBy(PurchasableQuery $query, bool $hasCatalogPricingRules): void
+    {
+        $orders = $query->getQuery()->orders;
+
+        if (empty($orders)) {
+            return;
+        }
+
+        $columns = $hasCatalogPricingRules
+            ? [
+                'price' => 'catalogprices.price',
+                'promotionalPrice' => 'catalogprices.promotionalPrice',
+                'salePrice' => 'catalogprices.salePrice',
+            ]
+            : [
+                'price' => 'purchasables_stores.basePrice',
+                'promotionalPrice' => 'purchasables_stores.basePromotionalPrice',
+                'salePrice' => DB::raw(self::baseSalePriceSql()),
+            ];
+
+        $query->getQuery()->orders = array_map(function(array $order) use ($columns) {
+            if (isset($order['column']) && is_string($order['column']) && isset($columns[$order['column']])) {
+                $order['column'] = $columns[$order['column']];
+            }
+
+            return $order;
+        }, $orders);
+    }
+
+    private static function baseSalePriceSql(): string
+    {
+        return 'CASE WHEN purchasables_stores.basePromotionalPrice < purchasables_stores.basePrice THEN purchasables_stores.basePromotionalPrice ELSE purchasables_stores.basePrice END';
     }
 
     public static function applyPrice(BuilderContract $query, mixed $value, bool $hasCatalogPricingRules): void
@@ -86,10 +126,7 @@ trait QueriesPurchasablePricing
             return;
         }
 
-        $query->whereParam(
-            DB::raw('CASE WHEN purchasables_stores.basePromotionalPrice < purchasables_stores.basePrice THEN purchasables_stores.basePromotionalPrice ELSE purchasables_stores.basePrice END'),
-            $value,
-        );
+        $query->whereParam(DB::raw(self::baseSalePriceSql()), $value);
     }
 
     public function price(mixed $value): static

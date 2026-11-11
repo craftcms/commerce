@@ -84,6 +84,58 @@ test('orderBy sorts variants by price', function(string $orderBy, bool $descendi
     'price desc' => ['price DESC', true],
 ]);
 
+test('orderBy sorts variants by salePrice', function(string $column, string $direction, array $expected) {
+    // A promotional price on the most expensive variant makes it the cheapest by sale price, so a
+    // sort that silently does nothing can't pass.
+    DB::table(Table::PURCHASABLES_STORES)
+        ->where('purchasableId', $this->fixture->hoodieVariant->id)
+        ->update(['basePromotionalPrice' => 1]);
+
+    $skus = Variant::find()->orderBy($column, $direction)->collect()->map(fn(Variant $v) => $v->getSku())->all();
+
+    expect($skus)->toBe($expected);
+})->with([
+    'salePrice asc' => ['salePrice', 'asc', ['rad-hood', 'hct-white', 'hct-blue']],
+    'salePrice desc' => ['salePrice', 'desc', ['hct-blue', 'hct-white', 'rad-hood']],
+]);
+
+test('orderBy sorts variants by promotionalPrice', function() {
+    foreach (['whiteVariant' => 15, 'blueVariant' => 2, 'hoodieVariant' => 1] as $variant => $promotionalPrice) {
+        DB::table(Table::PURCHASABLES_STORES)
+            ->where('purchasableId', $this->fixture->$variant->id)
+            ->update(['basePromotionalPrice' => $promotionalPrice]);
+    }
+
+    $skus = Variant::find()->orderBy('promotionalPrice')->collect()->map(fn(Variant $v) => $v->getSku())->all();
+
+    expect($skus)->toBe(['rad-hood', 'hct-blue', 'hct-white']);
+});
+
+test('orderBy sorts variants by salePrice from catalog pricing', function() {
+    $catalogPricingRule = new CatalogPricingRule();
+    $catalogPricingRule->storeId = app(Stores::class)->getPrimaryStore()->id;
+    $catalogPricingRule->name = 'Hoodie for a dollar';
+    $catalogPricingRule->apply = CatalogPricingRuleRecord::APPLY_TO_FLAT;
+    $catalogPricingRule->applyAmount = 1;
+    $catalogPricingRule->applyPriceType = CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE;
+    $catalogPricingRule->isPromotionalPrice = true;
+    $catalogPricingRule->enabled = true;
+
+    $variantCondition = $catalogPricingRule->getVariantCondition();
+    $rule = new SkuConditionRule();
+    $rule->value = 'rad-hood';
+    $variantCondition->addConditionRule($rule);
+    $catalogPricingRule->setVariantCondition($variantCondition);
+
+    expect(app(CatalogPricingRules::class)->saveCatalogPricingRule($catalogPricingRule))->toBeTrue();
+    app(CatalogPricing::class)->generateCatalogPrices();
+
+    $skus = fn(string $direction) => Variant::find()->orderBy('salePrice', $direction)->collect()->map(fn(Variant $v) => $v->getSku())->all();
+
+    expect($skus('asc'))->toBe(['rad-hood', 'hct-white', 'hct-blue'])
+        ->and($skus('desc'))->toBe(['hct-blue', 'hct-white', 'rad-hood']);
+});
+
 test('a catalog pricing rule targeting a sku updates that variant\'s price and salePrice', function() {
     $storeId = app(Stores::class)->getPrimaryStore()->id;
 
