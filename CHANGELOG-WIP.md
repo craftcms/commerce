@@ -828,6 +828,7 @@
 - Removed `craft\commerce\validators\CouponsValidator`.
 - The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
 - Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
+- Fixed a bug where `Sales::matchPurchasableAndSale()` could return a cached result for a different user, or for an order’s customer, when called without an order.
 
 #### Controllers
 

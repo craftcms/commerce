@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Promotion\Sales;
 use CraftCms\Commerce\Tests\Support\SalesFixture;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +66,52 @@ test('getSalePriceForPurchasable applies the matching sale for the signed-in cus
     expect($salePrice)->not->toBe($fixture->hctWhite->getPrice());
     expect($salePrice)->toBe(15.99);
 });
+
+test('matchPurchasableAndSale caches matches per signed-in user', function() {
+    $fixture = SalesFixture::seed();
+    $sales = app(Sales::class);
+    $sale = $sales->getSaleById($fixture->allRelationshipsSale->id);
+    $otherUser = salesTestUser('salesTestOther');
+
+    $this->actingAs($fixture->customer, 'craft');
+    expect($sales->matchPurchasableAndSale($fixture->hctWhite, $sale))->toBeTrue();
+
+    $this->actingAs($otherUser, 'craft');
+    expect($sales->matchPurchasableAndSale($fixture->hctWhite, $sale))->toBeFalse();
+
+    auth('craft')->logout();
+    expect($sales->matchPurchasableAndSale($fixture->hctWhite, $sale))->toBeFalse();
+
+    $this->actingAs($fixture->customer, 'craft');
+    expect($sales->matchPurchasableAndSale($fixture->hctWhite, $sale))->toBeTrue();
+});
+
+test('matchPurchasableAndSale does not cache matches made for an order', function() {
+    $fixture = SalesFixture::seed();
+    $sales = app(Sales::class);
+    $sale = $sales->getSaleById($fixture->allRelationshipsSale->id);
+
+    $order = new Order();
+    $order->setCustomerId(salesTestUser('salesTestOrderCustomer')->id);
+    expect($sales->matchPurchasableAndSale($fixture->hctWhite, $sale, $order))->toBeFalse();
+
+    $this->actingAs($fixture->customer, 'craft');
+    expect($sales->matchPurchasableAndSale($fixture->hctWhite, $sale))->toBeTrue();
+});
+
+function salesTestUser(string $username): User
+{
+    $user = new User();
+    $user->username = $username;
+    $user->email = $username . '@crafttest.com';
+    $user->active = true;
+
+    if (!Elements::saveElement($user)) {
+        throw new RuntimeException('Could not save user: ' . json_encode($user->errors()->all()));
+    }
+
+    return $user;
+}
 
 test('saveSale persists changes and bumps dateUpdated', function() {
     $fixture = SalesFixture::seed();
