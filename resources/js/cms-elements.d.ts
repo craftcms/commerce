@@ -4,7 +4,7 @@
  * and `resources/js/cp-module.ts`). Hand-authored for the same reason as
  * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
  * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
- * `useElementIndexVisits.ts`, `useAppLayout.ts`, `useCustomizeSources.ts`,
+ * `useElementIndexVisits.ts`, `cp-module.ts` (`actionClient`, `showNotice`, `showError`, `t`), `useAppLayout.ts`, `useCustomizeSources.ts`,
  * `AdminTable.vue`, `SearchForm.vue`, `common/table/craftTable.ts` and
  * `common/table/createCraftColumnHelper.ts` and `open-ui-modal.ts`. The table
  * types are loose: the TanStack generics behind them aren't worth mirroring by
@@ -33,6 +33,31 @@ declare module '@craftcms/cp' {
   export function appendIndexQuery(
     url: string,
     query: IndexQueryParams
+  ): string;
+
+  export interface ActionResponse<T> {
+    data: T;
+    headers: Record<string, string>;
+  }
+
+  export const actionClient: {
+    request<T = unknown>(config: {
+      method: string;
+      url: string;
+      data?: unknown;
+      params?: Record<string, unknown>;
+      responseType?: 'json' | 'blob' | 'text';
+    }): Promise<ActionResponse<T>>;
+  };
+
+  export function showNotice(message: string): unknown;
+
+  export function showError(message?: string | null): unknown;
+
+  export function t(
+    message: string,
+    params?: Record<string, unknown>,
+    category?: string
   ): string;
 
   export const ElementIndexPage: DefineComponent<{

@@ -12,6 +12,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\getJson;
 
 beforeEach(function() {
     $this->withoutVite();
@@ -66,4 +67,19 @@ it('opens a variant with the shared element editor', function() {
             ->where('elementType', Variant::class)
             ->where('canonicalId', $variant->id)
         );
+});
+
+it('renders the variant tax and shipping category fields in the element editor slideout', function() {
+    $variant = $this->fixture->hoodie->getDefaultVariant();
+
+    $response = getJson('/' . Cms::config()->cpTrigger . '/actions/elements/edit?' . http_build_query([
+        'elementId' => $variant->id,
+        'siteId' => $variant->siteId,
+    ]), ['X-Craft-Container-Id' => 'slideout']);
+
+    $response->assertOk();
+
+    expect(json_encode($response->json()))
+        ->toContain('taxCategoryId')
+        ->toContain('shippingCategoryId');
 });

@@ -1,4 +1,4 @@
-import {sendActionRequest} from './cp-client';
+import {displayError, displayNotice, sendActionRequest} from './cp-client';
 
 /**
  * The detail of the window events `OrderIndexViewModel::actions()` swaps the
@@ -17,12 +17,6 @@ type RequestFailure = {
   response?: {data?: unknown};
   message?: string;
 };
-
-export function showMessage(type: 'success' | 'error', message: string): void {
-  window.dispatchEvent(
-    new CustomEvent('craft-message', {detail: {type, message}})
-  );
-}
 
 async function failureMessage(failure: unknown): Promise<string | null> {
   const data = (failure as RequestFailure).response?.data;
@@ -68,11 +62,13 @@ export async function performOrderAction(
     const {data} = await sendActionRequest<{message?: string}>(
       'POST',
       detail.url,
-      {data: requestData(detail, settings)}
+      {
+        data: requestData(detail, settings),
+      }
     );
 
     if (data.message) {
-      showMessage('success', data.message);
+      displayNotice(data.message);
     }
 
     return true;
@@ -80,7 +76,7 @@ export async function performOrderAction(
     const message = await failureMessage(failure);
 
     if (message) {
-      showMessage('error', message);
+      displayError(message);
     }
 
     return false;
@@ -110,7 +106,7 @@ export async function downloadOrderAction(
     const message = await failureMessage(failure);
 
     if (message) {
-      showMessage('error', message);
+      displayError(message);
     }
 
     return false;
@@ -172,7 +168,7 @@ export async function promptLoadCartUrl(
     const message = await failureMessage(failure);
 
     if (message) {
-      showMessage('error', message);
+      displayError(message);
     }
   }
 }

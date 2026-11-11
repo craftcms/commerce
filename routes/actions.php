@@ -51,7 +51,7 @@ use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
 use Illuminate\Support\Facades\Route;
 
-Route::post('webhooks/process-webhook', [WebhooksController::class, 'process']);
+Route::match(['get', 'post'], 'webhooks/process-webhook', [WebhooksController::class, 'process']);
 
 Route::match(['get', 'post'], 'user-orders/get-orders', [UserOrdersController::class, 'index']);
 

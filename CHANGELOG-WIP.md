@@ -128,7 +128,6 @@
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
 - Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
-- Removed the `commerce/prices/*` templates.
 
 #### Controllers
 
@@ -185,7 +184,6 @@
 - Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
 - Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
 - Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
-- Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.
@@ -667,7 +665,7 @@
 ### Payments
 
 > [!WARNING]
-> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
+> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()` and payment forms with `paymentFormUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
 
 - Added `CraftCms\Commerce\Payment\Transactions`.
 - Added `CraftCms\Commerce\Support\Facades\Transactions`.
@@ -708,6 +706,9 @@
 - Added `CraftCms\Commerce\Support\Facades\GatewayTypes`.
 - Deprecated `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`. `CraftCms\Commerce\Payment\Gateway\GatewayTypes::register()` should be used instead.
 - Added `CraftCms\Commerce\Payment\Gateway\Gateway`.
+- Public properties declared on abstract subclasses of `CraftCms\Commerce\Payment\Gateway\Gateway` are now treated as gateway settings.
+- Added `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface::paymentFormUi()` and `paymentConfirmationFormUi()`, which return the gateway’s payment form and payment source confirmation form as a `CraftCms\Cms\Ui\Ui`.
+- `CraftCms\Commerce\Payment\Gateway\Gateway::getPaymentFormHtml()` is no longer abstract. It now renders `paymentFormUi()` with the payment form’s values and errors, and `getPaymentConfirmationFormHtml()` renders `paymentConfirmationFormUi()`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Dummy`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
@@ -875,8 +876,6 @@
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
 - The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
-- Removed the `commerce/promotions/*` templates.
-- Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
 - Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
 #### Controllers
@@ -930,6 +929,7 @@
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
 - Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
+- Removed `Purchasable::taxCategoryFieldHtml()` and `shippingCategoryFieldHtml()`.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.
 
 #### Controllers
@@ -1174,6 +1174,7 @@
 - Added `CraftCms\Commerce\Support\ObjectState`, a `WeakMap`-backed per-instance state store used by the `Site`/`User`/`Address` `Macroable` macros above.
 - Added GraphQL schema component and eager-loadable field registration via `CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving` and `GqlEagerLoadableFieldsResolving`.
 - Added garbage collection registration via `CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection`, purging incomplete carts, orphaned variants, and partial Donation/Order/Product/Variant/Transfer elements.
+- Commerce’s foreign keys are now restored when Fix FKs 3.0 restores Craft’s, via `CraftCms\FixFks\Events\ForeignKeysRestoring`. Fix FKs 2.x isn’t compatible with Craft 6.
 - Added `craft.commerce`, `craft.orders`, `craft.products`, and `craft.variants` Twig variables via `CraftCms\Cms\Twig\Variables\CraftVariable::macro()`.
 - Added `Plugin::getDonation()`, reachable in Twig as `craft.commerce.getDonation()`, matching the legacy `craft\commerce\plugin\Variables::getDonation()` trait method.
 - The `commerce/products/<productTypeHandle>/<id>` and `commerce/variants/<id>` element-edit screens, previously Craft core's generic `elements/edit` action registered via a legacy `UrlManager` rule, are now registered directly in `routes/cp.php` against `CraftCms\Cms\Http\Controllers\Elements\EditElementController`. `commerce/inventory/transfers/<id>` is registered against `CraftCms\Commerce\Http\Controllers\EditTransferController`.
@@ -1196,6 +1197,8 @@
 - Deprecated `craft\commerce\events\*`. Cancelable Commerce events (previously extending `craft\events\CancelableEvent`) now use the `CraftCms\Cms\Shared\Concerns\ValidatableEvent` trait instead.
 - Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
+- Removed all control panel Twig templates.
+- Removed the `cp.commerce.catalogPricingRules.index`, `cp.commerce.catalogPricingRules.edit.content`, `cp.commerce.discounts.index`, `cp.commerce.discounts.edit.details`, `cp.commerce.inventoryLocation.edit`, and `cp.commerce.shippingMethods.edit.content` template hooks.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
 ### Command Palette

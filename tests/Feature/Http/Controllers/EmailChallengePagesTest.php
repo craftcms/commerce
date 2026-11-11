@@ -10,6 +10,7 @@ use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Support\Facades\Crypt;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function Pest\Laravel\get;
@@ -95,7 +96,14 @@ test('the challenge pages show the control panel logo and any error', function()
 
     expect($crawler->filter('#login-logo')->attr('src'))->toBe('https://example.com/logo.svg')
         ->and($crawler->filter('#login-logo')->attr('alt'))->toBe(Cms::systemName())
-        ->and($crawler->filter('.error')->text())->toBe('Something went wrong.');
+        ->and($crawler->filter('craft-callout')->text())->toBe('Something went wrong.');
+});
+
+test('the PDF link sent page shows the masked email', function() {
+    get(Url::actionUrl('commerce/downloads/pdf-sent', ['hash' => Crypt::encrypt($this->order->number)]))
+        ->assertOk()
+        ->assertSee('Link Sent')
+        ->assertSee('A new download link has been sent to ' . $this->order->getMaskedEmail());
 });
 
 test('masked emails keep the first half of the name', function(string $email, string $masked) {

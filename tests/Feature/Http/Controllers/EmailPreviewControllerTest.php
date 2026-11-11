@@ -69,3 +69,14 @@ it('renders the email template for a random completed order when no order number
     expect($response->getContent())->toContain('<title>Order Confirmation</title>');
     expect(preg_match('/<h1>Order Confirmation [0-9a-zA-Z]{7}<\/h1>/', $response->getContent()))->toBe(1);
 });
+
+it('lists the errors when the email cannot be previewed', function() {
+    $response = get(Url::actionUrl('commerce/email-preview/render', [
+        'email' => '999999:1',
+    ]));
+
+    $response->assertOk();
+    expect($response->getContent())
+        ->toContain('Can’t preview this email.')
+        ->toContain('<li>Could not find the email or template.</li>');
+});

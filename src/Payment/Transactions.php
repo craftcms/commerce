@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment;
 
 use CraftCms\Cms\Support\Facades\Activities;
+use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Order\Activity\OrderTransactionSaved;
@@ -348,6 +349,11 @@ class Transactions
 
         foreach ($fields as $field) {
             $record->$field = $model->$field;
+        }
+
+        // Gateways return their raw response data, which is often an array or object
+        if ($model->response !== null && !is_scalar($model->response)) {
+            $record->response = Json::encode($model->response);
         }
 
         $record->save();
