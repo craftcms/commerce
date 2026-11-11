@@ -18,8 +18,6 @@ use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Cms\View\TemplateRoots;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
@@ -90,6 +88,7 @@ use CraftCms\Commerce\Transfer\Elements\Transfer;
 use CraftCms\Commerce\Twig\Extension as CommerceTwigExtension;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Event;
 
 class Plugin extends BasePlugin
 {
@@ -185,9 +184,7 @@ class Plugin extends BasePlugin
     /** The Ui Node/Control Vue components Commerce contributes to the shared CP `Ui` system's
      *  component registry — see `resources/js/cp.ts` (registered via `window.Cp.$components`,
      *  since `@craftcms/ui`/`cms`'s own JS is a private, unpublished workspace package). Built by
-     *  this repo's own root `package.json`/`vite.config.ts` (a pnpm workspace; the legacy
-     *  webpack bundles live in `./legacy`, a separate workspace member, since the two
-     *  can't share a `vue` dependency). `'resources/js/cp.ts'` is the manifest entry key
+     *  this repo's own root `package.json`/`vite.config.ts`. `'resources/js/cp.ts'` is the manifest entry key
      *  `vite.config.ts` builds under — the same entry-point path/convention `cms`'s own
      *  `resources/js/cp.ts` uses. */
     protected array $vite = [
@@ -225,10 +222,6 @@ class Plugin extends BasePlugin
 
         Twig::registerExtension(new CommerceTwigExtension());
 
-        // TODO: remove once the remaining CP templates are ported to src/ (the conventional
-        // {basePath}/templates root only covers what's already been moved there).
-        app(TemplateRoots::class)->register(TemplateMode::Cp, $this->handle, dirname($this->getBasePath()) . '/src-yii2/templates');
-
         $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
 
         if ($this->isInstalled) {
@@ -238,6 +231,16 @@ class Plugin extends BasePlugin
                 $this->registerCKEditorLinkOptions();
             }
         }
+    }
+
+    /**
+     * Restores Commerce’s foreign keys when the Fix FKs plugin restores Craft’s.
+     *
+     * Fix FKs only adds the keys that are missing. Its event is referenced by name, since Commerce doesn’t require Fix FKs.
+     */
+    private function registerForeignKeysRestore(): void
+    {
+        Event::listen('CraftCms\FixFks\Events\ForeignKeysRestoring', fn() => $this->createInstallMigration()?->addForeignKeys());
     }
 
     protected static function createSettings(): ?Settings

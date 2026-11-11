@@ -14,11 +14,14 @@ use CraftCms\Cms\Ui\Contracts\Node;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Enums\ControlMode;
 use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
+use CraftCms\Cms\Ui\UiHtmlRenderer;
+use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\CatalogPricing\CatalogPricing;
 use CraftCms\Commerce\CatalogPricing\CatalogPricingRules;
 use CraftCms\Commerce\CatalogPricing\Data\CatalogPricingRule;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Helpers\Cp as CommerceCp;
 use CraftCms\Commerce\Helpers\Currency;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
 use CraftCms\Commerce\Inventory\Data\InventoryItem;
@@ -1008,18 +1011,25 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     protected function metaFieldsHtml(bool $static): string
     {
-        $html = parent::metaFieldsHtml($static);
+        $categoriesHtml = app(UiHtmlRenderer::class)->render(
+            app(UiResolver::class)->resolve(Ui::make($this->categoryNodes($static)), new UiContext(errors: $this->errors()->getMessages())),
+        );
 
-        $html .= $this->taxCategoryFieldHtml($static);
-
-        $html .= $this->shippingCategoryFieldHtml($static);
-
-        return $html;
+        return parent::metaFieldsHtml($static) . $categoriesHtml;
     }
 
     /** @return list<Node> */
     #[\Override]
     protected function metaFieldsNodes(bool $static): array
+    {
+        return [
+            ...parent::metaFieldsNodes($static),
+            ...$this->categoryNodes($static),
+        ];
+    }
+
+    /** @return list<Node> */
+    private function categoryNodes(bool $static): array
     {
         $mode = $static ? ControlMode::Disabled : ControlMode::Editable;
         $taxCategories = $this->availableTaxCategories();
@@ -1030,7 +1040,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             ?? collect($shippingCategories)->first();
 
         return [
-            ...parent::metaFieldsNodes($static),
             Field::make(t('Tax Category', category: 'commerce'))
                 ->required()
                 ->control(
@@ -1066,51 +1075,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         return app(ShippingCategories::class)->getAllShippingCategories($this->storeId)->all();
     }
 
-    protected function shippingCategoryFieldHtml(bool $static): string
-    {
-        $availableShippingCategories = $this->availableShippingCategories();
-        $shippingCategory = collect($availableShippingCategories)->firstWhere('id', $this->shippingCategoryId)
-            ?? collect($availableShippingCategories)->first();
-
-        return CommerceCp::shippingCategoryFieldHtml([
-            'label' => t('Shipping Category', category: 'commerce'),
-            'id' => 'shippingCategoryId',
-            'name' => 'shippingCategoryId',
-            'value' => $shippingCategory,
-            'options' => $availableShippingCategories,
-            'limit' => 1,
-            'min' => 1,
-            'disabled' => $static,
-            'create' => false,
-            'storeId' => $this->storeId,
-        ]);
-    }
-
     /**
      * @return TaxCategory[]
      */
     protected function availableTaxCategories(): array
     {
         return app(TaxCategories::class)->getAllTaxCategories();
-    }
-
-    protected function taxCategoryFieldHtml(bool $static): string
-    {
-        $availableTaxCategories = $this->availableTaxCategories();
-        $taxCategory = collect($availableTaxCategories)->firstWhere('id', $this->taxCategoryId)
-            ?? collect($availableTaxCategories)->first();
-
-        return CommerceCp::taxCategoryFieldHtml([
-            'label' => t('Tax Category', category: 'commerce'),
-            'id' => 'taxCategoryId',
-            'name' => 'taxCategoryId',
-            'value' => $taxCategory,
-            'options' => $availableTaxCategories,
-            'limit' => 1,
-            'min' => 1,
-            'disabled' => $static,
-            'create' => false,
-        ]);
     }
 
     protected function attributeHtml(string $attribute): string

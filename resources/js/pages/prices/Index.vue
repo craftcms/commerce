@@ -5,6 +5,7 @@
     AdminTable,
     createCraftColumnHelper,
     SearchForm,
+    t as translate,
     useCraftTable,
     type ActionItemLink,
     type PaginationData,
@@ -31,8 +32,8 @@
     sites: Array<ActionItemLink & {selected: boolean}>;
   }>();
 
-  const t = (message: string) => window.Craft.t('commerce', message);
-  const tApp = (message: string) => window.Craft.t('app', message);
+  const t = (message: string) => translate(message, undefined, 'commerce');
+  const tApp = (message: string) => translate(message);
 
   const searchTerm = ref(props.searchTerm ?? '');
   const showFilters = ref(false);

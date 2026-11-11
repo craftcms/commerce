@@ -128,7 +128,6 @@
 - Added `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob`, a native Laravel `ShouldQueue` job.
 - Removed `craft\commerce\queue\jobs\CatalogPricing`. `CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob` should be used instead.
 - Removed `craft\commerce\web\assets\catalogpricing\CatalogPricingAsset`.
-- Removed the `commerce/prices/*` templates.
 
 #### Controllers
 
@@ -185,7 +184,6 @@
 - Removed `craft\commerce\web\assets\statwidgets\StatWidgetsAsset`.
 - Removed `craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset`.
 - Removed `craft\commerce\web\assets\orderswidget\OrdersWidgetAsset`.
-- Removed the `commerce/_components/widgets/*` templates.
 - Added `CraftCms\Commerce\Stats\AverageOrderTotal`.
 - Added `CraftCms\Commerce\Stats\NewCustomers`.
 - Added `CraftCms\Commerce\Stats\RepeatCustomers`.
@@ -644,7 +642,7 @@
 - Added `CraftCms\Commerce\Order\Edit\OrderEditSessions`, `CraftCms\Commerce\Order\Edit\Data\OrderEditSession`, and `CraftCms\Commerce\Order\Edit\Models\OrderEditSession`. An order has one edit session at a time. Another user can take it over, which discards the first user's staged changes and is recorded in the order's activity.
 - Added the `commerce_order_edit_sessions` table (`CraftCms\Commerce\Database\Table::ORDER_EDIT_SESSIONS`). Sessions that haven't been touched for 30 days are deleted during garbage collection.
 - Starting, committing and taking over an edit session require the `commerce-editOrders` permission.
-- Added `CraftCms\Commerce\Order\Edit\OrderEditGuard`. While a completed order's edit session has changes waiting, actions that save straight away (changing the status, recording or refunding payments, capturing, creating payment links, fulfilling, sending emails, downloading PDFs and deleting the order) are refused with a 423 response until the edit is committed or discarded.
+- Added `CraftCms\Commerce\Order\Edit\OrderEditGuard`. While a completed order's edit session has changes waiting, actions that save straight away (changing the status, recording or refunding payments, capturing, creating payment links, fulfilling, sending emails and downloading PDFs) are refused with a 423 response until the edit is committed or discarded.
 - Added `CraftCms\Commerce\Order\Edit\Data\OrderSummary`.
 - Added `CraftCms\Commerce\Order\Edit\Forms\OrderOperationForm` and `CraftCms\Commerce\Order\Edit\Forms\OrderOperationForms`. A form defines the modal or slideout that produces an operation, and plugins can register their own with `OrderOperationForms::register()`.
 - Added `CraftCms\Commerce\Order\Edit\Forms\AddAdjustmentForm`, `AddCustomLineItemForm`, `AddLineItemForm`, `SetAddressForm`, `SetCouponCodeForm`, `SetFieldValuesForm`, `SetLineItemNotesForm`, `SetLineItemOptionsForm`, `SetLineItemStatusForm`, `SetOrderSiteForm`, `SetReferenceForm`, `SetShippingMethodForm`, `UpdateAdjustmentForm`, and `UpdateLineItemForm`.
@@ -657,7 +655,7 @@
 - Removed the actions that only the previous order edit screen used: `commerce/orders/save`, `refresh`, `delete-order`, `send-email`, `fulfill`, `fulfillment-modal`, `get-shipping-method-options`, `customer-search`, `get-customer-addresses`, `get-order-address`, `validate-address`, `create-customer` and `update-order-address`. Orders are changed through the edit screen's `commerce/orders/apply` and `commerce/orders/edit/*` actions, emailed with `commerce/orders/actions/send-email`, fulfilled with `commerce/orders/actions/fulfill`, and deleted with core's `elements/delete`.
 - Removed the `commerce/orders/_edit`, `_history`, `_transactions`, `_paymentForms` and `_paymentmodal` templates, and the `commerce/orders/includes` and `commerce/orders/modals` templates.
 - Removed `craft\commerce\web\assets\commerceui\CommerceUiAsset` and `CommerceOrderAsset`, and the Vue 2 `commerceui` bundle.
-- Removed `Craft.Commerce.OrderEdit` and `Craft.Commerce.PaymentModal` from the `commercecp` bundle.
+- Removed `craft\commerce\web\assets\commercecp\CommerceCpAsset` and the `commercecp` bundle, including `Craft.Commerce.OrderEdit` and `Craft.Commerce.PaymentModal`.
 - Added `CraftCms\Commerce\Order\Elements\Order::getPricingCustomerId()`. Line items and recalculation price purchasables for the order's customer, or as a guest when the order has none, instead of for whoever is signed in.
 - Added `CraftCms\Commerce\Order\Elements\Order::crumbs()`.
 - Added `CraftCms\Commerce\Order\Data\OrderAdjustment::$uid` and `OrderAdjustment::isManual()`. Adjustments added by hand from the order edit screen are marked as manual and kept by the Recalculate Charges operation.
@@ -671,7 +669,7 @@
 ### Payments
 
 > [!WARNING]
-> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
+> Payment gateway plugins built for Commerce 5 aren’t compatible with Commerce 6. Gateways now extend `CraftCms\Commerce\Payment\Gateway\Gateway` (a Craft 6 component rather than a Yii component), register with `CraftCms\Commerce\Payment\Gateway\GatewayTypes`, validate settings with `getRules()`, render settings with `settingsUi()` and payment forms with `paymentFormUi()`, return `Illuminate\Http\Response` objects from `processWebHook()`, and no longer redirect customers themselves.
 
 - Added `CraftCms\Commerce\Payment\Transactions`.
 - Added `CraftCms\Commerce\Support\Facades\Transactions`.
@@ -712,6 +710,9 @@
 - Added `CraftCms\Commerce\Support\Facades\GatewayTypes`.
 - Deprecated `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`. `CraftCms\Commerce\Payment\Gateway\GatewayTypes::register()` should be used instead.
 - Added `CraftCms\Commerce\Payment\Gateway\Gateway`.
+- Public properties declared on abstract subclasses of `CraftCms\Commerce\Payment\Gateway\Gateway` are now treated as gateway settings.
+- Added `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface::paymentFormUi()` and `paymentConfirmationFormUi()`, which return the gateway’s payment form and payment source confirmation form as a `CraftCms\Cms\Ui\Ui`.
+- `CraftCms\Commerce\Payment\Gateway\Gateway::getPaymentFormHtml()` is no longer abstract. It now renders `paymentFormUi()` with the payment form’s values and errors, and `getPaymentConfirmationFormHtml()` renders `paymentConfirmationFormUi()`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Dummy`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\Manual`.
 - Added `CraftCms\Commerce\Payment\Gateway\Types\MissingGateway`.
@@ -879,8 +880,6 @@
 - `CraftCms\Commerce\Promotion\Models\Coupon::getRules()` now validates that `code` is unique (case-insensitively, against every coupon regardless of discount), replacing `craft\commerce\validators\CouponsValidator`.
 - Removed `craft\commerce\validators\CouponsValidator`.
 - The `commerce/sales/save` action now expects `restrictPurchasables` and `restrictRelatedElements` params instead of `allPurchasables` and `allEntries`.
-- Removed the `commerce/promotions/*` templates.
-- Removed the `commerce/_layouts/store-management`, `commerce/_includes/_storeManagementNav`, and `commerce/store-management/shipping/shippingrules/_edit` templates.
 - Removed the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.details`, and `cp.commerce.sales.edit.content` template hooks.
 
 #### Controllers
@@ -934,6 +933,7 @@
 - Added `CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`.
 - Deprecated `craft\commerce\fieldlayoutelements\PurchasableSkuField`, `PurchasablePriceField`, `PurchasableStockField`, `PurchasableWeightField`, `PurchasableDimensionsField`, `PurchasableAllowedQtyField`, `PurchasableAvailableForPurchaseField`, `PurchasableFreeShippingField`, and `PurchasablePromotableField`. The `CraftCms\Commerce\Purchasable\FieldLayoutElements` equivalents should be used instead.
 - Removed `craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset`.
+- Removed `Purchasable::taxCategoryFieldHtml()` and `shippingCategoryFieldHtml()`.
 - **Breaking**: Changed `PurchasableInterface::getLineItemRules(LineItem $lineItem): array` to `validateLineItem(LineItem $lineItem): void`, which adds errors directly to `$lineItem->errors()` instead of returning legacy Yii2-shaped inline-closure validation rules. Third-party purchasable types must update their implementation accordingly.
 
 #### Controllers
@@ -1178,6 +1178,7 @@
 - Added `CraftCms\Commerce\Support\ObjectState`, a `WeakMap`-backed per-instance state store used by the `Site`/`User`/`Address` `Macroable` macros above.
 - Added GraphQL schema component and eager-loadable field registration via `CraftCms\Cms\Gql\Events\GqlSchemaComponentsResolving` and `GqlEagerLoadableFieldsResolving`.
 - Added garbage collection registration via `CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection`, purging incomplete carts, orphaned variants, and partial Donation/Order/Product/Variant/Transfer elements.
+- Commerce’s foreign keys are now restored when Fix FKs 3.0 restores Craft’s, via `CraftCms\FixFks\Events\ForeignKeysRestoring`. Fix FKs 2.x isn’t compatible with Craft 6.
 - Added `craft.commerce`, `craft.orders`, `craft.products`, and `craft.variants` Twig variables via `CraftCms\Cms\Twig\Variables\CraftVariable::macro()`.
 - Added `Plugin::getDonation()`, reachable in Twig as `craft.commerce.getDonation()`, matching the legacy `craft\commerce\plugin\Variables::getDonation()` trait method.
 - The `commerce/products/<productTypeHandle>/<id>` and `commerce/variants/<id>` element-edit screens, previously Craft core's generic `elements/edit` action registered via a legacy `UrlManager` rule, are now registered directly in `routes/cp.php` against `CraftCms\Cms\Http\Controllers\Elements\EditElementController`. `commerce/inventory/transfers/<id>` is registered against `CraftCms\Commerce\Http\Controllers\EditTransferController`.
@@ -1200,6 +1201,8 @@
 - Deprecated `craft\commerce\events\*`. Cancelable Commerce events (previously extending `craft\events\CancelableEvent`) now use the `CraftCms\Cms\Shared\Concerns\ValidatableEvent` trait instead.
 - Removed `craft\commerce\web\twig\Extension`. `CraftCms\Commerce\Twig\Extension` should be used instead.
 - Removed `craft\commerce\models\Settings::VIEW_URI_CUSTOMERS`, `VIEW_URI_PROMOTIONS`, `VIEW_URI_SHIPPING`, and `VIEW_URI_TAX` constants.
+- Removed all control panel Twig templates.
+- Removed the `cp.commerce.catalogPricingRules.index`, `cp.commerce.catalogPricingRules.edit.content`, `cp.commerce.discounts.index`, `cp.commerce.discounts.edit.details`, `cp.commerce.inventoryLocation.edit`, and `cp.commerce.shippingMethods.edit.content` template hooks.
 - Improved `craft\commerce\Plugin`'s `Plugin::getInstance()->getX()` service getters to be backed by a lazy-instantiate-and-cache trait rather than Yii2's component locator.
 
 ### Command Palette

@@ -1,7 +1,0 @@
-{% set fullPageForm = true %}
-
-{% if taxZone.id %}
-    {{ hiddenInput('taxZoneId', taxZone.id) }}
-{% endif %}
-
-{% include "commerce/store-management/tax/taxzones/_fields" with {store: store} %}

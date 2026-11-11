@@ -1,0 +1,35 @@
+{% extends "_layouts/message" %}
+{% set includePane = false %}
+
+{% block message %}
+  {% if logoUrl %}
+    <h1 class="mb-4 flex justify-center">
+      {{ tag('img', {
+        id: 'login-logo',
+        src: logoUrl,
+        alt: systemName,
+        class: 'max-w-full',
+      }) }}
+    </h1>
+  {% endif %}
+
+  <form method="post" accept-charset="UTF-8">
+    <craft-pane>
+      <h2 class="cp-h2 mb-3">{{ heading }}</h2>
+
+      {% if error %}
+        <craft-callout class="mb-3" variant="danger">{{ error }}</craft-callout>
+      {% endif %}
+
+      <p class="text-balance">{{ instructions }}</p>
+
+      {{ csrfInput() }}
+      {{ actionInput(action) }}
+      {% for name, value in params %}
+        {{ hiddenInput(name, value) }}
+      {% endfor %}
+
+      <craft-button slot="primary-action" type="submit" variant="primary">{{ 'Send'|t('app') }}</craft-button>
+    </craft-pane>
+  </form>
+{% endblock %}

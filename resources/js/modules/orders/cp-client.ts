@@ -1,9 +1,10 @@
-import {
-  actionClient,
-  showError,
-  showNotice,
-  type ActionRequestOptions,
-} from '@craftcms/cp';
+import {actionClient, showError, showNotice} from '@craftcms/cp';
+
+export interface ActionRequestOptions {
+  data?: unknown;
+  params?: Record<string, unknown>;
+  responseType?: 'json' | 'blob' | 'text';
+}
 
 export function sendActionRequest<T = unknown>(
   method: string,

@@ -2,13 +2,11 @@
   "name": "@craftcms/commerce",
   "private": true,
   "packageManager": "pnpm@11.25.0",
-  "description": "Commerce's Vue 3/Vite bundle for the new CP Form system (Form Node/Control components Commerce contributes via window.Cp.$components — see resources/js/cp.ts). The legacy webpack bundles live in ./legacy, a separate pnpm workspace package — the two can't share a `vue` dependency.",
+  "description": "Commerce's Vue 3/Vite bundle for the control panel (Ui Node/Control components and Inertia pages Commerce contributes via window.Cp.$components — see resources/js/cp.ts).",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
     "typecheck": "vue-tsc --noEmit",
-    "build:legacy": "pnpm --filter @craftcms/commerce-legacy build",
-    "dev:legacy": "pnpm --filter @craftcms/commerce-legacy dev",
     "check-prettier": "prettier --check .",
     "fix-prettier": "prettier --write .",
     "prepare": "husky install"
