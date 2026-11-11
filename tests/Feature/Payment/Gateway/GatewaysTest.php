@@ -52,17 +52,64 @@ test('getAllGatewayTypes returns the built-in Dummy and Manual gateway types', f
     ]);
 });
 
-test('the Dummy gateway renders its credit card payment form with errors', function() {
-    $gateway = new Dummy();
-    $paymentForm = $gateway->getPaymentFormModel();
-    $paymentForm->errors()->add('number', 'Card number is invalid.');
-    $paymentForm->errors()->add('month', 'Expiry month is invalid.');
+test('gateway settings include properties declared on abstract gateway subclasses', function() {
+    $gateway = app(Gateways::class)->createGateway([
+        'type' => GatewayWithSharedSettings::class,
+        'name' => 'Shared',
+        'handle' => 'shared',
+        'settings' => ['secretKey' => 'sk_test', 'publishableKey' => 'pk_test'],
+    ]);
 
-    expect($gateway->getPaymentFormHtml(['paymentForm' => $paymentForm]))
-        ->toContain('name="firstName"')
-        ->toContain('name="number"')
-        ->toContain('name="cvv"')
-        ->toContain('Card number is invalid.')
-        ->toContain('Expiry month is invalid.')
-        ->not->toContain('role="alert"');
+    expect($gateway->getSettings())->toEqualCanonicalizing(['secretKey' => 'sk_test', 'publishableKey' => 'pk_test'])
+        ->and($gateway->getConfig()['settings'])->toEqualCanonicalizing(['secretKey' => 'sk_test', 'publishableKey' => 'pk_test']);
 });
+
+abstract class GatewayWithSharedSettingsBase extends Dummy
+{
+    public ?string $secretKey = null;
+}
+
+class GatewayWithSharedSettings extends GatewayWithSharedSettingsBase
+{
+    public ?string $publishableKey = null;
+}
+
+test('getPaymentFormHtml renders the gateway’s payment form Ui with the payment form’s values and errors', function() {
+    $gateway = app(Gateways::class)->createGateway(['type' => Dummy::class]);
+    $form = $gateway->getPaymentFormModel();
+    $form->setAttributes(['firstName' => 'Ada', 'number' => '4242 4242 4242 4241', 'expiry' => '13/2020']);
+    $form->validate();
+
+    $html = $gateway->getPaymentFormHtml(['paymentForm' => $form]);
+
+    expect($html)
+        ->toContain('name="firstName" value="Ada"')
+        ->toContain('name="number" value="4242424242424241"')
+        ->toContain('name="expiry" value="13/2020"')
+        ->toContain('name="cvv"')
+        ->toContain('Not a valid credit card number.')
+        // `month` and `year` have no control of their own, so their errors are listed for the whole form.
+        ->toContain('The month field must not be greater than 12.');
+});
+
+test('payment forms are optional', function() {
+    $gateway = app(Gateways::class)->createGateway(['type' => Manual::class]);
+
+    expect($gateway->paymentFormUi($gateway->getPaymentFormModel()))->toBeNull()
+        ->and($gateway->getPaymentFormHtml([]))->toBeNull()
+        ->and($gateway->getPaymentConfirmationFormHtml([]))->toBe('');
+});
+
+test('getPaymentConfirmationFormHtml renders the gateway’s confirmation form Ui', function() {
+    $gateway = app(Gateways::class)->createGateway(['type' => GatewayWithConfirmationForm::class]);
+
+    expect($gateway->getPaymentConfirmationFormHtml(['token' => 'pi_123']))->toContain('name="paymentIntentId" value="pi_123"');
+});
+
+class GatewayWithConfirmationForm extends Dummy
+{
+    public function paymentConfirmationFormUi(array $params = []): ?\CraftCms\Cms\Ui\Ui
+    {
+        return \CraftCms\Cms\Ui\Ui::make([\CraftCms\Cms\Ui\Nodes\Field::make('Payment intent', \CraftCms\Cms\Ui\Controls\Text::make('paymentIntentId')->value($params['token']))]);
+    }
+}

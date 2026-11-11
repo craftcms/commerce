@@ -7,12 +7,8 @@ namespace CraftCms\Commerce\Payment\Gateway\Types;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Ui\Controls\Text;
-use CraftCms\Cms\Ui\Enums\FieldWidth;
 use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Ui\Ui;
-use CraftCms\Cms\Ui\UiContext;
-use CraftCms\Cms\Ui\UiHtmlRenderer;
-use CraftCms\Cms\Ui\UiResolver;
 use CraftCms\Commerce\Exceptions\NotImplementedException;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\Data\Transaction;
@@ -33,53 +29,33 @@ use function CraftCms\Cms\t;
  */
 class Dummy extends Gateway
 {
-    public function getPaymentFormHtml(array $params): ?string
+    #[Override]
+    public function paymentFormUi(BasePaymentForm $form, array $params = []): ?Ui
     {
-        $paymentFormModel = $this->getPaymentFormModel();
-
-        if (Cms::config()->devMode) {
-            $paymentFormModel->firstName = 'Jenny';
-            $paymentFormModel->lastName = 'Andrews';
-            $paymentFormModel->number = '4242424242424242';
-            $paymentFormModel->expiry = '01/' . date('Y', strtotime('+1 year'));
-            $paymentFormModel->cvv = '123';
+        if (Cms::config()->devMode && $form instanceof CreditCardPaymentForm && $form->number === null) {
+            $form->firstName = 'Jenny';
+            $form->lastName = 'Andrews';
+            $form->number = '4242424242424242';
+            $form->expiry = '01/' . date('Y', strtotime('+1 year'));
+            $form->cvv = '123';
         }
 
-        /** @var CreditCardPaymentForm $paymentForm */
-        $paymentForm = $params['paymentForm'] ?? $paymentFormModel;
-        $errors = $paymentForm->errors();
-
-        $ui = Ui::make()
-            ->addGroup(t('Card Holder', category: 'commerce'), [
-                Field::make(t('First Name', category: 'commerce'))
-                    ->required()
-                    ->width(FieldWidth::Half)
-                    ->control(Text::make('firstName')->maxLength(70)->placeholder(t('First Name', category: 'commerce'))->value($paymentForm->firstName)),
-                Field::make(t('Last Name', category: 'commerce'))
-                    ->required()
-                    ->width(FieldWidth::Half)
-                    ->control(Text::make('lastName')->maxLength(70)->placeholder(t('Last Name', category: 'commerce'))->value($paymentForm->lastName)),
-            ])
-            ->addGroup(t('Card', category: 'commerce'), [
-                Field::make(t('Card Number', category: 'commerce'))
-                    ->control(Text::make('number')->maxLength(19)->placeholder(t('Card Number', category: 'commerce'))->inputMode('numeric')->value($paymentForm->number)),
-                Field::make(t('Expiry', category: 'commerce'))
-                    ->width(FieldWidth::Half)
-                    ->control(Text::make('expiry')
-                        ->placeholder(t('MM', category: 'commerce') . ' / ' . t('YYYY', category: 'commerce'))
-                        ->value($paymentForm->expiry)),
-                Field::make(t('CVV', category: 'commerce'))
-                    ->width(FieldWidth::Half)
-                    ->control(Text::make('cvv')->inputType('tel')->placeholder(t('CVV', category: 'commerce'))->value($paymentForm->cvv)),
-            ]);
-
-        return app(UiHtmlRenderer::class)->render(app(UiResolver::class)->resolve($ui, new UiContext(errors: [
-            'firstName' => $errors->get('firstName'),
-            'lastName' => $errors->get('lastName'),
-            'number' => $errors->get('number'),
-            'expiry' => [...$errors->get('expiry'), ...$errors->get('month'), ...$errors->get('year')],
-            'cvv' => $errors->get('cvv'),
-        ])));
+        return Ui::make([
+            Field::make(t('First Name', category: 'commerce'), Text::make('firstName')->maxLength(70)->autocomplete(false))
+                ->required()
+                ->width(50),
+            Field::make(t('Last Name', category: 'commerce'), Text::make('lastName')->maxLength(70)->autocomplete(false))
+                ->required()
+                ->width(50),
+            Field::make(t('Card Number', category: 'commerce'), Text::make('number')->maxLength(19)->autocomplete(false))
+                ->required(),
+            Field::make(t('Expiry', category: 'commerce'), Text::make('expiry')->placeholder(t('MM', category: 'commerce') . ' / ' . t('YYYY', category: 'commerce')))
+                ->required()
+                ->width(50),
+            Field::make(t('CVV', category: 'commerce'), Text::make('cvv')->inputType('tel')->maxLength(4))
+                ->required()
+                ->width(50),
+        ]);
     }
 
     public function getPaymentFormModel(): DummyPaymentForm
