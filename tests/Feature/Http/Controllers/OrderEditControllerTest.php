@@ -216,6 +216,36 @@ describe('edit sessions', function() {
         editEndpointsPost('edit/start', ['orderId' => $order->id])->assertForbidden();
     });
 
+    it('refuses item and address changes without the edit orders permission', function() {
+        $order = OrdersFixture::seed()->orders['completed-new'];
+        $lineItem = $order->getLineItems()[0];
+        $qty = $lineItem->qty;
+        $billingId = $order->getBillingAddress()?->id;
+        Gate::before(fn($user, $ability) => $ability === 'commerce-editOrders' ? false : null);
+
+        $changes = [
+            ['type' => 'updateLineItem', 'lineItemUid' => $lineItem->uid, 'changes' => ['qty' => $qty + 5]],
+            ['type' => 'removeLineItem', 'lineItemUid' => $lineItem->uid],
+            ['type' => 'setAddress', 'addressType' => 'billing', 'address' => ['addressLine1' => '1 Nowhere Lane', 'countryCode' => 'US']],
+        ];
+
+        foreach ($changes as $operation) {
+            editEndpointsPost('edit/add', ['orderId' => $order->id, 'operation' => $operation])->assertForbidden();
+            editEndpointsPost('edit/preview', ['orderId' => $order->id, 'operation' => $operation])->assertForbidden();
+            editEndpointsPost('apply', ['orderId' => $order->id, 'operations' => [$operation]])->assertForbidden();
+        }
+
+        editEndpointsPost('edit/commit', ['orderId' => $order->id])->assertForbidden();
+        editEndpointsPost('edit/discard', ['orderId' => $order->id])->assertForbidden();
+
+        $fresh = Order::find()->id($order->id)->one();
+
+        expect(app(OrderEditSessions::class)->getSessionByOrderId($order->id))->toBeNull()
+            ->and($fresh->getLineItems())->toHaveCount(count($order->getLineItems()))
+            ->and(collect($fresh->getLineItems())->firstWhere('uid', $lineItem->uid)->qty)->toBe($qty)
+            ->and($fresh->getBillingAddress()?->id)->toBe($billingId);
+    });
+
     it('returns a 404 when there’s no session', function() {
         $order = OrdersFixture::seed()->orders['completed-new'];
 
