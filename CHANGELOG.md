@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-98wq-3mvx-6jvv)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (Hackrate #2162)
 
 ## 5.7.8 - 2026-11-04
 
