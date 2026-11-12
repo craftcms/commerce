@@ -128,6 +128,13 @@ class Variant extends Purchasable implements NestedElementInterface
     public bool $isDefault = false;
 
     /**
+     * Whether purchasing this variant issues a license for each unit, when its product type allows licenses.
+     *
+     * @see issuesLicenses()
+     */
+    public bool $issuesLicense = false;
+
+    /**
      * @see getProductSlug()
      * @see setProductSlug()
      */
@@ -409,6 +416,14 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Returns the product associated with this variant.
      */
+    /**
+     * Whether purchasing this variant issues licenses: it has “Issues License” turned on, and its product type allows licenses.
+     */
+    public function issuesLicenses(): bool
+    {
+        return $this->issuesLicense && ($this->getOwner()?->getType()->hasLicenses ?? false);
+    }
+
     public function getProduct(): ?Product
     {
         /** @var Product|null */
@@ -793,6 +808,7 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             $record->primaryOwnerId = $this->getPrimaryOwnerId();
+            $record->issuesLicense = $this->issuesLicense;
 
             // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
             if ($this->getOwner()->getIsCanonical()) {

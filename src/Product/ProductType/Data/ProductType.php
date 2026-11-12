@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Product\ProductType\Data;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
+use CraftCms\Cms\Field\Assets;
 use CraftCms\Cms\FieldLayout\Contracts\FieldLayoutProviderInterface;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\FieldLayout\FieldLayoutTab;
@@ -52,6 +53,17 @@ class ProductType extends Component implements FieldLayoutProviderInterface
     public bool $enableVersioning = false;
 
     public bool $hasDimensions = false;
+
+    /**
+     * Whether variants of this type can issue licenses when they're purchased.
+     */
+    public bool $hasLicenses = false;
+
+    /**
+     * The UID of the Assets field, in the product or variant field layout, whose assets licenses can download.
+     * When null, licenses can download any asset related to the variant or its product.
+     */
+    public ?string $licenseDownloadFieldUid = null;
 
     public ?int $maxVariants = null;
 
@@ -169,6 +181,10 @@ class ProductType extends Component implements FieldLayoutProviderInterface
         $this->validateFieldLayout();
         $this->validateVariantFieldLayout();
         $this->validatePreviewTargets();
+
+        if ($this->hasLicenses && $this->licenseDownloadFieldUid && !$this->getLicenseDownloadField()) {
+            $this->errors()->add('licenseDownloadFieldUid', t('The download field must be an Assets field in the product or variant field layout.', category: 'commerce'));
+        }
 
         if (empty($this->getSiteSettings())) {
             $this->errors()->add('siteSettings', t('At least one site must be enabled for the product type.', category: 'commerce'));
@@ -344,6 +360,26 @@ class ProductType extends Component implements FieldLayoutProviderInterface
     }
 
     /**
+     * Returns the Assets field licenses download from, if one is set and still in the variant or product field layout.
+     */
+    public function getLicenseDownloadField(): ?Assets
+    {
+        if (!$this->licenseDownloadFieldUid) {
+            return null;
+        }
+
+        foreach ([$this->getVariantFieldLayout(), $this->getProductFieldLayout()] as $fieldLayout) {
+            $field = $fieldLayout->getFieldByUid($this->licenseDownloadFieldUid);
+
+            if ($field) {
+                return $field instanceof Assets ? $field : null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param class-string $elementType
      */
     private function _resolveFieldLayout(?int $id, string $elementType): FieldLayout
@@ -389,6 +425,7 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             'freeShipping',
             'hasUnlimitedStock',
             'height',
+            'issuesLicense',
             'length',
             'maxQty',
             'minQty',
@@ -453,6 +490,8 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             'handle' => $this->handle,
             'enableVersioning' => $this->enableVersioning,
             'hasDimensions' => $this->hasDimensions,
+            'hasLicenses' => $this->hasLicenses,
+            'licenseDownloadFieldUid' => $this->licenseDownloadFieldUid,
             'maxVariants' => $this->maxVariants,
 
             'hasVariantTitleField' => $this->hasVariantTitleField,

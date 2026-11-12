@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers\Settings;
 
 use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
+use CraftCms\Cms\Field\Assets;
 use CraftCms\Cms\Field\Enums\TranslationMethod;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
@@ -245,6 +246,8 @@ class ProductTypesController extends BaseSettingsController
             'descriptionFormat' => $productType->descriptionFormat,
             'maxVariants' => $productType->maxVariants ?? '',
             'hasDimensions' => $productType->hasDimensions,
+            'hasLicenses' => $productType->hasLicenses,
+            'licenseDownloadFieldUid' => $productType->licenseDownloadFieldUid ?? '',
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'variantTitleFormat' => $productType->variantTitleFormat,
             'variantTitleTranslationMethod' => $productType->variantTitleTranslationMethod,
@@ -374,6 +377,14 @@ class ProductTypesController extends BaseSettingsController
             ], category: 'commerce'));
         $settingsFields[] = Field::make(t('Max Variants', category: 'commerce'), Number::make('maxVariants')->size(2));
         $settingsFields[] = Field::make(t('Show the Dimensions and Weight fields for products of this type', category: 'commerce'), Lightswitch::make('hasDimensions'));
+        $settingsFields[] = Field::make(t('Allow variants to issue licenses', category: 'commerce'), Lightswitch::make('hasLicenses')->reactive())
+            ->instructions(t('Shows the “Issues License” field on variants. Purchasing a variant with it turned on issues a license for each unit.', category: 'commerce'));
+
+        if ($values['hasLicenses'] ?? false) {
+            $settingsFields[] = Field::make(t('License Download Field', category: 'commerce'), Choice::make('licenseDownloadFieldUid')->options($this->licenseDownloadFieldOptions($productType)))
+                ->instructions(t('The Assets field whose files license holders can download. When none is chosen, they can download any asset related to the variant or its product.', category: 'commerce'));
+        }
+
         $settingsFields[] = Separator::make('variant-settings-separator');
         $settingsFields[] = Field::make(t('Show the Title field for variants', category: 'commerce'), Lightswitch::make('hasVariantTitleField'));
 
@@ -506,6 +517,29 @@ class ProductTypesController extends BaseSettingsController
         return Html::tag('ul', $items, ['class' => 'bullets']);
     }
 
+    /**
+     * The Assets fields in the product type's variant and product field layouts, for the License Download Field select.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    private function licenseDownloadFieldOptions(ProductType $productType): array
+    {
+        $options = [['value' => '', 'label' => t('Any related asset', category: 'commerce')]];
+
+        foreach ([
+            t('Variant', category: 'commerce') => $productType->getVariantFieldLayout(),
+            t('Product', category: 'commerce') => $productType->getProductFieldLayout(),
+        ] as $layoutLabel => $fieldLayout) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
+                if ($field instanceof Assets) {
+                    $options[] = ['value' => (string)$field->uid, 'label' => sprintf('%s (%s)', $field->name, $layoutLabel)];
+                }
+            }
+        }
+
+        return $options;
+    }
+
     public function store(Request $request): ?Response
     {
         abort_unless(currentUser()?->can('manageCommerce'), 403, t('This action is not allowed for the current user.', category: 'commerce'));
@@ -525,6 +559,9 @@ class ProductTypesController extends BaseSettingsController
         $productType->handle = $request->input('handle');
         $productType->enableVersioning = (bool)$request->input('enableVersioning', $productType->enableVersioning);
         $productType->hasDimensions = (bool)$request->input('hasDimensions');
+        $productType->hasLicenses = (bool)$request->input('hasLicenses');
+        // The select is only posted while licenses are allowed; keep the field otherwise, so turning licenses back on doesn't widen downloads
+        $productType->licenseDownloadFieldUid = $request->input('licenseDownloadFieldUid', $productType->licenseDownloadFieldUid) ?: null;
         $productType->hasProductTitleField = (bool)$request->input('hasProductTitleField');
         $productType->productTitleFormat = $request->input('productTitleFormat') ?? $productType->productTitleFormat;
         $productType->productUiLabelFormat = $request->input('productUiLabelFormat') ?? $productType->productUiLabelFormat;

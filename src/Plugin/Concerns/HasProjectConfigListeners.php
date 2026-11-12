@@ -10,6 +10,7 @@ use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Email\Events\EmailDeleted;
 use CraftCms\Commerce\Helpers\ProjectConfigData;
+use CraftCms\Commerce\License\Licenses;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Order\OrderStatuses;
@@ -39,6 +40,10 @@ trait HasProjectConfigListeners
         $projectConfig->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleChangedProductType(...))
             ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleChangedProductType(...))
             ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', app(ProductTypes::class)->handleDeletedProductType(...));
+
+        $projectConfig->onAdd(Licenses::FIELD_LAYOUT_CONFIG_KEY, app(Licenses::class)->handleChangedFieldLayout(...))
+            ->onUpdate(Licenses::FIELD_LAYOUT_CONFIG_KEY, app(Licenses::class)->handleChangedFieldLayout(...))
+            ->onRemove(Licenses::FIELD_LAYOUT_CONFIG_KEY, app(Licenses::class)->handleDeletedFieldLayout(...));
 
         Event::listen(SiteDeleted::class, static function(SiteDeleted $event) {
             if (!app(ProjectConfig::class)->isApplyingExternalChanges) {

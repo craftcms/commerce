@@ -17,12 +17,14 @@ use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
+use CraftCms\Cms\User\Events\UserActivated;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Cms\View\TemplateRoots;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
+use CraftCms\Commerce\Console\Commands\Licenses\MigrateDigitalProductsCommand;
 use CraftCms\Commerce\Console\Commands\PricingCatalog\PricingCatalogGenerateCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveCartsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveOrdersCommand;
@@ -51,7 +53,12 @@ use CraftCms\Commerce\Gql\Interfaces\Elements\Variant as VariantInterface;
 use CraftCms\Commerce\Gql\Queries\Product as ProductQuery;
 use CraftCms\Commerce\Gql\Queries\Variant as VariantQuery;
 use CraftCms\Commerce\Http\Middleware\PoweredByHeader;
+use CraftCms\Commerce\License\Elements\License;
+use CraftCms\Commerce\License\Licenses;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Order\Events\OrderCompleted;
+use CraftCms\Commerce\Order\Events\OrderPaid;
+use CraftCms\Commerce\Payment\Events\PaymentProcessing;
 use CraftCms\Commerce\Plugin\Concerns\HasCacheOptions;
 use CraftCms\Commerce\Plugin\Concerns\HasCommandPalette;
 use CraftCms\Commerce\Plugin\Concerns\HasCommerceEditions;
@@ -127,6 +134,7 @@ class Plugin extends BasePlugin
         Order::class,
         Donation::class,
         Transfer::class,
+        License::class,
     ];
 
     protected array $fieldTypes = [
@@ -199,6 +207,7 @@ class Plugin extends BasePlugin
     protected array $commands = [
         ResaveProductsCommand::class,
         ResaveVariantsCommand::class,
+        MigrateDigitalProductsCommand::class,
         ResaveOrdersCommand::class,
         ResaveCartsCommand::class,
         ExampleTemplatesCommand::class,
@@ -223,6 +232,12 @@ class Plugin extends BasePlugin
         $this->registerVariableMacros();
         $this->registerForeignKeysRestore();
         $this->registerLegacyEventBridges();
+
+        // Each listener does nothing until the Digital Products plugin's data has been migrated
+        Event::listen(OrderPaid::class, [Licenses::class, 'handleOrderPaid']);
+        Event::listen(OrderCompleted::class, [Licenses::class, 'handleOrderCompleted']);
+        Event::listen(PaymentProcessing::class, [Licenses::class, 'handlePaymentProcessing']);
+        Event::listen(UserActivated::class, [Licenses::class, 'handleUserActivated']);
 
         Twig::registerExtension(new CommerceTwigExtension());
 

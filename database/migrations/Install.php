@@ -13,6 +13,7 @@ use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\License\Elements\License;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
@@ -363,6 +364,20 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
+        Schema::create(Table::LICENSES, function(Blueprint $table) {
+            $table->integer('id');
+            $table->integer('variantId')->nullable();
+            $table->integer('orderId')->nullable();
+            $table->string('licenseKey');
+            $table->string('ownerName')->nullable();
+            $table->string('ownerEmail')->nullable();
+            $table->integer('userId')->nullable();
+            $table->dateTime('dateCreated');
+            $table->dateTime('dateUpdated');
+            $table->char('uid', 36)->default('0');
+            $table->primary('id');
+        });
+
         Schema::create(Table::LINEITEMS, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
@@ -608,6 +623,8 @@ class Install extends Migration
             $table->boolean('enableVersioning')->default(false);
             $table->integer('maxVariants')->nullable();
             $table->boolean('hasDimensions')->default(false);
+            $table->boolean('hasLicenses')->default(false);
+            $table->char('licenseDownloadFieldUid', 36)->nullable();
 
             // Variant title stuff
             $table->boolean('hasVariantTitleField')->default(true);
@@ -998,6 +1015,7 @@ class Install extends Migration
             $table->integer('id');
             $table->integer('primaryOwnerId')->nullable();
             $table->boolean('isDefault')->default(false);
+            $table->boolean('issuesLicense')->default(false);
             $table->boolean('deletedWithProduct')->default(false); // @TODO Remove in Commerce 6.0
             $table->dateTime('dateCreated');
             $table->dateTime('dateUpdated');
@@ -1048,6 +1066,10 @@ class Install extends Migration
         Schema::createIndex(Table::INVENTORYTRANSACTIONS, ['lineItemId']);
         Schema::createIndex(Table::INVENTORYTRANSACTIONS, ['transferId']);
         Schema::createIndex(Table::INVENTORYTRANSACTIONS, ['userId']);
+        Schema::createIndex(Table::LICENSES, ['licenseKey'], unique: true);
+        Schema::createIndex(Table::LICENSES, ['orderId']);
+        Schema::createIndex(Table::LICENSES, ['variantId']);
+        Schema::createIndex(Table::LICENSES, ['userId']);
         Schema::createIndex(Table::LINEITEMS, ['purchasableId']);
         Schema::createIndex(Table::LINEITEMS, ['shippingCategoryId']);
         Schema::createIndex(Table::LINEITEMS, ['taxCategoryId']);
@@ -1176,6 +1198,10 @@ class Install extends Migration
         // NOTE: the legacy migration added this same FK twice (once here, once further down); only ported once.
         Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('transferId')->references('id')->on(Table::TRANSFERS)->nullOnDelete());
         Schema::table(Table::INVENTORYTRANSACTIONS, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->nullOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('id')->references('id')->on(CraftTable::ELEMENTS)->cascadeOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('variantId')->references('id')->on(Table::VARIANTS)->nullOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->nullOnDelete());
+        Schema::table(Table::LICENSES, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->nullOnDelete());
         Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
         Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('purchasableId')->references('id')->on(CraftTable::ELEMENTS)->nullOnDelete()->cascadeOnUpdate());
         Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('shippingCategoryId')->references('id')->on(Table::SHIPPINGCATEGORIES)->cascadeOnUpdate());
@@ -1411,6 +1437,7 @@ class Install extends Migration
     public function dropFieldLayouts(): void
     {
         DB::table(CraftTable::FIELDLAYOUTS)->whereIn('type', [
+            License::class,
             Order::class,
             Product::class,
             Transfer::class,
