@@ -26,6 +26,7 @@ use CraftCms\Commerce\Inventory\Models\InventoryItem as InventoryItemRecord;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
@@ -651,7 +652,7 @@ class Inventory
             ->when($inventoryLocationId !== null, fn(Builder $query) => $query->where('it.inventoryLocationId', $inventoryLocationId))
             ->when($lineItemIds !== null, fn(Builder $query) => $query->whereIn('it.lineItemId', $lineItemIds))
             ->havingRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) > 0', [InventoryTransactionType::COMMITTED->value])
-            ->orderByRaw('MIN(orders.dateOrdered) ASC');
+            ->orderByRaw('MIN(' . DB::connection()->getQueryGrammar()->wrap('orders.dateOrdered') . ') ASC');
 
         return $query->get()->map(fn($row) => $this->populateInventoryFulfillmentLevel((array) $row));
     }
@@ -717,14 +718,21 @@ class Inventory
      */
     private function inventoryFulfillmentLevelQuery(): Builder
     {
+        $wrap = fn(string $value): string => DB::connection()->getQueryGrammar()->wrap($value);
+        $sumWhen = fn(string $condition, string $alias): string => sprintf(
+            'SUM(CASE WHEN %s THEN it.quantity ELSE 0 END) AS %s',
+            $condition,
+            $wrap($alias),
+        );
+
         return DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-            ->selectRaw('it.lineItemId, li.orderId, it.inventoryItemId, it.inventoryLocationId')
+            ->select(['it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId'])
             ->selectRaw(
-                'SUM(CASE WHEN ((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0)) THEN it.quantity ELSE 0 END) AS committedQuantity',
+                $sumWhen('((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0))', 'committedQuantity'),
                 [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value],
             )
-            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS outstandingCommittedQuantity', [InventoryTransactionType::COMMITTED->value])
-            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS fulfilledQuantity', [InventoryTransactionType::FULFILLED->value])
+            ->selectRaw($sumWhen('it.type = ?', 'outstandingCommittedQuantity'), [InventoryTransactionType::COMMITTED->value])
+            ->selectRaw($sumWhen('it.type = ?', 'fulfilledQuantity'), [InventoryTransactionType::FULFILLED->value])
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->whereIn('it.type', [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value])
             ->groupBy('it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId');
@@ -732,12 +740,28 @@ class Inventory
 
     public function orderCompleteHandler(Order $order): void
     {
+        $this->commitStock($order);
+    }
+
+    /**
+     * Commits stock for an order's line items, reserving what the chosen location can't cover from the others.
+     *
+     * @param array<int, int>|null $quantities Quantities to commit by line item ID, for just those line items. Every line item's quantity by default.
+     */
+    public function commitStock(Order $order, ?array $quantities = null): void
+    {
+        $quantityFor = fn(LineItem $lineItem): int => $quantities === null ? $lineItem->qty : ($quantities[$lineItem->id] ?? 0);
+
         /** @var array<int, Collection<int, InventoryLevel>> $allInventoryLevels */
         $allInventoryLevels = [];
         $qtyLineItem = [];
         foreach ($order->getLineItems() as $lineItem) {
             if ($lineItem->type === LineItemType::Custom) {
                 // Skip custom line items
+                continue;
+            }
+
+            if ($quantities !== null && $quantityFor($lineItem) <= 0) {
                 continue;
             }
 
@@ -752,7 +776,7 @@ class Inventory
                 if (!isset($qtyLineItem[$purchasable->id])) {
                     $qtyLineItem[$purchasable->id] = 0;
                 }
-                $qtyLineItem[$purchasable->id] += $lineItem->qty;
+                $qtyLineItem[$purchasable->id] += $quantityFor($lineItem);
                 $allInventoryLevels[$purchasable->id] = $purchasable->getInventoryLevels();
             }
         }
@@ -787,20 +811,21 @@ class Inventory
 
         // Loop through line items and create committed movements for the selected inventory location
         foreach ($order->getLineItems() as $lineItem) {
-            if (isset($selectedInventoryLevelForItem[$lineItem->purchasableId])) {
+            if (isset($selectedInventoryLevelForItem[$lineItem->purchasableId]) && ($quantities === null || $quantityFor($lineItem) > 0)) {
                 $level = $selectedInventoryLevelForItem[$lineItem->purchasableId];
+                $quantity = $quantityFor($lineItem);
 
                 if (!isset($reserveAmountByPurchasableId[$lineItem->purchasableId])) {
                     $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] = $level->availableTotal;
                     $reserveAmountByPurchasableId[$lineItem->purchasableId] = [];
                 }
 
-                if ($lineItem->qty > $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId]) {
-                    $totalToReserveForLineItem = $lineItem->qty - $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId];
+                if ($quantity > $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId]) {
+                    $totalToReserveForLineItem = $quantity - $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId];
                     $reserveAmountByPurchasableId[$lineItem->purchasableId][$lineItem->id] = $totalToReserveForLineItem;
                     $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] = 0;
                 } else {
-                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] -= $lineItem->qty;
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] -= $quantity;
                 }
 
                 $inventoryCommittedMovement = new InventoryCommittedMovement();
@@ -809,7 +834,7 @@ class Inventory
                 $inventoryCommittedMovement->toInventoryLocation = $level->getInventoryLocation();
                 $inventoryCommittedMovement->fromInventoryTransactionType = InventoryTransactionType::AVAILABLE;
                 $inventoryCommittedMovement->toInventoryTransactionType = InventoryTransactionType::COMMITTED;
-                $inventoryCommittedMovement->quantity = $lineItem->qty;
+                $inventoryCommittedMovement->quantity = $quantity;
                 $inventoryCommittedMovement->lineItemId = $lineItem->id;
 
                 $movements->push($inventoryCommittedMovement);

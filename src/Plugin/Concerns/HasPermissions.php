@@ -40,6 +40,8 @@ trait HasPermissions
                     new Permission(key: 'commerce-deleteOrders', label: t('Delete orders', category: 'commerce')),
                     new Permission(key: 'commerce-capturePayment', label: t('Capture payment', category: 'commerce')),
                     new Permission(key: 'commerce-refundPayment', label: t('Refund payment', category: 'commerce')),
+                    new Permission(key: 'commerce-recordPayments', label: t('Record payments', category: 'commerce')),
+                    new Permission(key: 'commerce-recordRefunds', label: t('Record refunds', category: 'commerce')),
                 ]),
             ),
             new Permission(

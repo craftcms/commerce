@@ -37,6 +37,8 @@ class Settings extends PluginSettings
 
     public ?array $paymentCurrency = null;
 
+    public mixed $paymentLinkDuration = 604800;
+
     public bool $pdfAllowRemoteImages = false;
 
     public bool $purgeInactiveCarts = true;

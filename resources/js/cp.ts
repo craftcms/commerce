@@ -72,6 +72,10 @@ function registerComponents(): void {
     () => import('./pages/prices/Index.vue')
   );
   window.Cp.$inertia.register(
+    'commerce::orders/Edit',
+    () => import('./pages/orders/Edit.vue')
+  );
+  window.Cp.$inertia.register(
     'commerce::inventory/transfers/Index',
     () => import('./pages/inventory/transfers/Index.vue')
   );

@@ -15,5 +15,4 @@ arch('src/ does not use Yii or legacy Craft classes')
         CraftCms\Commerce\Helpers\Locale::class,
         CraftCms\Commerce\Http\Controllers\OrdersController::class,
         CraftCms\Commerce\Plugin\Concerns\HasLegacyBridges::class,
-        CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent::class,
     ]);

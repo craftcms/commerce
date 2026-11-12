@@ -23,7 +23,7 @@
 - Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving`.
 - Added `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving`.
 - Added `CraftCms\Commerce\Product\Events\ProductParentSelectionCriteriaResolving`.
-- Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`.
+- Added `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent`. Its `$query` is an `Illuminate\Database\Query\Builder`, not a `craft\db\Query`, and listeners must keep selecting `purchasables.id` and `elements.type`.
 - Added `CraftCms\Commerce\Product\Events\ProductEvent`.
 - Added `CraftCms\Commerce\Product\ProductType\Events\ProductTypeEvent`.
 - Added `CraftCms\Commerce\Product\Variant\Events\PurchaseVariantEvent`.
@@ -50,7 +50,7 @@
 - Deprecated `craft\commerce\events\CustomizeProductSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving` should be used instead.
 - Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
 - Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
-- Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
+- Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead. Listeners that use the `craft\db\Query` it carried need updating to the Laravel query builder.
 - Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Product\Events\ProductEvent` should be used instead.
 - Deprecated `craft\commerce\events\ProductTypeEvent` in favor of the following new events:
   - `craft\commerce\services\ProductTypes::EVENT_BEFORE_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving`
@@ -627,6 +627,45 @@
 - Moved the `commerce/settings/ordersettings`, `commerce/settings/orderstatuses`, and `commerce/settings/lineitemstatuses` control panel routes to `commerce/settings/orders/fields`, `commerce/settings/orders/statuses`, and `commerce/settings/orders/line-item-statuses`.
 - Removed `craft\commerce\controllers\DownloadsController`. `CraftCms\Commerce\Http\Controllers\DownloadsController` should be used instead.
 
+#### Order edit screen
+
+- The order edit screen is now an Inertia page (`commerce::orders/Edit`) rendered by `CraftCms\Commerce\Http\Controllers\OrdersController` and `CraftCms\Commerce\Http\ViewModels\OrderEditViewModel`. The previous Twig and Vue 2 screen, including its `commerce/orders/{id}/legacy` route, has been removed.
+- Carts save each change as it's made. Completed orders are edited in an edit session: changes are staged, reviewed, and saved together in one save of the order.
+- Added `CraftCms\Commerce\Order\Edit\OrderOperation`, the base class for a change the edit screen can make to an order. Each operation validates itself and applies itself to an order in memory.
+- Added the `CraftCms\Commerce\Order\Edit\Operations` namespace, holding `AddAdjustment`, `AddCustomLineItem`, `AddLineItem`, `ClearNotices`, `CopyAddress`, `Recalculate`, `RecalculateCharges`, `RemoveAddress`, `RemoveAdjustment`, `RemoveLineItem`, `SetAddress`, `SetCouponCode`, `SetCustomer`, `SetDateOrdered`, `SetFieldValues`, `SetLineItemNotes`, `SetLineItemOptions`, `SetLineItemStatus`, `SetOrderSite`, `SetReference`, `SetShippingMethod`, `UpdateAdjustment`, and `UpdateLineItem`.
+- Added `CraftCms\Commerce\Order\Edit\OrderOperationTypes`. Plugins can register their own operations with `OrderOperationTypes::register()`.
+- Added `CraftCms\Commerce\Order\Edit\OrderEdit`, the versioned list of operations an edit session stores.
+- Added `CraftCms\Commerce\Order\Edit\OrderOperations`, which previews an edit on an order without writing to the database and commits it with a single save.
+- Added `CraftCms\Commerce\Order\Edit\Exceptions\OperationNotApplicableException`, `OrderBeingEditedException`, `OrderNotSavedException`, and `StaleOrderException`.
+- Operations that don't fit the order now fail instead of being ignored. This applies to manual adjustments on a cart, price changes on a cart's purchasable line items, and description, SKU or flag changes on purchasable line items.
+- Committing an edit throws `StaleOrderException` when the order changed after the edit was started. The screen then previews the edit against the order's current state and asks for another review.
+- Added `CraftCms\Commerce\Order\Edit\OrderEditSessions`, `CraftCms\Commerce\Order\Edit\Data\OrderEditSession`, and `CraftCms\Commerce\Order\Edit\Models\OrderEditSession`. An order has one edit session at a time. Another user can take it over, which discards the first user's staged changes and is recorded in the order's activity.
+- Added the `commerce_order_edit_sessions` table (`CraftCms\Commerce\Database\Table::ORDER_EDIT_SESSIONS`). Sessions that haven't been touched for 30 days are deleted during garbage collection.
+- Starting, committing and taking over an edit session require the `commerce-editOrders` permission.
+- Added `CraftCms\Commerce\Order\Edit\OrderEditGuard`. While a completed order's edit session has changes waiting, actions that save straight away (changing the status, recording or refunding payments, capturing, creating payment links, fulfilling, sending emails and downloading PDFs) are refused with a 423 response until the edit is committed or discarded.
+- Added `CraftCms\Commerce\Order\Edit\Data\OrderSummary`.
+- Added `CraftCms\Commerce\Order\Edit\Forms\OrderOperationForm` and `CraftCms\Commerce\Order\Edit\Forms\OrderOperationForms`. A form defines the modal or slideout that produces an operation, and plugins can register their own with `OrderOperationForms::register()`.
+- Added `CraftCms\Commerce\Order\Edit\Forms\AddAdjustmentForm`, `AddCustomLineItemForm`, `AddLineItemForm`, `SetAddressForm`, `SetCouponCodeForm`, `SetFieldValuesForm`, `SetLineItemNotesForm`, `SetLineItemOptionsForm`, `SetLineItemStatusForm`, `SetOrderSiteForm`, `SetReferenceForm`, `SetShippingMethodForm`, `UpdateAdjustmentForm`, and `UpdateLineItemForm`.
+- Added `CraftCms\Commerce\Http\Controllers\OrderEditController`, `OrderActionsController`, `OrderLifecycleController`, `OrderCustomersController`, `OrderPurchasablesController`, `OrderPaymentController`, and `OrderPaymentLinksController`.
+- Plugins can add items to an order's More actions menu by listening for `CraftCms\Cms\Element\Events\ElementActionMenuDescriptorsResolving` and checking for an `Order` element.
+- The `cp.commerce.order.edit`, `cp.commerce.order.edit.main-pane`, `cp.commerce.order.edit.details`, `cp.commerce.order.edit.order-actions`, `cp.commerce.order.edit.order-secondary-actions` and `cp.commerce.order.content` template hooks have been removed along with the previous screen. Plugins that added actions should listen for `ElementActionMenuDescriptorsResolving` instead. The new screen has no replacement for the other regions.
+- The new order edit screen doesn't define the `window.OrderActionsApp`, `OrderErrorsApp`, `OrderCustomerApp`, `OrderDetailsApp`, `OrderMetaApp`, `OrderNotices` and `OrderSecondaryActionsApp` JavaScript globals, which the removed `commerceui` bundle defined. The page reloads its own data after each change.
+- Adding a line item now uses a table of everything in the `commerce_purchasables` table, with search, sorting, paging and quantities. Custom and plugin purchasables appear as long as they save a row there. `ModifyPurchasablesTableQueryEvent` still applies to it.
+- Removed the `commerce/orders/purchasables-table`, `commerce/orders/get-payment-modal` and `commerce/orders/payment-amount-data` actions.
+- Removed the actions that only the previous order edit screen used: `commerce/orders/save`, `refresh`, `delete-order`, `send-email`, `fulfill`, `fulfillment-modal`, `get-shipping-method-options`, `customer-search`, `get-customer-addresses`, `get-order-address`, `validate-address`, `create-customer` and `update-order-address`. Orders are changed through the edit screen's `commerce/orders/apply` and `commerce/orders/edit/*` actions, emailed with `commerce/orders/actions/send-email`, fulfilled with `commerce/orders/actions/fulfill`, and deleted with core's `elements/delete`.
+- Removed the `commerce/orders/_edit`, `_history`, `_transactions`, `_paymentForms` and `_paymentmodal` templates, and the `commerce/orders/includes` and `commerce/orders/modals` templates.
+- Removed `craft\commerce\web\assets\commerceui\CommerceUiAsset` and `CommerceOrderAsset`, and the Vue 2 `commerceui` bundle.
+- Removed `craft\commerce\web\assets\commercecp\CommerceCpAsset` and the `commercecp` bundle, including `Craft.Commerce.OrderEdit` and `Craft.Commerce.PaymentModal`.
+- Added `CraftCms\Commerce\Order\Elements\Order::getPricingCustomerId()`. Line items and recalculation price purchasables for the order's customer, or as a guest when the order has none, instead of for whoever is signed in.
+- Added `CraftCms\Commerce\Order\Elements\Order::crumbs()`.
+- Added `CraftCms\Commerce\Order\Data\OrderAdjustment::$uid` and `OrderAdjustment::isManual()`. Adjustments added by hand from the order edit screen are marked as manual and kept by the Recalculate Charges operation.
+- Line items now keep the `uid` they're given when they're saved, so an edit can refer to a line item it added.
+- Added `CraftCms\Commerce\Order\OrderFulfillment` and `CraftCms\Commerce\Order\Exceptions\FulfillmentException`.
+- Added `CraftCms\Commerce\Order\OrderStockReconciliation`. Committing an edit to a completed order commits stock for added products and increased quantities, and releases it for removed and reduced ones. A quantity can't go below what's been fulfilled, and a line item with fulfilled stock can't be removed.
+- Added `CraftCms\Commerce\Inventory\Inventory::commitStock()`, which can commit stock for just some of an order's line items.
+- Added `CraftCms\Commerce\Order\OrderSnapshots`.
+- Added the `CraftCms\Commerce\Order\Activity` namespace, with `OrderActivityEventType`, `OrderEditTakenOver`, `OrderEdited`, `OrderEmailSent`, `OrderFulfilled`, `OrderPaymentLinkChanged`, `OrderStatusChanged`, and `OrderTransactionSaved`. Order changes, status changes, fulfilments, sent emails, transactions and payment link changes appear in the order's activity.
+
 ### Payments
 
 > [!WARNING]
@@ -758,6 +797,20 @@
 - The "Gateways" settings screen is now searchable and has a "View" menu for choosing columns, with new "Payment Type", "Payment Sources", and "Webhook URL" columns.
 - Removed `craft\commerce\controllers\PaymentCurrenciesController`. `CraftCms\Commerce\Http\Controllers\Settings\PaymentCurrenciesController` should be used instead.
 - The "Payment Currencies" screen is now searchable and has a "View" menu for choosing columns.
+
+#### Control panel payments
+
+- Removed `Gateway::cpPaymentsEnabled()`. The control panel no longer takes card details, because gateways have their own virtual terminals and 3D Secure makes entering a card on a customer's behalf impractical.
+- Staff can record payments and refunds taken outside Commerce. Added `CraftCms\Commerce\Payment\ManualTransactions` and `CraftCms\Commerce\Payment\Exceptions\ManualTransactionException`.
+- Added `CraftCms\Commerce\Payment\Data\Transaction::isManual()`. A manual transaction is a successful `purchase` or `refund` with no gateway, and it completes the order like a gateway payment. Listeners to `TransactionSaved` can tell it apart with `isManual()`.
+- A recorded refund is limited to what the order has paid, and to what's left of the payment it's linked to. A refund linked to a gateway payment needs confirmation, because the gateway doesn't return the money.
+- Added the `commerce-recordPayments` and `commerce-recordRefunds` permissions.
+- Added `CraftCms\Commerce\Payment\PaymentLinks` and `CraftCms\Commerce\Payment\Data\CollectPaymentLink`. A payment link is a hosted payment page the customer pays on, created by the gateway and completed through its webhook.
+- Added `supportsCollectPaymentLink()`, `createCollectPaymentLink()` and `expireCollectPaymentLink()` to `CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface`. `Gateway` returns `false` from `supportsCollectPaymentLink()` and throws `NotImplementedException` from `createCollectPaymentLink()`, so gateways opt in.
+- Added `getVirtualTerminalUrl()` to `GatewayInterface`, returning the URL of the gateway's own virtual terminal, or `null`. `Gateway` returns `null`.
+- Added the `CraftCms\Commerce\Settings::$paymentLinkDuration` setting, in seconds. It defaults to 604800 (seven days).
+- A payment link also expires when committing an order edit changes the order's total.
+- Added the `commerce_payment_link` system message, with `link`, `amount`, `expiresAt` and `order` variables, for emailing a payment link to the customer.
 
 ### Promotions
 

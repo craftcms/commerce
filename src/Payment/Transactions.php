@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Payment;
 
+use CraftCms\Cms\Support\Facades\Activities;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Currency;
+use CraftCms\Commerce\Order\Activity\OrderTransactionSaved;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
 use CraftCms\Commerce\Payment\Events\TransactionCreated;
@@ -367,11 +369,37 @@ class Transactions
 
         $model->getOrder()->setTransactions(null); // clear the local cache of transactions from the order.
 
+        $this->recordActivity($model);
+
         // Raise 'afterSaveTransaction' event
         $event = new TransactionSaved(transaction: $model);
         event($event);
 
         return true;
+    }
+
+    private function recordActivity(Transaction $transaction): void
+    {
+        $order = $transaction->getOrder();
+
+        if (!$order?->isCompleted || $transaction->code === PaymentLinks::EXPIRED_CODE || !in_array($transaction->status, [
+            TransactionRecord::STATUS_SUCCESS,
+            TransactionRecord::STATUS_PROCESSING,
+            TransactionRecord::STATUS_FAILED,
+        ], true)) {
+            return;
+        }
+
+        Activities::record(new OrderTransactionSaved($order, [
+            'transactionId' => $transaction->id,
+            'type' => (string)$transaction->type,
+            'status' => (string)$transaction->status,
+            'amount' => $transaction->getPaymentAmountAsCurrency(),
+            'manual' => $transaction->isManual(),
+            'gateway' => $transaction->getGateway()?->name,
+            'reference' => $transaction->reference,
+            'message' => $transaction->message,
+        ]));
     }
 
     /**
@@ -413,7 +441,7 @@ class Transactions
                 'gatewayId',
                 'hash',
                 'id',
-                'message',
+                    'message',
                 'note',
                 'orderId',
                 'parentId',

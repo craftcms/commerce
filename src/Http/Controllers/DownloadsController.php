@@ -10,6 +10,7 @@ use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\SystemMessage\Mailables\SystemMessageMailable;
 use CraftCms\Cms\View\TemplateMode;
+use CraftCms\Commerce\Order\Edit\OrderEditGuard;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Pdf\Pdfs;
@@ -73,6 +74,11 @@ readonly class DownloadsController
 
                 if (!($isOrderCustomer || $hasPermission)) {
                     return redirect($challengeUrl);
+                }
+
+                if ($hasPermission && !$isOrderCustomer) {
+                    $blockReason = app(OrderEditGuard::class)->blockReason($order, $currentUser->id);
+                    abort_if($blockReason !== null, 423, (string)$blockReason);
                 }
             } else {
                 return redirect($challengeUrl);

@@ -91,6 +91,14 @@ class Transaction extends Component
         ];
     }
 
+    /**
+     * Whether staff recorded this transaction by hand: it has no gateway.
+     */
+    public function isManual(): bool
+    {
+        return $this->gatewayId === null;
+    }
+
     public function canCapture(): bool
     {
         return app(Transactions::class)->canCaptureTransaction($this);

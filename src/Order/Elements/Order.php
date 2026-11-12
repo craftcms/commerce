@@ -9,6 +9,7 @@ use CommerceGuys\Addressing\AddressInterface;
 use CraftCms\Cms\Address\Elements\Address as AddressElement;
 use CraftCms\Cms\Component\ComponentHelper;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
+use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Cp\Html\StatusHtml;
 use CraftCms\Cms\Cp\RequestedSite;
 use CraftCms\Cms\Element\Actions\Delete;
@@ -54,6 +55,7 @@ use CraftCms\Commerce\Order\Data\OrderAdjustment;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Data\OrderNotice;
 use CraftCms\Commerce\Order\Data\OrderStatus;
+use CraftCms\Commerce\Order\Edit\OrderEditGuard;
 use CraftCms\Commerce\Order\Enums\OrderNoticeType;
 use CraftCms\Commerce\Order\Events\LineItemAddApplied;
 use CraftCms\Commerce\Order\Events\LineItemAdded;
@@ -123,6 +125,7 @@ use ReflectionProperty;
 use Throwable;
 
 use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\renderObjectTemplate;
 use function CraftCms\Cms\t;
 
@@ -1807,6 +1810,18 @@ class Order extends Element implements HasStoreInterface
         return new HtmlString($link);
     }
 
+    /**
+     * @return list<ActionItem>
+     */
+    #[Override]
+    protected function crumbs(): array
+    {
+        return [
+            new ActionItem()->label(t('Commerce', category: 'commerce'))->href(Url::cpUrl('commerce')),
+            new ActionItem()->label(static::pluralDisplayName())->href(Url::cpUrl('commerce/orders')),
+        ];
+    }
+
     #[Override]
     public function getCpEditUrl(): ?string
     {
@@ -1867,6 +1882,17 @@ class Order extends Element implements HasStoreInterface
     public function setCustomerDeleted(bool $customerDeleted): void
     {
         $this->_customerDeleted = $customerDeleted;
+    }
+
+    /**
+     * The customer purchasables are priced for: the order's customer, or `false` for a guest, so an order without
+     * a customer isn't priced for whoever is editing it.
+     *
+     * @since 6.0.0
+     */
+    public function getPricingCustomerId(): int|false
+    {
+        return $this->getCustomer()->id ?? false;
     }
 
     /**
@@ -2975,6 +3001,11 @@ class Order extends Element implements HasStoreInterface
     {
         if (!parent::beforeDelete()) {
             return false;
+        }
+
+        if ($user = currentUserElement()) {
+            $blockReason = app(OrderEditGuard::class)->blockReason($this, $user->id);
+            abort_if($blockReason !== null, 423, (string)$blockReason);
         }
 
         // Capture line items before the cascade delete fires so afterDelete() can refresh stock caches

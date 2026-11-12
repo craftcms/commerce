@@ -227,6 +227,27 @@ test('orderCompleteHandler records discount, customer, email, and coupon usage',
     expect((int) DB::table(Table::COUPONS)->where('code', 'discount_1')->value('uses'))->toBe(1);
 });
 
+test('orderCompleteHandler counts the discount use without an email record when the order has no email', function() {
+    $fixture = DiscountsFixture::seed();
+    $discountId = $fixture->discountWithCoupon->id;
+
+    $order = new Order();
+
+    $adjustment = new OrderAdjustment();
+    $adjustment->name = 'Discount';
+    $adjustment->type = DiscountAdjuster::ADJUSTMENT_TYPE;
+    $adjustment->amount = -5;
+    $adjustment->setSourceSnapshot(['discountUseId' => $discountId]);
+    $order->setAdjustments([$adjustment]);
+
+    $emailUsesBefore = DB::table(Table::EMAIL_DISCOUNTUSES)->count();
+
+    app(Discounts::class)->orderCompleteHandler($order);
+
+    expect((int) DB::table(Table::DISCOUNTS)->where('id', $discountId)->value('totalDiscountUses'))->toBe(1);
+    expect(DB::table(Table::EMAIL_DISCOUNTUSES)->count())->toBe($emailUsesBefore);
+});
+
 test('orderCompleteHandler is a no-op when the order has no discount adjustments', function(?string $couponCode) {
     $order = new Order(['couponCode' => $couponCode]);
 

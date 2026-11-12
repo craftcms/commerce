@@ -18,8 +18,6 @@ use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Support\Facades\Twig;
 use CraftCms\Cms\User\Events\EditUserScreensResolving;
 use CraftCms\Cms\User\Events\UserAssignedToGroups;
-use CraftCms\Cms\View\TemplateMode;
-use CraftCms\Cms\View\TemplateRoots;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
@@ -186,9 +184,7 @@ class Plugin extends BasePlugin
     /** The Ui Node/Control Vue components Commerce contributes to the shared CP `Ui` system's
      *  component registry — see `resources/js/cp.ts` (registered via `window.Cp.$components`,
      *  since `@craftcms/ui`/`cms`'s own JS is a private, unpublished workspace package). Built by
-     *  this repo's own root `package.json`/`vite.config.ts` (a pnpm workspace — the legacy Vue 2/
-     *  webpack `commerceui` bundle lives in `./legacy`, a separate workspace member, since the two
-     *  can't share a `vue` dependency). `'resources/js/cp.ts'` is the manifest entry key
+     *  this repo's own root `package.json`/`vite.config.ts`. `'resources/js/cp.ts'` is the manifest entry key
      *  `vite.config.ts` builds under — the same entry-point path/convention `cms`'s own
      *  `resources/js/cp.ts` uses. */
     protected array $vite = [
@@ -225,10 +221,6 @@ class Plugin extends BasePlugin
         $this->registerLegacyEventBridges();
 
         Twig::registerExtension(new CommerceTwigExtension());
-
-        // TODO: remove once the order edit page (and its payment, fulfillment and transaction
-        // fragments) is ported to Ui screens; it's the only thing still rendering these templates.
-        app(TemplateRoots::class)->register(TemplateMode::Cp, $this->handle, dirname($this->getBasePath()) . '/src-yii2/templates');
 
         $this->app['router']->pushMiddlewareToGroup('craft', PoweredByHeader::class);
 
