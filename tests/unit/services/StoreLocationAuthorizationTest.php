@@ -41,7 +41,10 @@ class StoreLocationAuthorizationTest extends Unit
     {
         parent::_before();
 
-        $storeSettings = StoreSettingsRecord::findOne(Plugin::getInstance()->getStores()->getPrimaryStore()->id);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        // Creates the store settings record if it doesn’t exist yet
+        Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($storeId);
+        $storeSettings = StoreSettingsRecord::findOne($storeId);
         $this->storeId = $storeSettings->id;
         $this->originalLocationAddressId = $storeSettings->locationAddressId;
 
