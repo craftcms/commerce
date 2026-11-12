@@ -11,6 +11,7 @@ use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Locale;
+use NumberFormatter;
 use UnitTester;
 use yii\base\InvalidConfigException;
 
@@ -271,7 +272,8 @@ class CurrencyHelperTest extends Unit
             'CHF-DE-CH' => [
                 'CHF',
                 'de-CH',
-                'CHF-1’234.56',
+                // Newer ICU versions use ' instead of ’ as the de-CH grouping separator
+                sprintf('CHF-1%s234.56', (new NumberFormatter('de-CH', NumberFormatter::CURRENCY))->getSymbol(NumberFormatter::MONETARY_GROUPING_SEPARATOR_SYMBOL)),
             ],
         ];
     }
