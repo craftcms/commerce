@@ -30,7 +30,7 @@ class StoreLocationAuthorizationTest extends Unit
     protected UnitTester $tester;
 
     private int $storeId;
-    private ?int $originalLocationAddressId;
+    private ?int $originalLocationAddressId = null;
 
     /**
      * @var User[]
