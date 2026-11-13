@@ -100,7 +100,7 @@
 ### Licenses
 
 > [!WARNING]
-> Licenses replace the Digital Products plugin. Commerce keeps its license features turned off while the plugin’s tables have data. Run `php craft commerce:digital-products:migrate` in each environment to move the plugin’s data into Commerce, then uninstall the plugin. Each digital product type becomes a product type that allows licenses, each digital product becomes a product with one variant that issues licenses (keeping its element ID), and licenses keep their keys.
+> Licenses replace the Digital Products plugin. Commerce keeps its license features turned off while the plugin’s tables have data. Digital Products 6’s `digital-products:migrate-to-commerce` command moves its product types, products and licenses into Commerce. See the [Digital Products readme](https://github.com/craftcms/commerce-digital-products#moving-to-commerce-licenses).
 
 - Added licenses, which are issued for each unit of a purchased variant that has “Issues License” turned on, when the order is paid or completed.
 - Added the “Allow variants to issue licenses” and “License Download Field” product type settings.
@@ -108,7 +108,6 @@
 - Added the “Licenses” control panel section and settings screen.
 - Added the “Manage licenses” permission.
 - Added the `commerce/licenses/download` action, which streams an asset from the product type’s license download field, or any asset related to the licensed variant or its product, to whoever has the license key.
-- Added the `commerce:digital-products:migrate` command.
 - Added the `autoAssignLicensesOnPurchase`, `autoAssignLicensesOnUserRegistration`, `generateLicenseOnOrderPaid`, `licenseKeyCharacters`, `licenseKeyLength` and `requireLoggedInUserForLicenses` settings.
 - Added `craft.licenses()`.
 - Added `CraftCms\Commerce\License\Elements\License`.

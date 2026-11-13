@@ -29,9 +29,9 @@ use function CraftCms\Cms\currentUser;
 /**
  * Issues licenses for purchased variants that have “Issues License” turned on, and owns the license field layout.
  *
- * Sites that used the Digital Products plugin keep their data in the plugin’s tables until
- * `commerce:digital-products:migrate` moves it into Commerce. Until then, Commerce hides its license features,
- * so the plugin can keep running alongside Commerce.
+ * Sites that used the Digital Products plugin keep their data in the plugin’s tables until the plugin’s
+ * `digital-products:migrate-to-commerce` command moves it into Commerce. Until then, Commerce hides its license
+ * features, so the plugin can keep running alongside Commerce.
  */
 #[Singleton]
 class Licenses

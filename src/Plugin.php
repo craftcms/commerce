@@ -24,7 +24,6 @@ use CraftCms\Cms\View\TemplateRoots;
 use CraftCms\Commerce\Console\Commands\ExampleTemplates\ExampleTemplatesCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysListCommand;
 use CraftCms\Commerce\Console\Commands\Gateways\GatewaysWebhookUrlCommand;
-use CraftCms\Commerce\Console\Commands\Licenses\MigrateDigitalProductsCommand;
 use CraftCms\Commerce\Console\Commands\PricingCatalog\PricingCatalogGenerateCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveCartsCommand;
 use CraftCms\Commerce\Console\Commands\Resave\ResaveOrdersCommand;
@@ -207,7 +206,6 @@ class Plugin extends BasePlugin
     protected array $commands = [
         ResaveProductsCommand::class,
         ResaveVariantsCommand::class,
-        MigrateDigitalProductsCommand::class,
         ResaveOrdersCommand::class,
         ResaveCartsCommand::class,
         ExampleTemplatesCommand::class,
