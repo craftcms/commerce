@@ -320,6 +320,8 @@ class ProductTypes
             $record->handle = $data['handle'];
             $record->enableVersioning = $data['enableVersioning'] ?? false;
             $record->hasDimensions = $data['hasDimensions'];
+            $record->hasLicenses = $data['hasLicenses'] ?? false;
+            $record->licenseDownloadFieldUid = $data['licenseDownloadFieldUid'] ?? null;
 
             $record->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
             $record->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
@@ -703,6 +705,8 @@ class ProductTypes
         $productType->handle = $record->handle;
         $productType->enableVersioning = (bool)$record->enableVersioning;
         $productType->hasDimensions = (bool)$record->hasDimensions;
+        $productType->hasLicenses = (bool)$record->hasLicenses;
+        $productType->licenseDownloadFieldUid = $record->licenseDownloadFieldUid;
         $productType->maxVariants = $record->maxVariants;
         $productType->hasVariantTitleField = (bool)$record->hasVariantTitleField;
         $productType->variantTitleFormat = $record->variantTitleFormat;

@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Commerce\Inventory\InventoryLocations;
+use CraftCms\Commerce\License\Licenses;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use Override;
 
@@ -51,6 +52,13 @@ trait HasCpNavigation
                 ->icon('cart-shopping')
                 ->label(t('Products', category: 'commerce'))
                 ->url('commerce/products'));
+        }
+
+        if (currentUser()?->can('commerce-manageLicenses') && app(Licenses::class)->isEnabled()) {
+            $item->add(new NavItem()
+                ->icon('key')
+                ->label(t('Licenses', category: 'commerce'))
+                ->url('commerce/licenses'));
         }
 
         if (currentUser()?->can('commerce-manageDonationSettings')) {

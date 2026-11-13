@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Plugin\Concerns;
 
 use CraftCms\Cms\User\Data\Permission;
+use CraftCms\Commerce\License\Elements\License;
+use CraftCms\Commerce\License\Policies\LicensePolicy;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Policies\ProductPolicy;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
@@ -25,6 +27,7 @@ trait HasPermissions
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Transfer::class, TransferPolicy::class);
         Gate::policy(Variant::class, VariantPolicy::class);
+        Gate::policy(License::class, LicensePolicy::class);
     }
 
     #[Override]
@@ -78,6 +81,10 @@ trait HasPermissions
                         ]),
                     ),
                 ]),
+            ),
+            new Permission(
+                key: 'commerce-manageLicenses',
+                label: t('Manage licenses', category: 'commerce'),
             ),
             new Permission(
                 key: 'commerce-manageDonationSettings',

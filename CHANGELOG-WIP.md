@@ -97,6 +97,31 @@
 - Removed `craft\commerce\controllers\ProductTypesController`. `CraftCms\Commerce\Http\Controllers\Settings\ProductTypesController` should be used instead.
 - The "Product Types" settings screen is now searchable and has a "View" menu for choosing columns.
 
+### Licenses
+
+> [!WARNING]
+> Licenses replace the Digital Products plugin. Commerce keeps its license features turned off while the plugin’s tables have data. Digital Products 6’s `digital-products:migrate-to-commerce` command moves its product types, products and licenses into Commerce. See the [Digital Products readme](https://github.com/craftcms/commerce-digital-products#moving-to-commerce-licenses).
+
+- Added licenses, which are issued for each unit of a purchased variant that has “Issues License” turned on, when the order is paid or completed.
+- Added the “Allow variants to issue licenses” and “License Download Field” product type settings.
+- Added the “Issues License” variant field, which shows on variants whose product type allows licenses.
+- Added the “Licenses” control panel section and settings screen.
+- Added the “Manage licenses” permission.
+- Added the `commerce/licenses/download` action, which streams an asset from the product type’s license download field, or any asset related to the licensed variant or its product, to whoever has the license key.
+- Added the `autoAssignLicensesOnPurchase`, `autoAssignLicensesOnUserRegistration`, `generateLicenseOnOrderPaid`, `licenseKeyCharacters`, `licenseKeyLength` and `requireLoggedInUserForLicenses` settings.
+- Added `craft.licenses()`.
+- Added `CraftCms\Commerce\License\Elements\License`.
+- Added `CraftCms\Commerce\License\Events\LicenseKeyGenerating`.
+- Added `CraftCms\Commerce\License\Licenses`.
+- Added `CraftCms\Commerce\License\Queries\LicenseQuery`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$hasLicenses`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$licenseDownloadFieldUid`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::getLicenseDownloadField()`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant::$issuesLicense`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant::issuesLicenses()`.
+- Added `CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantIssuesLicenseField`.
+- Added `CraftCms\Commerce\Product\Variant\Queries\VariantQuery::issuesLicense()`.
+
 ### Catalog Pricing
 
 - Added `CraftCms\Commerce\CatalogPricing\CatalogPricing`.

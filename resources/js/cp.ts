@@ -75,6 +75,10 @@ function registerComponents(): void {
     'commerce::inventory/transfers/Index',
     () => import('./pages/inventory/transfers/Index.vue')
   );
+  window.Cp.$inertia.register(
+    'commerce::licenses/Index',
+    () => import('./pages/licenses/Index.vue')
+  );
 }
 
 if (window.Cp) {

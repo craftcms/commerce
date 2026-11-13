@@ -66,6 +66,8 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
 
     public ?bool $isDefault = null;
 
+    public ?bool $issuesLicense = null;
+
     public mixed $minQty = null;
 
     public mixed $maxQty = null;
@@ -84,6 +86,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
 
         $this->query->addSelect([
             'commerce_variants.primaryOwnerId',
+            'commerce_variants.issuesLicense',
         ]);
 
         $this->beforeQuery(static function(self $variantQuery) {
@@ -99,6 +102,10 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
 
             static::applyTypeId($variantQuery, $variantQuery->typeId);
             static::applyIsDefault($variantQuery, $variantQuery->isDefault);
+
+            if ($variantQuery->issuesLicense !== null) {
+                $variantQuery->where('commerce_variants.issuesLicense', $variantQuery->issuesLicense);
+            }
             static::applyMinQty($variantQuery, $variantQuery->minQty);
             static::applyMaxQty($variantQuery, $variantQuery->maxQty);
             static::applyRequiresDimensionSupport($variantQuery, $variantQuery->width, $variantQuery->height, $variantQuery->length, $variantQuery->weight);
@@ -215,6 +222,15 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
     public function isDefault(?bool $value = true): static
     {
         $this->isDefault = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on whether the variants have “Issues License” turned on.
+     */
+    public function issuesLicense(?bool $value = true): static
+    {
+        $this->issuesLicense = $value;
         return $this;
     }
 
