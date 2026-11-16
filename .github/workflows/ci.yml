@@ -198,16 +198,14 @@ jobs:
         ports:
           - 3306:3306
 
-    env:
-      DB_CONNECTION: ${{ matrix.db == 'sqlite' && 'testing' || matrix.db }}
-      DB_HOST: 127.0.0.1
-      DB_DATABASE: ${{ matrix.db == 'sqlite' && ':memory:' || 'craft_test' }}
-      DB_USERNAME: root
-      DB_PASSWORD: mysecretpassword
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Copy tests .env
+        run: |
+          cp ./tests/.env.example.${{ matrix.db }} ./tests/.env
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=mysecretpassword/' tests/.env
 
       - name: Run tests
         uses: ./.github/actions/run-tests
