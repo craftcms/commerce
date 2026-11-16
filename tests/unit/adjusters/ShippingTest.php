@@ -14,7 +14,12 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ShippingMethod;
+use craft\commerce\models\ShippingRule;
+use craft\commerce\models\Store;
+use craft\commerce\Plugin;
+use craft\commerce\services\Discounts;
 use craft\commerce\services\ShippingMethods;
+use craft\commerce\services\Stores;
 use UnitTester;
 
 /**
@@ -111,5 +116,77 @@ class ShippingTest extends Unit
 
         $secondPass = $adjuster->adjust($order);
         self::assertSame([], $secondPass, 'No adjustment, no exception - this part is expected.');
+    }
+
+    /**
+     * @dataProvider orderCurrencyCases
+     */
+    public function testRuleRatesUseOrderCurrency(float $baseRate, float $perItemRate, float $minRate, float $maxRate, float $expected): void
+    {
+        $plugin = Plugin::getInstance();
+        $stores = $plugin->getStores();
+        $discounts = $plugin->getDiscounts();
+        $shippingMethods = $plugin->getShippingMethods();
+
+        $currentStore = new Store();
+        $currentStore->setCurrency('JPY');
+        $orderStore = new Store();
+        $orderStore->setCurrency('USD');
+
+        $rule = $this->make(ShippingRule::class, [
+            'getBaseRate' => $baseRate,
+            'getPerItemRate' => $perItemRate,
+            'getPercentageRate' => 0.0,
+            'getWeightRate' => 0.0,
+            'getMinRate' => $minRate,
+            'getMaxRate' => $maxRate,
+            'toArray' => [],
+        ]);
+        $method = $this->make(ShippingMethod::class, [
+            'getMatchingShippingRule' => $rule,
+        ]);
+        $item = $this->make(LineItem::class, [
+            'id' => 1,
+            'qty' => 1,
+            'getHasFreeShipping' => false,
+            'getIsShippable' => true,
+            'getSubtotal' => 50.0,
+        ]);
+        $order = $this->make(Order::class, [
+            'getStore' => $orderStore,
+        ]);
+        $order->shippingMethodHandle = 'currencyTest';
+        $order->setLineItems([$item]);
+
+        try {
+            $plugin->set('stores', $this->make(Stores::class, [
+                'getCurrentStore' => $currentStore,
+            ]));
+            $plugin->set('discounts', $this->make(Discounts::class, [
+                'getAllActiveDiscounts' => [],
+            ]));
+            $plugin->set('shippingMethods', $this->make(ShippingMethods::class, [
+                'getMatchingShippingMethods' => ['currencyTest' => $method],
+            ]));
+
+            $adjustments = (new Shipping())->adjust($order);
+            self::assertEqualsWithDelta($expected, array_sum(array_column($adjustments, 'amount')), 0.00001);
+        } finally {
+            $plugin->set('stores', $stores);
+            $plugin->set('discounts', $discounts);
+            $plugin->set('shippingMethods', $shippingMethods);
+        }
+    }
+
+    public static function orderCurrencyCases(): array
+    {
+        return [
+            'base rate' => [4.75, 0.0, 0.0, 0.0, 4.75],
+            'line item rate' => [0.0, 4.75, 0.0, 0.0, 4.75],
+            'minimum rate' => [1.0, 0.0, 4.75, 0.0, 4.75],
+            'maximum rate' => [10.0, 0.0, 0.0, 4.75, 4.75],
+            'minimum threshold' => [4.8, 0.0, 4.75, 0.0, 4.8],
+            'maximum threshold' => [4.9, 0.0, 0.0, 4.75, 4.75],
+        ];
     }
 }

@@ -108,6 +108,8 @@ class Shipping extends Component implements AdjusterInterface
             }
 
             if (!$hasDiscountRemoveShippingCosts) {
+                $currency = $order->getStore()->getCurrency();
+
                 //checking items shipping categories
                 foreach ($order->getLineItems() as $item) {
                     // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
@@ -141,7 +143,7 @@ class Shipping extends Component implements AdjusterInterface
                         $perItemAmount = $item->qty * $perItemRate;
                         $weightAmount = ($item->weight * $item->qty) * $weightRate;
 
-                        $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
+                        $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount, $currency);
                         $adjustment->setLineItem($item);
                         if ($adjustment->amount) {
                             $adjustments[] = $adjustment;
@@ -150,7 +152,7 @@ class Shipping extends Component implements AdjusterInterface
                     }
                 }
 
-                $baseAmount = Currency::round($rule->getBaseRate());
+                $baseAmount = Currency::round($rule->getBaseRate(), $currency);
                 if ($baseAmount && $baseAmount != 0) {
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
                     $adjustment->amount = $baseAmount;
@@ -159,16 +161,16 @@ class Shipping extends Component implements AdjusterInterface
 
                 $adjustmentToMinimumAmount = 0;
                 // Is there a minimum rate and is the total shipping cost currently below it?
-                if ($rule->getMinRate() != 0 && (($itemTotalAmount + $baseAmount) < Currency::round($rule->getMinRate()))) {
-                    $adjustmentToMinimumAmount = Currency::round($rule->getMinRate()) - ($itemTotalAmount + $baseAmount);
+                if ($rule->getMinRate() != 0 && (($itemTotalAmount + $baseAmount) < Currency::round($rule->getMinRate(), $currency))) {
+                    $adjustmentToMinimumAmount = Currency::round($rule->getMinRate(), $currency) - ($itemTotalAmount + $baseAmount);
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
                     $adjustment->amount = $adjustmentToMinimumAmount;
                     $adjustment->description .= ' Adjusted to minimum rate';
                     $adjustments[] = $adjustment;
                 }
 
-                if ($rule->getMaxRate() != 0 && (($itemTotalAmount + $baseAmount + $adjustmentToMinimumAmount) > Currency::round($rule->getMaxRate()))) {
-                    $adjustmentToMaxAmount = Currency::round($rule->getMaxRate()) - ($itemTotalAmount + $baseAmount + $adjustmentToMinimumAmount);
+                if ($rule->getMaxRate() != 0 && (($itemTotalAmount + $baseAmount + $adjustmentToMinimumAmount) > Currency::round($rule->getMaxRate(), $currency))) {
+                    $adjustmentToMaxAmount = Currency::round($rule->getMaxRate(), $currency) - ($itemTotalAmount + $baseAmount + $adjustmentToMinimumAmount);
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
                     $adjustment->amount = $adjustmentToMaxAmount;
                     $adjustment->description .= ' Adjusted to maximum rate';
