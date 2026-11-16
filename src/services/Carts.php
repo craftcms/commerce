@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\OrderCompletedException;
 use craft\commerce\events\CartPurgeEvent;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -212,8 +213,18 @@ class Carts extends Component
         if (($this->_cart->id && $hasSomethingChangedOnCart) || $forceSave) {
             // The cart may have been completed by another request (e.g. a payment webhook) since it was loaded.
             // Saving a stale cart would force a recalculation over a completed order. See: https://github.com/craftcms/commerce/issues/4398
-            if (!$this->_cart->id || !$this->_isCartCompletedInDb($this->_cart)) {
+            // The completed check inside the save is authoritative; this one just avoids a pointless save.
+            if ($this->_cart->id && $this->_isCartCompletedInDb($this->_cart)) {
+                $this->forgetCart();
+                return $this->getCart();
+            }
+
+            try {
                 Craft::$app->getElements()->saveElement($this->_cart, false);
+            } catch (OrderCompletedException) {
+                // Completed by another request during the save, which has been rolled back. Start again with a fresh cart.
+                $this->forgetCart();
+                return $this->getCart();
             }
         }
 
@@ -275,9 +286,6 @@ class Carts extends Component
         return $this->_cart;
     }
 
-    /**
-     * Get the current cart for this session.
-     */
     private function _isCartCompletedInDb(Order $cart): bool
     {
         return (new Query())
@@ -286,6 +294,9 @@ class Carts extends Component
             ->exists();
     }
 
+    /**
+     * Get the current cart for this session.
+     */
     private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();

@@ -31,6 +31,7 @@ use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
+use craft\commerce\errors\OrderCompletedException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
@@ -2293,6 +2294,27 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Whether this instance is an incomplete copy of an order that is completed in the database.
+     *
+     * When called inside the save transaction this must be a locking read: a plain read would use the transaction's
+     * snapshot, which can predate the commit of the request that completed the order.
+     */
+    private function _isStaleIncompleteCopy(): bool
+    {
+        if ($this->isCompleted || !$this->id) {
+            return false;
+        }
+
+        $db = Craft::$app->getDb();
+        $sql = $db->getQueryBuilder()->build(
+            (new Query())->select(['isCompleted'])->from([Table::ORDERS])->where(['id' => $this->id]),
+        );
+        $forUpdate = $db->getTransaction() !== null ? ' FOR UPDATE' : '';
+
+        return (bool)$db->createCommand($sql[0] . $forUpdate, $sql[1])->queryScalar();
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew): void
@@ -2304,6 +2326,13 @@ class Order extends Element implements HasStoreInterface
         }
 
         try {
+            // `beforeSave()` runs before the save transaction and without a lock, so the order may have been completed
+            // by another request since it was checked. The lock is held until the transaction commits, so check again.
+            // See: https://github.com/craftcms/commerce/issues/4450
+            if (!$isNew && $this->_isStaleIncompleteCopy()) {
+                Craft::warning("Refusing to save a stale, incomplete copy of order $this->number that was completed during the save.", __METHOD__);
+                throw new OrderCompletedException("Order $this->number was completed by another request.");
+            }
 
             // Make sure addresses are set before recalculation so that on the next page load
             // the correct adjustments and totals are shown
@@ -3882,30 +3911,34 @@ class Order extends Element implements HasStoreInterface
      */
     private function _saveAdjustments(): void
     {
-        $newAdjustmentIds = [];
-        $isStale = false;
+        $adjustments = $this->getAdjustments();
 
-        foreach ($this->getAdjustments() as $adjustment) {
-            try {
-                // Don't run validation as validation of the adjustment should happen before saving the order
-                Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
-            } catch (OrderAdjustmentNotFoundException) {
-                // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
-                // See: https://github.com/craftcms/commerce/issues/3283
-                $isStale = true;
-                continue;
+        // Adjustments whose row no longer exists were replaced by another request since this instance was loaded.
+        // This save is serialized by the `order-after-save` lock, so this instance is authoritative for the totals
+        // it writes: save those adjustments as new rows and clean up the rest, so the rows always match the totals.
+        // See: https://github.com/craftcms/commerce/issues/4450
+        $ids = array_filter(array_map(fn(OrderAdjustment $adjustment) => $adjustment->id, $adjustments));
+        if ($ids) {
+            $existingIds = (new Query())
+                ->select(['id'])
+                ->from([Table::ORDERADJUSTMENTS])
+                ->where(['id' => $ids])
+                ->column();
+
+            foreach ($adjustments as $adjustment) {
+                if ($adjustment->id && !in_array($adjustment->id, $existingIds)) {
+                    $adjustment->id = null;
+                }
             }
-
-            $newAdjustmentIds[] = $adjustment->id;
-            $adjustment->orderId = $this->id;
         }
 
-        // If any adjustment was missing, this order instance is stale: another request has replaced the adjustments
-        // since it was loaded. Deleting "everything not in our list" would remove that request's newer adjustments.
-        // See: https://github.com/craftcms/commerce/issues/4398
-        if ($isStale) {
-            Craft::warning("Order $this->number has stale adjustments; skipping adjustment cleanup.", __METHOD__);
-            return;
+        $newAdjustmentIds = [];
+
+        foreach ($adjustments as $adjustment) {
+            // Don't run validation as validation of the adjustment should happen before saving the order
+            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            $newAdjustmentIds[] = $adjustment->id;
+            $adjustment->orderId = $this->id;
         }
 
         // Make sure all other adjustments have been cleaned up.
