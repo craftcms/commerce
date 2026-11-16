@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import type {UiChangeKind, UiControlPayload} from '@craftcms/cp';
   import {computed} from 'vue';
 
   type Quantities = {accept?: string; reject?: string};
@@ -23,15 +24,8 @@
     };
   };
 
-  // A minimal, hand-authored stand-in for `cms`'s own `FormControlPayload<T>`
-  // (see window.d.ts for why it can't be imported from `cms`).
-  type FormControlPayload<Props> = {
-    path: string[];
-    props: Props;
-  };
-
   const props = defineProps<{
-    control: FormControlPayload<TransferReceiveProps>;
+    control: UiControlPayload<TransferReceiveProps>;
     value: Record<string, Quantities> | Quantities[] | null;
     editable: boolean;
   }>();
@@ -40,7 +34,7 @@
     (
       event: 'update:value',
       value: Record<string, Quantities>,
-      kind: 'discrete' | 'typing'
+      kind: UiChangeKind
     ): void;
   }>();
 

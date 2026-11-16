@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import type {UiChange, UiNodePayload} from '@craftcms/cp';
   import {ref} from 'vue';
   import {sendActionRequest} from '../orders/cp-client';
 
@@ -28,19 +29,6 @@
     };
   };
 
-  // See UsageCounterNode.vue for why this is hand-authored.
-  type UiNodePayload<Props> = {
-    uid: string;
-    props: Props;
-  };
-
-  type FormChange = {
-    kind: 'discrete';
-    path: string[];
-    scope: string[];
-    refreshable: boolean;
-  };
-
   type GenerateFailure = {
     response?: {
       data?: {message?: string; errors?: Record<string, string[]>};
@@ -58,7 +46,7 @@
   }>();
 
   const emit = defineEmits<{
-    (event: 'change', change: FormChange): void;
+    (event: 'change', change: UiChange): void;
   }>();
 
   const opened = ref(false);

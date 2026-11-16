@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import type {UiChangeKind, UiControlPayload} from '@craftcms/cp';
   import {computed, ref} from 'vue';
 
   type Detail = {
@@ -23,21 +24,14 @@
     };
   };
 
-  // A minimal, hand-authored stand-in for `cms`'s own `FormControlPayload<T>`
-  // (see window.d.ts for why it can't be imported from `cms`).
-  type FormControlPayload<Props> = {
-    path: string[];
-    props: Props;
-  };
-
   const props = defineProps<{
-    control: FormControlPayload<TransferDetailsProps>;
+    control: UiControlPayload<TransferDetailsProps>;
     value: Details | Detail[] | null;
     editable: boolean;
   }>();
 
   const emit = defineEmits<{
-    (event: 'update:value', value: Details, kind: 'discrete' | 'typing'): void;
+    (event: 'update:value', value: Details, kind: UiChangeKind): void;
   }>();
 
   // An empty value arrives as `[]`, the PHP control's empty value.

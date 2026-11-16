@@ -1,3 +1,4 @@
+import {showCopyTextPrompt} from '@craftcms/cp';
 import {displayError, displayNotice, sendActionRequest} from './cp-client';
 
 /**
@@ -158,11 +159,7 @@ export async function promptLoadCartUrl(
     );
 
     if (data.url) {
-      window.dispatchEvent(
-        new CustomEvent('craft:copy-text-prompt', {
-          detail: {label, value: data.url},
-        })
-      );
+      showCopyTextPrompt({label, value: data.url});
     }
   } catch (failure) {
     const message = await failureMessage(failure);
