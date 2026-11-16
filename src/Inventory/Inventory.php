@@ -256,11 +256,11 @@ class Inventory
             $inventoryTotals->where('il.id', $inventoryLocationId);
         }
 
-        $wrap = fn(string $value): string => DB::connection()->getQueryGrammar()->wrap($value);
+        $grammar = DB::connection()->getQueryGrammar();
         $sumOfTypes = fn(array $types, string $alias): string => sprintf(
             "SUM(CASE WHEN it.type IN (%s) THEN it.quantity ELSE 0 END) as %s",
             implode(',', array_map(fn(string $type) => "'$type'", $types)),
-            $wrap($alias),
+            $grammar->wrap($alias),
         );
 
         $query = DB::table(Table::INVENTORYITEMS . ' as ii')
@@ -669,14 +669,18 @@ class Inventory
      */
     public function getReservedQuantitiesByLineItem(int $inventoryItemId, int $inventoryLocationId, ?int $committedLocationId = null): Collection
     {
+        $grammar = DB::connection()->getQueryGrammar();
+
         $query = DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-            ->selectRaw('it.lineItemId, li.orderId, SUM(it.quantity) as reservedQty, MIN(it.dateCreated) as firstReservedDate')
+            ->select(['it.lineItemId', 'li.orderId'])
+            ->selectRaw("SUM({$grammar->wrap('it.quantity')}) as {$grammar->wrap('reservedQty')}")
+            ->selectRaw("MIN({$grammar->wrap('it.dateCreated')}) as {$grammar->wrap('firstReservedDate')}")
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->where('it.type', InventoryTransactionType::RESERVED->value)
             ->where('it.inventoryItemId', $inventoryItemId)
             ->where('it.inventoryLocationId', $inventoryLocationId)
             ->groupBy('it.lineItemId', 'li.orderId')
-            ->havingRaw('SUM(it.quantity) > 0')
+            ->havingRaw("SUM({$grammar->wrap('it.quantity')}) > 0")
             ->orderBy('firstReservedDate');
 
         if ($committedLocationId !== null) {
