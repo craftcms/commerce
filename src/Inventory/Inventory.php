@@ -651,7 +651,7 @@ class Inventory
             ->when($inventoryLocationId !== null, fn(Builder $query) => $query->where('it.inventoryLocationId', $inventoryLocationId))
             ->when($lineItemIds !== null, fn(Builder $query) => $query->whereIn('it.lineItemId', $lineItemIds))
             ->havingRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) > 0', [InventoryTransactionType::COMMITTED->value])
-            ->orderByRaw('MIN(orders.dateOrdered) ASC');
+            ->orderByRaw('MIN(' . $this->wrap('orders.dateOrdered') . ') ASC');
 
         return $query->get()->map(fn($row) => $this->populateInventoryFulfillmentLevel((array) $row));
     }
@@ -670,7 +670,9 @@ class Inventory
     public function getReservedQuantitiesByLineItem(int $inventoryItemId, int $inventoryLocationId, ?int $committedLocationId = null): Collection
     {
         $query = DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-            ->selectRaw('it.lineItemId, li.orderId, SUM(it.quantity) as reservedQty, MIN(it.dateCreated) as firstReservedDate')
+            ->select(['it.lineItemId', 'li.orderId'])
+            ->selectRaw('SUM(it.quantity) as ' . $this->wrap('reservedQty'))
+            ->selectRaw('MIN(' . $this->wrap('it.dateCreated') . ') as ' . $this->wrap('firstReservedDate'))
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->where('it.type', InventoryTransactionType::RESERVED->value)
             ->where('it.inventoryItemId', $inventoryItemId)
@@ -715,16 +717,21 @@ class Inventory
      * Returns a query for fulfillment levels: the committed and fulfilled stock of each order line item, per inventory
      * item and inventory location.
      */
+    private function wrap(string $value): string
+    {
+        return DB::connection()->getQueryGrammar()->wrap($value);
+    }
+
     private function inventoryFulfillmentLevelQuery(): Builder
     {
         return DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-            ->selectRaw('it.lineItemId, li.orderId, it.inventoryItemId, it.inventoryLocationId')
+            ->select(['it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId'])
             ->selectRaw(
-                'SUM(CASE WHEN ((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0)) THEN it.quantity ELSE 0 END) AS committedQuantity',
+                'SUM(CASE WHEN ((it.type = ? AND it.quantity > 0) OR (it.type = ? AND it.quantity < 0)) THEN it.quantity ELSE 0 END) AS ' . $this->wrap('committedQuantity'),
                 [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value],
             )
-            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS outstandingCommittedQuantity', [InventoryTransactionType::COMMITTED->value])
-            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS fulfilledQuantity', [InventoryTransactionType::FULFILLED->value])
+            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS ' . $this->wrap('outstandingCommittedQuantity'), [InventoryTransactionType::COMMITTED->value])
+            ->selectRaw('SUM(CASE WHEN it.type = ? THEN it.quantity ELSE 0 END) AS ' . $this->wrap('fulfilledQuantity'), [InventoryTransactionType::FULFILLED->value])
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->whereIn('it.type', [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value])
             ->groupBy('it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId');

@@ -117,7 +117,7 @@ class TopProducts extends Stat
             ->whereNotNull('v.primaryOwnerId')
             ->limit($this->limit);
 
-        return $topProducts->get()->map(fn($row) => (array)$row)->all();
+        return $topProducts->get()->map(fn($row) => $this->castDecimals((array)$row, ['revenue', 'revenue_subtotal', 'revenue_custom']))->all();
     }
 
     #[\Override]

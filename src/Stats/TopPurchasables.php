@@ -53,7 +53,7 @@ class TopPurchasables extends Stat
             ->orderBy('p.sku')
             ->limit($this->limit);
 
-        return $topPurchasables->get()->map(fn($row) => (array)$row)->all();
+        return $topPurchasables->get()->map(fn($row) => $this->castDecimals((array)$row, ['revenue']))->all();
     }
 
     #[\Override]

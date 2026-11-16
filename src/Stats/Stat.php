@@ -110,6 +110,24 @@ abstract class Stat implements StatInterface, HasStoreInterface
         return $data;
     }
 
+    /**
+     * Converts decimal aggregates to floats, since PostgreSQL and MySQL return them as strings.
+     *
+     * @param array<string, mixed> $row
+     * @param string[] $keys
+     * @return array<string, mixed>
+     */
+    protected function castDecimals(array $row, array $keys): array
+    {
+        foreach ($keys as $key) {
+            if (is_string($row[$key] ?? null) && is_numeric($row[$key])) {
+                $row[$key] = (float)$row[$key];
+            }
+        }
+
+        return $row;
+    }
+
     #[\Override]
     public function setStartDate(?DateTime $date): void
     {
