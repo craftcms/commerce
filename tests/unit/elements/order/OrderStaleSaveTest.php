@@ -115,7 +115,7 @@ class OrderStaleSaveTest extends Unit
         self::assertEquals($completedRow['reference'], $row['reference']);
     }
 
-    public function testStaleSaveDoesNotDeleteNewerAdjustments(): void
+    public function testStaleSaveReplacesAdjustmentsSoRowsMatchTotals(): void
     {
         $cart = $this->_createCart();
 
@@ -138,15 +138,65 @@ class OrderStaleSaveTest extends Unit
         $liveIds = array_map(fn($a) => $a->id, $live->getAdjustments());
         self::assertNotContains($staleAdjustmentId, $liveIds);
 
-        // Request A saves its stale copy. Its adjustment ID no longer exists.
+        // Request A saves its stale copy. Its adjustment ID no longer exists, so it is saved as a new row and the
+        // other request's rows are cleaned up: the rows match the totals this save wrote.
         $stale->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
-        Craft::$app->getElements()->saveElement($stale, false);
+        self::assertTrue(Craft::$app->getElements()->saveElement($stale, false));
 
-        $remainingIds = (new \craft\db\Query())->select('id')->from(Table::ORDERADJUSTMENTS)
-            ->where(['orderId' => $cart->id])->column();
-        sort($liveIds);
-        sort($remainingIds);
-        self::assertEquals($liveIds, $remainingIds, 'Newer adjustments must survive a stale save');
+        $rows = (new \craft\db\Query())->select(['id', 'amount'])->from(Table::ORDERADJUSTMENTS)
+            ->where(['orderId' => $cart->id])->all();
+        self::assertCount(1, $rows);
+        self::assertEquals(-1.0, (float)$rows[0]['amount']);
+        self::assertNotContains($rows[0]['id'], $liveIds);
+    }
+
+    public function testStaleSaveWithAllAdjustmentsMissingDoesNotLeaveOrderWithoutAdjustments(): void
+    {
+        $cart = $this->_createCart();
+
+        $seed = $this->_load($cart->id);
+        $seed->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+        $seed->setAdjustments([$this->_addAdjustment($seed, -1.0)]);
+        self::assertTrue(Craft::$app->getElements()->saveElement($seed, false));
+
+        $stale = $this->_load($cart->id);
+
+        // Another request removes every adjustment row.
+        \craft\helpers\Db::delete(Table::ORDERADJUSTMENTS, ['orderId' => $cart->id]);
+
+        $stale->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+        self::assertTrue(Craft::$app->getElements()->saveElement($stale, false));
+
+        $count = (new \craft\db\Query())->from(Table::ORDERADJUSTMENTS)->where(['orderId' => $cart->id])->count();
+        self::assertEquals(1, $count);
+    }
+
+    public function testOrderCompletedAfterBeforeSaveCheckRollsBackStaleSave(): void
+    {
+        $cart = $this->_createCart();
+
+        $stale = $this->_load($cart->id);
+        $stale->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+
+        // Complete the order after the stale copy has passed the `beforeSave()` check but before its transaction opens.
+        $handler = function(\craft\events\ModelEvent $event) use ($cart, &$handler) {
+            \yii\base\Event::off(Order::class, Order::EVENT_BEFORE_SAVE, $handler);
+            self::assertTrue($this->_load($cart->id)->markAsComplete());
+        };
+        \yii\base\Event::on(Order::class, Order::EVENT_BEFORE_SAVE, $handler);
+
+        try {
+            Craft::$app->getElements()->saveElement($stale, false);
+            self::fail('Expected OrderCompletedException');
+        } catch (\craft\commerce\errors\OrderCompletedException) {
+            // expected
+        } finally {
+            \yii\base\Event::off(Order::class, Order::EVENT_BEFORE_SAVE, $handler);
+        }
+
+        $row = $this->_dbRow($cart->id);
+        self::assertEquals(1, $row['isCompleted']);
+        self::assertEquals('none', $row['recalculationMode']);
     }
 
     public function testGetCartDoesNotSaveCartCompletedByAnotherRequest(): void

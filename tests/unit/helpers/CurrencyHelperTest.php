@@ -231,7 +231,10 @@ class CurrencyHelperTest extends Unit
         $amount = -1234.56;
         $formattedValue = Currency::formatAsCurrency($amount, $currency);
 
-        self::assertEquals($expected, $formattedValue);
+        // Depending on the ICU version, the Swiss thousands separator is a straight or a curly apostrophe.
+        $normalize = fn(string $value): string => str_replace("\u{2019}", "'", $value);
+
+        self::assertEquals($normalize($expected), $normalize($formattedValue));
         Locale::switchAppLanguage($originalLocale->getLanguageID());
     }
 
