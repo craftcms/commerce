@@ -437,7 +437,7 @@ class Discount extends Component implements HasStoreInterface
         DB::table(Table::COUPONS . ' as coupons')
             ->select(['coupons.code', 'discounts.name'])
             ->leftJoin(Table::DISCOUNTS . ' as discounts', 'discounts.id', '=', 'coupons.discountId')
-            ->whereIn(DB::raw('LOWER(coupons.code)'), $lowercaseCodes)
+            ->whereIn(DB::raw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ')'), $lowercaseCodes)
             ->when($this->id, fn($query) => $query->where('coupons.discountId', '!=', $this->id))
             ->get()
             ->each(fn(object $existing) => $fail(t('Coupon code “{code}” is already in use by discount “{name}”.', [

@@ -497,12 +497,12 @@ JS, []);
             ], [
                 ':siteId' => $siteId,
             ])
-            ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
+            ->innerJoin(['pstores' => '{{%' . Table::PURCHASABLES_STORES . '}}'], '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
             ->andWhere(['pstores.storeId' => $store->id])
             ->andWhere(['elements.revisionId' => null])
             ->andWhere(['elements.draftId' => null])
-            ->from(['purchasables' => Table::PURCHASABLES]);
+            ->from(['purchasables' => '{{%' . Table::PURCHASABLES . '}}']);
 
         // Are they searching for a SKU or purchasable description?
         if ($search) {

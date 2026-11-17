@@ -34,7 +34,7 @@ class Coupon extends Component
                         ->select(['coupons.code', 'discounts.name'])
                         ->leftJoin(Table::DISCOUNTS . ' as discounts', 'discounts.id', '=', 'coupons.discountId')
                         ->when($this->id, fn($q) => $q->where('coupons.id', '!=', $this->id))
-                        ->where(DB::raw('LOWER(coupons.code)'), mb_strtolower($value))
+                        ->where(DB::raw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ')'), mb_strtolower($value))
                         ->first();
 
                     if ($existing) {

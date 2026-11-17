@@ -6,7 +6,6 @@ namespace CraftCms\Commerce\Purchasable\Queries;
 
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Elements\Donation;
-use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * @extends PurchasableQuery<Donation>
@@ -18,7 +17,7 @@ class DonationQuery extends PurchasableQuery
     {
         parent::__construct(Donation::class, $config);
 
-        $this->query->join(new Alias(Table::DONATIONS, 'commerce_donations'), 'commerce_donations.id', '=', 'elements.id');
+        $this->query->join(Table::DONATIONS . ' as commerce_donations', 'commerce_donations.id', '=', 'elements.id');
 
         $this->beforeQuery(static function(self $donationQuery) {
             if ($donationQuery->sku) {

@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Order\Queries\Concerns;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Order identifying/scoping attributes, mirroring the `QueriesFields`/`QueriesAssetLocation`
@@ -78,7 +79,7 @@ trait QueriesOrderIdentity
         }
 
         // SUBSTR(str, start, length) is identical across MySQL/MariaDB, PostgreSQL, and SQLite.
-        $query->whereRaw('SUBSTR(commerce_orders.number, 1, 7) = ?', [$value]);
+        $query->whereRaw('SUBSTR(' . DB::getQueryGrammar()->wrap('commerce_orders.number') . ', 1, 7) = ?', [$value]);
     }
 
     public static function applyReference(BuilderContract $query, mixed $value): void

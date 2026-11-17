@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
+use Illuminate\Support\Facades\DB;
+
 /**
  * Repeat Customers Stat
  */
@@ -20,7 +22,7 @@ class RepeatCustomers extends Stat
             ->getCountForPagination();
 
         $repeatRows = $this->createStatQuery()
-            ->selectRaw('COUNT(orders.id) as cnt')
+            ->selectRaw('COUNT(' . DB::getQueryGrammar()->wrap('orders.id') . ') as cnt')
             ->groupBy('customerId')
             ->pluck('cnt');
 

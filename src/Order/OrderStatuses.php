@@ -132,7 +132,7 @@ class OrderStatuses
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $countGroupedByStatusId = DB::table(Table::ORDERS . ' as o')
-            ->select(['o.orderStatusId', DB::raw('count(o.id) as ' . DB::connection()->getQueryGrammar()->wrap('orderCount'))])
+            ->select(['o.orderStatusId', DB::raw('count(' . DB::getQueryGrammar()->wrap('o.id') . ') as ' . DB::getQueryGrammar()->wrap('orderCount'))])
             ->join(CraftTable::ELEMENTS . ' as e', 'o.id', '=', 'e.id')
             ->where('o.isCompleted', true)
             ->whereNull('e.dateDeleted')
