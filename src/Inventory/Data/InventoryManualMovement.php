@@ -52,12 +52,12 @@ class InventoryManualMovement extends InventoryMovement
 
     public function fromLocationAfterQuantity(): int
     {
-        return DB::table(Table::INVENTORYTRANSACTIONS)
+        return (int)DB::table(Table::INVENTORYTRANSACTIONS)
             ->selectRaw('COALESCE(SUM(quantity), 0) - ? AS quantity', [$this->quantity])
             ->where('type', $this->fromInventoryTransactionType->value)
             ->where('inventoryItemId', $this->inventoryItemId)
             ->where('inventoryLocationId', $this->fromInventoryLocation->id)
-            ->value('quantity') ?? 0;
+            ->value('quantity');
     }
 
     public function isManualMovement(): bool
@@ -67,11 +67,11 @@ class InventoryManualMovement extends InventoryMovement
 
     public function toLocationAfterQuantity(): int
     {
-        return DB::table(Table::INVENTORYTRANSACTIONS)
+        return (int)DB::table(Table::INVENTORYTRANSACTIONS)
             ->selectRaw('COALESCE(SUM(quantity), 0) + ? AS quantity', [$this->quantity])
             ->where('type', $this->toInventoryTransactionType->value)
             ->where('inventoryItemId', $this->inventoryItemId)
             ->where('inventoryLocationId', $this->toInventoryLocation->id)
-            ->value('quantity') ?? 0;
+            ->value('quantity');
     }
 }

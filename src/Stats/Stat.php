@@ -111,17 +111,25 @@ abstract class Stat implements StatInterface, HasStoreInterface
     }
 
     /**
-     * Converts decimal aggregates to floats, since PostgreSQL and MySQL return them as strings.
+     * Converts numeric aggregates to floats and ints, since PostgreSQL and MySQL return decimal sums (and MySQL
+     * returns integer sums) as strings.
      *
      * @param array<string, mixed> $row
-     * @param string[] $keys
+     * @param string[] $floatKeys
+     * @param string[] $intKeys
      * @return array<string, mixed>
      */
-    protected function castDecimals(array $row, array $keys): array
+    protected function castAggregates(array $row, array $floatKeys, array $intKeys = []): array
     {
-        foreach ($keys as $key) {
+        foreach ($floatKeys as $key) {
             if (is_string($row[$key] ?? null) && is_numeric($row[$key])) {
                 $row[$key] = (float)$row[$key];
+            }
+        }
+
+        foreach ($intKeys as $key) {
+            if (is_string($row[$key] ?? null) && is_numeric($row[$key])) {
+                $row[$key] = (int)$row[$key];
             }
         }
 

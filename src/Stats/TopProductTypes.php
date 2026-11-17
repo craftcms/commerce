@@ -60,7 +60,7 @@ class TopProductTypes extends Stat
             ->orderBy($this->type == 'revenue' ? new Sum('li.total') : new Sum('li.qty'), 'desc')
             ->limit($this->limit);
 
-        return $results->get()->map(fn($row) => $this->castDecimals((array)$row, ['revenue']))->all();
+        return $results->get()->map(fn($row) => $this->castAggregates((array)$row, ['revenue'], ['qty']))->all();
     }
 
     #[\Override]

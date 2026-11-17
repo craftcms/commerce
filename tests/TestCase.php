@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Tests;
 use CraftCms\Cms\Database\Migrations\Install;
 use CraftCms\Cms\Database\Migrator;
 use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Search\Search;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\User\Models\User as UserModel;
 use CraftCms\Commerce\Tests\Support\DatabaseLock;
@@ -89,6 +90,12 @@ class TestCase extends Orchestra
 
         config()->set('app.debug', true);
 
+        // MySQL InnoDB fulltext indexes only see committed rows, so searches inside the test's
+        // transaction would miss its own data. Fall back to LIKE, as the CMS tests do.
+        if (DB::isMysql()) {
+            app(Search::class)->useFullText = false;
+        }
+
         app()->setLocale('en-US');
         app()->maintenanceMode()->deactivate();
 
@@ -151,6 +158,9 @@ class TestCase extends Orchestra
             // `db:wipe`, and would skip installing a plugin it still thinks is installed.
             app()->forgetInstance(\CraftCms\Cms\Plugin\Plugins::class);
             app(\CraftCms\Cms\Plugin\Plugins::class)->installPlugin('commerce');
+            if (DB::transactionLevel() > 0 && !DB::connection()->getPdo()->inTransaction()) {
+                DB::rollBack(0);
+            }
 
             // Save `plugins.commerce` before the first test's transaction, which would roll it back.
             app(\CraftCms\Cms\ProjectConfig\ProjectConfig::class)->saveModifiedConfigData();

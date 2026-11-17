@@ -159,8 +159,13 @@ class CatalogPricing
         } else {
             // TRUNCATE is DDL and causes an implicit commit on MySQL/MariaDB, so it must run
             // before the transaction below is opened - doing it inside would silently end the
-            // transaction, leaving the later DB::commit() with nothing to commit.
-            DB::table(Table::CATALOG_PRICING)->truncate();
+            // transaction, leaving the later DB::commit() with nothing to commit. If a caller
+            // already has a transaction open, delete the rows instead so it isn't committed.
+            if (DB::transactionLevel() === 0) {
+                DB::table(Table::CATALOG_PRICING)->truncate();
+            } else {
+                DB::table(Table::CATALOG_PRICING)->delete();
+            }
         }
 
         DB::beginTransaction();
