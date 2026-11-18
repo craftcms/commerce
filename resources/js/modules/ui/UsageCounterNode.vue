@@ -1,5 +1,7 @@
 <script setup lang="ts">
+  import {t} from '@craftcms/cp';
   import {ref} from 'vue';
+  import {sendActionRequest} from '../orders/cp-client';
 
   // See ActionMenuNode.vue/CopyAttributeNode.vue in `cms` — this node holds no
   // form value of its own, so `UiNode`'s shared prop set shouldn't fall
@@ -37,7 +39,7 @@
    * `AdminTableNode.vue`'s `refreshUi()`.
    */
   async function reset(): Promise<void> {
-    const message = props.node.props.confirmMessage ?? window.Craft.t('app', 'Are you sure?');
+    const message = props.node.props.confirmMessage ?? t('Are you sure?');
 
     if (!confirm(message)) {
       return;
@@ -45,7 +47,7 @@
 
     loading.value = true;
     try {
-      await window.Craft.sendActionRequest('POST', props.node.props.resetUrl, {
+      await sendActionRequest('POST', props.node.props.resetUrl, {
         data: props.node.props.resetBody,
       });
       window.Cp.$router.reload({only: ['ui']});

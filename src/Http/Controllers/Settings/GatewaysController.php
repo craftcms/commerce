@@ -183,6 +183,14 @@ class GatewaysController extends BaseSettingsController
             ...$gateway->getSettings(),
         ];
 
+        // After a failed save, rebuild the form for the submitted gateway type, so that type's own
+        // settings (and their errors) show again instead of the saved or default type's.
+        $oldInput = session()->getOldInput();
+        if (isset($oldInput['type']) && is_string($oldInput['type'])) {
+            $oldSettingsKeys = array_keys($gatewayService->createGateway($oldInput['type'])->getSettings());
+            $values = array_merge($values, Arr::only($oldInput, ['type', 'paymentType', ...$oldSettingsKeys]));
+        }
+
         $ui = $this->uiResolver->resolve($this->buildUi($values), new UiContext(
             values: $values,
             mode: $this->generalConfig->allowAdminChanges ? ControlMode::Editable : ControlMode::ReadOnly,

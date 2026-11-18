@@ -37,7 +37,12 @@ class Sales
     /** @var Sale[]|null */
     private ?array $allActiveSales = null;
 
-    /** @var array<int, array<int, bool|null>> */
+    /**
+     * Match results for calls without an order, keyed by the current user's ID (`0` for guests),
+     * since they depend on the current user's groups.
+     *
+     * @var array<int, array<int, array<int, bool>>>
+     */
     private array $purchasableSaleMatch = [];
 
     public function canUseSales(): bool
@@ -237,18 +242,18 @@ class Sales
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, ?Order $order = null): bool
     {
-        $purchasableId = $purchasable->getId();
-        $saleId = $sale->id;
-
-        $this->purchasableSaleMatch[$purchasableId] ??= [];
-        $this->purchasableSaleMatch[$purchasableId][$saleId] ??= null;
-
-        if (!$order && $this->purchasableSaleMatch[$purchasableId][$saleId] !== null) {
-            return $this->purchasableSaleMatch[$purchasableId][$saleId];
+        if ($order) {
+            return $this->evaluatePurchasableAndSale($purchasable, $sale, $order);
         }
 
-        $this->purchasableSaleMatch[$purchasableId][$saleId] = false;
+        $userId = currentUserElement()->id ?? 0;
 
+        return $this->purchasableSaleMatch[$userId][$purchasable->getId()][$sale->id]
+            ??= $this->evaluatePurchasableAndSale($purchasable, $sale, null);
+    }
+
+    private function evaluatePurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, ?Order $order): bool
+    {
         if (!$purchasable->getIsPromotable()) {
             return false;
         }
@@ -307,13 +312,6 @@ class Sales
 
         $event = new SaleMatchEvent(sale: $sale, purchasable: $purchasable, isNew: false);
         event($event);
-
-        if ($order) {
-            unset($this->purchasableSaleMatch[$purchasableId][$saleId]);
-            return $event->isValid;
-        }
-
-        $this->purchasableSaleMatch[$purchasableId][$saleId] = $event->isValid;
 
         return $event->isValid;
     }

@@ -1,5 +1,3 @@
-{% import "_includes/forms" as forms %}
-
 <div class="payment-forms">
     {% set paymentFormOptions = [{ label: "Select a gateway"|t('commerce') }] %}
 
@@ -7,14 +5,16 @@
         {% set paymentFormOptions = paymentFormOptions|merge([{ label: gateway.name, value: gateway.id }]) %}
     {% endfor %}
 
-    {{ forms.selectField({
+    {% set selectConfig = {
         id: 'payment-form-select',
         label: "Payment Method"|t('commerce'),
         name: 'gatewayId',
         options: paymentFormOptions,
         value: order.gatewayId,
         class: 'payment-form-select'
-    }) }}
+    } %}
+
+    {{ craft.cp.field(craft.cp.select(selectConfig), selectConfig)|raw }}
 
     {{ paymentForms|raw }}
 </div>

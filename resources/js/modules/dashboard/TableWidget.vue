@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import {t} from '@craftcms/cp';
+
   export interface TableWidgetStatus {
     name: string;
     color: string;
@@ -17,7 +19,7 @@
     };
   }>();
 
-  const emptyLabel = window.Craft.t('commerce', 'No stats available.');
+  const emptyLabel = t('No stats available.', undefined, 'commerce');
 
   function isStatus(value: unknown): value is TableWidgetStatus {
     return typeof value === 'object' && value !== null && 'color' in value;

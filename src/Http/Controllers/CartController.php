@@ -542,9 +542,10 @@ class CartController
         $cart = Order::find()->number($cartNumber)->isCompleted(false)->one();
         abort_if(!$cart, 404, 'Cart not found');
 
-        return pageTemplate('commerce/_cart/email-sent', [
+        return pageTemplate('commerce/_special/email-sent', [
             ...$this->challengePageVariables(),
-            'email' => $cart->getMaskedEmail(),
+            'title' => t('Email Sent'),
+            'message' => t('A cart recovery link has been sent to {email}.', ['email' => $cart->getMaskedEmail()], category: 'commerce'),
         ], TemplateMode::Cp);
     }
 
@@ -785,10 +786,13 @@ class CartController
 
     private function renderCartEmailChallenge(Order $cart, string $cartNumber): string
     {
-        return pageTemplate('commerce/_cart/email-challenge', [
+        return pageTemplate('commerce/_special/email-challenge', [
             ...$this->challengePageVariables(),
-            'cart' => $cart,
-            'cartNumber' => $cartNumber,
+            'title' => t('Recover Cart', category: 'commerce'),
+            'heading' => t('Expired Link', category: 'commerce'),
+            'instructions' => t('A cart recovery link will be sent to {email}.', ['email' => $cart->getMaskedEmail()], category: 'commerce'),
+            'action' => 'commerce/cart/cart-challenge',
+            'params' => ['cartNumberHash' => Crypt::encrypt($cartNumber)],
         ], TemplateMode::Cp);
     }
 

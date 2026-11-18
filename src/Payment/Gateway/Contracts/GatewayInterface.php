@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Payment\Gateway\Contracts;
 
 use CraftCms\Cms\Component\Contracts\SavableComponentInterface;
+use CraftCms\Cms\Ui\Ui;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
 use CraftCms\Commerce\Payment\Data\Transaction;
@@ -27,6 +28,16 @@ interface GatewayInterface extends SavableComponentInterface
     public function deletePaymentSource(string $token): bool;
 
     public function getPaymentFormModel(): BasePaymentForm;
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function paymentFormUi(BasePaymentForm $form, array $params = []): ?Ui;
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function paymentConfirmationFormUi(array $params = []): ?Ui;
 
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
 

@@ -1,11 +1,10 @@
 /**
- * Ambient types for the slice of `cms`'s public `window.Cp`/`window.Craft`
- * globals this bundle actually uses. Hand-authored, not imported from `cms` —
+ * Ambient types for the slice of `cms`'s public `window.Cp` global
+ * this bundle actually uses. Hand-authored, not imported from `cms` —
  * `cms`'s own TS source (`resources/js/**`) is private to that package, not a
  * published dependency this project can resolve. Keep this in sync by hand if
- * the real shape changes; see `cms/resources/js/bootstrap/cp.ts` (`Cp`) and
- * `cms/resources/js/common/types/globals.d.ts` (`Craft`) for the source of
- * truth.
+ * the real shape changes; see `cms/resources/js/bootstrap/cp.ts` (`Cp`) for the
+ * source of truth.
  */
 
 interface CpComponentRegistration {
@@ -41,23 +40,6 @@ declare global {
       $components: CpComponentRegistry;
       $inertia: InertiaPageRegistry;
       $router: InertiaRouter;
-    };
-    Craft: {
-      t(
-        category: string,
-        message: string,
-        params?: Record<string, unknown>
-      ): string;
-      sendActionRequest<T = unknown>(
-        method: string,
-        action: string,
-        options?: {
-          data?: Record<string, unknown>;
-          params?: Record<string, unknown>;
-          responseType?: 'json' | 'blob' | 'text';
-        }
-      ): Promise<{data: T; headers: Record<string, string>}>;
-      csrfTokenValue?: string;
     };
   }
 }

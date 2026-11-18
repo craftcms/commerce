@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import {ref} from 'vue';
+  import {sendActionRequest} from '../orders/cp-client';
 
   defineOptions({inheritAttrs: false});
 
@@ -118,7 +119,7 @@
 
     loading.value = true;
     try {
-      const {data} = await window.Craft.sendActionRequest<{coupons?: string[]}>(
+      const {data} = await sendActionRequest<{coupons?: string[]}>(
         'POST',
         props.node.props.generateUrl,
         {

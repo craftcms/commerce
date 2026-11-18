@@ -6,6 +6,7 @@ namespace CraftCms\Commerce\Http\Controllers;
 
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\I18N;
+use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
 use CraftCms\Commerce\Helpers\Sql;
@@ -53,6 +54,6 @@ readonly class EmailPreviewController
             $errors[] = t('Could not find the email or template.', category: 'commerce');
         }
 
-        return template('commerce/settings/emails/_previewError', compact('errors'), TemplateMode::Cp);
+        return Html::encode(t('Can’t preview this email.', category: 'commerce')) . Html::ul($errors);
     }
 }

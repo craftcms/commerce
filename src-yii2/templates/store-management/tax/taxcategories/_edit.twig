@@ -1,9 +1,0 @@
-{% set fullPageForm = true %}
-
-{% import "_includes/forms" as forms %}
-
-{{ actionInput('commerce/tax-categories/save') }}
-{{ redirectInput(store.getStoreSettingsUrl('taxcategories')) }}
-{% if taxCategory.id %}{{ hiddenInput('taxCategoryId', taxCategory.id) }}{% endif %}
-
-{% include "commerce/store-management/tax/taxcategories/_fields" %}

@@ -9,13 +9,16 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Component\Concerns\ConfigurableComponent;
 use CraftCms\Cms\Component\Concerns\SavableComponent;
 use CraftCms\Cms\Component\Contracts\ConfigurableComponentInterface;
+use CraftCms\Cms\Component\Events\DefineSettingsAttributes;
 use CraftCms\Cms\Condition\Contracts\ConditionRuleInterface;
 use CraftCms\Cms\Element\Conditions\Contracts\ElementConditionInterface;
 use CraftCms\Cms\Support\Env;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Json;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Cms\Support\Utils;
 use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
 use CraftCms\Cms\Ui\UiHtmlRenderer;
 use CraftCms\Cms\Ui\UiResolver;
@@ -23,9 +26,11 @@ use CraftCms\Commerce\Address\Conditions\GatewayAddressCondition;
 use CraftCms\Commerce\Order\Conditions\GatewayOrderCondition;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\Transaction;
+use CraftCms\Commerce\Payment\Forms\BasePaymentForm;
 use CraftCms\Commerce\Payment\Gateway\Contracts\GatewayInterface;
 use DateTime;
 use Override;
+use ReflectionProperty;
 
 use function CraftCms\Cms\t;
 
@@ -128,7 +133,7 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
      */
     public function getSettingsHtml(): ?string
     {
-        return $this->renderSettingsFormHtml(readOnly: false);
+        return $this->renderUiHtml($this->settingsUi(), new UiContext(mode: ControlMode::Editable));
     }
 
     /**
@@ -136,21 +141,89 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
      */
     public function getReadOnlySettingsHtml(): ?string
     {
-        return $this->renderSettingsFormHtml(readOnly: true);
+        return $this->renderUiHtml($this->settingsUi(), new UiContext(mode: ControlMode::ReadOnly));
     }
 
-    private function renderSettingsFormHtml(bool $readOnly): ?string
+    /**
+     * Returns the payment form customers fill in to pay with this gateway, or `null` if the gateway doesn’t need one
+     * (for example, because it redirects customers to a hosted checkout).
+     *
+     * Each control’s value comes from the payment form model’s attribute at the same path, and the model’s
+     * validation errors are shown on those controls. Markup the Ui controls can’t express, such as a provider’s
+     * hosted card fields, can be added with a trusted {@see \CraftCms\Cms\Ui\Nodes\TemplateContent} node.
+     *
+     * @param array<string, mixed> $params The parameters passed to {@see getPaymentFormHtml()}, such as `order`.
+     */
+    public function paymentFormUi(BasePaymentForm $form, array $params = []): ?Ui
     {
-        $form = $this->settingsUi();
+        return null;
+    }
 
-        if ($form === null) {
+    /**
+     * Returns the form shown when paying with a stored payment source, or `null` if the gateway doesn’t need one.
+     *
+     * @param array<string, mixed> $params The parameters passed to {@see getPaymentConfirmationFormHtml()}.
+     */
+    public function paymentConfirmationFormUi(array $params = []): ?Ui
+    {
+        return null;
+    }
+
+    /**
+     * Renders {@see paymentFormUi()} as HTML, for templates.
+     *
+     * @param array<string, mixed> $params Passed on to {@see paymentFormUi()}. A `paymentForm` param sets the payment
+     * form model whose values and errors the form shows; it defaults to a new {@see getPaymentFormModel()}.
+     */
+    public function getPaymentFormHtml(array $params): ?string
+    {
+        $form = $params['paymentForm'] ?? $this->getPaymentFormModel();
+        $ui = $this->paymentFormUi($form, $params);
+
+        return $this->renderUiHtml($ui, new UiContext(
+            values: $form->toArray(),
+            errors: $form->errors()->getMessages(),
+        ));
+    }
+
+    /**
+     * Renders {@see paymentConfirmationFormUi()} as HTML, for templates.
+     *
+     * @param array<string, mixed> $params
+     */
+    public function getPaymentConfirmationFormHtml(array $params): string
+    {
+        return $this->renderUiHtml($this->paymentConfirmationFormUi($params), new UiContext()) ?? '';
+    }
+
+    private function renderUiHtml(?Ui $ui, UiContext $context): ?string
+    {
+        if ($ui === null) {
             return null;
         }
 
-        $context = new UiContext(mode: $readOnly ? ControlMode::ReadOnly : ControlMode::Editable);
-        $payload = app(UiResolver::class)->resolve($form, $context);
+        return app(UiHtmlRenderer::class)->render(app(UiResolver::class)->resolve($ui, $context));
+    }
 
-        return app(UiHtmlRenderer::class)->render($payload);
+    /**
+     * Returns the gateway’s settings attributes.
+     *
+     * Craft skips public properties declared on abstract classes, so it doesn’t treat a base class’s own properties
+     * (like `name` and `handle` here) as settings. Gateway types often share their settings via an abstract base
+     * class though, so properties declared on abstract subclasses of this class are included.
+     */
+    #[Override]
+    public function settingsAttributes(): array
+    {
+        $attributes = array_keys(Utils::getPublicProperties($this, function(ReflectionProperty $property) {
+            $class = $property->getDeclaringClass();
+
+            return !$class->isAbstract() || $class->isSubclassOf(self::class);
+        }));
+
+        event($event = new DefineSettingsAttributes(component: $this, attributes: $attributes));
+
+        return $event->attributes;
     }
 
     #[Override]
@@ -160,14 +233,6 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
             'paymentType' => ['required'],
             'handle' => ['required'],
         ];
-    }
-
-    /**
-     * Returns the html to use when paying with a stored payment source.
-     */
-    public function getPaymentConfirmationFormHtml(array $params): string
-    {
-        return '';
     }
 
     public function availableForUseWithOrder(Order $order): bool
@@ -202,11 +267,6 @@ abstract class Gateway extends Component implements GatewayInterface, Configurab
     {
         return !empty($this->getOrderCondition()->getConditionRules()->findRules(fn(ConditionRuleInterface $rule) => true));
     }
-
-    /**
-     * Returns payment Form HTML
-     */
-    abstract public function getPaymentFormHtml(array $params): ?string;
 
     public function getTransactionHashFromWebhook(): ?string
     {

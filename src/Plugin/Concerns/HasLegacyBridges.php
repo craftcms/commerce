@@ -31,7 +31,6 @@ use craft\commerce\services\Taxes as LegacyTaxes;
 use craft\commerce\services\Transactions as LegacyTransactions;
 use craft\commerce\services\Variants as LegacyVariants;
 use craft\commerce\services\Webhooks as LegacyWebhooks;
-use craft\fixfks\controllers\RestoreController as RestoreFksController;
 use CraftCms\Cms\Cms;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\Sites;
@@ -102,18 +101,6 @@ trait HasLegacyBridges
                     'sources' => $productSources,
                 ];
             }
-        });
-    }
-
-    private function registerForeignKeysRestore(): void
-    {
-        if (!self::hasYii2Adapter() || !class_exists(RestoreFksController::class)) {
-            return;
-        }
-
-        /** @phpstan-ignore-next-line argument.type (class_exists() above guarantees this is a yii\base\Component subclass) */
-        YiiEvent::on(RestoreFksController::class, RestoreFksController::EVENT_AFTER_RESTORE_FKS, function() {
-            $this->createInstallMigration()?->addForeignKeys();
         });
     }
 
