@@ -42,12 +42,6 @@
     }
   );
 
-  function onOpenedChanged(event: Event): void {
-    if (!(event as CustomEvent<{opened: boolean}>).detail.opened) {
-      emit('close');
-    }
-  }
-
   async function download(): Promise<void> {
     if (!props.detail || pdfId.value === null) {
       return;
@@ -72,8 +66,8 @@
   <craft-popover
     placement="top"
     .anchor="anchor ?? undefined"
-    .opened="detail !== null && anchor !== null"
-    @opened-changed="onOpenedChanged"
+    .open="detail !== null && anchor !== null"
+    @craft-hide.self="emit('close')"
   >
     <form
       slot="content-body"

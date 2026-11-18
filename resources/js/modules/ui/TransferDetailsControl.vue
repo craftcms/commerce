@@ -61,14 +61,14 @@
   }
 
   function setQuantity(uid: string, event: Event): void {
-    const quantity = (event.target as HTMLElement & {modelValue?: unknown})
-      .modelValue;
+    const quantity = (event.currentTarget as HTMLElement & {value: string})
+      .value;
 
     emit(
       'update:value',
       {
         ...details.value,
-        [uid]: {...details.value[uid]!, quantity: String(quantity ?? '')},
+        [uid]: {...details.value[uid]!, quantity},
       },
       'typing'
     );
@@ -80,13 +80,9 @@
     emit('update:value', rest, 'discrete');
   }
 
-  function onItemSelected(event: CustomEvent): void {
-    if (event.detail?.initialize) {
-      return;
-    }
-
+  function onItemSelected(event: Event): void {
     selectedItemId.value = String(
-      (event.target as HTMLElement & {modelValue?: unknown}).modelValue ?? ''
+      (event.currentTarget as HTMLElement & {value?: string}).value ?? ''
     );
   }
 
@@ -148,8 +144,8 @@
               :label="control.props.labels.quantity"
               label-sr-only
               :readonly="!editable"
-              .modelValue="String(row.quantity)"
-              @model-value-changed="setQuantity(row.uid, $event)"
+              .value="String(row.quantity)"
+              @input="setQuantity(row.uid, $event)"
             />
           </td>
           <td v-if="editable" class="thin">
@@ -181,8 +177,8 @@
         show-all-on-empty
         require-option-match
         .options="control.props.options"
-        .modelValue="selectedItemId"
-        @model-value-changed="onItemSelected"
+        .value="selectedItemId"
+        @change="onItemSelected"
       />
       <craft-button
         type="button"
