@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-98wq-3mvx-6jvv)
-- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability.
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-grgh-r768-2cxf)
 - Fixed a bug where a stale copy of a cart could still un-complete an order, or leave it without adjustments, when saved at the same moment the order was completed. ([#4450](https://github.com/craftcms/commerce/issues/4450))
 - Added `craft\commerce\errors\OrderCompletedException`.
 
