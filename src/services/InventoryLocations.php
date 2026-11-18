@@ -21,6 +21,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\db\Query;
 use craft\elements\Address;
+use craft\elements\User;
 use craft\errors\DeprecationException;
 use craft\events\AuthorizationCheckEvent;
 use Illuminate\Support\Collection;
@@ -357,21 +358,14 @@ class InventoryLocations extends Component
     }
 
     /**
+     * Authorizes viewing, saving and drafting an inventory location’s address for users who can manage inventory locations.
+     *
      * @param AuthorizationCheckEvent $event
      * @return void
      */
-    public function authorizeInventoryLocationAddressView(AuthorizationCheckEvent $event): void
+    public function authorizeInventoryLocationAddress(AuthorizationCheckEvent $event): void
     {
-        if (!$this->isInventoryLocationAddress($event->element)) {
-            return;
-        }
-
-        $event->authorized = true;
-    }
-
-    public function authorizeInventoryLocationAddressEdit(AuthorizationCheckEvent $event): void
-    {
-        if (!$this->isInventoryLocationAddress($event->element)) {
+        if (!$this->isInventoryLocationAddress($event->element, $event->user)) {
             return;
         }
 
@@ -379,15 +373,19 @@ class InventoryLocations extends Component
     }
 
     /**
-     * Returns whether the given element is an inventory location’s address.
+     * Returns whether the given element is the address of an inventory location the user can manage.
      */
-    private function isInventoryLocationAddress(ElementInterface $element): bool
+    private function isInventoryLocationAddress(ElementInterface $element, User $user): bool
     {
         // Unsaved addresses can't belong to an inventory location yet, and a null ID would match locations without an address
         if (!$element instanceof Address || !$element->getCanonicalId()) {
             return false;
         }
 
-        return $this->getAllInventoryLocations(true)->firstWhere('addressId', $element->getCanonicalId()) !== null;
+        if (!$user->can('commerce-manageInventoryLocations')) {
+            return false;
+        }
+
+        return $this->getAllInventoryLocations()->firstWhere('addressId', $element->getCanonicalId()) !== null;
     }
 }

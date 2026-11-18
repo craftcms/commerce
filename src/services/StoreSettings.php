@@ -129,7 +129,7 @@ class StoreSettings extends Component
             return;
         }
 
-        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission) rather than always granting view access
+        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission)
         $event->authorized = true;
     }
 
@@ -143,7 +143,7 @@ class StoreSettings extends Component
             return;
         }
 
-        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission) rather than always granting edit access
+        // @TODO Authorize the current user against the store from $storeSettingsRecord (e.g. "commerce-manageStore:<storeUid>" permission)
         $event->authorized = true;
     }
 
@@ -155,6 +155,10 @@ class StoreSettings extends Component
     {
         // Unsaved addresses can't be a store location yet, and a null ID would match stores without a location address
         if (!$event->element instanceof Address || !$event->element->getCanonicalId()) {
+            return false;
+        }
+
+        if (!$event->user->can('commerce-manageGeneralStoreSettings')) {
             return false;
         }
 
