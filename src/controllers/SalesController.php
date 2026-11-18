@@ -131,7 +131,7 @@ class SalesController extends BaseStoreManagementController
         $sale = new Sale();
         $sale->id = $this->request->getBodyParam('id');
 
-        if ($sale->id === null) {
+        if (!$sale->id) {
             $this->requirePermission('commerce-createSales');
         } else {
             $this->requirePermission('commerce-editSales');
