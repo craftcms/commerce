@@ -17,7 +17,7 @@ use Illuminate\Support\Traits\Conditionable;
  * {@see Field::actions()} slot next to the limit it's tracking usage against.
  *
  * Commerce-owned (not a `cms`-shared Ui Node) — its Vue counterpart is
- * registered by Commerce's own Vite bundle via `window.Cp.$components.register()`,
+ * registered by Commerce's own Vite bundle via `registerComponent()` from `@craftcms/cp`,
  * not `cms`'s `register.ts`. See `commerce/resources/js/cp.ts`.
  *
  *     Field::make(t('Limit'), Number::make('limit'))

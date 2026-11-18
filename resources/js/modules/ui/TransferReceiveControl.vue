@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import type {UiChangeKind, UiControlPayload} from '@craftcms/cp';
   import {computed} from 'vue';
 
   type Quantities = {accept?: string; reject?: string};
@@ -23,15 +24,8 @@
     };
   };
 
-  // A minimal, hand-authored stand-in for `cms`'s own `FormControlPayload<T>`
-  // (see window.d.ts for why it can't be imported from `cms`).
-  type FormControlPayload<Props> = {
-    path: string[];
-    props: Props;
-  };
-
   const props = defineProps<{
-    control: FormControlPayload<TransferReceiveProps>;
+    control: UiControlPayload<TransferReceiveProps>;
     value: Record<string, Quantities> | Quantities[] | null;
     editable: boolean;
   }>();
@@ -40,7 +34,7 @@
     (
       event: 'update:value',
       value: Record<string, Quantities>,
-      kind: 'discrete' | 'typing'
+      kind: UiChangeKind
     ): void;
   }>();
 
@@ -54,14 +48,14 @@
   }
 
   function setQuantity(uid: string, key: keyof Quantities, event: Event): void {
-    const value = (event.target as HTMLElement & {modelValue?: unknown})
-      .modelValue;
+    const value = (event.currentTarget as HTMLElement & {value: string})
+      .value;
 
     emit(
       'update:value',
       {
         ...quantities.value,
-        [uid]: {...quantities.value[uid], [key]: String(value ?? '')},
+        [uid]: {...quantities.value[uid], [key]: value},
       },
       'typing'
     );
@@ -95,8 +89,8 @@
             label-sr-only
             :placeholder="row.deletedMessage ?? ''"
             :disabled="!editable || row.deletedMessage !== null"
-            .modelValue="quantity(row.uid, 'accept')"
-            @model-value-changed="setQuantity(row.uid, 'accept', $event)"
+            .value="quantity(row.uid, 'accept')"
+            @input="setQuantity(row.uid, 'accept', $event)"
           />
         </td>
         <td class="rightalign">{{ row.rejected }}</td>
@@ -108,8 +102,8 @@
             label-sr-only
             :placeholder="row.deletedMessage ?? ''"
             :disabled="!editable || row.deletedMessage !== null"
-            .modelValue="quantity(row.uid, 'reject')"
-            @model-value-changed="setQuantity(row.uid, 'reject', $event)"
+            .value="quantity(row.uid, 'reject')"
+            @input="setQuantity(row.uid, 'reject', $event)"
           />
         </td>
       </tr>

@@ -12,7 +12,7 @@
     color: string;
   }
 
-  type ValueElement = HTMLElement & {modelValue?: unknown; checked?: boolean};
+  type ValueElement = HTMLElement & {value?: string; checked?: boolean};
 
   const props = defineProps<{
     detail: OrderActionEventDetail | null;
@@ -56,7 +56,7 @@
 
     const updated = await performOrderAction(props.detail, {
       orderStatusId: orderStatusId.value,
-      message: String(message.value?.modelValue ?? ''),
+      message: message.value?.value ?? '',
       suppressEmails: Boolean(suppressEmails.value?.checked),
     });
 
@@ -71,9 +71,9 @@
 
 <template>
   <craft-dialog
-    .opened="detail !== null"
+    .open="detail !== null"
     :label="labels.updateOrderStatus"
-    @craft-before-hide="emit('close')"
+    @craft-hide.self="emit('close')"
   >
     <form v-if="detail" class="update-order-status" @submit.prevent="submit">
       <fieldset class="update-order-status__statuses">

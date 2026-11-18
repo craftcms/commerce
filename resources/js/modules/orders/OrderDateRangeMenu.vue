@@ -77,8 +77,9 @@
 <template>
   <craft-popover
     placement="bottom-start"
-    :opened="opened"
-    @opened-changed="opened = $event.detail.opened"
+    .open="opened"
+    @craft-show.self="opened = true"
+    @craft-hide.self="opened = false"
   >
     <craft-button slot="invoker" type="button" icon="calendar">
       {{ buttonLabel }}
