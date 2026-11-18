@@ -931,9 +931,9 @@ class Plugin extends BasePlugin
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
         Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
 
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressView']);
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressEdit']);
-        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddressEdit']);
+        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddress']);
+        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddress']);
+        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getInventoryLocations(), 'authorizeInventoryLocationAddress']);
     }
 
     /**

@@ -2,8 +2,14 @@
 
 ## Unreleased
 
-- Fixed a bug where a stale copy of a cart could still un-complete an order, or leave it without adjustments, when saved at the same moment the order was completed. ([#4450](https://github.com/craftcms/commerce/issues/4450))
+- Fixed a bug where a stale copy of a cart could still revert a completed order as incomplete due to a race condition. ([#4450](https://github.com/craftcms/commerce/issues/4450))
+- Fixed an error that could occur when two requests tried to save a new cart with the same cart number. ([#4457](https://github.com/craftcms/commerce/pull/4457))
+- Added `craft\commerce\base\Widget`.
 - Added `craft\commerce\errors\OrderCompletedException`.
+- Added `craft\commerce\errors\OrderNumberConflictException`.
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-98wq-3mvx-6jvv)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-grgh-r768-2cxf)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-ch56-6g32-55wc)
 
 ## 5.7.8 - 2026-11-04
 
