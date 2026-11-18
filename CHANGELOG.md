@@ -4,6 +4,8 @@
 
 - Fixed a bug where a stale copy of a cart could still un-complete an order, or leave it without adjustments, when saved at the same moment the order was completed. ([#4450](https://github.com/craftcms/commerce/issues/4450))
 - Added `craft\commerce\errors\OrderCompletedException`.
+- Fixed an error that could occur when two requests tried to save a new cart with the same cart number.
+- Added `craft\commerce\errors\OrderNumberConflictException`.
 
 ## 5.7.8 - 2026-11-04
 

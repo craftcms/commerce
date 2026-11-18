@@ -32,6 +32,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\errors\OrderCompletedException;
+use craft\commerce\errors\OrderNumberConflictException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
@@ -2315,6 +2316,23 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Whether a different order already has this order’s number.
+     *
+     * Must be a locking read when called inside the save transaction: a plain read would use the transaction’s snapshot,
+     * which can predate the commit of the request that saved the other order.
+     */
+    private function _isOrderNumberTakenByAnotherOrder(): bool
+    {
+        $db = Craft::$app->getDb();
+        $sql = $db->getQueryBuilder()->build(
+            (new Query())->select(['id'])->from([Table::ORDERS])->where(['and', ['number' => $this->number], ['not', ['id' => $this->id]]]),
+        );
+        $forUpdate = $db->getTransaction() !== null ? ' FOR UPDATE' : '';
+
+        return $db->createCommand($sql[0] . $forUpdate, $sql[1])->queryScalar() !== false;
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew): void
@@ -2327,11 +2345,17 @@ class Order extends Element implements HasStoreInterface
 
         try {
             // `beforeSave()` runs before the save transaction and without a lock, so the order may have been completed
-            // by another request since it was checked. The lock is held until the transaction commits, so check again.
+            // by another request since it was checked. Recheck using a row lock held until the transaction commits.
             // See: https://github.com/craftcms/commerce/issues/4450
             if (!$isNew && $this->_isStaleIncompleteCopy()) {
                 Craft::warning("Refusing to save a stale, incomplete copy of order $this->number that was completed during the save.", __METHOD__);
                 throw new OrderCompletedException("Order $this->number was completed by another request.");
+            }
+
+            // Another request may have saved a new order with this number while this one waited for the lock.
+            // The unique index would reject the insert, but fail early with an exception callers can handle.
+            if ($isNew && $this->_isOrderNumberTakenByAnotherOrder()) {
+                throw new OrderNumberConflictException($this->number);
             }
 
             // Make sure addresses are set before recalculation so that on the next page load
