@@ -129,15 +129,15 @@ class SalesController extends BaseStoreManagementController
         $this->requirePostRequest();
 
         $sale = new Sale();
+        $sale->id = $this->request->getBodyParam('id');
 
-        // Shared attributes
-        if ($sale->id === null) {
+        if (!$sale->id) {
             $this->requirePermission('commerce-createSales');
         } else {
             $this->requirePermission('commerce-editSales');
         }
 
-        $sale->id = $this->request->getBodyParam('id');
+        // Shared attributes
         $sale->name = $this->request->getBodyParam('name');
         $sale->description = $this->request->getBodyParam('description');
         $sale->apply = $this->request->getBodyParam('apply');
