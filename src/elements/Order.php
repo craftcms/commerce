@@ -32,6 +32,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\LineItemNotFoundException;
 use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\errors\OrderCompletedException;
+use craft\commerce\errors\OrderNumberConflictException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
@@ -85,6 +86,7 @@ use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
 use yii\db\StaleObjectException;
 use yii\log\Logger;
 
@@ -2327,7 +2329,7 @@ class Order extends Element implements HasStoreInterface
 
         try {
             // `beforeSave()` runs before the save transaction and without a lock, so the order may have been completed
-            // by another request since it was checked. The lock is held until the transaction commits, so check again.
+            // by another request since it was checked. Recheck using a row lock held until the transaction commits.
             // See: https://github.com/craftcms/commerce/issues/4450
             if (!$isNew && $this->_isStaleIncompleteCopy()) {
                 Craft::warning("Refusing to save a stale, incomplete copy of order $this->number that was completed during the save.", __METHOD__);
@@ -2490,7 +2492,15 @@ class Order extends Element implements HasStoreInterface
                 $this->setEstimatedBillingAddress($estimatedBillingAddress);
             }
 
-            $orderRecord->save(false);
+            try {
+                $orderRecord->save(false);
+            } catch (IntegrityException $e) {
+                // For a new order, the element save just allocated the primary key. The order number is the other unique key.
+                if ($isNew && (($e->errorInfo[0] ?? null) === '23505' || ($e->errorInfo[1] ?? null) === 1062)) {
+                    throw new OrderNumberConflictException($this->number, $e);
+                }
+                throw $e;
+            }
 
             $this->_saveAdjustments();
             $this->_saveLineItems();
