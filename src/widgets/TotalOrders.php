@@ -8,8 +8,8 @@
 namespace craft\commerce\widgets;
 
 use Craft;
-use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\base\Widget;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrders as TotalOrdersStat;
@@ -72,9 +72,9 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public static function isSelectable(): bool
+    protected static function requiredPermissions(): array
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
+        return ['commerce-manageOrders'];
     }
 
     /**
@@ -121,7 +121,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml(): ?string
+    protected function renderBodyHtml(): ?string
     {
         $showChart = $this->showChart;
         $stats = $this->_stat->get();
