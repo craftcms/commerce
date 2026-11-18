@@ -11,7 +11,6 @@ use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Locale;
-use NumberFormatter;
 use UnitTester;
 use yii\base\InvalidConfigException;
 
@@ -232,7 +231,10 @@ class CurrencyHelperTest extends Unit
         $amount = -1234.56;
         $formattedValue = Currency::formatAsCurrency($amount, $currency);
 
-        self::assertEquals($expected, $formattedValue);
+        // Depending on the ICU version, the Swiss thousands separator is a straight or a curly apostrophe.
+        $normalize = fn(string $value): string => str_replace("\u{2019}", "'", $value);
+
+        self::assertEquals($normalize($expected), $normalize($formattedValue));
         Locale::switchAppLanguage($originalLocale->getLanguageID());
     }
 
@@ -272,8 +274,7 @@ class CurrencyHelperTest extends Unit
             'CHF-DE-CH' => [
                 'CHF',
                 'de-CH',
-                // Newer ICU versions use ' instead of ’ as the de-CH grouping separator
-                sprintf('CHF-1%s234.56', (new NumberFormatter('de-CH', NumberFormatter::CURRENCY))->getSymbol(NumberFormatter::MONETARY_GROUPING_SEPARATOR_SYMBOL)),
+                'CHF-1’234.56',
             ],
         ];
     }
