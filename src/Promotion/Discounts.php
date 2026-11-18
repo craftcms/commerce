@@ -381,6 +381,11 @@ class Discounts
         if ($lineItem->type === LineItemType::Purchasable) {
             $purchasable = $lineItem->getPurchasable();
 
+            // The purchasable may have been deleted, so there's nothing to match against
+            if ($purchasable === null) {
+                return false;
+            }
+
             if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
                 return false;
             }
