@@ -302,18 +302,7 @@ class DiscountsTest extends Unit
             ->update(Table::COUPONS, ['code' => $storedCode, 'maxUses' => 1], ['discountId' => $discountId])
             ->execute();
 
-        // @TODO Replace the mocked Order with a fully saved real order to exercise the complete code path #COM-54
-        /** @var Order $order */
-        $order = $this->make(Order::class, [
-            'getAdjustmentsByType' => function($type) use ($discountId) {
-                $adjustment = new OrderAdjustment();
-                $adjustment->sourceSnapshot = ['discountUseId' => $discountId];
-
-                return [$adjustment];
-            },
-        ]);
-        $order->couponCode = $orderCode;
-        $order->setCustomerId($this->_user->id);
+        $order = $this->makeCouponOrder($discountId, $orderCode);
 
         $this->updateOrderCoupon([
             'perUserLimit' => '0',
@@ -376,6 +365,35 @@ class DiscountsTest extends Unit
             'stored lower, entered upper' => ['discount_1', 'DISCOUNT_1'],
             'both mixed case' => ['DiScOuNt_1', 'dIsCoUnT_1'],
         ];
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testOrderCompleteHandlerIgnoresOverlappingCouponCodes(): void
+    {
+        $discountId = $this->tester->grabFixture('discounts')['discount_with_coupon']['id'];
+        Craft::$app->getDb()->createCommand()
+            ->update(Table::COUPONS, ['code' => 'DISCOUNT_10'], ['discountId' => $discountId])
+            ->execute();
+
+        $order = $this->makeCouponOrder($discountId, 'discount_1');
+
+        $this->updateOrderCoupon([
+            'perUserLimit' => '0',
+            'perEmailLimit' => '0',
+        ]);
+
+        $this->discounts->orderCompleteHandler($order);
+
+        $couponUses = (new Query())
+            ->select('uses')
+            ->from(Table::COUPONS)
+            ->where(['discountId' => $discountId])
+            ->scalar();
+
+        self::assertEquals(0, $couponUses);
     }
 
     /**
@@ -1009,6 +1027,29 @@ class DiscountsTest extends Unit
                 $data,
                 ['id' => $discount['id']]
             )->execute();
+    }
+
+    /**
+     * @param int $discountId
+     * @param string $couponCode
+     * @return Order
+     */
+    protected function makeCouponOrder(int $discountId, string $couponCode): Order
+    {
+        // @TODO Replace the mocked Order with a fully saved real order to exercise the complete code path #COM-54
+        /** @var Order $order */
+        $order = $this->make(Order::class, [
+            'getAdjustmentsByType' => function($type) use ($discountId) {
+                $adjustment = new OrderAdjustment();
+                $adjustment->sourceSnapshot = ['discountUseId' => $discountId];
+
+                return [$adjustment];
+            },
+        ]);
+        $order->couponCode = $couponCode;
+        $order->setCustomerId($this->_user->id);
+
+        return $order;
     }
 
     /**

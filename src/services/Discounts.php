@@ -383,13 +383,13 @@ class Discounts extends Component
         }
 
         $couponSubQuery = (new Query())
-            ->from(Table::COUPONS)
+            ->from(['coupons' => Table::COUPONS])
             ->leftJoin(Table::DISCOUNTS . ' disc', '[[disc.id]] = [[discountId]]')
             ->where(new Expression('[[discountId]] = [[discounts.id]]'));
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
         if ($order && $order->couponCode) {
-            $codeWhere = $this->_couponCodeCondition('code', $order->couponCode);
+            $codeWhere = $this->_couponCodeCondition($order->couponCode);
 
             $discountQuery->andWhere(
                 [
@@ -539,7 +539,7 @@ class Discounts extends Component
 
         $query = $this->_createDiscountQuery()->where(['storeId' => $storeId]);
         $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
-        $query->andWhere($this->_couponCodeCondition('[[coupons.code]]', $code));
+        $query->andWhere($this->_couponCodeCondition($code));
         $discounts = $query->all();
 
         if (!$discounts) {
@@ -1246,8 +1246,9 @@ SQL;
             // if there was a coupon on the order update its usage
             /** @var CouponRecord|null $coupon */
             $coupon = $order->couponCode ? CouponRecord::find()
+                ->alias('coupons')
                 ->where(['discountId' => $discount['discountUseId']])
-                ->andWhere($this->_couponCodeCondition('code', $order->couponCode))
+                ->andWhere($this->_couponCodeCondition($order->couponCode))
                 ->one() : null;
             if ($coupon) {
                 Craft::$app->getDb()->createCommand()
@@ -1284,21 +1285,21 @@ SQL;
 
 
     /**
-     * Returns a query condition that matches a coupon code column case-insensitively.
+     * Returns a query condition that matches the coupons table’s code column exactly, ignoring case.
      *
-     * MySQL’s default collations are already case-insensitive, while PostgreSQL needs `ilike`.
+     * MySQL’s default collations are already case-insensitive, while PostgreSQL needs both sides lowercased.
+     * The query must alias the coupons table as `coupons`.
      *
-     * @param string $column
      * @param string $code
-     * @return array<int|string, mixed>
+     * @return array<string, string>|Expression
      */
-    private function _couponCodeCondition(string $column, string $code): array
+    private function _couponCodeCondition(string $code): array|Expression
     {
         if (Craft::$app->getDb()->getIsPgsql()) {
-            return ['ilike', $column, $code];
+            return new Expression('LOWER([[coupons.code]]) = LOWER(:couponCode)', [':couponCode' => $code]);
         }
 
-        return [$column => $code];
+        return ['coupons.code' => $code];
     }
 
     /**
