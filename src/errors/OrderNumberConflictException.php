@@ -18,10 +18,9 @@ class OrderNumberConflictException extends IntegrityException
 {
     /**
      * @param string $orderNumber The conflicting order number
-     * @param IntegrityException $previous The database exception
      */
-    public function __construct(public readonly string $orderNumber, IntegrityException $previous)
+    public function __construct(public readonly string $orderNumber)
     {
-        parent::__construct($previous->getMessage(), $previous->errorInfo, (string)$previous->getCode(), $previous);
+        parent::__construct("The order number “{$orderNumber}” is already in use.");
     }
 }

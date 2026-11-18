@@ -86,7 +86,6 @@ use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
-use yii\db\IntegrityException;
 use yii\db\StaleObjectException;
 use yii\log\Logger;
 
@@ -2317,6 +2316,23 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Whether a different order already has this order’s number.
+     *
+     * Must be a locking read when called inside the save transaction: a plain read would use the transaction’s snapshot,
+     * which can predate the commit of the request that saved the other order.
+     */
+    private function _isOrderNumberTakenByAnotherOrder(): bool
+    {
+        $db = Craft::$app->getDb();
+        $sql = $db->getQueryBuilder()->build(
+            (new Query())->select(['id'])->from([Table::ORDERS])->where(['and', ['number' => $this->number], ['not', ['id' => $this->id]]]),
+        );
+        $forUpdate = $db->getTransaction() !== null ? ' FOR UPDATE' : '';
+
+        return $db->createCommand($sql[0] . $forUpdate, $sql[1])->queryScalar() !== false;
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew): void
@@ -2334,6 +2350,12 @@ class Order extends Element implements HasStoreInterface
             if (!$isNew && $this->_isStaleIncompleteCopy()) {
                 Craft::warning("Refusing to save a stale, incomplete copy of order $this->number that was completed during the save.", __METHOD__);
                 throw new OrderCompletedException("Order $this->number was completed by another request.");
+            }
+
+            // Another request may have saved a new order with this number while this one waited for the lock.
+            // The unique index would reject the insert, but fail early with an exception callers can handle.
+            if ($isNew && $this->_isOrderNumberTakenByAnotherOrder()) {
+                throw new OrderNumberConflictException($this->number);
             }
 
             // Make sure addresses are set before recalculation so that on the next page load
@@ -2492,17 +2514,7 @@ class Order extends Element implements HasStoreInterface
                 $this->setEstimatedBillingAddress($estimatedBillingAddress);
             }
 
-            try {
-                $orderRecord->save(false);
-            } catch (IntegrityException $e) {
-                // For a new order, the element save just allocated the primary key, so a duplicate key here can only be
-                // the order number. Check the database message names it, in case another unique index is ever added.
-                $isDuplicateKey = ($e->errorInfo[0] ?? null) === '23505' || ($e->errorInfo[1] ?? null) === 1062;
-                if ($isNew && $isDuplicateKey && str_contains($e->getMessage(), (string)$this->number)) {
-                    throw new OrderNumberConflictException($this->number, $e);
-                }
-                throw $e;
-            }
+            $orderRecord->save(false);
 
             $this->_saveAdjustments();
             $this->_saveLineItems();
