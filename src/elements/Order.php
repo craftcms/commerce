@@ -2495,8 +2495,10 @@ class Order extends Element implements HasStoreInterface
             try {
                 $orderRecord->save(false);
             } catch (IntegrityException $e) {
-                // For a new order, the element save just allocated the primary key. The order number is the other unique key.
-                if ($isNew && (($e->errorInfo[0] ?? null) === '23505' || ($e->errorInfo[1] ?? null) === 1062)) {
+                // For a new order, the element save just allocated the primary key, so a duplicate key here can only be
+                // the order number. Check the database message names it, in case another unique index is ever added.
+                $isDuplicateKey = ($e->errorInfo[0] ?? null) === '23505' || ($e->errorInfo[1] ?? null) === 1062;
+                if ($isNew && $isDuplicateKey && str_contains($e->getMessage(), (string)$this->number)) {
                     throw new OrderNumberConflictException($this->number, $e);
                 }
                 throw $e;

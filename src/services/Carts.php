@@ -225,7 +225,7 @@ class Carts extends Component
             try {
                 Craft::$app->getElements()->saveElement($this->_cart, false);
             } catch (OrderNumberConflictException $e) {
-                if (!$isNew || $e->orderNumber !== $this->_cart->number) {
+                if (!$isNew) {
                     throw $e;
                 }
 
