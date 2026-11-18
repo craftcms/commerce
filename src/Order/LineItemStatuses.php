@@ -275,7 +275,8 @@ class LineItemStatuses
                 'uid',
             ])
             ->where('isArchived', false)
-            ->orderBy('sortOrder');
+            ->orderBy('sortOrder')
+            ->orderBy('id');
     }
 
     /**

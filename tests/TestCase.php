@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Tests;
 use CraftCms\Cms\Database\Migrations\Install;
 use CraftCms\Cms\Database\Migrator;
 use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Search\Search;
 use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\User\Models\User as UserModel;
 use CraftCms\Commerce\Tests\Support\DatabaseLock;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Override;
@@ -88,6 +90,12 @@ class TestCase extends Orchestra
 
         config()->set('app.debug', true);
 
+        // MySQL InnoDB fulltext indexes only see committed rows, so searches inside the test's
+        // transaction would miss its own data. Fall back to LIKE, as the CMS tests do.
+        if (DB::isMysql()) {
+            app(Search::class)->useFullText = false;
+        }
+
         app()->setLocale('en-US');
         app()->maintenanceMode()->deactivate();
 
@@ -146,7 +154,13 @@ class TestCase extends Orchestra
                 $migrator->getRepository()->log($migrator->getMigrationName($file), 1);
             }
 
+            // On a persistent database, `Plugins` loaded the previous run's `plugins` rows at boot, before
+            // `db:wipe`, and would skip installing a plugin it still thinks is installed.
+            app()->forgetInstance(\CraftCms\Cms\Plugin\Plugins::class);
             app(\CraftCms\Cms\Plugin\Plugins::class)->installPlugin('commerce');
+
+            // Save `plugins.commerce` before the first test's transaction, which would roll it back.
+            app(\CraftCms\Cms\ProjectConfig\ProjectConfig::class)->saveModifiedConfigData();
 
             // `Plugins::installPlugin()` calls
             // `loadPlugins()` as its first line, which runs *before* Commerce has a row in the `plugins`
@@ -198,5 +212,14 @@ class TestCase extends Orchestra
 
             DB::setDefaultConnection($connection);
         });
+
+        // A persistent database still has the previous run's Commerce install. Drop it before the
+        // providers boot, or they load Commerce against tables `db:wipe` is about to remove.
+        if (!RefreshDatabaseState::$migrated && DB::connection()->getDriverName() !== 'sqlite') {
+            DB::purge();
+            Schema::dropAllTables();
+            Context::forgetHidden('craft.info');
+            Context::forgetHidden('craft.isInstalled');
+        }
     }
 }

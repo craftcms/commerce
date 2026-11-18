@@ -77,7 +77,11 @@ trait QueriesPurchasablePricing
 
     private static function baseSalePriceSql(): string
     {
-        return 'CASE WHEN purchasables_stores.basePromotionalPrice < purchasables_stores.basePrice THEN purchasables_stores.basePromotionalPrice ELSE purchasables_stores.basePrice END';
+        $grammar = DB::connection()->getQueryGrammar();
+        $basePrice = $grammar->wrap('purchasables_stores.basePrice');
+        $basePromotionalPrice = $grammar->wrap('purchasables_stores.basePromotionalPrice');
+
+        return "CASE WHEN $basePromotionalPrice < $basePrice THEN $basePromotionalPrice ELSE $basePrice END";
     }
 
     public static function applyPrice(BuilderContract $query, mixed $value, bool $hasCatalogPricingRules): void

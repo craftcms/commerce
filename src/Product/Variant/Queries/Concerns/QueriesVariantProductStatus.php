@@ -11,7 +11,6 @@ use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
 use CraftCms\Commerce\Product\Elements\Product;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Database\Query\Builder;
-use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Scope narrowing variants by their owning product's status — see
@@ -42,8 +41,8 @@ trait QueriesVariantProductStatus
         }
 
         // The owner product's element rows are only needed for this param
-        $query->leftJoin(new Alias(CraftTable::ELEMENTS, 'product_elements'), 'product_elements.id', '=', 'commerce_variants.primaryOwnerId');
-        $query->leftJoin(new Alias(CraftTable::ELEMENTS_SITES, 'product_elements_sites'), function($join) {
+        $query->leftJoin(CraftTable::ELEMENTS . ' as product_elements', 'product_elements.id', '=', 'commerce_variants.primaryOwnerId');
+        $query->leftJoin(CraftTable::ELEMENTS_SITES . ' as product_elements_sites', function($join) {
             $join->on('product_elements_sites.elementId', '=', 'commerce_variants.primaryOwnerId')
                 ->on('product_elements_sites.siteId', '=', 'elements_sites.siteId');
         });
