@@ -158,9 +158,6 @@ class TestCase extends Orchestra
             // `db:wipe`, and would skip installing a plugin it still thinks is installed.
             app()->forgetInstance(\CraftCms\Cms\Plugin\Plugins::class);
             app(\CraftCms\Cms\Plugin\Plugins::class)->installPlugin('commerce');
-            if (DB::transactionLevel() > 0 && !DB::connection()->getPdo()->inTransaction()) {
-                DB::rollBack(0);
-            }
 
             // Save `plugins.commerce` before the first test's transaction, which would roll it back.
             app(\CraftCms\Cms\ProjectConfig\ProjectConfig::class)->saveModifiedConfigData();
