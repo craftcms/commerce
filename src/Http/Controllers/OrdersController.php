@@ -263,7 +263,7 @@ JS, []);
         $order = app(Orders::class)->getOrderById((int)$orderRequestData['order']['id']);
         abort_if(!$order, 400, t('Invalid Order ID', category: 'commerce'));
 
-        $this->enforceManageOrderPermissions($order);
+        $this->enforceEditOrderPermissions($order);
 
         $alreadyCompleted = $order->isCompleted;
         // Set data from request to the order
@@ -497,12 +497,12 @@ JS, []);
             ], [
                 ':siteId' => $siteId,
             ])
-            ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
+            ->innerJoin(['pstores' => '{{%' . Table::PURCHASABLES_STORES . '}}'], '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
             ->andWhere(['pstores.storeId' => $store->id])
             ->andWhere(['elements.revisionId' => null])
             ->andWhere(['elements.draftId' => null])
-            ->from(['purchasables' => Table::PURCHASABLES]);
+            ->from(['purchasables' => '{{%' . Table::PURCHASABLES . '}}']);
 
         // Are they searching for a SKU or purchasable description?
         if ($search) {
@@ -769,6 +769,8 @@ JS, []);
         if (!$order) {
             return $this->asFailure(t('Bad order ID.', category: 'commerce'));
         }
+
+        $this->enforceEditOrderPermissions($order);
 
         // Return early if the address is already set.
         if ($order->{$type . 'Id'} == $addressId) {
@@ -1900,5 +1902,10 @@ JS, []);
     protected function enforceManageOrderPermissions(Order $order): void
     {
         abort_unless(($user = currentUserElement()) && $order->canView($user), 403, 'User not authorized to view this order.');
+    }
+
+    protected function enforceEditOrderPermissions(Order $order): void
+    {
+        abort_unless(($user = currentUserElement()) && $order->canSave($user), 403, 'User not authorized to save this order.');
     }
 }

@@ -151,7 +151,11 @@ test('orderCouponAvailable is false once the customer email has used its per-ema
 
 test('matchLineItem matches a fully-promotable line item against an all-purchasables, all-entries discount', function() {
     $order = new Order(['couponCode' => null]);
+    $purchasable = Mockery::mock(Variant::class)->makePartial();
+    $purchasable->shouldReceive('getId')->andReturn(1);
+    $purchasable->shouldReceive('getIsPromotable')->andReturn(true);
     $lineItem = new LineItem(['qty' => 2]);
+    $lineItem->setPurchasable($purchasable);
     $lineItem->setPrice(10);
     $lineItem->setIsPromotable(true);
     $lineItem->setOrder($order);
@@ -159,6 +163,18 @@ test('matchLineItem matches a fully-promotable line item against an all-purchasa
     $discount = new Discount(['allPurchasables' => true, 'allEntries' => true]);
 
     expect(app(Discounts::class)->matchLineItem($lineItem, $discount))->toBeTrue();
+});
+
+test('matchLineItem does not match a line item whose purchasable was deleted', function() {
+    $order = new Order(['couponCode' => null]);
+    $lineItem = new LineItem(['qty' => 2, 'purchasableId' => 999999]);
+    $lineItem->setPrice(10);
+    $lineItem->setIsPromotable(true);
+    $lineItem->setOrder($order);
+
+    $discount = new Discount(['allPurchasables' => true, 'allEntries' => true]);
+
+    expect(app(Discounts::class)->matchLineItem($lineItem, $discount))->toBeFalse();
 });
 
 test('matchLineItem does not match a line item on sale when the discount excludes promotional items', function() {

@@ -1364,6 +1364,7 @@ return [
     'Unit price (minus discounts)' => 'Unit price (minus discounts)',
     'Units' => 'Units',
     'Unpaid' => 'Unpaid',
+    'Unsupported payment currency.' => 'Unsupported payment currency.',
     'Unsubscribe' => 'Unsubscribe',
     'Update Address' => 'Update Address',
     'Update Order Status' => 'Update Order Status',

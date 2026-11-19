@@ -9,7 +9,6 @@ use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Product\Queries\ProductQuery;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Database\Query\Builder;
-use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Product reference-string scope, mirroring {@see \CraftCms\Cms\Element\Queries\Concerns\Entry\QueriesRef}
@@ -66,7 +65,7 @@ trait QueriesProductRef
         });
 
         if ($joinProductTypes) {
-            $query->join(new Alias(Table::PRODUCTTYPES, 'commerce_producttypes'), 'commerce_producttypes.id', '=', 'commerce_products.typeId');
+            $query->join(Table::PRODUCTTYPES . ' as commerce_producttypes', 'commerce_producttypes.id', '=', 'commerce_products.typeId');
         }
     }
 

@@ -8,7 +8,6 @@ use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Order\Queries\OrderQuery;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
-use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Order customer scopes — see {@see QueriesOrderIdentity} for the trait convention this follows.
@@ -36,7 +35,7 @@ trait QueriesOrderCustomer
         }
 
         // Join and search the users table for email address
-        $query->leftJoin(new Alias(CraftTable::USERS, 'users'), 'users.id', '=', 'commerce_orders.customerId');
+        $query->leftJoin(CraftTable::USERS . ' as users', 'users.id', '=', 'commerce_orders.customerId');
         $query->whereParam('users.email', $value, caseInsensitive: true);
     }
 

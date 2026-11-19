@@ -70,12 +70,12 @@ abstract class PurchasableQuery extends ElementQuery
             'inventoryitems.id as inventoryItemId',
         ]);
 
-        $this->query->leftJoin(new Alias(Table::SITESTORES, 'sitestores'), 'elements_sites.siteId', '=', 'sitestores.siteId');
-        $this->query->leftJoin(new Alias(Table::PURCHASABLES_STORES, 'purchasables_stores'), function($join) {
+        $this->query->leftJoin(Table::SITESTORES . ' as sitestores', 'elements_sites.siteId', '=', 'sitestores.siteId');
+        $this->query->leftJoin(Table::PURCHASABLES_STORES . ' as purchasables_stores', function($join) {
             $join->on('purchasables_stores.storeId', '=', 'sitestores.storeId')
                 ->on('purchasables_stores.purchasableId', '=', 'commerce_purchasables.id');
         });
-        $this->query->leftJoin(new Alias(Table::INVENTORYITEMS, 'inventoryitems'), 'inventoryitems.purchasableId', '=', 'commerce_purchasables.id');
+        $this->query->leftJoin(Table::INVENTORYITEMS . ' as inventoryitems', 'inventoryitems.purchasableId', '=', 'commerce_purchasables.id');
 
         $this->hasCatalogPricingRules = app(CatalogPricingRules::class)->hasCatalogPricingRules();
 

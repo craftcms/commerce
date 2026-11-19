@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import {t} from '@craftcms/cp';
+  import {t, type UiNodePayload} from '@craftcms/cp';
+  import {router} from '@inertiajs/vue3';
   import {ref} from 'vue';
   import {sendActionRequest} from '../orders/cp-client';
 
@@ -16,14 +17,6 @@
     confirmMessage: string | null;
   };
 
-  // A minimal, hand-authored stand-in for `cms`'s own `UiNodePayload<T>` —
-  // only the two members this component actually reads (see window.d.ts for
-  // why this can't just be imported from `cms`).
-  type UiNodePayload<Props> = {
-    uid: string;
-    props: Props;
-  };
-
   const props = defineProps<{
     node: UiNodePayload<UsageCounterProps>;
   }>();
@@ -31,12 +24,10 @@
   const loading = ref(false);
 
   /**
-   * Posts the reset, then re-fetches this page's own `ui` prop via the real,
-   * currently-mounted Inertia router (`window.Cp.$router` — see window.d.ts
-   * for why this bundle can't just `import {router} from '@inertiajs/vue3'`
-   * itself) so the count shown here reflects the fresh, now-cleared total
-   * rather than going stale until a full page reload. Mirrors `cms`'s own
-   * `AdminTableNode.vue`'s `refreshUi()`.
+   * Posts the reset, then re-fetches this page's own `ui` prop so the count
+   * shown here reflects the fresh, now-cleared total rather than going stale
+   * until a full page reload. Mirrors `cms`'s own `AdminTableNode.vue`'s
+   * `refreshUi()`.
    */
   async function reset(): Promise<void> {
     const message = props.node.props.confirmMessage ?? t('Are you sure?');
@@ -50,7 +41,7 @@
       await sendActionRequest('POST', props.node.props.resetUrl, {
         data: props.node.props.resetBody,
       });
-      window.Cp.$router.reload({only: ['ui']});
+      router.reload({only: ['ui']});
     } finally {
       loading.value = false;
     }

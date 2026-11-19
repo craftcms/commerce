@@ -159,8 +159,13 @@ class CatalogPricing
         } else {
             // TRUNCATE is DDL and causes an implicit commit on MySQL/MariaDB, so it must run
             // before the transaction below is opened - doing it inside would silently end the
-            // transaction, leaving the later DB::commit() with nothing to commit.
-            DB::table(Table::CATALOG_PRICING)->truncate();
+            // transaction, leaving the later DB::commit() with nothing to commit. If a caller
+            // already has a transaction open, delete the rows instead so it isn't committed.
+            if (DB::transactionLevel() === 0) {
+                DB::table(Table::CATALOG_PRICING)->truncate();
+            } else {
+                DB::table(Table::CATALOG_PRICING)->delete();
+            }
         }
 
         DB::beginTransaction();
@@ -171,11 +176,8 @@ class CatalogPricing
             $baseStateTime = microtime(true);
             $count = 1;
 
-            $uuidFunction = Sql::uuidSql();
-            $nowFunction = Sql::nowSql();
-
-            $cpTable = Table::CATALOG_PRICING;
-            $psTable = Table::PURCHASABLES_STORES;
+            $uuid = DB::raw(Sql::uuidSql());
+            $now = DB::raw(Sql::nowSql());
 
             foreach (array_chunk($purchasableIds, $chunkSize) as $chunk) {
                 $fromCount = number_format($count, 0);
@@ -183,21 +185,22 @@ class CatalogPricing
 
                 $output?->write(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
 
-                $idList = implode(',', array_map('intval', $chunk));
+                $chunk = array_map('intval', $chunk);
 
-                DB::statement("
-                    INSERT INTO {$cpTable} (price, purchasableId, storeId, uid, dateCreated, dateUpdated)
-                    SELECT basePrice, purchasableId, storeId, {$uuidFunction}, {$nowFunction}, {$nowFunction}
-                    FROM {$psTable}
-                    WHERE purchasableId IN ({$idList})
-                ");
+                DB::table(Table::CATALOG_PRICING)->insertUsing(
+                    ['price', 'purchasableId', 'storeId', 'uid', 'dateCreated', 'dateUpdated'],
+                    DB::table(Table::PURCHASABLES_STORES)
+                        ->select(['basePrice', 'purchasableId', 'storeId', $uuid, $now, $now])
+                        ->whereIn('purchasableId', $chunk),
+                );
 
-                DB::statement("
-                    INSERT INTO {$cpTable} (price, purchasableId, storeId, isPromotionalPrice, uid, dateCreated, dateUpdated)
-                    SELECT basePromotionalPrice, purchasableId, storeId, true, {$uuidFunction}, {$nowFunction}, {$nowFunction}
-                    FROM {$psTable}
-                    WHERE basePromotionalPrice IS NOT NULL AND purchasableId IN ({$idList})
-                ");
+                DB::table(Table::CATALOG_PRICING)->insertUsing(
+                    ['price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'uid', 'dateCreated', 'dateUpdated'],
+                    DB::table(Table::PURCHASABLES_STORES)
+                        ->select(['basePromotionalPrice', 'purchasableId', 'storeId', DB::raw('true'), $uuid, $now, $now])
+                        ->whereNotNull('basePromotionalPrice')
+                        ->whereIn('purchasableId', $chunk),
+                );
 
                 $output?->write('done!');
                 $count += $chunkSize;
@@ -296,7 +299,9 @@ class CatalogPricing
         $rows = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset)
             ->select(['price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'])
             ->orderBy('purchasableId')
+            ->orderByRaw(DB::connection()->getQueryGrammar()->wrap('catalogPricingRuleId') . ' IS NOT NULL')
             ->orderBy('catalogPricingRuleId')
+            ->orderBy('isPromotionalPrice')
             ->get()
             ->all();
 

@@ -2,7 +2,7 @@
   "name": "@craftcms/commerce",
   "private": true,
   "packageManager": "pnpm@11.25.0",
-  "description": "Commerce's Vue 3/Vite bundle for the new CP Form system (Form Node/Control components Commerce contributes via window.Cp.$components — see resources/js/cp.ts). The legacy Vue 2/webpack `commerceui` order-edit bundle lives in ./legacy, a separate pnpm workspace package — the two can't share a `vue` dependency.",
+  "description": "Commerce's Vue 3/Vite bundle for the new CP Form system (Form Node/Control components Commerce contributes via registerComponent() from @craftcms/cp — see resources/js/cp.ts). The legacy Vue 2/webpack `commerceui` order-edit bundle lives in ./legacy, a separate pnpm workspace package — the two can't share a `vue` dependency.",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
@@ -14,6 +14,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@inertiajs/vue3": "^3.0.3",
     "@vitejs/plugin-vue": "^6.0.9",
     "chart.js": "^4.6.1",
     "husky": "^7.0.4",

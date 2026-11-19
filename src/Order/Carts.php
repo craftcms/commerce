@@ -15,6 +15,8 @@ use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\InactiveCartsPurging;
+use CraftCms\Commerce\Order\Exceptions\OrderCompletedException;
+use CraftCms\Commerce\Order\Exceptions\OrderNumberConflictException;
 use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
@@ -66,7 +68,7 @@ class Carts
     /**
      * Get the current cart for this session.
      *
-     * @param bool $forceSave Force the cart.
+     * @param bool $forceSave Save the cart immediately. If another request saved a cart with the same number first, return that cart when accessible.
      */
     public function getCart(bool $forceSave = false): Order
     {
@@ -142,10 +144,50 @@ class Carts
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
         if (($this->cart->id && $hasSomethingChangedOnCart) || $forceSave) {
-            Elements::saveElement($this->cart, false);
+            // The cart may have been completed by another request (e.g. a payment webhook) since it was loaded.
+            // Saving a stale cart would force a recalculation over a completed order.
+            // The completed check inside the save is authoritative; this one just avoids a pointless save.
+            if ($this->cart->id && $this->isCartCompletedInDb($this->cart)) {
+                $this->forgetCart();
+
+                return $this->getCart();
+            }
+
+            $isNew = $this->cart->id === null;
+
+            try {
+                Elements::saveElement($this->cart, false);
+            } catch (OrderNumberConflictException $e) { // @phpstan-ignore catch.neverThrown (thrown by Order::afterSave() through the element save)
+                if (!$isNew) {
+                    throw $e;
+                }
+
+                // The failed insert was rolled back. Resolve the winning cart from the primary DB using the normal access checks.
+                DB::useWriteConnectionWhenReading();
+
+                $this->cart = $this->getCartFromSession();
+                if ($this->cart === null && $this->cartNumber !== false) {
+                    throw $e;
+                }
+
+                return $this->getCart($this->cart === null && $forceSave);
+            } catch (OrderCompletedException) { // @phpstan-ignore catch.neverThrown (thrown by Order::afterSave() through the element save)
+                // Completed by another request during the save, which has been rolled back. Start again with a fresh cart.
+                $this->forgetCart();
+
+                return $this->getCart();
+            }
         }
 
         return $this->cart;
+    }
+
+    private function isCartCompletedInDb(Order $cart): bool
+    {
+        return DB::table(Table::ORDERS)
+            ->where('id', $cart->id)
+            ->where('isCompleted', true)
+            ->exists();
     }
 
     /**

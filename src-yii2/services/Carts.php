@@ -107,7 +107,7 @@ class Carts extends Component
             $legacyEvent = new CartPurgeEvent([
                 'inactiveCartsQuery' => new Query()
                     ->select(['orders.id'])
-                    ->from(['orders' => \CraftCms\Commerce\Database\Table::ORDERS])
+                    ->from(['orders' => '{{%' . \CraftCms\Commerce\Database\Table::ORDERS . '}}'])
                     ->where(['orders.id' => (clone $event->inactiveCartsQuery)->pluck('id')->all()]),
             ]);
             $legacy->trigger(self::EVENT_BEFORE_PURGE_INACTIVE_CARTS, $legacyEvent);

@@ -228,7 +228,8 @@ class InventoryLocations
 
     public function authorizeInventoryLocationAddressView(ElementAuthorizing $event): void
     {
-        if (!$event->element instanceof Address) {
+        // Unsaved addresses can't belong to an inventory location yet, and a null ID would match locations without an address
+        if (!$event->element instanceof Address || !$event->element->getCanonicalId()) {
             return;
         }
 
@@ -245,7 +246,8 @@ class InventoryLocations
 
     public function authorizeInventoryLocationAddressEdit(ElementAuthorizing $event): void
     {
-        if (!$event->element instanceof Address) {
+        // Unsaved addresses can't belong to an inventory location yet, and a null ID would match locations without an address
+        if (!$event->element instanceof Address || !$event->element->getCanonicalId()) {
             return;
         }
 

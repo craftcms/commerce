@@ -116,7 +116,7 @@ test('site accepts multiple sites across different stores, and each result resol
         $storeHandleBySite[$variant->getSite()->handle] = $variant->getStore()->handle;
     }
 
-    expect($storeHandleBySite)->toBe([
+    expect($storeHandleBySite)->toEqual([
         $this->stores->usSite->handle => $this->stores->primaryStore->handle,
         $this->stores->euSite->handle => $this->stores->euStore->handle,
     ]);

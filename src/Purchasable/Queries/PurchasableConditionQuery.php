@@ -8,7 +8,6 @@ use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable;
 use Override;
-use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * A generic, cross-purchasable-type element query. {@see Purchasable} is abstract with no
@@ -37,8 +36,8 @@ class PurchasableConditionQuery extends ElementQuery
         parent::__construct($elementType, $config);
 
         $this->query->leftJoin(Table::PURCHASABLES, 'commerce_purchasables.id', '=', 'elements.id');
-        $this->query->leftJoin(new Alias(Table::SITESTORES, 'sitestores'), 'elements_sites.siteId', '=', 'sitestores.siteId');
-        $this->query->leftJoin(new Alias(Table::PURCHASABLES_STORES, 'purchasables_stores'), function($join) {
+        $this->query->leftJoin(Table::SITESTORES . ' as sitestores', 'elements_sites.siteId', '=', 'sitestores.siteId');
+        $this->query->leftJoin(Table::PURCHASABLES_STORES . ' as purchasables_stores', function($join) {
             $join->on('purchasables_stores.storeId', '=', 'sitestores.storeId')
                 ->on('purchasables_stores.purchasableId', '=', 'elements.id');
         });
