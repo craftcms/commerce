@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\License\Elements;
 
+use CraftCms\Cms\Cms;
 use CraftCms\Cms\Cp\Data\ActionItem;
 use CraftCms\Cms\Element\Actions\Delete;
 use CraftCms\Cms\Element\Contracts\ElementInterface;
@@ -11,12 +12,14 @@ use CraftCms\Cms\Element\Data\EagerLoadPlan;
 use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
 use CraftCms\Cms\FieldLayout\FieldLayout;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\ElementActions;
 use CraftCms\Cms\Support\Facades\Users;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Controls\DateTime as DateTimeControl;
 use CraftCms\Cms\Ui\Controls\ElementSelect;
 use CraftCms\Cms\Ui\Controls\Text;
 use CraftCms\Cms\Ui\Enums\ControlMode;
@@ -51,6 +54,10 @@ use function CraftCms\Cms\t;
 #[Ruleset(LicenseRules::class)]
 class License extends Element
 {
+    public const string STATUS_ACTIVE = 'active';
+
+    public const string STATUS_EXPIRED = 'expired';
+
     public ?int $variantId = null;
 
     public ?int $orderId = null;
@@ -63,6 +70,11 @@ class License extends Element
 
     public ?int $userId = null;
 
+    /**
+     * When the license expires, or null if it never does. Set from the variant when the license is issued.
+     */
+    public ?DateTime $expiryDate = null;
+
     private Variant|false|null $_variant = null;
 
     private ?int $_variantFetchedForId = null;
@@ -70,6 +82,11 @@ class License extends Element
     private User|false|null $_owner = null;
 
     private Order|false|null $_order = null;
+
+    /**
+     * Whether the expiry date was set in the control panel, so a new license keeps it instead of the variant's.
+     */
+    private bool $_expiryDateSet = false;
 
     #[Override]
     public function __toString(): string
@@ -115,6 +132,33 @@ class License extends Element
     public static function hasStatuses(): bool
     {
         return true;
+    }
+
+    #[Override]
+    public static function statuses(): array
+    {
+        return [
+            self::STATUS_ACTIVE => t('Active', category: 'commerce'),
+            self::STATUS_EXPIRED => t('Expired', category: 'commerce'),
+            self::STATUS_DISABLED => t('Disabled', category: 'commerce'),
+        ];
+    }
+
+    #[Override]
+    public function getStatus(): ?string
+    {
+        $status = parent::getStatus();
+
+        if ($status !== self::STATUS_ENABLED) {
+            return $status;
+        }
+
+        return $this->isExpired() ? self::STATUS_EXPIRED : self::STATUS_ACTIVE;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiryDate !== null && $this->expiryDate <= new DateTime();
     }
 
     #[Override]
@@ -181,6 +225,7 @@ class License extends Element
             'productType' => ['label' => t('Product Type', category: 'commerce')],
             'licenseKey' => ['label' => t('License Key', category: 'commerce')],
             'dateCreated' => ['label' => t('License Issue Date', category: 'commerce')],
+            'expiryDate' => ['label' => t('Expiry Date', category: 'commerce')],
             'licensedTo' => ['label' => t('Licensed To', category: 'commerce')],
             'orderLink' => ['label' => t('Associated Order', category: 'commerce')],
             'id' => ['label' => t('ID', category: 'commerce')],
@@ -208,6 +253,12 @@ class License extends Element
                 'label' => t('License Issue Date', category: 'commerce'),
                 'orderBy' => 'elements.dateCreated',
                 'attribute' => 'dateCreated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => t('Expiry Date', category: 'commerce'),
+                'orderBy' => 'commerce_licenses.expiryDate',
+                'attribute' => 'expiryDate',
                 'defaultDir' => 'desc',
             ],
             [
@@ -454,6 +505,20 @@ class License extends Element
         $nodes[] = Field::make(t('Owner Name', category: 'commerce'))
             ->control(Text::make('ownerName')->value($this->ownerName)->mode($mode));
 
+        $nodes[] = Field::make(t('Expiry Date', category: 'commerce'))
+            ->instructions($isSaved ? null : t('Leave blank to use the variant’s license duration.', category: 'commerce'))
+            ->control(
+                DateTimeControl::make('expiryDate')
+                    ->showTime()
+                    ->minuteIncrement(1)
+                    ->value([
+                        'date' => $this->expiryDate?->format('Y-m-d') ?? '',
+                        'time' => $this->expiryDate?->format('H:i') ?? '',
+                        'timezone' => $this->expiryDate?->getTimezone()->getName() ?? Cms::timezone(),
+                    ])
+                    ->mode($mode),
+            );
+
         if (!$this->userId) {
             $nodes[] = Field::make(t('Owner Email', category: 'commerce'))
                 ->instructions(t('Required if Owner is blank.', category: 'commerce'))
@@ -473,6 +538,13 @@ class License extends Element
                 $this->$attribute = ($id = reset($ids)) ? (int)$id : null;
                 unset($values[$param]);
             }
+        }
+
+        if (array_key_exists('expiryDate', $values)) {
+            $expiryDate = DateTimeHelper::toDateTime($values['expiryDate'], true);
+            $this->expiryDate = $expiryDate ? DateTime::createFromInterface($expiryDate) : null;
+            $this->_expiryDateSet = true;
+            unset($values['expiryDate']);
         }
 
         foreach (['licenseKey', 'ownerName', 'ownerEmail'] as $attribute) {
@@ -545,9 +617,16 @@ class License extends Element
             }
 
             if ($isNew || $record->variantId === null) {
+                // A license created in the control panel expires per its variant, unless a date was entered
+                if ($record->variantId === null && $this->expiryDate === null && !$this->_expiryDateSet && $this->orderId === null) {
+                    $this->expiryDate = $this->getVariant()?->getLicenseExpiryDate();
+                }
+
                 $record->variantId = $this->variantId;
                 $record->licenseKey = $this->licenseKey ?: app(Licenses::class)->generateLicenseKey($this);
             }
+
+            $record->expiryDate = Query::prepareDateForDb($this->expiryDate);
 
             $record->dateUpdated = Query::prepareDateForDb($this->dateUpdated ?? new DateTime());
             $record->save();

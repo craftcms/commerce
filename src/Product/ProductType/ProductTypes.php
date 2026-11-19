@@ -322,6 +322,9 @@ class ProductTypes
             $record->hasDimensions = $data['hasDimensions'];
             $record->hasLicenses = $data['hasLicenses'] ?? false;
             $record->licenseDownloadFieldUid = $data['licenseDownloadFieldUid'] ?? null;
+            $record->hasLicenseExpiry = $data['hasLicenseExpiry'] ?? false;
+            $record->licenseExpiryDuration = $data['licenseExpiryDuration'] ?? null;
+            $record->allowLicenseExpiryOverride = $data['allowLicenseExpiryOverride'] ?? false;
 
             $record->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
             $record->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
@@ -707,6 +710,9 @@ class ProductTypes
         $productType->hasDimensions = (bool)$record->hasDimensions;
         $productType->hasLicenses = (bool)$record->hasLicenses;
         $productType->licenseDownloadFieldUid = $record->licenseDownloadFieldUid;
+        $productType->hasLicenseExpiry = (bool)$record->hasLicenseExpiry;
+        $productType->licenseExpiryDuration = $record->licenseExpiryDuration;
+        $productType->allowLicenseExpiryOverride = (bool)$record->allowLicenseExpiryOverride;
         $productType->maxVariants = $record->maxVariants;
         $productType->hasVariantTitleField = (bool)$record->hasVariantTitleField;
         $productType->variantTitleFormat = $record->variantTitleFormat;

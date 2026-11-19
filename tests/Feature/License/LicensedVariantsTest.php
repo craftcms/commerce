@@ -195,6 +195,16 @@ describe('downloads', function() {
         ($this->download)(['licenseKey' => 'nope', 'assetId' => $this->file->id])->assertNotFound();
     });
 
+    test('an expired license can’t download, and one expiring later can', function() {
+        $this->license->expiryDate = new DateTime('+1 day');
+        Elements::saveElement($this->license);
+        ($this->download)(['assetId' => $this->file->id])->assertOk();
+
+        $this->license->expiryDate = new DateTime('-1 minute');
+        Elements::saveElement($this->license);
+        ($this->download)(['assetId' => $this->file->id])->assertForbidden();
+    });
+
     test('with a variant download field, only its assets download, defaulting to the first', function() {
         $this->type->licenseDownloadFieldUid = $this->filesField->uid;
         app(ProductTypes::class)->saveProductType($this->type) or throw new RuntimeException(json_encode($this->type->errors()->all()));

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\License\Queries;
 
+use Closure;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Queries\Exceptions\QueryAbortedException;
@@ -59,9 +60,16 @@ class LicenseQuery extends ElementQuery
 
     public mixed $licenseDate = null;
 
+    public mixed $expiryDate = null;
+
     /** @param array<string, mixed> $config */
     public function __construct(array $config = [])
     {
+        // Expired licenses are hidden unless asked for, like expired products and entries
+        if (!isset($config['status'])) {
+            $config['status'] = [License::STATUS_ACTIVE];
+        }
+
         parent::__construct(License::class, $config);
 
         $this->query->leftJoin(new Alias(Table::VARIANTS, 'license_variants'), 'license_variants.id', '=', 'commerce_licenses.variantId');
@@ -75,6 +83,7 @@ class LicenseQuery extends ElementQuery
             'commerce_licenses.ownerName',
             'commerce_licenses.ownerEmail',
             'commerce_licenses.userId',
+            'commerce_licenses.expiryDate',
         ]);
 
         $this->beforeQuery(static function(self $query) {
@@ -105,6 +114,10 @@ class LicenseQuery extends ElementQuery
 
             if ($query->licenseDate) {
                 $query->whereDateParam('elements.dateCreated', $query->licenseDate);
+            }
+
+            if ($query->expiryDate) {
+                $query->whereDateParam('commerce_licenses.expiryDate', $query->expiryDate);
             }
         });
     }
@@ -243,6 +256,37 @@ class LicenseQuery extends ElementQuery
     {
         $this->licenseDate = $value;
         return $this;
+    }
+
+    /**
+     * Narrows the query results by license expiry date, such as `'< 2027-01-01'`.
+     */
+    public function expiryDate(mixed $value): static
+    {
+        $this->expiryDate = $value;
+        return $this;
+    }
+
+    #[Override]
+    protected function statusCondition(string $status): Closure
+    {
+        // Rounded to the minute, like product and entry queries, to keep queries cacheable
+        $now = now()->endOfMinute()->setTimezone('UTC');
+
+        return match ($status) {
+            License::STATUS_ACTIVE => fn(Builder $query) => $query
+                ->whereBool('elements.enabled', true)
+                ->whereBool('elements_sites.enabled', true)
+                ->where(fn(Builder $query) => $query
+                    ->whereNull('commerce_licenses.expiryDate')
+                    ->orWhere('commerce_licenses.expiryDate', '>', $now)),
+            License::STATUS_EXPIRED => fn(Builder $query) => $query
+                ->whereBool('elements.enabled', true)
+                ->whereBool('elements_sites.enabled', true)
+                ->whereNotNull('commerce_licenses.expiryDate')
+                ->where('commerce_licenses.expiryDate', '<=', $now),
+            default => parent::statusCondition($status),
+        };
     }
 
     /**

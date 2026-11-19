@@ -87,6 +87,8 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
         $this->query->addSelect([
             'commerce_variants.primaryOwnerId',
             'commerce_variants.issuesLicense',
+            'commerce_variants.licenseExpires',
+            'commerce_variants.licenseExpiryDuration',
         ]);
 
         $this->beforeQuery(static function(self $variantQuery) {

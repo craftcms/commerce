@@ -372,6 +372,7 @@ class Install extends Migration
             $table->string('ownerName')->nullable();
             $table->string('ownerEmail')->nullable();
             $table->integer('userId')->nullable();
+            $table->dateTime('expiryDate')->nullable();
             $table->dateTime('dateCreated');
             $table->dateTime('dateUpdated');
             $table->char('uid', 36)->default('0');
@@ -625,6 +626,9 @@ class Install extends Migration
             $table->boolean('hasDimensions')->default(false);
             $table->boolean('hasLicenses')->default(false);
             $table->char('licenseDownloadFieldUid', 36)->nullable();
+            $table->boolean('hasLicenseExpiry')->default(false);
+            $table->string('licenseExpiryDuration')->nullable();
+            $table->boolean('allowLicenseExpiryOverride')->default(false);
 
             // Variant title stuff
             $table->boolean('hasVariantTitleField')->default(true);
@@ -1016,6 +1020,8 @@ class Install extends Migration
             $table->integer('primaryOwnerId')->nullable();
             $table->boolean('isDefault')->default(false);
             $table->boolean('issuesLicense')->default(false);
+            $table->boolean('licenseExpires')->default(true);
+            $table->string('licenseExpiryDuration')->nullable();
             $table->boolean('deletedWithProduct')->default(false); // @TODO Remove in Commerce 6.0
             $table->dateTime('dateCreated');
             $table->dateTime('dateUpdated');
@@ -1070,6 +1076,7 @@ class Install extends Migration
         Schema::createIndex(Table::LICENSES, ['orderId']);
         Schema::createIndex(Table::LICENSES, ['variantId']);
         Schema::createIndex(Table::LICENSES, ['userId']);
+        Schema::createIndex(Table::LICENSES, ['expiryDate']);
         Schema::createIndex(Table::LINEITEMS, ['purchasableId']);
         Schema::createIndex(Table::LINEITEMS, ['shippingCategoryId']);
         Schema::createIndex(Table::LINEITEMS, ['taxCategoryId']);

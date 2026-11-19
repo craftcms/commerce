@@ -80,7 +80,11 @@ readonly class LicensesController
         ]);
 
         /** @var License|null $license */
-        $license = License::find()->licenseKey($validated['licenseKey'])->one();
+        $license = License::find()
+            ->licenseKey($validated['licenseKey'])
+            ->status([License::STATUS_ACTIVE, License::STATUS_EXPIRED])
+            ->one();
+        abort_if($license?->isExpired(), 403, t('This license has expired.', category: 'commerce'));
         $variant = $license?->getVariant();
         $product = $variant?->getOwner();
         abort_if($variant === null || $product === null, 404);

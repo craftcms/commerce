@@ -12,6 +12,7 @@ use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\FieldLayoutElements\ProductTitleField;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantIssuesLicenseField;
+use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantLicenseExpiryField;
 use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantsField as VariantsLayoutElement;
 use CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantTitleField;
 use CraftCms\Commerce\Purchasable\FieldLayoutElements\PurchasableAllowedQtyField;
@@ -56,6 +57,7 @@ trait HasNativeFields
                     $fields[] = PurchasableDimensionsField::class;
                     $fields[] = PurchasableWeightField::class;
                     $fields[] = VariantIssuesLicenseField::class;
+                    $fields[] = VariantLicenseExpiryField::class;
                     break;
             }
 

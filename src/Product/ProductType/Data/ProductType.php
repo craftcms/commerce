@@ -17,6 +17,7 @@ use CraftCms\Cms\Support\Facades\Deprecator;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Commerce\License\Licenses;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\ProductType\Validation\ProductTypeRules;
@@ -64,6 +65,21 @@ class ProductType extends Component implements FieldLayoutProviderInterface
      * When null, licenses can download any asset related to the variant or its product.
      */
     public ?string $licenseDownloadFieldUid = null;
+
+    /**
+     * Whether licenses issued by this type's variants expire.
+     */
+    public bool $hasLicenseExpiry = false;
+
+    /**
+     * How long licenses last, as an ISO 8601 duration such as `P1Y`, when licenses expire.
+     */
+    public ?string $licenseExpiryDuration = null;
+
+    /**
+     * Whether variants can choose whether their licenses expire, and override the duration.
+     */
+    public bool $allowLicenseExpiryOverride = false;
 
     public ?int $maxVariants = null;
 
@@ -184,6 +200,10 @@ class ProductType extends Component implements FieldLayoutProviderInterface
 
         if ($this->hasLicenses && $this->licenseDownloadFieldUid && !$this->getLicenseDownloadField()) {
             $this->errors()->add('licenseDownloadFieldUid', t('The download field must be an Assets field in the product or variant field layout.', category: 'commerce'));
+        }
+
+        if ($this->hasLicenses && $this->hasLicenseExpiry && !Licenses::parseDuration($this->licenseExpiryDuration)) {
+            $this->errors()->add('licenseExpiryDuration', t('The license duration must be an ISO 8601 duration, such as {example}.', ['example' => 'P1Y'], category: 'commerce'));
         }
 
         if (empty($this->getSiteSettings())) {
@@ -427,6 +447,8 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             'height',
             'issuesLicense',
             'length',
+            'licenseExpires',
+            'licenseExpiryDuration',
             'maxQty',
             'minQty',
             'price',
@@ -492,6 +514,9 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             'hasDimensions' => $this->hasDimensions,
             'hasLicenses' => $this->hasLicenses,
             'licenseDownloadFieldUid' => $this->licenseDownloadFieldUid,
+            'hasLicenseExpiry' => $this->hasLicenseExpiry,
+            'licenseExpiryDuration' => $this->licenseExpiryDuration,
+            'allowLicenseExpiryOverride' => $this->allowLicenseExpiryOverride,
             'maxVariants' => $this->maxVariants,
 
             'hasVariantTitleField' => $this->hasVariantTitleField,

@@ -104,7 +104,12 @@
 
 - Added licenses, which are issued for each unit of a purchased variant that has “Issues License” turned on, when the order is paid or completed.
 - Added the “Allow variants to issue licenses” and “License Download Field” product type settings.
+- Added the “Licenses expire”, “Default License Duration” and “Allow variants to override license expiry” product type settings. Durations are ISO 8601 durations, such as `P1Y`.
 - Added the “Issues License” variant field, which shows on variants whose product type allows licenses.
+- Added the “License Expiry” variant field, which shows on variants whose product type lets variants override license expiry.
+- Licenses get an expiry date when they’re issued, from the variant’s license duration. Expired licenses can’t download files.
+- Licenses now have “Active” and “Expired” statuses. License queries return active licenses by default.
+- A line item with a `renewLicenseKey` option extends that license instead of issuing a new one, when the order’s customer owns it and it was issued for the line item’s variant.
 - Added the “Licenses” control panel section and settings screen.
 - Added the “Manage licenses” permission.
 - Added the `commerce/licenses/download` action, which streams an asset from the product type’s license download field, or any asset related to the licensed variant or its product, to whoever has the license key.
@@ -113,13 +118,24 @@
 - Added `CraftCms\Commerce\License\Elements\License`.
 - Added `CraftCms\Commerce\License\Events\LicenseKeyGenerating`.
 - Added `CraftCms\Commerce\License\Licenses`.
+- Added `CraftCms\Commerce\License\Elements\License::$expiryDate`.
+- Added `CraftCms\Commerce\License\Elements\License::isExpired()`.
+- Added `CraftCms\Commerce\License\Queries\LicenseQuery::expiryDate()`.
 - Added `CraftCms\Commerce\License\Queries\LicenseQuery`.
 - Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$hasLicenses`.
 - Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$licenseDownloadFieldUid`.
 - Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::getLicenseDownloadField()`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$hasLicenseExpiry`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$licenseExpiryDuration`.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$allowLicenseExpiryOverride`.
 - Added `CraftCms\Commerce\Product\Variant\Elements\Variant::$issuesLicense`.
 - Added `CraftCms\Commerce\Product\Variant\Elements\Variant::issuesLicenses()`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant::$licenseExpires`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant::$licenseExpiryDuration`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant::getLicenseExpiryDate()`.
+- Added `CraftCms\Commerce\Product\Variant\Elements\Variant::getLicenseExpiryDuration()`.
 - Added `CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantIssuesLicenseField`.
+- Added `CraftCms\Commerce\Product\Variant\FieldLayoutElements\VariantLicenseExpiryField`.
 - Added `CraftCms\Commerce\Product\Variant\Queries\VariantQuery::issuesLicense()`.
 
 ### Catalog Pricing

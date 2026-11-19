@@ -10,21 +10,28 @@ use CraftCms\Cms\ProjectConfig\ProjectConfigHelper;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Plugins;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\Events\UserActivated;
 use CraftCms\Commerce\License\Elements\License;
 use CraftCms\Commerce\License\Events\LicenseKeyGenerating;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Events\OrderCompleted;
 use CraftCms\Commerce\Order\Events\OrderPaid;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Payment\Events\PaymentProcessing;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
+use DateInterval;
+use DateTime;
+use DateTimeImmutable;
+use Exception;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 use function CraftCms\Cms\currentUser;
+use function CraftCms\Cms\t;
 
 /**
  * Issues licenses for purchased variants that have “Issues License” turned on, and owns the license field layout.
@@ -39,6 +46,12 @@ class Licenses
     public const string PLUGIN_HANDLE = 'digital-products';
 
     public const string FIELD_LAYOUT_CONFIG_KEY = 'commerce.licenses.fieldLayouts';
+
+    /**
+     * The line item option that names a license to renew. Purchasing the line item extends that license instead
+     * of issuing a new one.
+     */
+    public const string RENEW_LICENSE_KEY_OPTION = 'renewLicenseKey';
 
     /**
      * The Digital Products plugin’s tables, in the order their rows can be deleted.
@@ -161,7 +174,28 @@ class Licenses
     }
 
     /**
-     * Issues one license per unit of each licensed variant in the order.
+     * Parses a license duration, returning null unless it's a positive ISO 8601 duration such as `P1Y`.
+     */
+    public static function parseDuration(?string $duration): ?DateInterval
+    {
+        if (!$duration || !str_starts_with($duration, 'P')) {
+            return null;
+        }
+
+        try {
+            $interval = new DateInterval($duration);
+        } catch (Exception) {
+            return null;
+        }
+
+        $now = new DateTimeImmutable();
+
+        return $now->add($interval) > $now ? $interval : null;
+    }
+
+    /**
+     * Issues one license per unit of each licensed variant in the order. A line item with the
+     * {@see RENEW_LICENSE_KEY_OPTION} option extends that license instead, when the order’s customer owns it.
      */
     public function licenseOrder(Order $order): void
     {
@@ -169,6 +203,13 @@ class Licenses
             $purchasable = $lineItem->getPurchasable();
 
             if (!$purchasable instanceof Variant || !$purchasable->issuesLicenses()) {
+                continue;
+            }
+
+            $renewLicenseKey = $lineItem->getOptions()[self::RENEW_LICENSE_KEY_OPTION] ?? null;
+
+            if ($renewLicenseKey && ($license = $this->getRenewableLicense((string)$renewLicenseKey, $purchasable, $order->getCustomer()))) {
+                $this->renewLicense($license, $purchasable);
                 continue;
             }
 
@@ -195,8 +236,64 @@ class Licenses
         $license->ownerEmail = $customer->email;
         $license->ownerName = $customer->getName();
         $license->userId = $customer->id;
+        $license->expiryDate = $variant->getLicenseExpiryDate();
 
         return Elements::saveElement($license);
+    }
+
+    /**
+     * Returns the license with the given key if it was issued for the variant and belongs to the customer.
+     */
+    public function getRenewableLicense(string $licenseKey, Variant $variant, ?User $customer): ?License
+    {
+        /** @var License|null $license */
+        $license = License::find()->licenseKey($licenseKey)->status(null)->one();
+
+        if (!$license || $license->variantId !== $variant->id || !$customer) {
+            return null;
+        }
+
+        $ownedByCustomer = $license->userId
+            ? $license->userId === $customer->id
+            : strcasecmp((string)$license->ownerEmail, (string)$customer->email) === 0;
+
+        return $ownedByCustomer ? $license : null;
+    }
+
+    /**
+     * Extends a license by the variant’s license duration, from its expiry date or from now if it has already
+     * expired. A license renewed with a variant whose licenses don’t expire no longer expires.
+     */
+    public function renewLicense(License $license, Variant $variant): bool
+    {
+        $now = new DateTime();
+        $from = $license->expiryDate && $license->expiryDate > $now ? $license->expiryDate : $now;
+        $license->expiryDate = $variant->getLicenseExpiryDate($from);
+
+        return Elements::saveElement($license);
+    }
+
+    /**
+     * Checks a line item that renews a license: the license must exist, be for the line item’s variant, belong
+     * to the order’s customer once there is one, and be renewed once.
+     */
+    public function validateRenewal(LineItem $lineItem, Variant $variant, string $licenseKey): void
+    {
+        $customer = $lineItem->getOrder()?->getCustomer();
+        /** @var License|null $license */
+        $license = License::find()->licenseKey($licenseKey)->status(null)->one();
+
+        $found = $customer
+            ? $this->getRenewableLicense($licenseKey, $variant, $customer) !== null
+            : $license?->variantId === $variant->id;
+
+        if (!$found) {
+            $lineItem->errors()->add('options', t('The license to renew wasn’t found.', category: 'commerce'));
+        }
+
+        if ($lineItem->qty > 1) {
+            $lineItem->errors()->add('qty', t('A license renewal must have a quantity of 1.', category: 'commerce'));
+        }
     }
 
     public function handleOrderPaid(OrderPaid $event): void

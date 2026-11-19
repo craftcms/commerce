@@ -32,6 +32,8 @@ class ProductType extends BaseModel
         'maxVariants' => 'integer',
         'hasDimensions' => 'boolean',
         'hasLicenses' => 'boolean',
+        'hasLicenseExpiry' => 'boolean',
+        'allowLicenseExpiryOverride' => 'boolean',
         'hasVariantTitleField' => 'boolean',
         'hasProductTitleField' => 'boolean',
         'showSlugField' => 'boolean',

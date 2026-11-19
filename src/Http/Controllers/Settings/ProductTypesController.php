@@ -132,6 +132,10 @@ class ProductTypesController extends BaseSettingsController
         $title = $productTypeId ? $productType->name : t('Create a new product type', category: 'commerce');
         $values = $this->initialValues($productType, $brandNewProductType);
 
+        // After a failed save, branch on the submitted values, so fields that a toggle revealed (and their errors) stay
+        $submitted = array_filter((array)request()->old(), fn(mixed $value) => !is_array($value));
+        $values = array_replace($values, array_intersect_key($submitted, $values));
+
         $ui = $this->uiResolver->resolve(
             $this->buildUi($productType, $values, $brandNewProductType),
             new UiContext(
@@ -248,6 +252,9 @@ class ProductTypesController extends BaseSettingsController
             'hasDimensions' => $productType->hasDimensions,
             'hasLicenses' => $productType->hasLicenses,
             'licenseDownloadFieldUid' => $productType->licenseDownloadFieldUid ?? '',
+            'hasLicenseExpiry' => $productType->hasLicenseExpiry,
+            'licenseExpiryDuration' => $productType->licenseExpiryDuration ?? '',
+            'allowLicenseExpiryOverride' => $productType->allowLicenseExpiryOverride,
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'variantTitleFormat' => $productType->variantTitleFormat,
             'variantTitleTranslationMethod' => $productType->variantTitleTranslationMethod,
@@ -383,6 +390,20 @@ class ProductTypesController extends BaseSettingsController
         if ($values['hasLicenses'] ?? false) {
             $settingsFields[] = Field::make(t('License Download Field', category: 'commerce'), Choice::make('licenseDownloadFieldUid')->options($this->licenseDownloadFieldOptions($productType)))
                 ->instructions(t('The Assets field whose files license holders can download. When none is chosen, they can download any asset related to the variant or its product.', category: 'commerce'));
+            $settingsFields[] = Field::make(t('Licenses expire', category: 'commerce'), Lightswitch::make('hasLicenseExpiry')->reactive())
+                ->instructions(t('Gives licenses an expiry date when they’re issued. Expired licenses can’t download files.', category: 'commerce'));
+
+            if ($values['hasLicenseExpiry'] ?? false) {
+                $settingsFields[] = Field::make(t('Default License Duration', category: 'commerce'), Text::make('licenseExpiryDuration')->monospace()->placeholder('P1Y'))
+                    ->required()
+                    ->instructions(t('How long licenses last, as an ISO 8601 duration, such as {ex1} (one year), {ex2} (six months) or {ex3} (30 days).', [
+                        'ex1' => Html::code('P1Y'),
+                        'ex2' => Html::code('P6M'),
+                        'ex3' => Html::code('P30D'),
+                    ], category: 'commerce'));
+                $settingsFields[] = Field::make(t('Allow variants to override license expiry', category: 'commerce'), Lightswitch::make('allowLicenseExpiryOverride'))
+                    ->instructions(t('Shows the “License Expiry” field on variants, so each variant can choose whether its licenses expire and for how long. Otherwise every variant uses the default duration.', category: 'commerce'));
+            }
         }
 
         $settingsFields[] = Separator::make('variant-settings-separator');
@@ -562,6 +583,9 @@ class ProductTypesController extends BaseSettingsController
         $productType->hasLicenses = (bool)$request->input('hasLicenses');
         // The select is only posted while licenses are allowed; keep the field otherwise, so turning licenses back on doesn't widen downloads
         $productType->licenseDownloadFieldUid = $request->input('licenseDownloadFieldUid', $productType->licenseDownloadFieldUid) ?: null;
+        $productType->hasLicenseExpiry = (bool)$request->input('hasLicenseExpiry', $productType->hasLicenseExpiry);
+        $productType->licenseExpiryDuration = $request->input('licenseExpiryDuration', $productType->licenseExpiryDuration) ?: null;
+        $productType->allowLicenseExpiryOverride = (bool)$request->input('allowLicenseExpiryOverride', $productType->allowLicenseExpiryOverride);
         $productType->hasProductTitleField = (bool)$request->input('hasProductTitleField');
         $productType->productTitleFormat = $request->input('productTitleFormat') ?? $productType->productTitleFormat;
         $productType->productUiLabelFormat = $request->input('productUiLabelFormat') ?? $productType->productUiLabelFormat;
