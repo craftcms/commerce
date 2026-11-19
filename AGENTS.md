@@ -35,6 +35,7 @@ New work is Laravel-first. The Yii2 code exists only so plugins and templates th
   - `pnpm typecheck` runs `vue-tsc`.
   - `pnpm fix-prettier` formats files, and `pnpm check-prettier` checks them.
 - Pass `--no-interaction` to Artisan and Testbench commands.
+- To check that a change works without writing a test file, use `vendor/bin/pest --agent='<code>'` and load the `pest-plugin-agent` skill first. Browser checks (`visit()`) need `pestphp/pest-plugin-browser`, which isn't installed; ask before installing it, since it pulls in Playwright and browser binaries.
 
 ## PHP
 
@@ -59,6 +60,34 @@ Use the `changelog-entries` skill for `CHANGELOG.md` and `CHANGELOG-WIP.md`. `CH
 - Prefix the title with the target version branch, such as `[6.x]`.
 - Use the `pr` skill to write the pull request body.
 
+## CI skip markers
+
+Decide this for every commit before you make it, including commits in a
+worktree or on another branch. Once a commit is pushed, the marker can't be
+added without rewriting history.
+
+For commits touching only genuinely inconsequential, nonfunctional files, put
+`[ci skip]` on its own line at the end of the extended commit message (the
+commit body), before trailers such as `Co-Authored-By`. Judge eligibility by
+the actual effect, not filenames alone. Code, dependencies, executable
+configuration, workflows, and behavior-changing generated artifacts are not
+eligible.
+
+Commits that are usually eligible:
+
+- Release notes only: `CHANGELOG.md` and `CHANGELOG-WIP.md`.
+- Documentation and code comments only.
+- Agent instructions and skills only: `AGENTS.md`, `.agents/` and `.claude/`,
+  including scripts that only agents run.
+
+Only add it when no other unpushed commits on the branch have significant
+changes. GitHub skips CI for a whole push when its head commit carries the
+marker, so it would also skip the commits beneath it.
+
+Skip markers can leave required checks pending and do not establish green CI.
+Never use them to evade required checks, merged-result verification, or merge
+queues. The `merging-pull-requests` skill's safeguards still apply.
+
 ## Skills
 
 Skills live in `.agents/skills/`; `.claude/skills` links to the same folder. Load the matching skill before starting the task it covers:
@@ -66,6 +95,9 @@ Skills live in `.agents/skills/`; `.claude/skills` links to the same folder. Loa
 - `changelog-entries`: changelog entries.
 - `pr`: pull request bodies. It loads `show-me` and `feature-screenshots`.
 - `test-audit`: writing, changing or reviewing tests.
+- `pest-plugin-agent`: one-off checks that a change works.
 - `resolve-merge-conflicts`: merge conflicts, including merging 5.x into 6.x.
 - `laravel-best-practices`: Laravel PHP code.
 - `inertia-vue-development` and `vue-best-practices`: control panel pages and Vue components.
+- `merging-pull-requests`: merging a PR when explicitly asked to.
+- `watching-copilot-reviews`: checking for or waiting on a Copilot review.

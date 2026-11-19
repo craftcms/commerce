@@ -38,6 +38,7 @@
     "league/factory-muffin": "^3.3.0",
     "orchestra/testbench": "^11.0",
     "pestphp/pest": "^5.0",
+    "pestphp/pest-plugin-agent": "^5.0",
     "pestphp/pest-plugin-arch": "^5.0",
     "pestphp/pest-plugin-laravel": "^5.0",
     "phpstan/phpstan": "^2.1",
