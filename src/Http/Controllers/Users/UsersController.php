@@ -43,7 +43,7 @@ readonly class UsersController
         foreach ($indexes as $key => [$label, $criteria]) {
             $ui->addTab($label, [
                 EmbeddedElementIndex::make(Order::class)
-                    ->criteria([...$criteria, 'customerId' => $user->id, 'status' => null])
+                    ->criteria([...$criteria, 'customerId' => $user->id, 'siteId' => '*', 'status' => null])
                     ->storageKey("Commerce-Users-element-indexes-$key")
                     ->defaultTableColumns($key === 'completed-orders'
                         ? ['reference', 'orderStatus', 'dateOrdered', 'totalPrice']
