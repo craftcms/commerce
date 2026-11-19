@@ -66,5 +66,6 @@ Skills live in `.agents/skills/`; `.claude/skills` links to the same folder. Loa
 - `changelog-entries`: changelog entries.
 - `pr`: pull request bodies. It loads `show-me` and `feature-screenshots`.
 - `test-audit`: writing, changing or reviewing tests.
+- `resolve-merge-conflicts`: merge conflicts, including merging 5.x into 6.x.
 - `laravel-best-practices`: Laravel PHP code.
 - `inertia-vue-development` and `vue-best-practices`: control panel pages and Vue components.
