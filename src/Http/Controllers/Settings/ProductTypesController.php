@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Settings;
 
+use CraftCms\Cms\Cp\Html\ContentHtml;
 use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
 use CraftCms\Cms\Field\Assets;
@@ -12,6 +13,7 @@ use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Translation\Formatter;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Controls\FieldLayoutDesigner;
 use CraftCms\Cms\Ui\Controls\Handle;
@@ -136,14 +138,32 @@ class ProductTypesController extends BaseSettingsController
         $submitted = array_filter((array)request()->old(), fn(mixed $value) => !is_array($value));
         $values = array_replace($values, array_intersect_key($submitted, $values));
 
+        $mode = $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable;
         $ui = $this->uiResolver->resolve(
             $this->buildUi($productType, $values, $brandNewProductType),
             new UiContext(
                 values: $values,
-                mode: $this->readOnly ? ControlMode::ReadOnly : ControlMode::Editable,
+                mode: $mode,
                 refreshable: !$this->readOnly,
             ),
         );
+
+        // Standalone settings that no other field depends on, so they can sit apart from the tabs
+        $sidebarUi = $this->uiResolver->resolve(
+            Ui::make([
+                Field::make(t('Enable versioning for products of this type', category: 'commerce'), Lightswitch::make('enableVersioning')),
+                Field::make(t('Show the Dimensions and Weight fields for products of this type', category: 'commerce'), Lightswitch::make('hasDimensions')),
+                Field::make(t('Max Variants', category: 'commerce'), Number::make('maxVariants')->size(2)),
+            ]),
+            new UiContext(values: $values, mode: $mode),
+        );
+
+        $formatter = app(Formatter::class);
+        $metadataHtml = $productType->id ? app(ContentHtml::class)->metadataHtml([
+            t('ID') => $productType->id,
+            t('Created at') => $productType->dateCreated ? $formatter->asDateTime($productType->dateCreated, 'short') : false,
+            t('Updated at') => $productType->dateUpdated ? $formatter->asDateTime($productType->dateUpdated, 'short') : false,
+        ]) : null;
 
         return $this->cpScreenResponse(subnav: false)
             ->title($title)
@@ -155,6 +175,8 @@ class ProductTypesController extends BaseSettingsController
                     'url' => action([self::class, 'store']),
                 ],
                 'refreshUrl' => $this->readOnly ? null : action([self::class, 'renderUi']),
+                'metadataHtml' => $metadataHtml,
+                'sidebarUi' => $sidebarUi,
             ]);
     }
 
@@ -329,7 +351,6 @@ class ProductTypesController extends BaseSettingsController
                 ->instructions(t('The maximum number of levels this product type can have. Leave blank if you don’t care.', category: 'commerce'));
         }
 
-        $settingsFields[] = Field::make(t('Enable versioning for products of this type', category: 'commerce'), Lightswitch::make('enableVersioning'));
         $settingsFields[] = Field::make(t('Show the Title field for products', category: 'commerce'), Lightswitch::make('hasProductTitleField'));
 
         if ($values['hasProductTitleField'] ?? false) {
@@ -382,30 +403,6 @@ class ProductTypesController extends BaseSettingsController
                 'ex1' => Html::code('{product.title}'),
                 'ex2' => Html::code('{myVariantCustomField}'),
             ], category: 'commerce'));
-        $settingsFields[] = Field::make(t('Max Variants', category: 'commerce'), Number::make('maxVariants')->size(2));
-        $settingsFields[] = Field::make(t('Show the Dimensions and Weight fields for products of this type', category: 'commerce'), Lightswitch::make('hasDimensions'));
-        $settingsFields[] = Field::make(t('Allow variants to issue licenses', category: 'commerce'), Lightswitch::make('hasLicenses')->reactive())
-            ->instructions(t('Shows the “Issues License” field on variants. Purchasing a variant with it turned on issues a license for each unit.', category: 'commerce'));
-
-        if ($values['hasLicenses'] ?? false) {
-            $settingsFields[] = Field::make(t('License Download Field', category: 'commerce'), Choice::make('licenseDownloadFieldUid')->options($this->licenseDownloadFieldOptions($productType)))
-                ->instructions(t('The Assets field whose files license holders can download. When none is chosen, they can download any asset related to the variant or its product.', category: 'commerce'));
-            $settingsFields[] = Field::make(t('Licenses expire', category: 'commerce'), Lightswitch::make('hasLicenseExpiry')->reactive())
-                ->instructions(t('Gives licenses an expiry date when they’re issued. Expired licenses can’t download files.', category: 'commerce'));
-
-            if ($values['hasLicenseExpiry'] ?? false) {
-                $settingsFields[] = Field::make(t('Default License Duration', category: 'commerce'), Text::make('licenseExpiryDuration')->monospace()->placeholder('P1Y'))
-                    ->required()
-                    ->instructions(t('How long licenses last, as an ISO 8601 duration, such as {ex1} (one year), {ex2} (six months) or {ex3} (30 days).', [
-                        'ex1' => Html::code('P1Y'),
-                        'ex2' => Html::code('P6M'),
-                        'ex3' => Html::code('P30D'),
-                    ], category: 'commerce'));
-                $settingsFields[] = Field::make(t('Allow variants to override license expiry', category: 'commerce'), Lightswitch::make('allowLicenseExpiryOverride'))
-                    ->instructions(t('Shows the “License Expiry” field on variants, so each variant can choose whether its licenses expire and for how long. Otherwise every variant uses the default duration.', category: 'commerce'));
-            }
-        }
-
         $settingsFields[] = Separator::make('variant-settings-separator');
         $settingsFields[] = Field::make(t('Show the Title field for variants', category: 'commerce'), Lightswitch::make('hasVariantTitleField'));
 
@@ -487,8 +484,32 @@ class ProductTypesController extends BaseSettingsController
             )->instructions(t('Of the enabled sites above, which sites should products in this product type be saved to?', category: 'commerce'));
         }
 
+        $licenseFields = [];
+        $licenseFields[] = Field::make(t('Allow variants to issue licenses', category: 'commerce'), Lightswitch::make('hasLicenses')->reactive())
+            ->instructions(t('Shows the “Issues License” field on variants. Purchasing a variant with it turned on issues a license for each unit.', category: 'commerce'));
+
+        if ($values['hasLicenses'] ?? false) {
+            $licenseFields[] = Field::make(t('License Download Field', category: 'commerce'), Choice::make('licenseDownloadFieldUid')->options($this->licenseDownloadFieldOptions($productType)))
+                ->instructions(t('The Assets field whose files license holders can download. When none is chosen, they can download any asset related to the variant or its product.', category: 'commerce'));
+            $licenseFields[] = Field::make(t('Licenses expire', category: 'commerce'), Lightswitch::make('hasLicenseExpiry')->reactive())
+                ->instructions(t('Gives licenses an expiry date when they’re issued. Expired licenses can’t download files.', category: 'commerce'));
+
+            if ($values['hasLicenseExpiry'] ?? false) {
+                $licenseFields[] = Field::make(t('Default License Duration', category: 'commerce'), Text::make('licenseExpiryDuration')->monospace()->placeholder('P1Y'))
+                    ->required()
+                    ->instructions(t('How long licenses last, as an ISO 8601 duration, such as {ex1} (one year), {ex2} (six months) or {ex3} (30 days).', [
+                        'ex1' => Html::code('P1Y'),
+                        'ex2' => Html::code('P6M'),
+                        'ex3' => Html::code('P30D'),
+                    ], category: 'commerce'));
+                $licenseFields[] = Field::make(t('Allow variants to override license expiry', category: 'commerce'), Lightswitch::make('allowLicenseExpiryOverride'))
+                    ->instructions(t('Shows the “License Expiry” field on variants, so each variant can choose whether its licenses expire and for how long. Otherwise every variant uses the default duration.', category: 'commerce'));
+            }
+        }
+
         return Ui::make()
             ->addTab(t('Settings'), $settingsFields)
+            ->addTab(t('Licenses', category: 'commerce'), $licenseFields)
             ->addTab(t('Tax & Shipping', category: 'commerce'), [
                 Heading::make('shipping-categories-heading', t('Available Shipping Categories', category: 'commerce')),
                 TemplateContent::make('shipping-categories', $this->categoriesHtml(

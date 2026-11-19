@@ -77,6 +77,8 @@
 - Added `CraftCms\Commerce\Product\Policies\ProductPolicy`, registered via `Gate::policy()`. Product authorization now goes through it rather than `Product::canView()`, `canSave()`, `canDuplicate()`, `canDelete()`, `canDeleteForSite()`, and `canCreateDrafts()` overrides, using the same product type permissions as before.
 - Added `CraftCms\Commerce\Http\ViewModels\ProductIndexViewModel`.
 - The products index is now an Inertia page built on core’s element index. Product type sources link to `commerce/products/{productTypeHandle}`.
+- The product type edit screen now has a “Licenses” tab for the license settings. Its sidebar holds the versioning, Dimensions and Weight, and Max Variants settings, along with the product type’s ID and created and updated dates.
+- Added `CraftCms\Commerce\Product\ProductType\Data\ProductType::$dateCreated` and `$dateUpdated`.
 - `CraftCms\Commerce\Product\Elements\Product::getStore()` now falls back to the store of the product’s site when `storeId` isn’t set.
 - Removed `craft\commerce\web\assets\productindex\ProductIndexAsset`.
 - Commerce Products fields no longer support creating products inline.

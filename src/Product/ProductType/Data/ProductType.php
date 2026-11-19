@@ -28,6 +28,7 @@ use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
+use DateTimeInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use function CraftCms\Cms\t;
@@ -132,6 +133,10 @@ class ProductType extends Component implements FieldLayoutProviderInterface
     public ?int $variantFieldLayoutId = null;
 
     public ?string $uid = null;
+
+    public ?DateTimeInterface $dateCreated = null;
+
+    public ?DateTimeInterface $dateUpdated = null;
 
     public ?array $previewTargets = null;
 

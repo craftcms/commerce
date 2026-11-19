@@ -15,6 +15,7 @@ use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Structure\Data\Structure;
 use CraftCms\Cms\Structure\Enums\Mode;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
@@ -736,6 +737,8 @@ class ProductTypes
         $productType->fieldLayoutId = $record->fieldLayoutId;
         $productType->variantFieldLayoutId = $record->variantFieldLayoutId;
         $productType->uid = $record->uid;
+        $productType->dateCreated = DateTimeHelper::toDateTime($record->dateCreated) ?: null;
+        $productType->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated) ?: null;
         $productType->previewTargets = $record->previewTargets;
         $productType->propagationMethod = PropagationMethod::from($record->propagationMethod);
 
