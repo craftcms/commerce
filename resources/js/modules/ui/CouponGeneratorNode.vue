@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import type {UiChange, UiNodePayload} from '@craftcms/cp';
   import {ref} from 'vue';
   import {sendActionRequest} from '../orders/cp-client';
 
@@ -28,26 +29,13 @@
     };
   };
 
-  // See UsageCounterNode.vue for why this is hand-authored.
-  type UiNodePayload<Props> = {
-    uid: string;
-    props: Props;
-  };
-
-  type FormChange = {
-    kind: 'discrete';
-    path: string[];
-    scope: string[];
-    refreshable: boolean;
-  };
-
   type GenerateFailure = {
     response?: {
       data?: {message?: string; errors?: Record<string, string[]>};
     };
   };
 
-  type InputElement = HTMLElement & {modelValue?: unknown};
+  type InputElement = HTMLElement & {value?: string};
 
   const MAX_COUPONS = 400;
 
@@ -58,7 +46,7 @@
   }>();
 
   const emit = defineEmits<{
-    (event: 'change', change: FormChange): void;
+    (event: 'change', change: UiChange): void;
   }>();
 
   const opened = ref(false);
@@ -103,7 +91,7 @@
   }
 
   function inputValue(input: InputElement | undefined): string {
-    return String(input?.modelValue ?? '').trim();
+    return (input?.value ?? '').trim();
   }
 
   async function generate(): Promise<void> {
@@ -159,8 +147,9 @@
   <craft-popover
     placement="bottom-end"
     :data-form-node="node.uid"
-    :opened="opened"
-    @opened-changed="opened = $event.detail.opened"
+    .open="opened"
+    @craft-show.self="opened = true"
+    @craft-hide.self="opened = false"
   >
     <craft-button slot="invoker" type="button" size="small">
       {{ node.props.labels.generate }}
@@ -172,7 +161,6 @@
       @keydown.enter.prevent="generate"
       @input.stop
       @change.stop
-      @model-value-changed.stop
     >
       <craft-input
         ref="countInput"
@@ -180,13 +168,13 @@
         min="1"
         :max="MAX_COUPONS"
         :label="node.props.labels.count"
-        .modelValue="'1'"
+        .value="'1'"
       ></craft-input>
       <craft-input
         ref="formatInput"
         :label="node.props.labels.format"
         :help-text="node.props.labels.formatInstructions"
-        .modelValue="String(valueAt(node.props.formatPath) ?? '')"
+        .value="String(valueAt(node.props.formatPath) ?? '')"
       ></craft-input>
       <craft-input
         ref="maxUsesInput"

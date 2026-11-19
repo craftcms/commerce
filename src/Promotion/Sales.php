@@ -100,6 +100,7 @@ class Sales
             ->leftJoin(Table::SALE_ENTRIES . ' as spt', 'spt.saleId', '=', 'sales.id')
             ->leftJoin(Table::SALE_USERGROUPS . ' as sug', 'sug.saleId', '=', 'sales.id')
             ->orderBy('sales.sortOrder')
+            ->orderBy('sales.id')
             ->get()
             ->all();
 

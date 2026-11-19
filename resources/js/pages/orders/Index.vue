@@ -9,6 +9,7 @@
     type IndexQueryParams,
     type NavItem,
   } from '@craftcms/cp';
+  import {router} from '@inertiajs/vue3';
   import {computed, onMounted, onUnmounted, ref} from 'vue';
   import DownloadOrderPdfPopover, {
     type OrderPdfOption,
@@ -102,7 +103,7 @@
     }
 
     url.searchParams.delete('page');
-    window.Cp.$router.visit(url.href, {
+    router.visit(url.href, {
       preserveState: true,
       preserveScroll: true,
     });
@@ -126,7 +127,7 @@
   // A fresh visit rather than a partial reload, so the selection (held by the
   // index, out of the page's reach) goes with the orders that moved away.
   function refreshIndex(): void {
-    window.Cp.$router.visit(window.location.href, {
+    router.visit(window.location.href, {
       preserveState: false,
       preserveScroll: true,
     });

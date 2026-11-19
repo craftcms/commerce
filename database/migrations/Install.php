@@ -1327,6 +1327,7 @@ class Install extends Migration
             'handle' => 'new',
             'color' => 'green',
             'default' => true,
+            'sortOrder' => 1,
             'dateCreated' => $now,
             'dateUpdated' => $now,
             'uid' => Str::uuid()->toString(),

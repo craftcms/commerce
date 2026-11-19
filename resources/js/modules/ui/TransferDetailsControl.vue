@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import type {UiChangeKind, UiControlPayload} from '@craftcms/cp';
   import {computed, ref} from 'vue';
 
   type Detail = {
@@ -23,21 +24,14 @@
     };
   };
 
-  // A minimal, hand-authored stand-in for `cms`'s own `FormControlPayload<T>`
-  // (see window.d.ts for why it can't be imported from `cms`).
-  type FormControlPayload<Props> = {
-    path: string[];
-    props: Props;
-  };
-
   const props = defineProps<{
-    control: FormControlPayload<TransferDetailsProps>;
+    control: UiControlPayload<TransferDetailsProps>;
     value: Details | Detail[] | null;
     editable: boolean;
   }>();
 
   const emit = defineEmits<{
-    (event: 'update:value', value: Details, kind: 'discrete' | 'typing'): void;
+    (event: 'update:value', value: Details, kind: UiChangeKind): void;
   }>();
 
   // An empty value arrives as `[]`, the PHP control's empty value.
@@ -67,14 +61,14 @@
   }
 
   function setQuantity(uid: string, event: Event): void {
-    const quantity = (event.target as HTMLElement & {modelValue?: unknown})
-      .modelValue;
+    const quantity = (event.currentTarget as HTMLElement & {value: string})
+      .value;
 
     emit(
       'update:value',
       {
         ...details.value,
-        [uid]: {...details.value[uid]!, quantity: String(quantity ?? '')},
+        [uid]: {...details.value[uid]!, quantity},
       },
       'typing'
     );
@@ -86,13 +80,9 @@
     emit('update:value', rest, 'discrete');
   }
 
-  function onItemSelected(event: CustomEvent): void {
-    if (event.detail?.initialize) {
-      return;
-    }
-
+  function onItemSelected(event: Event): void {
     selectedItemId.value = String(
-      (event.target as HTMLElement & {modelValue?: unknown}).modelValue ?? ''
+      (event.currentTarget as HTMLElement & {value?: string}).value ?? ''
     );
   }
 
@@ -154,8 +144,8 @@
               :label="control.props.labels.quantity"
               label-sr-only
               :readonly="!editable"
-              .modelValue="String(row.quantity)"
-              @model-value-changed="setQuantity(row.uid, $event)"
+              .value="String(row.quantity)"
+              @input="setQuantity(row.uid, $event)"
             />
           </td>
           <td v-if="editable" class="thin">
@@ -187,8 +177,8 @@
         show-all-on-empty
         require-option-match
         .options="control.props.options"
-        .modelValue="selectedItemId"
-        @model-value-changed="onItemSelected"
+        .value="selectedItemId"
+        @change="onItemSelected"
       />
       <craft-button
         type="button"

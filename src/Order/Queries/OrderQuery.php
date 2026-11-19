@@ -23,7 +23,6 @@ use CraftCms\Commerce\Order\Queries\Concerns\QueriesOrderTotals;
 use CraftCms\Commerce\Payment\Transactions;
 use Illuminate\Support\Collection;
 use Override;
-use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * @extends ElementQuery<Order>
@@ -118,8 +117,8 @@ class OrderQuery extends ElementQuery
         ]);
 
         // Addresses joined for sorting/filtering purposes.
-        $this->query->leftJoin(new Alias(CraftTable::ADDRESSES, 'billing_address'), 'billing_address.id', '=', 'commerce_orders.billingAddressId');
-        $this->query->leftJoin(new Alias(CraftTable::ADDRESSES, 'shipping_address'), 'shipping_address.id', '=', 'commerce_orders.shippingAddressId');
+        $this->query->leftJoin(CraftTable::ADDRESSES . ' as billing_address', 'billing_address.id', '=', 'commerce_orders.billingAddressId');
+        $this->query->leftJoin(CraftTable::ADDRESSES . ' as shipping_address', 'shipping_address.id', '=', 'commerce_orders.shippingAddressId');
     }
 
     public function withAll(bool $value = true): static
