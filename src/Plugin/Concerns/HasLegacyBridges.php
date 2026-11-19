@@ -7,31 +7,6 @@ namespace CraftCms\Commerce\Plugin\Concerns;
 use craft\base\Event as YiiEvent;
 use craft\ckeditor\events\DefineLinkOptionsEvent;
 use craft\ckeditor\Field as CKEditorField;
-use craft\commerce\services\Carts as LegacyCarts;
-use craft\commerce\services\Customers as LegacyCustomers;
-use craft\commerce\services\Emails as LegacyEmails;
-use craft\commerce\services\Gateways as LegacyGateways;
-use craft\commerce\services\Inventory as LegacyInventory;
-use craft\commerce\services\LineItems as LegacyLineItems;
-use craft\commerce\services\LineItemStatuses as LegacyLineItemStatuses;
-use craft\commerce\services\OrderAdjustments as LegacyOrderAdjustments;
-use craft\commerce\services\OrderHistories as LegacyOrderHistories;
-use craft\commerce\services\Orders as LegacyOrders;
-use craft\commerce\services\OrderStatuses as LegacyOrderStatuses;
-use craft\commerce\services\PaymentCurrencies as LegacyPaymentCurrencies;
-use craft\commerce\services\Payments as LegacyPayments;
-use craft\commerce\services\PaymentSources as LegacyPaymentSources;
-use craft\commerce\services\Pdfs as LegacyPdfs;
-use craft\commerce\services\Products as LegacyProducts;
-use craft\commerce\services\ProductTypes as LegacyProductTypes;
-use craft\commerce\services\Purchasables as LegacyPurchasables;
-use craft\commerce\services\ShippingMethods as LegacyShippingMethods;
-use craft\commerce\services\Stores as LegacyStores;
-use craft\commerce\services\Taxes as LegacyTaxes;
-use craft\commerce\services\Transactions as LegacyTransactions;
-use craft\commerce\services\Variants as LegacyVariants;
-use craft\commerce\services\Webhooks as LegacyWebhooks;
-use CraftCms\Cms\Cms;
 use CraftCms\Cms\Support\Facades\Plugins;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Commerce\Product\Elements\Product;
@@ -101,62 +76,6 @@ trait HasLegacyBridges
                     'sources' => $productSources,
                 ];
             }
-        });
-    }
-
-    /**
-     * Bridges new Laravel events to their legacy `craft\commerce\services\*` Yii2 counterparts,
-     * matching the pattern used by the CMS yii2-adapter (e.g. `craft\services\Volumes::registerEvents()`).
-     */
-    private function registerLegacyEventBridges(): void
-    {
-        if (!self::hasYii2Adapter()) {
-            return;
-        }
-
-        LegacyCarts::registerEvents();
-        LegacyCustomers::registerEvents();
-        LegacyEmails::registerEvents();
-        LegacyInventory::registerEvents();
-        LegacyLineItems::registerEvents();
-        LegacyLineItemStatuses::registerEvents();
-        LegacyOrderAdjustments::registerEvents();
-        LegacyOrderHistories::registerEvents();
-        LegacyOrders::registerEvents();
-        LegacyOrderStatuses::registerEvents();
-        LegacyPaymentCurrencies::registerEvents();
-        LegacyPayments::registerEvents();
-        LegacyPaymentSources::registerEvents();
-        LegacyPdfs::registerEvents();
-        LegacyProducts::registerEvents();
-        LegacyProductTypes::registerEvents();
-        LegacyPurchasables::registerEvents();
-        LegacyShippingMethods::registerEvents();
-        LegacyStores::registerEvents();
-        LegacyTaxes::registerEvents();
-        LegacyTransactions::registerEvents();
-        LegacyVariants::registerEvents();
-        LegacyWebhooks::registerEvents();
-    }
-
-    /**
-     * Reconciles our type registries against any legacy `Event::on(...)` listeners for the
-     * deprecated EVENT_REGISTER_* constants, once every plugin has finished registering its listeners.
-     */
-    private function finalizeLegacyRegistrationEvents(): void
-    {
-        if (!self::hasYii2Adapter()) {
-            return;
-        }
-
-        $this->app->booted(function() {
-            if (!Cms::isInstalled(strict: true)) {
-                return;
-            }
-
-            LegacyOrderAdjustments::finalizeRegistrationEvents();
-            LegacyGateways::finalizeRegistrationEvents();
-            LegacyPurchasables::finalizeRegistrationEvents();
         });
     }
 }

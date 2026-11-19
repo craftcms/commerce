@@ -4,18 +4,8 @@ includes:
 
 parameters:
     level: 5
-    parallel:
-        # Parallel workers each independently reflect on classes reached through class_alias()
-        # chains (the legacy src-yii2/ -> src/ stubs); depending on which worker resolves a given
-        # alias target first, PHPStan sometimes can/can't trace the chain, making `argument.type`/
-        # `method.notFound` errors (and their `@phpstan-ignore-next-line` suppressions) on those
-        # call sites non-deterministic between otherwise-identical runs. Single-process analysis
-        # is slower but avoids that race entirely.
-        maximumNumberOfProcesses: 1
     paths:
         - src
-    scanDirectories:
-        - src-yii2
     bootstrapFiles:
         - stubs/macros.php
     scanFiles:
