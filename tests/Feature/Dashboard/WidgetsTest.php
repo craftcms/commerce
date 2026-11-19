@@ -17,7 +17,9 @@ use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 
 test('dashboard widgets render through Commerce widget components', function(string $class, array $config, string $component) {
-    OrdersFixture::seed();
+    $fixture = OrdersFixture::seed();
+    $fixture->customer->admin = true;
+    $this->actingAs($fixture->customer, 'craft');
 
     $widget = new $class(['dateRange' => StatInterface::DATE_RANGE_ALL, ...$config]);
     $props = $widget->props();
@@ -59,3 +61,26 @@ test('monthly chart date keys are normalized to ISO dates', function() {
 
     expect($labels)->toBe(['2026-01-01', '2026-11-01']);
 });
+
+test('dashboard widgets are not selectable or rendered without their required permissions', function(string $class) {
+    $fixture = OrdersFixture::seed();
+    $this->actingAs($fixture->customer, 'craft');
+
+    $widget = new $class(['dateRange' => StatInterface::DATE_RANGE_ALL]);
+
+    expect($class::isSelectable())->toBeFalse()
+        ->and($widget->component())->toBeNull()
+        ->and($widget->props())->toBe([]);
+})->with([
+    AverageOrderTotal::class,
+    NewCustomers::class,
+    Orders::class,
+    RepeatCustomers::class,
+    TopCustomers::class,
+    TopProducts::class,
+    TopProductTypes::class,
+    TopPurchasables::class,
+    TotalOrders::class,
+    TotalOrdersByCountry::class,
+    TotalRevenue::class,
+]);
