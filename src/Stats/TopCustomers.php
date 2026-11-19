@@ -61,7 +61,7 @@ class TopCustomers extends Stat
             $topCustomers->orderBy(new Sum('total'), 'desc');
         }
 
-        return $topCustomers->get()->map(fn($row) => (array)$row)->all();
+        return $topCustomers->get()->map(fn($row) => $this->castAggregates((array)$row, ['total', 'average'], ['count']))->all();
     }
 
     #[\Override]

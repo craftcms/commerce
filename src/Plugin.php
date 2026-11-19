@@ -190,9 +190,9 @@ class Plugin extends BasePlugin
         VariantQuery::class,
     ];
 
-    /** The Ui Node/Control Vue components Commerce contributes to the shared CP `Ui` system's
-     *  component registry — see `resources/js/cp.ts` (registered via `window.Cp.$components`,
-     *  since `@craftcms/ui`/`cms`'s own JS is a private, unpublished workspace package). Built by
+    /** The Ui Node/Control Vue components and Inertia pages Commerce contributes to the CP —
+     *  see `resources/js/cp.ts` (registered with `registerComponent()`/`registerPage()` from
+     *  `@craftcms/cp`, which the CP's import map provides). Built by
      *  this repo's own root `package.json`/`vite.config.ts` (a pnpm workspace — the legacy Vue 2/
      *  webpack `commerceui` bundle lives in `./legacy`, a separate workspace member, since the two
      *  can't share a `vue` dependency). `'resources/js/cp.ts'` is the manifest entry key

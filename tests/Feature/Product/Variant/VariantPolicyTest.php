@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\UserPermissions;
 use CraftCms\Commerce\Product\Elements\Product;
@@ -9,6 +10,7 @@ use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 use CraftCms\Commerce\Product\Variant\Policies\VariantPolicy;
+use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -40,6 +42,8 @@ function variantPolicyTestElements(): array
     $product = new Product();
     $product->id = 100;
     $product->typeId = $productType->id;
+    // Enabled products need a persisted variant to be deletable, which these mock-based tests do not have
+    $product->enabled = false;
 
     $variant = new Variant();
     $variant->id = 200;
@@ -114,4 +118,40 @@ test('variants without an owner cannot be viewed saved deleted or duplicated', f
         ->and($variant->canSave($user))->toBeFalse()
         ->and($variant->canDelete($user))->toBeFalse()
         ->and($variant->canDuplicate($user))->toBeFalse();
+});
+
+test('the last variant of an enabled product cannot be deleted', function() {
+    $fixture = OrdersFixture::seed();
+    $admin = new User();
+    $admin->id = 1;
+    $admin->admin = true;
+
+    $white = Variant::find()->id($fixture->white->id)->one();
+    $blue = Variant::find()->id($fixture->blue->id)->one();
+
+    // Products with other variants can lose one
+    expect($admin->can('delete', $white))->toBeTrue();
+
+    // Variants deleted one by one share an owner whose variants were loaded before any were deleted
+    expect(Elements::deleteElement($white))->toBeTrue();
+    expect($admin->can('delete', $blue))->toBeFalse();
+
+    // The trashed variant can still be deleted permanently
+    $trashed = Variant::find()->id($white->id)->trashed()->status(null)->one();
+    expect($trashed)->not->toBeNull();
+    expect($admin->can('delete', $trashed))->toBeTrue();
+});
+
+test('variants of a disabled product can all be deleted', function() {
+    $fixture = OrdersFixture::seed();
+    $admin = new User();
+    $admin->id = 1;
+    $admin->admin = true;
+
+    $product = $fixture->product;
+    $product->enabled = false;
+    expect(Elements::saveElement($product))->toBeTrue();
+
+    expect(Elements::deleteElement(Variant::find()->id($fixture->white->id)->status(null)->one()))->toBeTrue();
+    expect($admin->can('delete', Variant::find()->id($fixture->blue->id)->status(null)->one()))->toBeTrue();
 });

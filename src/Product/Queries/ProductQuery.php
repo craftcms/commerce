@@ -24,7 +24,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Override;
 
-use Tpetry\QueryExpressions\Language\Alias;
 use function CraftCms\Cms\currentUser;
 
 /**
@@ -101,9 +100,9 @@ class ProductQuery extends ElementQuery
         ]);
 
         // Join in site stores to get the product's store for the current request
-        $this->query->leftJoin(new Alias(Table::SITESTORES, 'sitestores'), 'elements_sites.siteId', '=', 'sitestores.siteId');
-        $this->query->leftJoin(new Alias(Table::PURCHASABLES, 'purchasables'), 'purchasables.id', '=', 'commerce_products.defaultVariantId');
-        $this->query->leftJoin(new Alias(Table::PURCHASABLES_STORES, 'purchasablesstores'), function(JoinClause $join) {
+        $this->query->leftJoin(Table::SITESTORES . ' as sitestores', 'elements_sites.siteId', '=', 'sitestores.siteId');
+        $this->query->leftJoin(Table::PURCHASABLES . ' as purchasables', 'purchasables.id', '=', 'commerce_products.defaultVariantId');
+        $this->query->leftJoin(Table::PURCHASABLES_STORES . ' as purchasablesstores', function(JoinClause $join) {
             $join->on('purchasablesstores.purchasableId', '=', 'commerce_products.defaultVariantId')
                 ->on('purchasablesstores.storeId', '=', 'sitestores.storeId');
         });

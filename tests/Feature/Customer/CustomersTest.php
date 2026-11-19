@@ -44,6 +44,8 @@ function createCustomerOrder(OrdersFixture $fixture, string $email): Order
 function ensureCredentialedCustomer(string $email): User
 {
     $user = Users::ensureUserByEmail($email);
+    $user->username = $email;
+    Elements::saveElement($user);
     Users::activateUser($user);
 
     return $user;

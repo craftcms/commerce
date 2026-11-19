@@ -30,8 +30,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Override;
 
-use Tpetry\QueryExpressions\Language\Alias;
-
 /**
  * @extends PurchasableQuery<Variant>
  * @implements NestedElementQueryInterface<Variant>
@@ -82,7 +80,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
 
         parent::__construct(Variant::class, $config);
 
-        $this->query->join(new Alias(Table::VARIANTS, 'commerce_variants'), 'commerce_variants.id', '=', 'elements.id');
+        $this->query->join(Table::VARIANTS . ' as commerce_variants', 'commerce_variants.id', '=', 'elements.id');
 
         $this->query->addSelect([
             'commerce_variants.primaryOwnerId',
@@ -361,7 +359,7 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
                 'elements_owners.ownerId as ownerId',
                 'elements_owners.sortOrder as sortOrder',
             ])
-            ->join(new Alias(CraftTable::ELEMENTS_OWNERS, 'elements_owners'), function(JoinClause $join) use ($ownerId) {
+            ->join(CraftTable::ELEMENTS_OWNERS . ' as elements_owners', function(JoinClause $join) use ($ownerId) {
                 $join->on('elements_owners.elementId', '=', 'elements.id');
 
                 if ($ownerId) {
@@ -371,9 +369,9 @@ class VariantQuery extends PurchasableQuery implements NestedElementQueryInterfa
                 }
             });
 
-        $this->query->leftJoin(new Alias(Table::PRODUCTS, 'commerce_products'), 'commerce_products.id', '=', 'elements_owners.ownerId');
-        $this->query->leftJoin(new Alias(Table::PRODUCTTYPES, 'commerce_producttypes'), 'commerce_producttypes.id', '=', 'commerce_products.typeId');
-        $this->query->leftJoin(new Alias(CraftTable::ELEMENTS_SITES, 'commerce_products_elements_sites'), function(JoinClause $join) {
+        $this->query->leftJoin(Table::PRODUCTS . ' as commerce_products', 'commerce_products.id', '=', 'elements_owners.ownerId');
+        $this->query->leftJoin(Table::PRODUCTTYPES . ' as commerce_producttypes', 'commerce_producttypes.id', '=', 'commerce_products.typeId');
+        $this->query->leftJoin(CraftTable::ELEMENTS_SITES . ' as commerce_products_elements_sites', function(JoinClause $join) {
             $join->on('commerce_products_elements_sites.elementId', '=', 'elements_owners.ownerId')
                 ->on('commerce_products_elements_sites.siteId', '=', 'elements_sites.siteId');
         });

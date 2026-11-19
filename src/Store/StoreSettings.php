@@ -120,7 +120,8 @@ class StoreSettings
 
     private function checkStoreLocationAuthorization(ElementAuthorizing $event): StoreSettingsRecord|false
     {
-        if (!$event->element instanceof Address) {
+        // Unsaved addresses can't be a store location yet, and a null ID would match stores without a location address
+        if (!$event->element instanceof Address || !$event->element->getCanonicalId()) {
             return false;
         }
 

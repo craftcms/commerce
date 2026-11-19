@@ -19,6 +19,9 @@ importers:
 
   .:
     devDependencies:
+      '@inertiajs/vue3':
+        specifier: ^3.0.3
+        version: 3.11.0(vue@3.5.43(typescript@6.0.3))
       '@vitejs/plugin-vue':
         specifier: ^6.0.9
         version: 6.0.9(vite@8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2))(vue@3.5.43(typescript@6.0.3))
@@ -708,6 +711,23 @@ packages:
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
+
+  '@inertiajs/core@3.11.0':
+    resolution: {integrity: sha512-YDqkKHsTiDUKofVzE3p6IduuU1u0ZwmheSpk2AZP6Eig3ZwhTlchDiLbUhFUCd138naqlhjRh2rTxIXeKrnmOQ==}
+    peerDependencies:
+      axios: ^1.15.2
+    peerDependenciesMeta:
+      axios:
+        optional: true
+
+  '@inertiajs/vue3@3.11.0':
+    resolution: {integrity: sha512-O1NnujzskjOWOI4OlGmZfNbpkzzO/PvHGQyMv2de6ntwc2UZvFHUa0UoGOgqV3bjJINMdjJdaU+mOkNPATVERQ==}
+    peerDependencies:
+      '@laravel/echo-vue': ^2.0.0
+      vue: ^3.0.0
+    peerDependenciesMeta:
+      '@laravel/echo-vue':
+        optional: true
 
   '@jest/schemas@29.6.3':
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
@@ -2048,6 +2068,9 @@ packages:
     resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
     engines: {node: '>= 0.4'}
 
+  es-toolkit@1.53.2:
+    resolution: {integrity: sha512-iUqZ+NlwH4jUgRmXZUxFBsV/9762TQEa1O4IXLFBmDEjVHScBytKuseX23I0+v9ShZ5MYxEx6WKNzm6IPnex8g==}
+
   es6-promisify@6.1.1:
     resolution: {integrity: sha512-HBL8I3mIki5C1Cc9QjKUenHtnG0A5/xA8Q/AllRcfiwl2CZFXGK7ddBiCoRwAix4i2KxcQfjtIVcrVbB3vbmwg==}
 
@@ -2592,6 +2615,14 @@ packages:
   klona@2.0.6:
     resolution: {integrity: sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==}
     engines: {node: '>= 8'}
+
+  laravel-precognition@2.1.1:
+    resolution: {integrity: sha512-Wg05+puJ5qiNsE8rdO5JmSiqQ2xcEf7442AIZiDhZg1JyPOePv5SSCu0fO7z7LqmJcPMxNNuOIcZd6UatEmYug==}
+    peerDependencies:
+      axios: ^1.4.0
+    peerDependenciesMeta:
+      axios:
+        optional: true
 
   laravel-vite-plugin@3.2.0:
     resolution: {integrity: sha512-xSxY9Gzeb/eancd8WeK09piAFP+a6i5QIBqNCKNv9L0Eq6wziwzSem7F1GvMSrtjMh5F/QVKFxn8t9naGOA66A==}
@@ -5041,6 +5072,21 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
+  '@inertiajs/core@3.11.0':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      es-toolkit: 1.53.2
+      laravel-precognition: 2.1.1
+
+  '@inertiajs/vue3@3.11.0(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      '@inertiajs/core': 3.11.0
+      es-toolkit: 1.53.2
+      laravel-precognition: 2.1.1
+      vue: 3.5.43(typescript@6.0.3)
+    transitivePeerDependencies:
+      - axios
+
   '@jest/schemas@29.6.3':
     dependencies:
       '@sinclair/typebox': 0.27.12
@@ -6362,6 +6408,8 @@ snapshots:
       has-tostringtag: 1.0.2
       hasown: 2.0.4
 
+  es-toolkit@1.53.2: {}
+
   es6-promisify@6.1.1: {}
 
   escalade@3.2.0: {}
@@ -6935,6 +6983,10 @@ snapshots:
   kind-of@6.0.3: {}
 
   klona@2.0.6: {}
+
+  laravel-precognition@2.1.1:
+    dependencies:
+      es-toolkit: 1.53.2
 
   laravel-vite-plugin@3.2.0(vite@8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2)):
     dependencies:
