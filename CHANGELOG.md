@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.9 - 2026-11-18
 
 - Fixed a bug where coupon uses weren’t counted on PostgreSQL if the coupon code’s casing didn’t match. ([#4464](https://github.com/craftcms/commerce/pull/4464))
 - Fixed a bug where a stale copy of a cart could still revert a completed order as incomplete due to a race condition. ([#4450](https://github.com/craftcms/commerce/issues/4450))
