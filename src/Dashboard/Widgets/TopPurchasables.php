@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use CraftCms\Cms\Cp\RequestedSite;
-use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Ui\Controls\Choice;
 use CraftCms\Cms\Ui\Nodes\Field;
@@ -17,10 +16,9 @@ use CraftCms\Commerce\Stats\Contracts\StatInterface;
 use CraftCms\Commerce\Stats\TopPurchasables as TopPurchasablesStat;
 use CraftCms\Commerce\Store\Stores;
 
-use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
-class TopPurchasables extends Widget
+class TopPurchasables extends CommerceWidget
 {
     use HasCommerceIcon;
     use StatWidgetTrait;
@@ -86,9 +84,9 @@ class TopPurchasables extends Widget
     }
 
     #[\Override]
-    public static function isSelectable(): bool
+    protected static function requiredPermissions(): array
     {
-        return currentUser()?->can('commerce-manageOrders') ?? false;
+        return ['commerce-manageOrders'];
     }
 
     #[\Override]
@@ -110,13 +108,13 @@ class TopPurchasables extends Widget
     }
 
     #[\Override]
-    public function component(): ?string
+    protected function renderComponent(): ?string
     {
         return 'commerce:widget-table';
     }
 
     #[\Override]
-    public function props(): array
+    protected function renderProps(): array
     {
         return [
             'columns' => [

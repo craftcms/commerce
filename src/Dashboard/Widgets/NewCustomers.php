@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use CraftCms\Cms\Cp\RequestedSite;
-use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Ui\Ui;
@@ -15,10 +14,9 @@ use CraftCms\Commerce\Dashboard\Widgets\Concerns\StatWidgetTrait;
 use CraftCms\Commerce\Stats\NewCustomers as NewCustomersStat;
 use CraftCms\Commerce\Store\Stores;
 
-use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
-class NewCustomers extends Widget
+class NewCustomers extends CommerceWidget
 {
     use HasCommerceIcon;
     use StatWidgetTrait;
@@ -47,9 +45,9 @@ class NewCustomers extends Widget
     }
 
     #[\Override]
-    public static function isSelectable(): bool
+    protected static function requiredPermissions(): array
     {
-        return currentUser()?->can('commerce-manageCustomers') ?? false;
+        return ['commerce-manageCustomers'];
     }
 
     #[\Override]
@@ -71,13 +69,13 @@ class NewCustomers extends Widget
     }
 
     #[\Override]
-    public function component(): ?string
+    protected function renderComponent(): ?string
     {
         return 'commerce:widget-number-stat';
     }
 
     #[\Override]
-    public function props(): array
+    protected function renderProps(): array
     {
         return [
             'value' => I18N::getFormatter()->asInteger($this->stat->get() ?: 0),

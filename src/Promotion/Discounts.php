@@ -140,7 +140,7 @@ class Discounts
         if ($order) {
             if ($order->getEmail()) {
                 $emailUsesSubQuery = DB::table(Table::EMAIL_DISCOUNTUSES . ' as edu')
-                    ->selectRaw('COALESCE(SUM(edu.uses), 0)')
+                    ->selectRaw('COALESCE(SUM(' . DB::getQueryGrammar()->wrap('edu.uses') . '), 0)')
                     ->whereColumn('edu.discountId', 'discounts.id')
                     ->where('edu.email', $order->getEmail());
 
@@ -311,7 +311,7 @@ class Discounts
             ->join(Table::COUPONS . ' as coupons', 'coupons.discountId', '=', 'discounts.id');
 
         if ($isPgsql) {
-            $query->whereRaw('LOWER(coupons.code) = LOWER(?)', [$code]);
+            $query->whereRaw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ') = LOWER(?)', [$code]);
         } else {
             $query->where('coupons.code', $code);
         }
@@ -380,6 +380,11 @@ class Discounts
 
         if ($lineItem->type === LineItemType::Purchasable) {
             $purchasable = $lineItem->getPurchasable();
+
+            // The purchasable may have been deleted, so there's nothing to match against
+            if ($purchasable === null) {
+                return false;
+            }
 
             if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
                 return false;

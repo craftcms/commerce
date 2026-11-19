@@ -170,16 +170,42 @@ jobs:
 
   feature-tests:
     needs: [check-cs, phpstan, rector]
-    # SQLite only for now — Commerce's stat/catalog-pricing queries have only been verified
-    # against SQLite so far. Add a mysql/pgsql matrix (see cms-6's laravel-ci.yml for the
-    # pattern) once those paths have been checked locally.
-    name: 'Tests / Feature'
+    name: 'Tests / Feature / ${{ matrix.db }}'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [sqlite, mysql, pgsql]
+
+    services:
+      pgsql:
+        image: ${{ matrix.db == 'pgsql' && 'postgres:latest' || '' }}
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: craft_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+      mysql:
+        image: ${{ matrix.db == 'mysql' && 'mysql:8.0' || '' }}
+        env:
+          MYSQL_ROOT_PASSWORD: mysecretpassword
+          MYSQL_DATABASE: craft_test
+          MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 3306:3306
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Copy tests .env
+        run: |
+          cp ./tests/.env.example.${{ matrix.db }} ./tests/.env
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=mysecretpassword/' tests/.env
 
       - name: Run tests
         uses: ./.github/actions/run-tests

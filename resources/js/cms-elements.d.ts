@@ -1,17 +1,52 @@
 /**
- * Ambient types for `@craftcms/cp`, the element index `cms` shares
- * with plugin bundles through the import map (see `cms`'s `Cp::sharedModules()`
- * and `resources/js/cp-module.ts`). Hand-authored for the same reason as
- * `window.d.ts`; keep in sync with `cms`'s `ElementIndexPage.vue`,
- * `ElementEditor.vue`, `CpButtonLink.vue`, `ActionMenu.vue`, `common/types` and
- * `useElementIndexVisits.ts`, `cp-module.ts` (`actionClient`, `showNotice`, `showError`, `t`), `useAppLayout.ts`, `useCustomizeSources.ts`,
- * `AdminTable.vue`, `SearchForm.vue`, `common/table/craftTable.ts` and
- * `common/table/createCraftColumnHelper.ts` and `open-ui-modal.ts`. The table
- * types are loose: the TanStack generics behind them aren't worth mirroring by
- * hand.
+ * Ambient types for `@craftcms/cp`, the module `cms` shares with plugin
+ * bundles through the import map (see `cms`'s `Cp::sharedModules()` and
+ * `resources/js/cp-module.ts`). Hand-authored: `cms` doesn't publish its types
+ * as a package this project can resolve. Keep in sync with `cp-module.ts` and
+ * the `cms` sources it re-exports from. The table types are loose: the
+ * TanStack generics behind them aren't worth mirroring by hand.
  */
 declare module '@craftcms/cp' {
-  import type {ComputedRef, DefineComponent} from 'vue';
+  import type {Component, ComputedRef, DefineComponent} from 'vue';
+
+  type Registration =
+    | Component
+    | (() => Promise<Component | {default: Component}>);
+
+  export function registerComponent(
+    name: string,
+    component: Registration
+  ): void;
+
+  export function registerPage(name: string, page: Registration): void;
+
+  export type UiChangeKind = 'discrete' | 'typing';
+
+  export interface UiChange {
+    kind: UiChangeKind;
+    path: string[];
+    scope?: string[];
+    refreshable?: boolean;
+  }
+
+  export interface UiNodePayload<
+    Props extends object = Record<string, unknown>
+  > {
+    uid: string;
+    props: Props;
+  }
+
+  export interface UiControlPayload<
+    Props extends object = Record<string, unknown>
+  > {
+    path: string[];
+    props: Props;
+  }
+
+  export function showCopyTextPrompt(config: {
+    label?: string;
+    value: string;
+  }): HTMLElement;
 
   export type IndexQueryValue =
     | string

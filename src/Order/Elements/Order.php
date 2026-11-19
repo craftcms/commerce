@@ -71,6 +71,8 @@ use CraftCms\Commerce\Order\Events\OrderNoticeSaving;
 use CraftCms\Commerce\Order\Events\OrderPaid;
 use CraftCms\Commerce\Order\Exceptions\LineItemNotFoundException;
 use CraftCms\Commerce\Order\Exceptions\OrderAdjustmentNotFoundException;
+use CraftCms\Commerce\Order\Exceptions\OrderCompletedException;
+use CraftCms\Commerce\Order\Exceptions\OrderNumberConflictException;
 use CraftCms\Commerce\Order\Exceptions\OrderStatusException;
 use CraftCms\Commerce\Order\Exporters\Expanded;
 use CraftCms\Commerce\Order\Exporters\LineItemExport;
@@ -1607,6 +1609,68 @@ class Order extends Element implements HasStoreInterface
     }
 
     #[Override]
+    public function beforeSave(bool $isNew): bool
+    {
+        // An order can never be un-completed. If this instance is stale (loaded as a cart before another request
+        // completed the order), saving it would overwrite `isCompleted`, `orderStatusId` and `paidStatus`
+        // and wipe the completed state.
+        if (!$isNew && $this->id && !$this->isCompleted) {
+            $completedInDb = DB::table(Table::ORDERS)
+                ->where('id', $this->id)
+                ->where('isCompleted', true)
+                ->exists();
+
+            if ($completedInDb) {
+                Log::warning("Refusing to save a stale, incomplete copy of order $this->number that is already completed.");
+
+                return false;
+            }
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
+    /**
+     * Whether this instance is an incomplete copy of an order that is completed in the database.
+     *
+     * When called inside the save transaction this must be a locking read: a plain read would use the transaction's
+     * snapshot, which can predate the commit of the request that completed the order.
+     */
+    private function _isStaleIncompleteCopy(): bool
+    {
+        if ($this->isCompleted || !$this->id) {
+            return false;
+        }
+
+        $query = DB::table(Table::ORDERS)->where('id', $this->id);
+
+        if (DB::transactionLevel() > 0) {
+            $query->lockForUpdate();
+        }
+
+        return (bool) $query->value('isCompleted');
+    }
+
+    /**
+     * Whether a different order already has this order's number.
+     *
+     * Must be a locking read when called inside the save transaction: a plain read would use the transaction's snapshot,
+     * which can predate the commit of the request that saved the other order.
+     */
+    private function _isOrderNumberTakenByAnotherOrder(): bool
+    {
+        $query = DB::table(Table::ORDERS)
+            ->where('number', $this->number)
+            ->where('id', '!=', $this->id);
+
+        if (DB::transactionLevel() > 0) {
+            $query->lockForUpdate();
+        }
+
+        return $query->exists();
+    }
+
+    #[Override]
     public function afterSave(bool $isNew): void
     {
         $lockKey = "order-after-save:$this->number";
@@ -1614,6 +1678,21 @@ class Order extends Element implements HasStoreInterface
         $lock->block(15);
 
         try {
+            // `beforeSave()` runs before the save transaction and without a lock, so the order may have been completed
+            // by another request since it was checked. Recheck using a row lock held until the transaction commits.
+            if (!$isNew && $this->_isStaleIncompleteCopy()) {
+                Log::warning("Refusing to save a stale, incomplete copy of order $this->number that was completed during the save.");
+
+                throw new OrderCompletedException("Order $this->number was completed by another request.");
+            }
+
+            // Another request may have saved a new order with this number while this one waited for the lock.
+            // The unique index would reject the insert, but fail early with an exception callers can handle.
+            // An order without a number can't conflict: the unique index allows multiple NULLs.
+            if ($isNew && $this->number !== null && $this->_isOrderNumberTakenByAnotherOrder()) {
+                throw new OrderNumberConflictException($this->number);
+            }
+
             // Make sure addresses are set before recalculation so that on the next page load
             // the correct adjustments and totals are shown
             if ($this->shippingSameAsBilling) {
@@ -4104,18 +4183,30 @@ class Order extends Element implements HasStoreInterface
      */
     private function _saveAdjustments(): void
     {
+        $adjustments = $this->getAdjustments() ?? [];
+
+        // Adjustments whose row no longer exists were replaced by another request since this instance was loaded.
+        // This save is serialized by the `order-after-save` lock, so this instance is authoritative for the totals
+        // it writes: save those adjustments as new rows and clean up the rest, so the rows always match the totals.
+        $ids = array_filter(array_map(fn(OrderAdjustment $adjustment) => $adjustment->id, $adjustments));
+        if ($ids) {
+            $existingIds = DB::table(Table::ORDERADJUSTMENTS)
+                ->whereIn('id', $ids)
+                ->pluck('id')
+                ->all();
+
+            foreach ($adjustments as $adjustment) {
+                if ($adjustment->id && !in_array($adjustment->id, $existingIds)) {
+                    $adjustment->id = null;
+                }
+            }
+        }
+
         $newAdjustmentIds = [];
 
-        foreach ($this->getAdjustments() as $adjustment) {
-            try {
-                // Don't run validation as validation of the adjustment should happen before saving the order
-                app(OrderAdjustments::class)->saveOrderAdjustment($adjustment, false);
-            } catch (OrderAdjustmentNotFoundException) {
-                // If the adjustment was not found, it means it may have previously existed but was already deleted (race condition).
-                // See: https://github.com/craftcms/commerce/issues/3283
-                continue;
-            }
-
+        foreach ($adjustments as $adjustment) {
+            // Don't run validation as validation of the adjustment should happen before saving the order
+            app(OrderAdjustments::class)->saveOrderAdjustment($adjustment, false);
             $newAdjustmentIds[] = $adjustment->id;
             $adjustment->orderId = $this->id;
         }

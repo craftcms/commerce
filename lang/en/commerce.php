@@ -1608,6 +1608,7 @@ return [
     'Units' => 'Units',
     'Unknown order operation.' => 'Unknown order operation.',
     'Unpaid' => 'Unpaid',
+    'Unsupported payment currency.' => 'Unsupported payment currency.',
     'Unsubscribe' => 'Unsubscribe',
     'Update Address' => 'Update Address',
     'Update Adjustment' => 'Update Adjustment',

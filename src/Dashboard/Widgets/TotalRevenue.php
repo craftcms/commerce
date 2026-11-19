@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Dashboard\Widgets;
 
 use CraftCms\Cms\Cp\RequestedSite;
-use CraftCms\Cms\Dashboard\Widgets\Widget;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Ui\Controls\Choice;
@@ -22,10 +21,9 @@ use CraftCms\Commerce\Stats\TotalRevenue as TotalRevenueStat;
 use CraftCms\Commerce\Store\Stores;
 use Illuminate\Validation\Rule;
 
-use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
-class TotalRevenue extends Widget
+class TotalRevenue extends CommerceWidget
 {
     use HasCommerceIcon;
     use StatWidgetTrait;
@@ -70,9 +68,9 @@ class TotalRevenue extends Widget
     }
 
     #[\Override]
-    public static function isSelectable(): bool
+    protected static function requiredPermissions(): array
     {
-        return currentUser()?->can('commerce-manageOrders') ?? false;
+        return ['commerce-manageOrders'];
     }
 
     #[\Override]
@@ -100,13 +98,13 @@ class TotalRevenue extends Widget
     }
 
     #[\Override]
-    public function component(): ?string
+    protected function renderComponent(): ?string
     {
         return 'commerce:widget-chart';
     }
 
     #[\Override]
-    public function props(): array
+    protected function renderProps(): array
     {
         $stats = $this->stat->get() ?: [];
         $interval = $this->stat->getDateRangeInterval();

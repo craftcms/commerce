@@ -21,6 +21,7 @@ use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Order\LineItem\LineItems;
 use CraftCms\Commerce\Payment\Gateway\Gateways;
+use CraftCms\Commerce\Payment\PaymentCurrencies;
 use CraftCms\Commerce\Payment\PaymentSources;
 use CraftCms\Commerce\Plugin;
 use Illuminate\Contracts\Cache\Lock;
@@ -96,6 +97,13 @@ class CartController
 
         // Get the cart from the request or from the session.
         $this->cart = $this->resolveCart($request);
+
+        $currency = $request->input('paymentCurrency');
+        if ($currency !== null && $currency !== '') {
+            if (!is_string($currency) || app(PaymentCurrencies::class)->getPaymentCurrencyByIso($currency, $this->cart->getStore()->id) === null) {
+                abort(400, t('Unsupported payment currency.', category: 'commerce'));
+            }
+        }
 
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         if ($this->cart->id === null) {

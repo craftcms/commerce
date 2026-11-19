@@ -443,4 +443,9 @@ class OrdersController
     {
         abort_unless(($user = currentUserElement()) && $order->canView($user), 403, 'User not authorized to view this order.');
     }
+
+    protected function enforceEditOrderPermissions(Order $order): void
+    {
+        abort_unless(($user = currentUserElement()) && $order->canSave($user), 403, 'User not authorized to save this order.');
+    }
 }

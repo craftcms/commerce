@@ -28,6 +28,7 @@
         watch,
         type CSSProperties,
     } from 'vue';
+    import {router} from '@inertiajs/vue3';
     import CustomerField from '../../modules/orders/CustomerField.vue';
     import ComboboxFieldPopover, {
         type ComboboxFieldOption,
@@ -406,7 +407,7 @@
             params: {orderId: String(props.orderId)},
             onSubmitted: () => {
                 activityRefresh.value++;
-                window.Cp.$router.reload();
+                router.reload();
             },
         });
     }
@@ -506,7 +507,7 @@
 
     function paymentsChanged(): void {
         activityRefresh.value++;
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     async function showTransactionDetails(
@@ -740,7 +741,7 @@
             actionUrl: props.editUrls.form,
             params: {...editParams(), form, ...params},
             width,
-            onSubmitted: () => window.Cp.$router.reload(),
+            onSubmitted: () => router.reload(),
         });
     }
 
@@ -753,7 +754,7 @@
 
         void openCpSlideout(`${url}?${query}`, {
             opener: opener as HTMLElement | null,
-            onSaved: () => window.Cp.$router.reload(),
+            onSaved: () => router.reload(),
         });
     }
 
@@ -799,7 +800,7 @@
             await post(props.editUrls.apply, {...editParams(), operations});
         }
 
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     function selectShippingMethod(value: string): void {
@@ -826,7 +827,7 @@
             modalUrl: props.editUrls.statusForm,
             actionUrl: props.editUrls.status,
             params: {orderId: String(props.orderId)},
-            onSubmitted: () => window.Cp.$router.reload(),
+            onSubmitted: () => router.reload(),
         });
     }
 
@@ -840,37 +841,37 @@
             window.confirm(message) &&
             (await post(props.editUrls.complete, {}))
         ) {
-            window.Cp.$router.reload();
+            router.reload();
         }
     }
 
     async function startEditing(): Promise<void> {
         await post(props.editUrls.start, {});
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     async function takeOver(): Promise<void> {
         await post(props.editUrls.takeOver, {});
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     async function discardEdit(): Promise<void> {
         if (window.confirm(props.labels.confirmDiscard)) {
             reviewing.value = false;
             await post(props.editUrls.discard, {});
-            window.Cp.$router.reload();
+            router.reload();
         }
     }
 
     async function removeChange(index: number): Promise<void> {
         await post(props.editUrls.remove, {index});
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     async function commitEdit(): Promise<void> {
         await post(props.editUrls.commit, {});
         reviewing.value = false;
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     function addressActions(addressType: 'shipping' | 'billing'): ActionItem[] {
@@ -1021,7 +1022,7 @@
     const addingLineItem = ref(false);
 
     function reloadPage(): void {
-        window.Cp.$router.reload();
+        router.reload();
     }
 
     const addActions = computed<ActionItem[]>(() => [

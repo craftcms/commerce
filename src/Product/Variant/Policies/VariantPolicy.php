@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Product\Variant\Policies;
 
+use CraftCms\Cms\Element\ElementHelper;
 use CraftCms\Cms\Element\Policies\ElementPolicy;
 use CraftCms\Cms\User\Contracts\CraftUser;
+use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
 
 class VariantPolicy extends ElementPolicy
@@ -30,6 +32,24 @@ class VariantPolicy extends ElementPolicy
 
     public function delete(CraftUser $user, Variant $variant): bool
     {
+        // Enabled products must have at least one variant, and deleting a variant doesn't validate its product
+        $product = $variant->getOwner();
+        if (
+            $product instanceof Product &&
+            $product->enabled &&
+            !$variant->trashed &&
+            !ElementHelper::isDraftOrRevision($variant)
+        ) {
+            // Count the variants fresh, as the product's variants may be memoized from before others were deleted
+            $variantCount = $product->id
+                ? Variant::find()->ownerId($product->id)->siteId($product->siteId)->status(null)->count()
+                : $product->getVariants(true)->count();
+
+            if ($variantCount <= 1) {
+                return false;
+            }
+        }
+
         return $this->save($user, $variant);
     }
 

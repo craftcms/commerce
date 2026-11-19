@@ -26,6 +26,7 @@ import laravel from 'laravel-vite-plugin';
  */
 const cpSharedModuleExports: Record<string, string[] | null> = {
   vue: null,
+  '@inertiajs/vue3': null,
   '@craftcms/cp': [
     'ElementIndexPage',
     'ElementEditor',
@@ -43,6 +44,13 @@ const cpSharedModuleExports: Record<string, string[] | null> = {
     'SearchForm',
     'useCraftTable',
     'createCraftColumnHelper',
+    'registerComponent',
+    'registerPage',
+    'actionClient',
+    'showNotice',
+    'showError',
+    'showCopyTextPrompt',
+    't',
   ],
 };
 const cpSharedModules = Object.keys(cpSharedModuleExports);

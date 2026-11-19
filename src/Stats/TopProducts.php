@@ -117,7 +117,7 @@ class TopProducts extends Stat
             ->whereNotNull('v.primaryOwnerId')
             ->limit($this->limit);
 
-        return $topProducts->get()->map(fn($row) => (array)$row)->all();
+        return $topProducts->get()->map(fn($row) => $this->castAggregates((array)$row, ['revenue', 'revenue_subtotal', 'revenue_custom'], ['qty']))->all();
     }
 
     #[\Override]

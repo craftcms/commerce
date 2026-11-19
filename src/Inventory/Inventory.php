@@ -243,7 +243,7 @@ class Inventory
                 'ii.id as inventoryItemId',
                 'it.type as type',
             ])
-            ->selectRaw('COALESCE(SUM(it.quantity), 0) as quantity')
+            ->selectRaw('COALESCE(SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . '), 0) as quantity')
             ->crossJoin(Table::INVENTORYITEMS . ' as ii')
             ->leftJoin(Table::INVENTORYTRANSACTIONS . ' as it', function($join) {
                 $join->on('il.id', '=', 'it.inventoryLocationId')
@@ -257,11 +257,12 @@ class Inventory
             $inventoryTotals->where('il.id', $inventoryLocationId);
         }
 
-        $wrap = fn(string $value): string => DB::connection()->getQueryGrammar()->wrap($value);
         $sumOfTypes = fn(array $types, string $alias): string => sprintf(
-            "SUM(CASE WHEN it.type IN (%s) THEN it.quantity ELSE 0 END) as %s",
+            "SUM(CASE WHEN %s IN (%s) THEN %s ELSE 0 END) as %s",
+            DB::getQueryGrammar()->wrap('it.type'),
             implode(',', array_map(fn(string $type) => "'$type'", $types)),
-            $wrap($alias),
+            DB::getQueryGrammar()->wrap('it.quantity'),
+            DB::getQueryGrammar()->wrap($alias),
         );
 
         $query = DB::table(Table::INVENTORYITEMS . ' as ii')
@@ -570,7 +571,7 @@ class Inventory
             ->where('it.inventoryLocationId', $inventoryLocationId)
             ->where('it.type', InventoryTransactionType::COMMITTED->value)
             ->groupBy('lineItems.orderId', 'lineItems.id')
-            ->havingRaw('SUM(it.quantity) > 0')
+            ->havingRaw('SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . ') > 0')
             ->pluck('orderId')
             ->all();
 
@@ -671,13 +672,15 @@ class Inventory
     public function getReservedQuantitiesByLineItem(int $inventoryItemId, int $inventoryLocationId, ?int $committedLocationId = null): Collection
     {
         $query = DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
-            ->selectRaw('it.lineItemId, li.orderId, SUM(it.quantity) as reservedQty, MIN(it.dateCreated) as firstReservedDate')
+            ->select(['it.lineItemId', 'li.orderId'])
+            ->selectRaw('SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . ') as ' . DB::getQueryGrammar()->wrap('reservedQty'))
+            ->selectRaw('MIN(' . DB::getQueryGrammar()->wrap('it.dateCreated') . ') as ' . DB::getQueryGrammar()->wrap('firstReservedDate'))
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->where('it.type', InventoryTransactionType::RESERVED->value)
             ->where('it.inventoryItemId', $inventoryItemId)
             ->where('it.inventoryLocationId', $inventoryLocationId)
             ->groupBy('it.lineItemId', 'li.orderId')
-            ->havingRaw('SUM(it.quantity) > 0')
+            ->havingRaw('SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . ') > 0')
             ->orderBy('firstReservedDate');
 
         if ($committedLocationId !== null) {
