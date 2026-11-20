@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Order\LineItem\Models;
 
 use CraftCms\Cms\Shared\BaseModel;
+use CraftCms\Cms\Shared\Concerns\HasUid;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 
@@ -18,6 +19,8 @@ use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
  */
 class LineItem extends BaseModel
 {
+    use HasUid;
+
     #[\Override]
     protected $table = Table::LINEITEMS;
 

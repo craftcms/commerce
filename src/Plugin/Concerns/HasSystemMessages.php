@@ -27,7 +27,31 @@ trait HasSystemMessages
                 'subject' => t('Your Cart Recovery Link', category: 'commerce'),
                 'body' => $this->defaultCartRecoveryMessage(),
             ]),
+            'commerce_payment_link' => fn() => new SystemMessage([
+                'key' => 'commerce_payment_link',
+                'heading' => t('Payment Link', category: 'commerce'),
+                'subject' => t('Your Payment Link', category: 'commerce'),
+                'body' => $this->defaultPaymentLinkMessage(),
+                'variables' => [
+                    'link' => t('The hosted payment page', category: 'commerce'),
+                    'amount' => t('The amount to pay', category: 'commerce'),
+                    'expiresAt' => t('When the link stops working', category: 'commerce'),
+                    'order' => t('The order', category: 'commerce'),
+                ],
+            ]),
         ];
+    }
+
+    /**
+     * Returns the default message body for the payment link email.
+     */
+    private function defaultPaymentLinkMessage(): string
+    {
+        return "Hello,\n\n" .
+            "You can pay {{ amount }} for your order using the link below:\n\n" .
+            "[Pay now]({{ link }})\n\n" .
+            "**Please note:** This link will expire for security purposes.\n\n" .
+            "Thank you!";
     }
 
     /**

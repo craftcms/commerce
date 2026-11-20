@@ -125,8 +125,23 @@ declare module '@craftcms/cp' {
     type?: 'button';
     label: string;
     icon?: string;
+    variant?: string;
+    disabled?: boolean;
+    disabledReason?: string | null;
     onClick?: (event: Event) => void;
   }
+
+  export interface UiModalOptions {
+    modalUrl: string;
+    actionUrl: string;
+    params?: Record<string, unknown>;
+    title?: string;
+    submitLabel?: string;
+    width?: string;
+    onSubmitted?: (data: Record<string, unknown>) => void;
+  }
+
+  export function openUiModal(options: UiModalOptions): Promise<void>;
 
   export type ActionItem = ActionItemLink | ActionItemGroup | ActionItemButton;
 
@@ -194,11 +209,37 @@ declare module '@craftcms/cp' {
     dataProp?: string;
   }
 
+  export interface CraftPaginationState {
+    pageIndex: number;
+    pageSize: number;
+  }
+
+  export interface CraftSortingItem {
+    id: string;
+    desc: boolean;
+  }
+
+  export type CraftTableUpdater<T> = T | ((old: T) => T);
+
   export function useCraftTable<TData>(options: {
     readonly data: TData[];
     columns: unknown[];
     getRowId?: (row: TData) => string;
     inertia?: CraftTableInertiaOptions;
+    manualPagination?: boolean;
+    manualSorting?: boolean;
+    enableSorting?: boolean;
+    enableMultiSort?: boolean;
+    enableSortingRemoval?: boolean;
+    rowCount?: number;
+    state?: {
+      pagination?: CraftPaginationState;
+      sorting?: CraftSortingItem[];
+    };
+    onPaginationChange?: (
+      updater: CraftTableUpdater<CraftPaginationState>
+    ) => void;
+    onSortingChange?: (updater: CraftTableUpdater<CraftSortingItem[]>) => void;
   }): unknown;
 
   export interface CraftCellContext<TData, TValue> {
@@ -208,11 +249,20 @@ declare module '@craftcms/cp' {
 
   export interface CraftColumnHelper<TData> {
     columns(columns: unknown[]): unknown[];
+    display(column: {
+      id: string;
+      header?: string;
+      enableSorting?: boolean;
+      meta?: {trackSize?: string; headerTip?: string};
+      cell: (context: CraftCellContext<TData, unknown>) => unknown;
+    }): unknown;
     accessor<TKey extends keyof TData>(
       key: TKey,
       config: {
+        id?: string;
         header: string;
-        meta?: {trackSize?: string};
+        enableSorting?: boolean;
+        meta?: {trackSize?: string; headerTip?: string};
         cell?: (cell: CraftCellContext<TData, TData[TKey]>) => unknown;
       }
     ): unknown;
@@ -228,6 +278,17 @@ declare module '@craftcms/cp' {
     total?: number;
     emptyMessage?: string | null;
     enableAdjustPageSize?: boolean;
+    loading?: boolean;
+    readOnly?: boolean;
+  }>;
+
+  export const ElementActionMenu: DefineComponent<{
+    items: unknown[];
+    flush?: boolean | string;
+  }>;
+
+  export const MetadataDetails: DefineComponent<{
+    html: string | null | undefined;
   }>;
 
   export const SearchForm: DefineComponent<{
@@ -235,4 +296,47 @@ declare module '@craftcms/cp' {
     modelValue?: string | null;
     options?: Record<string, unknown>;
   }>;
+
+  export const ActivityTimeline: DefineComponent<{
+    active: boolean;
+    url: string;
+    elementType: string;
+    elementId: number | null;
+    siteId: number | null;
+    refreshToken?: number;
+  }>;
+
+  export const ScreenPanel: DefineComponent<{
+    id: string;
+    label: string;
+    icon: string;
+    order?: number;
+    scrollsItself?: boolean;
+  }>;
+
+  export interface ActionRequestOptions {
+    data?: Record<string, unknown>;
+    params?: Record<string, unknown>;
+    responseType?: 'json' | 'blob' | 'text';
+  }
+
+  export interface ActionRequestResponse<T> {
+    data: T;
+    headers: Record<string, string>;
+  }
+
+  export const actionClient: {
+    request<T = unknown>(
+      config: ActionRequestOptions & {method?: string; url?: string}
+    ): Promise<ActionRequestResponse<T>>;
+  };
+
+  export function showNotice(message: string): unknown;
+
+  export function showError(message?: string | null): unknown;
+
+  export function openSlideout(
+    href: string,
+    options?: {opener?: HTMLElement | null; onSaved?: () => void}
+  ): Promise<unknown>;
 }

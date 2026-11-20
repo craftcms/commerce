@@ -5,6 +5,13 @@ use CraftCms\Cms\Http\Middleware\RequireCpRequest;
 use CraftCms\Commerce\Http\Controllers\CartController;
 use CraftCms\Commerce\Http\Controllers\CreateProductController;
 use CraftCms\Commerce\Http\Controllers\DonationsController;
+use CraftCms\Commerce\Http\Controllers\OrderActionsController;
+use CraftCms\Commerce\Http\Controllers\OrderCustomersController;
+use CraftCms\Commerce\Http\Controllers\OrderPurchasablesController;
+use CraftCms\Commerce\Http\Controllers\OrderEditController;
+use CraftCms\Commerce\Http\Controllers\OrderLifecycleController;
+use CraftCms\Commerce\Http\Controllers\OrderPaymentController;
+use CraftCms\Commerce\Http\Controllers\OrderPaymentLinksController;
 use CraftCms\Commerce\Http\Controllers\DownloadsController;
 use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
 use CraftCms\Commerce\Http\Controllers\FormulasController;
@@ -201,33 +208,64 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageStor
 // OrdersController extends the plain Yii2 Controller (not BaseCpController) — its init() only
 // ever checked commerce-manageOrders, not accessPlugin-commerce.
 Route::middleware(['auth', 'can:commerce-manageOrders'])->group(function() {
-    Route::post('orders/fulfill', [OrdersController::class, 'fulfill']);
-    Route::get('orders/fulfillment-modal', [OrdersController::class, 'fulfillmentModal']);
-    Route::post('orders/save', [OrdersController::class, 'store']);
-    Route::post('orders/delete-order', [OrdersController::class, 'destroy']);
-    Route::post('orders/refresh', [OrdersController::class, 'refresh']);
-    Route::post('orders/get-shipping-method-options', [OrdersController::class, 'shippingMethodOptions']);
     Route::get('orders/user-orders-table', [OrdersController::class, 'userOrdersTable']);
-    Route::get('orders/purchasables-table', [OrdersController::class, 'purchasablesTable']);
-    Route::get('orders/customer-search', [OrdersController::class, 'customerSearch']);
-    Route::get('orders/get-customer-addresses', [OrdersController::class, 'customerAddresses']);
-    Route::get('orders/get-order-address', [OrdersController::class, 'orderAddress']);
-    Route::post('orders/validate-address', [OrdersController::class, 'validateAddress']);
-    Route::post('orders/create-customer', [OrdersController::class, 'createCustomer']);
     Route::get('orders/get-load-cart-url', [OrdersController::class, 'loadCartUrl']);
-    Route::get('orders/send-email', [OrdersController::class, 'sendEmail']);
-    Route::get('orders/update-order-address', [OrdersController::class, 'updateOrderAddress']);
     Route::get('orders/get-index-sources-badge-counts', [OrdersController::class, 'indexSourcesBadgeCounts']);
-    Route::get('orders/get-payment-modal', [OrdersController::class, 'paymentModal']);
-    Route::post('orders/payment-amount-data', [OrdersController::class, 'paymentAmountData']);
+
+    Route::get('orders/snapshot', [OrderEditController::class, 'snapshot']);
+    Route::get('orders/actions/email-form', [OrderActionsController::class, 'emailForm']);
+    Route::post('orders/actions/send-email', [OrderActionsController::class, 'sendEmail']);
+    Route::get('orders/actions/share-cart', [OrderActionsController::class, 'shareCart']);
+
+    Route::middleware('can:commerce-editOrders')->group(function () {
+        Route::get('orders/actions/fulfillment-form', [OrderActionsController::class, 'fulfillmentForm']);
+        Route::post('orders/actions/fulfill', [OrderActionsController::class, 'fulfill']);
+        Route::post('orders/apply', [OrderEditController::class, 'apply']);
+        Route::get('orders/purchasables/search', [OrderPurchasablesController::class, 'search']);
+        Route::get('orders/customers/search', [OrderCustomersController::class, 'search']);
+        Route::post('orders/customers/create', [OrderCustomersController::class, 'create']);
+        Route::get('orders/edit/form', [OrderEditController::class, 'showForm']);
+        Route::post('orders/edit/form', [OrderEditController::class, 'submitForm']);
+        Route::get('orders/edit/fields', [OrderEditController::class, 'fieldsScreen']);
+        Route::post('orders/edit/fields', [OrderEditController::class, 'refreshFields']);
+        Route::get('orders/edit/address', [OrderEditController::class, 'addressScreen']);
+        Route::post('orders/edit/address', [OrderEditController::class, 'refreshAddress']);
+        Route::get('orders/edit/status', [OrderLifecycleController::class, 'statusForm']);
+        Route::post('orders/edit/status', [OrderLifecycleController::class, 'changeStatus']);
+        Route::post('orders/edit/complete', [OrderLifecycleController::class, 'complete']);
+        Route::post('orders/edit/start', [OrderEditController::class, 'start']);
+        Route::post('orders/edit/take-over', [OrderEditController::class, 'takeOver']);
+        Route::post('orders/edit/preview', [OrderEditController::class, 'preview']);
+        Route::post('orders/edit/add', [OrderEditController::class, 'addOperation']);
+        Route::post('orders/edit/remove', [OrderEditController::class, 'removeOperation']);
+        Route::post('orders/edit/commit', [OrderEditController::class, 'commit']);
+        Route::post('orders/edit/discard', [OrderEditController::class, 'discard']);
+    });
 
     Route::post('orders/copy-address-to-user', [OrdersController::class, 'copyAddressToUser'])
         ->middleware('can:editUsers');
 
     Route::middleware('can:commerce-capturePayment')
         ->post('orders/transaction-capture', [OrdersController::class, 'transactionCapture']);
-    Route::middleware('can:commerce-refundPayment')
-        ->post('orders/transaction-refund', [OrdersController::class, 'transactionRefund']);
+    Route::middleware('can:commerce-refundPayment')->group(function () {
+        Route::get('orders/payment/refund-form', [OrderPaymentController::class, 'refundForm']);
+        Route::post('orders/transaction-refund', [OrdersController::class, 'transactionRefund']);
+    });
+    Route::get('orders/payment/transaction', [OrderPaymentController::class, 'transaction']);
+    Route::middleware('can:commerce-recordPayments')->group(function () {
+        Route::get('orders/payment/record-payment-form', [OrderPaymentController::class, 'recordPaymentForm']);
+        Route::post('orders/payment/record-payment', [OrderPaymentController::class, 'recordPayment']);
+    });
+    Route::middleware('can:commerce-recordPayments')->group(function () {
+        Route::get('orders/payment/link-form', [OrderPaymentLinksController::class, 'createForm']);
+        Route::post('orders/payment/link', [OrderPaymentLinksController::class, 'create']);
+        Route::get('orders/payment/link-url', [OrderPaymentLinksController::class, 'url']);
+        Route::post('orders/payment/link-email', [OrderPaymentLinksController::class, 'email']);
+    });
+    Route::middleware('can:commerce-recordRefunds')->group(function () {
+        Route::get('orders/payment/record-refund-form', [OrderPaymentController::class, 'recordRefundForm']);
+        Route::post('orders/payment/record-refund', [OrderPaymentController::class, 'recordRefund']);
+    });
 
     Route::middleware([RequireCpRequest::class, 'can:deleteUsers'])->group(function() {
         Route::get('orders/reassign-modal', [OrdersController::class, 'reassignModal']);
