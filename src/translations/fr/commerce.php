@@ -567,7 +567,7 @@ return [
     'Included' => 'Inclus',
     'Incoming transfer from Transfer ID: ' => 'Transfert entrant à partir de l\'ID de transfert : ',
     'Incoming' => 'Entrant',
-    'Info' => 'Info',
+    'Info' => 'Infos',
     'Information linked?' => 'Des informations sont-elles associées ?',
     'Information' => 'Informations',
     'Invalid JSON' => 'JSON invalide',
