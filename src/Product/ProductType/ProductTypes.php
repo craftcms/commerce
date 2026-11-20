@@ -15,6 +15,7 @@ use CraftCms\Cms\Site\Events\SiteDeleted;
 use CraftCms\Cms\Site\Events\SiteSaved;
 use CraftCms\Cms\Structure\Data\Structure;
 use CraftCms\Cms\Structure\Enums\Mode;
+use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
@@ -320,6 +321,11 @@ class ProductTypes
             $record->handle = $data['handle'];
             $record->enableVersioning = $data['enableVersioning'] ?? false;
             $record->hasDimensions = $data['hasDimensions'];
+            $record->hasLicenses = $data['hasLicenses'] ?? false;
+            $record->licenseDownloadFieldUid = $data['licenseDownloadFieldUid'] ?? null;
+            $record->hasLicenseExpiry = $data['hasLicenseExpiry'] ?? false;
+            $record->licenseExpiryDuration = $data['licenseExpiryDuration'] ?? null;
+            $record->allowLicenseExpiryOverride = $data['allowLicenseExpiryOverride'] ?? false;
 
             $record->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
             $record->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
@@ -703,6 +709,11 @@ class ProductTypes
         $productType->handle = $record->handle;
         $productType->enableVersioning = (bool)$record->enableVersioning;
         $productType->hasDimensions = (bool)$record->hasDimensions;
+        $productType->hasLicenses = (bool)$record->hasLicenses;
+        $productType->licenseDownloadFieldUid = $record->licenseDownloadFieldUid;
+        $productType->hasLicenseExpiry = (bool)$record->hasLicenseExpiry;
+        $productType->licenseExpiryDuration = $record->licenseExpiryDuration;
+        $productType->allowLicenseExpiryOverride = (bool)$record->allowLicenseExpiryOverride;
         $productType->maxVariants = $record->maxVariants;
         $productType->hasVariantTitleField = (bool)$record->hasVariantTitleField;
         $productType->variantTitleFormat = $record->variantTitleFormat;
@@ -726,6 +737,8 @@ class ProductTypes
         $productType->fieldLayoutId = $record->fieldLayoutId;
         $productType->variantFieldLayoutId = $record->variantFieldLayoutId;
         $productType->uid = $record->uid;
+        $productType->dateCreated = DateTimeHelper::toDateTime($record->dateCreated) ?: null;
+        $productType->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated) ?: null;
         $productType->previewTargets = $record->previewTargets;
         $productType->propagationMethod = PropagationMethod::from($record->propagationMethod);
 

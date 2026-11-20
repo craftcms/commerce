@@ -31,6 +31,8 @@ readonly class Table
 
     public const GATEWAYS = 'commerce_gateways';
 
+    public const LICENSES = 'commerce_licenses';
+
     public const LINEITEMS = 'commerce_lineitems';
 
     public const LINEITEMSTATUSES = 'commerce_lineitemstatuses';
