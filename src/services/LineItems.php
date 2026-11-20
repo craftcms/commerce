@@ -329,6 +329,7 @@ class LineItems extends Component
                 $success = $lineItemRecord->save(false);
 
                 if ($success) {
+                    $lineItem->setSnapshot($lineItemRecord->snapshot);
                     $dateCreated = DateTimeHelper::toDateTime($lineItemRecord->dateCreated);
                     $dateUpdated = DateTimeHelper::toDateTime($lineItemRecord->dateUpdated);
                     $lineItem->dateCreated = $dateCreated;

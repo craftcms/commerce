@@ -922,7 +922,8 @@ class LineItem extends Model implements HasStoreInterface
         $this->taxCategoryId = $purchasable->getTaxCategory()->id;
         $this->shippingCategoryId = $purchasable->getShippingCategory()->id;
         $this->setSku($purchasable->getSku());
-        $this->setDescription($purchasable->getDescription());
+        $description = $purchasable->getDescription();
+        $this->setDescription($description);
 
         // Check to see if there is a discount applied that ignores promotions for this line item
         $ignorePromotions = false;
@@ -950,7 +951,7 @@ class LineItem extends Model implements HasStoreInterface
             // @TODO Move these common snapshot fields (price, sku, description, purchasableId, cpEditUrl, options) into the base purchasable's getSnapshot() in Commerce 6.0
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
-            'description' => $purchasable->getDescription(),
+            'description' => $description,
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
