@@ -9,6 +9,7 @@
 - Added `craft\commerce\errors\OrderCompletedException`.
 - Added `craft\commerce\errors\OrderNumberConflictException`.
 - Fixed a bug where shipping rule rates were rounded using the current store’s currency instead of the order’s store currency.
+- Fixed a bug where per item discounts were rounded using the current store’s currency instead of the order’s currency.
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-98wq-3mvx-6jvv)
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-grgh-r768-2cxf)
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-ch56-6g32-55wc)
