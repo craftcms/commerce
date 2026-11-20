@@ -34,6 +34,7 @@ use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
+use yii\caching\TagDependency;
 use yii\web\ServerErrorHttpException;
 use function count;
 
@@ -226,7 +227,7 @@ class OrderStatuses extends Component
     {
         $storeId ??= Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $countGroupedByStatusId = (new Query())
+        $query = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
             ->where([
                 '[[o.isCompleted]]' => true,
@@ -236,8 +237,20 @@ class OrderStatuses extends Component
             ->from([Table::ORDERS . ' o'])
             ->innerJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
             ->groupBy(['[[o.orderStatusId]]'])
-            ->indexBy('orderStatusId')
-            ->all();
+            ->indexBy('orderStatusId');
+
+        // Never share uncommitted counts or read cached counts within a transaction.
+        // Expiry reconciles direct DB updates that bypass the order lifecycle.
+        $countGroupedByStatusId = Craft::$app->getDb()->getTransaction() !== null
+            ? $query->all()
+            : Craft::$app->getCache()->getOrSet(
+                [__METHOD__, $storeId],
+                fn() => $query->all(),
+                3600,
+                new TagDependency([
+                    'tags' => ['element', 'element::' . Order::class, "commerce:order-counts:$storeId"],
+                ]),
+            );
 
         // For those not in the groupBy
         $allStatuses = $this->getAllOrderStatuses($storeId);
@@ -255,6 +268,16 @@ class OrderStatuses extends Component
         }
 
         return $countGroupedByStatusId;
+    }
+
+    /**
+     * Invalidates a store's badge counts once pending order changes are committed or rolled back.
+     */
+    public function invalidateOrderCountByStatus(int $storeId): void
+    {
+        Craft::$app->getDb()->onAfterTransaction(static function() use ($storeId) {
+            TagDependency::invalidate(Craft::$app->getCache(), "commerce:order-counts:$storeId");
+        });
     }
 
     /**
