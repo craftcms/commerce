@@ -1058,7 +1058,7 @@ return [
     'Site store mapping saved.' => 'Kartleggingen av butikk lagret.',
     'Sites' => 'Nettsteder',
     'Slug' => 'Lenke',
-    'Snapshot' => 'Snapshot',
+    'Snapshot' => 'Øyeblikksbilde',
     'Snapshots' => 'Snapshots',
     'Some orders restored.' => 'Enkelte ordrer ble gjenopprettet.',
     'Some products restored.' => 'Enkelte produkter ble gjenopprettet.',

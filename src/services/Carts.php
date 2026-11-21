@@ -10,6 +10,8 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\OrderCompletedException;
+use craft\commerce\errors\OrderNumberConflictException;
 use craft\commerce\events\CartPurgeEvent;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -128,7 +130,8 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      *
-     * @param bool $forceSave Force the cart.
+     * @param bool $forceSave Save the cart immediately. If another request saved a cart with the same number first, return that cart when accessible.
+     * @return Order The current cart
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
@@ -210,7 +213,36 @@ class Carts extends Component
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
         if (($this->_cart->id && $hasSomethingChangedOnCart) || $forceSave) {
-            Craft::$app->getElements()->saveElement($this->_cart, false);
+            // The cart may have been completed by another request (e.g. a payment webhook) since it was loaded.
+            // Saving a stale cart would force a recalculation over a completed order. See: https://github.com/craftcms/commerce/issues/4398
+            // The completed check inside the save is authoritative; this one just avoids a pointless save.
+            if ($this->_cart->id && $this->_isCartCompletedInDb($this->_cart)) {
+                $this->forgetCart();
+                return $this->getCart();
+            }
+
+            $isNew = $this->_cart->id === null;
+            try {
+                Craft::$app->getElements()->saveElement($this->_cart, false);
+            } catch (OrderNumberConflictException $e) {
+                if (!$isNew) {
+                    throw $e;
+                }
+
+                // The failed insert was rolled back. Resolve the winning cart from the primary DB using the normal access checks.
+                return Craft::$app->getDb()->useMaster(function() use ($e, $forceSave): Order {
+                    $this->_cart = $this->_getCart();
+                    if ($this->_cart === null && $this->_cartNumber !== false) {
+                        throw $e;
+                    }
+
+                    return $this->getCart($this->_cart === null && $forceSave);
+                });
+            } catch (OrderCompletedException) {
+                // Completed by another request during the save, which has been rolled back. Start again with a fresh cart.
+                $this->forgetCart();
+                return $this->getCart();
+            }
         }
 
         return $this->_cart;
@@ -269,6 +301,14 @@ class Carts extends Component
 
         $this->_cart = $cart;
         return $this->_cart;
+    }
+
+    private function _isCartCompletedInDb(Order $cart): bool
+    {
+        return (new Query())
+            ->from([Table::ORDERS])
+            ->where(['id' => $cart->id, 'isCompleted' => true])
+            ->exists();
     }
 
     /**
