@@ -1148,7 +1148,7 @@ return [
     'The discount "{name}" has exceeded its total usage limit of {limit}.' => 'De gebruikslimiet van {limit} van de korting "{name}" is overschreden.',
     'The download link has expired. Please request a new one.' => 'De downloadlink is verlopen. Vraag een nieuwe aan.',
     'The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings.' => 'Het e-mailadres waarvan bestelling status e-mails worden verzonden. Laat leeg om het Systeem E-mailadres vastgesteld in de algemene instellingen van Craft te gebruiken.',
-    'The entry that contains the description for this subscription’s plan.' => 'Het item met een beschrijving voor dit abonnementsplan.',
+    'The entry that contains the description for this subscription’s plan.' => 'De vermelding met een beschrijving voor dit abonnementsplan.',
     'The flat value which should discount each item. i.e “3” for $3 off each item.' => 'De vaste waarde van de korting voor elk item. Bijv. “3” voor $ 3 korting op elk item.',
     'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.' => 'De gebruikte notatie om nieuwe coupons te genereren, bijvoorbeeld {example}. \'#\'-tekens worden vervangen door een willekeurige letter.',
     'The from and to inventory locations must be different.' => 'De voorraadlocatie van en naar moeten verschillend zijn.',
