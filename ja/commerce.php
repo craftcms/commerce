@@ -191,7 +191,7 @@ return [
     'Choose adjustment values to include when calculating the product revenue total.' => '商品の合計収益を計算する際に含める調整値を選択してください。',
     'Choose the currency’s ISO code.' => 'この国のISOコードを選択してください。',
     'Choose the destination inventory location for the existing on hand stock.' => '宛先の既存の手持ち在庫の在庫場所を選択してください。',
-    'Choose which sites this product type should be available in, and configure the site-specific settings.' => 'このセクションを表示可能にする商品タイプを選択して、サイト固有の設定を行ってください。',
+    'Choose which sites this product type should be available in, and configure the site-specific settings.' => 'この商品タイプを表示可能にするサイトを選択して、サイト固有の設定を行ってください。',
     'City' => '市区町村',
     'Clear counter' => 'カウントをリセットする',
     'Clear notices' => '通知をクリア',
