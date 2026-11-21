@@ -412,7 +412,7 @@ return [
     'Download PDF…' => 'הורד PDF…',
     'Download Type' => 'סוג הורדה',
     'Download' => 'הורד',
-    'Draft' => 'טיוטא',
+    'Draft' => 'טיוטה',
     'Dummy gateway payment failed.' => 'התשלום בשער התשלום לבדיקות נכשל.',
     'Duplicate options exist' => 'קיימות אפשרויות כפולות',
     'Duration' => 'משך',

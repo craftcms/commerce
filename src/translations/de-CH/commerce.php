@@ -637,7 +637,7 @@ return [
     'Link to a product' => 'Link zu einem Produkt',
     'Link to a variant' => 'Link zu einer Variante',
     'Link' => 'Link',
-    'Live' => 'Aktiv',
+    'Live' => 'Live',
     'Location' => 'Lagerort',
     'Locations that should be available for previewing products in this product type.' => 'Orte, die für die Vorschau von Produkten dieses Produkttyps verfügbar sein sollen.',
     'MM' => 'MM',
