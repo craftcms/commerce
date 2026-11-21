@@ -1089,7 +1089,7 @@ class Inventory extends Component
                                 'attributes' => [
                                     'type' => 'inventoryBelowZero',
                                     'attribute' => 'lineItems',
-                                    'message' => Craft::t('commerce', 'Available inventory for "{description}" has gone below zero.', [
+                                    'message' => Craft::t('commerce', 'Available inventory for “{description}” has gone below zero.', [
                                         'description' => $purchasable->getDescription(),
                                     ]),
                                     'noticeType' => OrderNoticeType::Admin,
