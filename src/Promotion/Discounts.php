@@ -864,7 +864,7 @@ class Discounts
                     $notice = new OrderNotice([
                         'type' => 'discountUsageExceeded',
                         'attribute' => 'couponCode',
-                        'message' => t('The discount "{name}" has exceeded its total usage limit of {limit}.', [
+                        'message' => t('The discount “{name}” has exceeded its total usage limit of {limit}.', [
                             'name' => $discount['name'] ?? $discount['discountUseId'],
                             'limit' => $discount['totalDiscountUseLimit'],
                         ], category: 'commerce'),
@@ -886,7 +886,7 @@ class Discounts
                         $notice = new OrderNotice([
                             'type' => 'couponUsageExceeded',
                             'attribute' => 'couponCode',
-                            'message' => t('The coupon "{code}" has exceeded its usage limit of {limit}.', [
+                            'message' => t('The coupon “{code}” has exceeded its usage limit of {limit}.', [
                                 'code' => $order->couponCode,
                                 'limit' => $coupon->maxUses,
                             ], category: 'commerce'),
