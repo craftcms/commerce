@@ -1194,7 +1194,7 @@ return [
     'Tax & Shipping' => 'Imposto e Envio',
     'Tax (inc)' => 'Taxa (inc)',
     'Tax Categories' => 'Categorias de Tributos',
-    'Tax Category' => 'Categorias de Tributos',
+    'Tax Category' => 'Categoria de Tributos',
     'Tax Rates' => 'Tributos',
     'Tax Zone' => 'Zona de Tributo',
     'Tax Zones' => 'Zonas de Tributos',
