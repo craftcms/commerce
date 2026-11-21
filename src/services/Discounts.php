@@ -1232,7 +1232,7 @@ SQL;
                         'attributes' => [
                             'type' => 'discountUsageExceeded',
                             'attribute' => 'couponCode',
-                            'message' => Craft::t('commerce', 'The discount "{name}" has exceeded its total usage limit of {limit}.', [
+                            'message' => Craft::t('commerce', 'The discount “{name}” has exceeded its total usage limit of {limit}.', [
                                 'name' => $discount['name'] ?? $discount['discountUseId'],
                                 'limit' => $discount['totalDiscountUseLimit'],
                             ]),
@@ -1266,7 +1266,7 @@ SQL;
                         'attributes' => [
                             'type' => 'couponUsageExceeded',
                             'attribute' => 'couponCode',
-                            'message' => Craft::t('commerce', 'The coupon "{code}" has exceeded its usage limit of {limit}.', [
+                            'message' => Craft::t('commerce', 'The coupon “{code}” has exceeded its usage limit of {limit}.', [
                                 'code' => $order->couponCode,
                                 'limit' => $coupon->maxUses,
                             ]),
