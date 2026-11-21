@@ -678,7 +678,7 @@ return [
     'Link to a product' => 'Powiąż z produktem',
     'Link to a variant' => 'Powiąż z wariantem',
     'Link' => 'Link',
-    'Live' => 'Opublikowane',
+    'Live' => 'Online',
     'Location' => 'Lokalizacja',
     'Locations that should be available for previewing products in this product type.' => 'Lokalizacje, które mają być dostępne do podglądu produktów tego typu produktu.',
     'MM' => 'MM',

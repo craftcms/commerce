@@ -678,7 +678,7 @@ return [
     'Link to a product' => 'Ссылка на товар',
     'Link to a variant' => 'Ссылка на вариант',
     'Link' => 'Ссылка',
-    'Live' => 'В реальном времени',
+    'Live' => 'Онлайн',
     'Location' => 'Склад',
     'Locations that should be available for previewing products in this product type.' => 'Места, доступные для предпросмотра товаров этого типа.',
     'MM' => 'ММ',

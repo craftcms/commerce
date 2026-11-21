@@ -678,7 +678,7 @@ return [
     'Link to a product' => 'پیوند به یک محصول',
     'Link to a variant' => 'پیوند به یک گونه',
     'Link' => 'پیوند',
-    'Live' => 'فعال',
+    'Live' => 'آنلاین',
     'Location' => 'محل',
     'Locations that should be available for previewing products in this product type.' => 'مکان‌هایی که باید برای پیش‌نمایش محصولات این نوع محصول در دسترس باشند.',
     'MM' => 'MM',
