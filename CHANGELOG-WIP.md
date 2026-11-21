@@ -1116,6 +1116,7 @@
 
 - Removed `craft\commerce\controllers\UsersController`. `CraftCms\Commerce\Http\Controllers\Users\UsersController` should be used instead.
 - The Commerce tab on the Edit User screen is now built from `CraftCms\Cms\Http\Controllers\Users\EditUserTrait`; Commerce listens for `CraftCms\Cms\User\Events\EditUserScreensResolving` instead of the removed `craft\controllers\UsersController::EVENT_DEFINE_EDIT_SCREENS`.
+- The Commerce tab on the Edit User screen now shows a user's orders, active carts, and inactive carts in separate tabs, using `CraftCms\Cms\Element\EmbeddedElementIndex`.
 
 ### Extensibility
 
