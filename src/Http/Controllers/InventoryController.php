@@ -85,6 +85,9 @@ readonly class InventoryController
         if (!$inventoryLocationHandle) {
             abort_if($inventoryLocations->isEmpty(), 404, 'No inventory locations exist.');
 
+            // Keep a flash message from a form that redirected here, such as the inventory item screen’s.
+            $request->session()->reflash();
+
             return redirect($inventoryLocations->first()->getCpManageInventoryUrl());
         }
 
