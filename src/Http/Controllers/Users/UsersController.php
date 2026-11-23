@@ -7,9 +7,11 @@ namespace CraftCms\Commerce\Http\Controllers\Users;
 use CraftCms\Cms\Element\EmbeddedElementIndex;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use CraftCms\Cms\Ui\Nodes\Heading;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Store\Stores;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
@@ -26,7 +28,9 @@ readonly class UsersController
 
         $response = $this->asEditUserScreen($user, self::SCREEN_COMMERCE);
 
-        if (!currentUser()?->can('commerce-manageOrders')) {
+        $currentUser = currentUser();
+
+        if (!$currentUser?->can('commerce-manageOrders')) {
             return $response->contentHtml('');
         }
 
@@ -40,17 +44,28 @@ readonly class UsersController
 
         $ui = Ui::make();
 
-        foreach ($indexes as $key => [$label, $criteria]) {
-            $ui->addTab($label, [
-                EmbeddedElementIndex::make(Order::class)
-                    ->criteria([...$criteria, 'customerId' => $user->id, 'siteId' => '*', 'status' => null])
-                    ->storageKey("Commerce-Users-element-indexes-$key")
+        foreach (app(Stores::class)->getStoresByUserId($currentUser->getCraftUserId()) as $store) {
+            $nodes = [];
+
+            foreach ($indexes as $key => [$label, $criteria]) {
+                $nodes[] = Heading::make("$store->handle-$key-heading", $label);
+                $nodes[] = EmbeddedElementIndex::make(Order::class)
+                    ->criteria([
+                        ...$criteria,
+                        'customerId' => $user->id,
+                        'storeId' => $store->id,
+                        'siteId' => $store->getSites()->pluck('id')->values()->all(),
+                        'status' => null,
+                    ])
+                    ->storageKey("Commerce-Users-element-indexes-$store->handle-$key")
                     ->defaultTableColumns($key === 'completed-orders'
                         ? ['reference', 'orderStatus', 'dateOrdered', 'totalPrice']
                         : ['reference', 'dateUpdated', 'totalPrice'])
                     ->defaultSort($key === 'completed-orders' ? 'dateOrdered' : 'dateUpdated', 'desc')
-                    ->uiNode("$key-index"),
-            ], $key);
+                    ->uiNode("$store->handle-$key-index");
+            }
+
+            $ui->addTab($store->getName(), $nodes, $store->handle);
         }
 
         return $response->ui($ui);
