@@ -327,7 +327,7 @@ class LineItem extends Component implements HasStoreInterface
         }
 
         $order = $this->getOrder();
-        $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
+        $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getPricingCustomerId());
         $purchasable?->validateLineItem($this);
     }
 
@@ -504,7 +504,7 @@ class LineItem extends Component implements HasStoreInterface
 
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
             $order = $this->getOrder();
-            $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
+            $purchasable = app(Purchasables::class)->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getPricingCustomerId());
 
             // If we are still using sales we need to make sure that the promotional price is set.
             if (!app(CatalogPricingRules::class)->canUseCatalogPricingRules()) {

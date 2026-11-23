@@ -47,6 +47,7 @@ registerPage(
   'commerce::prices/Index',
   () => import('./pages/prices/Index.vue')
 );
+registerPage('commerce::orders/Edit', () => import('./pages/orders/Edit.vue'));
 registerPage(
   'commerce::inventory/transfers/Index',
   () => import('./pages/inventory/transfers/Index.vue')

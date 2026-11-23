@@ -19,6 +19,11 @@ class OrderAdjustment extends Component
 {
     public ?int $id = null;
 
+    /**
+     * Identifies an adjustment added in an edit session until it's saved and has an ID.
+     */
+    public ?string $uid = null;
+
     public string $name;
 
     public ?string $description = null;
@@ -44,6 +49,15 @@ class OrderAdjustment extends Component
     public function getSourceSnapshot(): array
     {
         return $this->_sourceSnapshot;
+    }
+
+    /**
+     * Whether staff added the adjustment by hand, rather than an adjuster generating it. Only adjustments
+     * added from the order edit page are marked, as adjusters can leave their snapshot empty too.
+     */
+    public function isManual(): bool
+    {
+        return !empty($this->_sourceSnapshot['manual']);
     }
 
     public function setSourceSnapshot(array|string $snapshot): void

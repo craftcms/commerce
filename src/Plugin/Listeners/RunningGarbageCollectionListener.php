@@ -8,6 +8,7 @@ use CraftCms\Cms\GarbageCollection\Actions\DeletePartialElements;
 use CraftCms\Cms\GarbageCollection\Events\RunningGarbageCollection;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Carts;
+use CraftCms\Commerce\Order\Edit\OrderEditSessions;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
@@ -20,6 +21,7 @@ class RunningGarbageCollectionListener
     public function handle(RunningGarbageCollection $event): void
     {
         app(Carts::class)->purgeIncompleteCarts();
+        app(OrderEditSessions::class)->purgeStaleSessions();
 
         DB::table(Table::VARIANTS)->whereNull('primaryOwnerId')->delete();
 

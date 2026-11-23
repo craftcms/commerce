@@ -6,5 +6,3 @@ src/templates/*
 src/web/assets/**/dist/*
 tests/_craft/*
 vendor/*
-src/web/assets/commercecp/src/js/CommerceAddressBox.js
-src/web/assets/commercecp/src/js/CommerceEditAddressModal.js

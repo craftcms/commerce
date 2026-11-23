@@ -441,6 +441,16 @@ class Install extends Migration
             $table->char('uid', 36)->default('0');
         });
 
+        Schema::create(Table::ORDER_EDIT_SESSIONS, function(Blueprint $table) {
+            $table->integer('id', true);
+            $table->integer('orderId');
+            $table->integer('userId')->nullable();
+            $table->json('payload');
+            $table->dateTime('dateCreated');
+            $table->dateTime('dateUpdated');
+            $table->char('uid', 36)->default('0');
+        });
+
         Schema::create(Table::ORDERHISTORIES, function(Blueprint $table) {
             $table->integer('id', true);
             $table->integer('orderId');
@@ -1054,6 +1064,8 @@ class Install extends Migration
         Schema::createIndex(Table::LINEITEMS, ['orderId', 'purchasableId', 'optionsSignature'], unique: true);
         Schema::createIndex(Table::LINEITEMSTATUSES, ['storeId']);
         Schema::createIndex(Table::ORDERADJUSTMENTS, ['orderId']);
+        Schema::createIndex(Table::ORDER_EDIT_SESSIONS, ['orderId'], unique: true);
+        Schema::createIndex(Table::ORDER_EDIT_SESSIONS, ['userId']);
         Schema::createIndex(Table::ORDERHISTORIES, ['newStatusId']);
         Schema::createIndex(Table::ORDERHISTORIES, ['orderId']);
         Schema::createIndex(Table::ORDERHISTORIES, ['prevStatusId']);
@@ -1182,6 +1194,8 @@ class Install extends Migration
         Schema::table(Table::LINEITEMS, fn(Blueprint $table) => $table->foreign('taxCategoryId')->references('id')->on(Table::TAXCATEGORIES)->cascadeOnUpdate());
         Schema::table(Table::LINEITEMSTATUSES, fn(Blueprint $table) => $table->foreign('storeId')->references('id')->on(Table::STORES)->cascadeOnDelete()->cascadeOnUpdate());
         Schema::table(Table::ORDERADJUSTMENTS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
+        Schema::table(Table::ORDER_EDIT_SESSIONS, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete());
+        Schema::table(Table::ORDER_EDIT_SESSIONS, fn(Blueprint $table) => $table->foreign('userId')->references('id')->on(CraftTable::USERS)->nullOnDelete());
         Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('newStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
         Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('orderId')->references('id')->on(Table::ORDERS)->cascadeOnDelete()->cascadeOnUpdate());
         Schema::table(Table::ORDERHISTORIES, fn(Blueprint $table) => $table->foreign('prevStatusId')->references('id')->on(Table::ORDERSTATUSES)->restrictOnDelete()->cascadeOnUpdate());
