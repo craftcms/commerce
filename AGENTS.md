@@ -48,11 +48,11 @@ New work is Laravel-first. The Yii2 code exists only so plugins and templates th
 
 - Translate control panel strings with `t()` and the `commerce` category, e.g. `t('Customer', category: 'commerce')`.
 - Don't build translated text by concatenation. Use one key with named placeholders, e.g. `t('Recent Orders – {orderStatus}', ['orderStatus' => $status], category: 'commerce')`.
-- Add new keys only to `lang/en/commerce.php`, keeping it sorted. Crowdin handles the other languages.
+- Add new keys only to `lang/en/commerce.php`, keeping it sorted. translation-sync generates the other languages, so don't edit them by hand.
 
 ## Changelog
 
-Use the `changelog-entries` skill for `CHANGELOG.md` and `CHANGELOG-WIP.md`. `CHANGELOG-WIP.md` holds the Commerce 6.0 release notes for people upgrading from Commerce 5.
+Use the Craft workspace `changelog-entries` skill for `CHANGELOG.md` and `CHANGELOG-WIP.md`. `CHANGELOG-WIP.md` holds the Commerce 6.0 release notes for people upgrading from Commerce 5.
 
 ## Pull requests
 
@@ -92,7 +92,6 @@ queues. The `merging-pull-requests` skill's safeguards still apply.
 
 Skills live in `.agents/skills/`; `.claude/skills` links to the same folder. Load the matching skill before starting the task it covers:
 
-- `changelog-entries`: changelog entries.
 - `pr`: pull request bodies. It loads `show-me` and `feature-screenshots`.
 - `test-audit`: writing, changing or reviewing tests.
 - `pest-plugin-agent`: one-off checks that a change works.
