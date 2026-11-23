@@ -45,9 +45,7 @@ Mail::assertQueued(OrderShipped::class);
 
 Markdown mailables render HTML and plain-text versions from Laravel's mail components and support publishable themes. They are useful for conventional transactional messages, but a custom HTML and text pair may be more appropriate for a specialized design.
 
-```bash
-php artisan make:mail OrderShipped --markdown=mail.orders.shipped
-```
+This package has no `artisan` file, and Canvas's `make:mail` writes to the workbench app (`Workbench\App\Mail`), so write the mailable by hand under `src/` in the `CraftCms\Commerce\` namespace, with its Markdown view in `resources/views/`.
 
 ## Separate Content and Delivery Tests
 

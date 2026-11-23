@@ -10,7 +10,7 @@ Schedule::command('reports:generate')
     ->withoutOverlapping(30);
 ```
 
-The optional value is the lock expiration time in minutes, not the task timeout. Choose it carefully: the default is 24 hours, stale locks can be cleared with `php artisan schedule:clear-cache`, and an expiration that is too short can permit overlap while the first task still runs. The task itself should still tolerate retries and partial execution where practical.
+The optional value is the lock expiration time in minutes, not the task timeout. Choose it carefully: the default is 24 hours, stale locks can be cleared with `schedule:clear-cache` (`vendor/bin/testbench schedule:clear-cache` in this repository), and an expiration that is too short can permit overlap while the first task still runs. The task itself should still tolerate retries and partial execution where practical.
 
 ## Run a Task on One Server
 

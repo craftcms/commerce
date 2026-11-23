@@ -5,7 +5,7 @@ description: One-shot Pest verification CLI for Laravel and PHP agents. Use when
 
 # pest-plugin-agent
 
-One-shot Pest verification for AI agents. Wrap any PHP snippet in `vendor/bin/pest --agent="<code>"`. Pest creates a temporary test, runs it, and deletes it. The snippet lives inside `it('verify', function () { ... })`, so use Pest's expectation API and any helpers available in the test suite (`visit()`, `actingAs()`, `Mail::fake()`, factories, and so on).
+One-shot Pest verification for AI agents. Wrap any PHP snippet in `vendor/bin/pest --agent='<code>'`. Pest creates a temporary test, runs it, and deletes it. The snippet lives inside `it('verify', function () { ... })`, so use Pest's expectation API and any helpers available in the test suite (`visit()`, `actingAs()`, `Mail::fake()`, factories, and so on).
 
 ## The invocation pattern — SINGLE outer quotes
 
@@ -31,7 +31,7 @@ vendor/bin/pest --agent="$(cat /path/to/snippet.php)"
 
 ## How it works
 
-`pest --agent="<code>"` writes a temp file shaped like this:
+`pest --agent='<code>'` writes a temp file shaped like this:
 
 ```php
 <?php
@@ -235,7 +235,7 @@ If a check fails with "no such table" or similar, look in `tests/Pest.php` for a
 - **An empty snippet is an error.** `--agent=` or a whitespace-only value aborts the run with "requires a non-empty PHP code snippet" instead of silently passing. Passing `--agent` with no value at all fails the same way.
 - **Traits cannot be added inline.** `RefreshDatabase`, `WithFaker`, and similar traits must be wired through `tests/Pest.php` `uses()`. The snippet inherits whatever is already configured.
 - **Path-scoped hooks and groups do not carry over.** Classes and traits from `uses(...)->in('Feature')` are re-applied to the generated test, but `beforeEach`/`afterEach` hooks and groups attached via `uses()->beforeEach(...)->in(...)` are bound to the directory path and will not run for agent snippets. If required setup lives in such a hook, inline it at the top of the snippet.
-- **Browser tests need a reachable app.** `visit('/foo')` hits the configured app URL, so make sure `php artisan serve` (or your usual dev server) is running, or the browser plugin's built-in server is configured.
+- **Browser tests need a reachable app.** `visit('/foo')` hits the configured app URL, so make sure `composer serve` (the Testbench workbench) is running, or the browser plugin's built-in server is configured.
 - **Screenshots persist on failure too.** A failed assertion still leaves the PNG in `tests/Browser/Screenshots/`. Sweep them up regardless of outcome. Without `filename:`, they overwrite each other as `it_verify.png`.
 - **Shell escaping only bites with double outer quotes.** Backticks, `!` (zsh history), and `$` are interpreted by the shell before PHP sees them *only inside double quotes*. Wrapping the whole snippet in SINGLE outer quotes (`--agent='...'`) disables all of it — nothing is escaped, and `$user` reaches PHP intact. If you ever find yourself typing `\$` or wrestling with quotes, you used double quotes by mistake; switch to single. The only exception is a literal apostrophe in the snippet, which needs the file + `"$(cat …)"` fallback.
 

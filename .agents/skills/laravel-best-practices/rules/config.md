@@ -34,12 +34,7 @@ STRIPE_SECRET=<your-stripe-secret>
 AWS_SECRET_ACCESS_KEY=<your-aws-secret>
 ```
 
-Encrypted environment file:
-
-```bash
-php artisan env:encrypt --env=production --readable
-php artisan env:decrypt --env=production
-```
+Encrypted environment file: this applies to the Craft projects that install Commerce, not this repository, which has no deployment `.env`. Run `env:encrypt --env=production --readable` and `env:decrypt --env=production` with that project's console.
 
 For hosted deployments, consider the platform's native secret store, such as AWS Secrets Manager or Vault, and inject secrets at runtime.
 

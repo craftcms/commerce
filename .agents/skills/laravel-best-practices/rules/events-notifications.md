@@ -6,7 +6,7 @@ Laravel discovers listeners in the configured listener directories by inspecting
 
 ## Cache Event Discovery During Production Deployment
 
-Cache discovered listeners during production deployment with `php artisan optimize` or `php artisan event:cache`. Rebuild the cache whenever listener definitions change.
+Cache discovered listeners during production deployment with `optimize` or `event:cache`. That happens in the Craft projects that install Commerce, since this repository has no deployment of its own. Rebuild the cache whenever listener definitions change.
 
 ## Use `ShouldDispatchAfterCommit` Inside Transactions
 

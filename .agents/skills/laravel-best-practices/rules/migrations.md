@@ -1,13 +1,17 @@
 # Migration Best Practices
 
-## Generate Migrations with Artisan
+## Generate Migrations with Canvas
 
-Use `php artisan make:migration` to generate the timestamped filename and migration structure.
+This package has no `artisan` file. Use Canvas to generate the timestamped filename and migration structure in `database/migrations/`.
 
 ```bash
-php artisan make:migration create_posts_table
-php artisan make:migration add_slug_to_posts_table
+vendor/bin/canvas make:migration create_posts_table
+vendor/bin/canvas make:migration add_slug_to_posts_table
 ```
+
+Don't use `vendor/bin/testbench make:migration`; it writes to the workbench app's `workbench/database/migrations/` instead.
+
+Then make the generated class extend `CraftCms\Cms\Database\Migration` instead of Laravel's `Migration`, and add `declare(strict_types=1);`, like the existing migrations in `database/migrations/`.
 
 ## Define Foreign-Key Constraints Deliberately
 
