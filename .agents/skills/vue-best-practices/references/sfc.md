@@ -264,7 +264,7 @@ const activeUsers = computed(() => users.value.filter(u => u.active))
 
 **GOOD:**
 ```vue
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import DOMPurify from 'dompurify'
 

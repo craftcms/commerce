@@ -126,13 +126,19 @@ watch(
 
 ```vue
 <script setup>
-import { computed, useAttrs } from 'vue'
+import { useAttrs } from 'vue'
 
 const attrs = useAttrs()
 
-const hasTestId = computed(() => 'data-testid' in attrs)
-const ariaLabel = computed(() => attrs['aria-label'] ?? 'Default label')
+const hasTestId = () => 'data-testid' in attrs
+const ariaLabel = () => attrs['aria-label'] ?? 'Default label'
 </script>
+
+<template>
+  <button :aria-label="ariaLabel()" :data-has-test-id="hasTestId()">
+    <slot />
+  </button>
+</template>
 ```
 
 ### Forward listeners after internal logic

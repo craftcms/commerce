@@ -135,7 +135,9 @@ to increase deletion counts.
 Never edit source or tests while tests are running in the checkout.
 
 1. Run the smallest owner and sibling tests with
-   `./vendor/bin/pest --parallel <path> --filter=<filter>`.
+   `./vendor/bin/pest <path> --filter=<filter>`. Don't add `--parallel`: the
+   Feature tests share one database and lock it for the whole run, so workers
+   only wait on each other.
 2. For removed source greps or plan assertions, run the executable script or
    dry-run that owns the real contract.
 3. Run targeted formatting with `composer run fix-cs`, then `git diff --check`.
