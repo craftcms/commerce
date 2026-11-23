@@ -81,7 +81,7 @@ defineOptions({ name: 'TabA' })
 
 ## Cache Invalidation Strategies
 
-Vue 3 has no direct API to remove a specific cached instance. Use keys or dynamic include/exclude to force refreshes.
+Vue 3 has no direct API to remove a specific cached instance. Use keys or dynamic include/exclude to force refreshes. A new key caches a fresh instance but doesn't remove the old one, which stays cached until `max` evicts it as the least recently used, so always set `max` with this pattern.
 
 ```vue
 <script setup>
@@ -96,7 +96,7 @@ function invalidateCache(view) {
 </script>
 
 <template>
-  <KeepAlive>
+  <KeepAlive :max="5">
     <component :is="currentView" :key="`${currentView}-${viewKeys[currentView]}`" />
   </KeepAlive>
 </template>
