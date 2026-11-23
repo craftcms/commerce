@@ -13,12 +13,14 @@ use CraftCms\Commerce\Inventory\InventoryLocations;
 use CraftCms\Commerce\Plugin;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\VariantQueryFixture;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\post;
 use function Pest\Laravel\postJson;
 
 beforeEach(function() {
@@ -466,6 +468,21 @@ it('saves an inventory item', function() {
     expect($inventoryItem->countryCodeOfOrigin)->toBe('AU')
         ->and($inventoryItem->administrativeAreaCodeOfOrigin)->toBe('WA')
         ->and($inventoryItem->harmonizedSystemCode)->toBe('6109.10');
+});
+
+it('shows the saved notice after saving an inventory item', function() {
+    // The inventory item screen posts this redirect, and the inventory screen forwards it to the first location.
+    post(Url::actionUrl('commerce/inventory/item-save'), [
+        'inventoryItemId' => $this->inventoryItem->id,
+        'redirect' => Crypt::encrypt(Url::cpUrl('commerce/inventory')),
+    ])->assertRedirect(Url::cpUrl('commerce/inventory'));
+
+    get(Url::cpUrl('commerce/inventory'))->assertRedirect($this->location->getCpManageInventoryUrl());
+
+    get($this->location->getCpManageInventoryUrl())
+        ->assertInertia(fn(AssertableInertia $page) => $page
+            ->where('messages.0.type', 'success')
+            ->where('messages.0.message', 'Inventory item saved.'));
 });
 
 it('returns not found for an unknown inventory item', function() {

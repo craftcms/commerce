@@ -874,7 +874,7 @@ class Inventory
                             $notice = new OrderNotice([
                                 'type' => 'inventoryBelowZero',
                                 'attribute' => 'lineItems',
-                                'message' => t('Available inventory for "{description}" has gone below zero.', [
+                                'message' => t('Available inventory for “{description}” has gone below zero.', [
                                     'description' => $purchasable->getDescription(),
                                 ], category: 'commerce'),
                                 'noticeType' => OrderNoticeType::Admin,
