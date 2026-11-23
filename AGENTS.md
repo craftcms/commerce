@@ -50,15 +50,29 @@ New work is Laravel-first. The Yii2 code exists only so plugins and templates th
 - Don't build translated text by concatenation. Use one key with named placeholders, e.g. `t('Recent Orders – {orderStatus}', ['orderStatus' => $status], category: 'commerce')`.
 - Add new keys only to `lang/en/commerce.php`, keeping it sorted. translation-sync generates the other languages, so don't edit them by hand.
 
-## Changelog
-
-Use the Craft workspace `changelog-entries` skill for `CHANGELOG.md` and `CHANGELOG-WIP.md`. `CHANGELOG-WIP.md` holds the Commerce 6.0 release notes for people upgrading from Commerce 5.
-
 ## Pull requests
 
 - Run the CI checks before creating a pull request: `composer check-cs`, `vendor/bin/rector process --dry-run`, `composer phpstan`, and `composer tests`.
 - Prefix the title with the target version branch, such as `[6.x]`.
 - Use the `pr` skill to write the pull request body.
+
+## Workspace skills
+
+The Craft workspace skills cover processes shared with Craft CMS and the other plugin repos: `releasing`, `changelog-entries`, `merging-pull-requests`, `watching-copilot-reviews`, `requesting-accessibility-reviews`, `feature-screenshots`, `show-me`, and `pr`. Follow them, along with the details for this repo below.
+
+### Releasing
+
+- Release Commerce 6 from `6.x`.
+- Commerce doesn't store its version in code. Composer and Craftnet take the version from the tag.
+
+### Changelog entries
+
+- `CHANGELOG-WIP.md` holds the Commerce 6.0 release notes for people upgrading from Commerce 5.
+- Link Commerce issues and PRs in `craftcms/commerce`. Security fixes link to the craftcms/cms security policy.
+
+### Merging pull requests
+
+A push of the final merge commit may use the credential's bypass permission only for the PR-only rule. Never bypass required status checks, even ones that inherited CI covers.
 
 ## CI skip markers
 
@@ -90,13 +104,10 @@ queues. The `merging-pull-requests` skill's safeguards still apply.
 
 ## Skills
 
-Skills live in `.agents/skills/`; `.claude/skills` links to the same folder. Load the matching skill before starting the task it covers:
+Repo skills live in `.agents/skills/`; `.claude/skills` links to the same folder. Load the matching skill before starting the task it covers:
 
-- `pr`: pull request bodies. It loads `show-me` and `feature-screenshots`.
 - `test-audit`: writing, changing or reviewing tests.
 - `pest-plugin-agent`: one-off checks that a change works.
 - `resolve-merge-conflicts`: merge conflicts, including merging 5.x into 6.x.
 - `laravel-best-practices`: Laravel PHP code.
 - `inertia-vue-development` and `vue-best-practices`: control panel pages and Vue components.
-- `merging-pull-requests`: merging a PR when explicitly asked to.
-- `watching-copilot-reviews`: checking for or waiting on a Copilot review.

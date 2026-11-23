@@ -8,7 +8,7 @@ metadata:
 
 # Laravel Best Practices
 
-Best practices for Laravel, organized as an index of rule files. Each rule file teaches what to do and why. For exact API syntax, verify with `search-docs`.
+Best practices for Laravel, organized as an index of rule files. Each rule file teaches what to do and why. For exact API syntax, verify with `search-docs`, or inspect the installed framework when it is unavailable.
 
 ## Consistency First
 

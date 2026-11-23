@@ -92,7 +92,7 @@ const vFocus = (el) => el.focus()
 
 ## Type Custom Directives in TypeScript Projects
 
-Use `Directive<Element, ValueType>` so `binding.value` is typed, and augment Vue's template types so directives are recognized in SFC templates.
+Use `Directive<Element, ValueType>` so `binding.value` is typed. A directive imported into `<script setup>` (`import { vHighlight } from './directives'`) is typed from the import and needs nothing else. A directive registered globally with `app.directive()` needs a `GlobalDirectives` augmentation (Vue 3.5+) so SFC templates recognize it; `ComponentCustomProperties` doesn't register directives.
 
 **BAD:**
 ```ts
@@ -106,7 +106,7 @@ export const vHighlight = {
 
 **GOOD:**
 ```ts
-import type { Directive } from 'vue'
+import type { App, Directive } from 'vue'
 
 type HighlightValue = string
 
@@ -116,8 +116,12 @@ export const vHighlight = {
   }
 } satisfies Directive<HTMLElement, HighlightValue>
 
+export function registerDirectives(app: App) {
+  app.directive('highlight', vHighlight)
+}
+
 declare module 'vue' {
-  interface ComponentCustomProperties {
+  interface GlobalDirectives {
     vHighlight: typeof vHighlight
   }
 }

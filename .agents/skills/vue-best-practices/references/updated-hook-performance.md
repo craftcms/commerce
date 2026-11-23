@@ -110,11 +110,16 @@ const syncToServer = useDebounceFn((items) => {
 }, 500)
 
 // Only use onUpdated for DOM synchronization
+let lastScrollHeight = 0
+
 onUpdated(() => {
   // Scroll to bottom only if content changed height
-  if (scrollContainer.value) {
-    scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+  const el = scrollContainer.value
+  if (!el || el.scrollHeight === lastScrollHeight) {
+    return
   }
+  lastScrollHeight = el.scrollHeight
+  el.scrollTop = el.scrollHeight
 })
 </script>
 ```

@@ -65,6 +65,12 @@ function simplePlugin(app: App, options?: { message: string }) {
   app.config.globalProperties.$greet = () => options?.message ?? 'Hello!'
 }
 
+declare module 'vue' {
+  interface ComponentCustomProperties {
+    $greet: () => string
+  }
+}
+
 app.use(simplePlugin, { message: 'Welcome!' })
 ```
 

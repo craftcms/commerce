@@ -20,7 +20,7 @@ Activate this skill when:
 
 ## Documentation
 
-Use `search-docs` for detailed Inertia v3 Vue patterns and documentation.
+Use `search-docs` for detailed Inertia v3 Vue patterns and documentation when it's available. Otherwise, read the official docs at https://inertiajs.com, or the installed packages: `node_modules/@inertiajs/vue3` for the client and `vendor/inertiajs/inertia-laravel` for the server.
 
 ## Basic Usage
 
@@ -211,7 +211,7 @@ The `<Form>` component supports automatic resetting:
 - `resetOnSuccess` - Reset form data when the request succeeds
 - `setDefaultsOnSuccess` - Update default values on success
 
-Use the `search-docs` tool with a query of `form component resetting` for detailed guidance.
+Search the Inertia docs for `form component resetting` for detailed guidance (see [Documentation](#documentation)).
 
 <!-- Form with Reset Props -->
 ```vue
@@ -237,7 +237,7 @@ import { Form } from '@inertiajs/vue3'
 </template>
 ```
 
-Forms can also be built using the `useForm` composable for more programmatic control. Use the `search-docs` tool with a query of `useForm helper` for guidance.
+Forms can also be built using the `useForm` composable for more programmatic control. Search the Inertia docs for `useForm helper` for guidance (see [Documentation](#documentation)).
 
 ### `useForm` Composable
 
@@ -557,7 +557,7 @@ defineProps({
 </template>
 ```
 
-The server must use `Inertia::scroll()` to configure the paginated data. Use the `search-docs` tool with a query of `infinite scroll` for detailed guidance on buffers, manual loading, reverse mode, and custom trigger elements.
+The server must use `Inertia::scroll()` to configure the paginated data. Search the Inertia docs for `infinite scroll` for detailed guidance on buffers, manual loading, reverse mode, and custom trigger elements.
 
 ## Server-Side Patterns
 
