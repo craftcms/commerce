@@ -625,12 +625,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms-assets.git",
-                "reference": "87a31a2eb14e95de73283e34e5bef7161084c04f"
+                "reference": "c970b6f9265aaaa9b033b18c45c2e25ef391db1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/87a31a2eb14e95de73283e34e5bef7161084c04f",
-                "reference": "87a31a2eb14e95de73283e34e5bef7161084c04f",
+                "url": "https://api.github.com/repos/craftcms/cms-assets/zipball/c970b6f9265aaaa9b033b18c45c2e25ef391db1f",
+                "reference": "c970b6f9265aaaa9b033b18c45c2e25ef391db1f",
                 "shasum": ""
             },
             "default-branch": true,
@@ -643,8 +643,8 @@
             "support": {
                 "source": "https://github.com/craftcms/cms-assets/tree/6.x"
             },
-            "time": "2026-11-16T13:48:34+00:00",
-            "published-time": "2026-11-16T13:48:41+00:00"
+            "time": "2026-11-23T10:24:59+00:00",
+            "published-time": "2026-11-23T10:25:06+00:00"
         },
         {
             "name": "craftcms/laravel-aliases",
@@ -12582,12 +12582,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/yii2-adapter.git",
-                "reference": "2d835fecacae7a1f84d5648ad2241bea776c2622"
+                "reference": "ddc9393eafa2aeaadaafb07bc3c58144e6cbecff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/2d835fecacae7a1f84d5648ad2241bea776c2622",
-                "reference": "2d835fecacae7a1f84d5648ad2241bea776c2622",
+                "url": "https://api.github.com/repos/craftcms/yii2-adapter/zipball/ddc9393eafa2aeaadaafb07bc3c58144e6cbecff",
+                "reference": "ddc9393eafa2aeaadaafb07bc3c58144e6cbecff",
                 "shasum": ""
             },
             "require": {
@@ -12686,8 +12686,8 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2026-11-16T12:13:28+00:00",
-            "published-time": "2026-11-16T12:13:33+00:00"
+            "time": "2026-11-23T08:56:26+00:00",
+            "published-time": "2026-11-23T08:56:31+00:00"
         },
         {
             "name": "creocoder/yii2-nested-sets",
