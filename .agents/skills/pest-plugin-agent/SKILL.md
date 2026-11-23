@@ -97,12 +97,12 @@ If the page still looks empty after seeding, the seeder probably isn't writing t
 
 ## Frontend and browser verification
 
-Browser features come from `pestphp/pest-plugin-browser`. Full API reference: https://pestphp.com/docs/browser-testing. If `visit()` is undefined, install it first:
+Browser features come from `pestphp/pest-plugin-browser`. Full API reference: https://pestphp.com/docs/browser-testing. If `visit()` is undefined, the plugin isn't installed. Ask before installing it, because it adds Composer and npm dependencies and browser binaries. Run these commands only after the user approves:
 
 ```bash
 composer require pestphp/pest-plugin-browser --dev
-npm install playwright@latest
-npx playwright install
+pnpm add -D playwright@latest
+pnpm exec playwright install
 ```
 
 Use relative paths in `visit()`. Pest resolves them against the app URL. Always pass a descriptive `filename:` to screenshots so the file is easy to locate afterwards — without it, the file defaults to `it_verify.png` and gets overwritten on every run. After any Blade, Livewire, CSS, or JS change, reach for these to visually confirm the result.

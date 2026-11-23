@@ -17,7 +17,9 @@ feature's edges:
   the neighboring UI and text inside that padding.
 
 Both use the same setup and isolation. `scripts/` holds the page helper
-(`shot.js`) and the capture, hover, matte and preview helpers.
+(`shot.js`) and the capture, hover, matte and preview helpers. Every
+`scripts/` path in this skill is relative to the skill's folder: from the
+repository root, run them as `.agents/skills/feature-screenshots/scripts/<name>`.
 
 ## Setup
 
