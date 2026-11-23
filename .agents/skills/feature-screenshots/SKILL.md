@@ -16,17 +16,16 @@ feature's edges:
   page. Crop to the feature with the same padding on all four sides, and hide
   the neighboring UI and text inside that padding.
 
-Both use the same setup and isolation. `scripts/` holds the page helper
-(`shot.js`) and the capture, hover, matte and preview helpers. Every
-`scripts/` path in this skill is relative to the skill's folder: from the
-repository root, run them as `.agents/skills/feature-screenshots/scripts/<name>`.
+Both use the same setup and isolation. `.agents/skills/feature-screenshots/scripts/`
+holds the page helper (`shot.js`) and the capture, hover, matte and preview
+helpers. Commands in this skill run from the repository root.
 
 ## Setup
 
 Use Chrome with the Claude in Chrome tools, and `screencapture` (macOS), which
 captures at the display's pixel density, so Retina shots come out at 2×.
 
-1. Load the page helper: paste all of `scripts/shot.js` into the page as one
+1. Load the page helper: paste all of `.agents/skills/feature-screenshots/scripts/shot.js` into the page as one
    JavaScript call, with your options on its last line. It defines
    `__shot.set()`, `__shot.ready()` and `__shot.off()`, and titles the tab
    `SCREENSHOT-TARGET` for the scripts. Inertia visits keep it, but a full
@@ -52,7 +51,7 @@ captures at the display's pixel density, so Retina shots come out at 2×.
    display that caps the window at 939 points tall. Every shot in a set uses
    the same page size, so the feature lands in the same place each time. The
    extension's `resize_window` may not change the page size; set the bounds
-   with AppleScript instead, after `scripts/activate.sh` makes the tab's
+   with AppleScript instead, after `.agents/skills/feature-screenshots/scripts/activate.sh` makes the tab's
    window window 1:
 
    ```bash
@@ -63,13 +62,13 @@ captures at the display's pixel density, so Retina shots come out at 2×.
    difference until they match. Chrome's “started debugging this browser” bar
    takes about 56 points.
 3. Get the page's screen origin; `capture.sh` takes screen points. Run
-   `scripts/activate.sh` first: the extension's tab can sit behind another
+   `.agents/skills/feature-screenshots/scripts/activate.sh` first: the extension's tab can sit behind another
    tab in its window, and switching to it can change `innerHeight`. Then read
    `innerHeight` from `__shot.ready()`, and pass it to `origin.sh`, which
    takes the window's position from Chrome and prints `x y`:
 
    ```bash
-   scripts/origin.sh <innerHeight>
+   .agents/skills/feature-screenshots/scripts/origin.sh <innerHeight>
    ```
 
    Don't take it from the page's own `screenX`/`screenY`: in fullscreen or on
@@ -147,11 +146,11 @@ page again.
   component's state instead of hovering, since hovering draws the
   extension's cursor: `navItem.flyoutOpen = true` on a `craft-nav-item`.
 - When the shot needs real `:hover` styles, such as a button's hover fill
-  with its tooltip, move the system pointer with `scripts/hover.sh <x> <y>`,
+  with its tooltip, move the system pointer with `.agents/skills/feature-screenshots/scripts/hover.sh <x> <y>`,
   in screen points. The page gets real pointer events, the extension draws
   no cursor, and `screencapture -x` leaves the system pointer out. The hover
   holds while JavaScript switches `bg` between the two captures. Afterwards,
-  move the pointer off the region, e.g. `scripts/hover.sh 150 900`.
+  move the pointer off the region, e.g. `.agents/skills/feature-screenshots/scripts/hover.sh 150 900`.
 - Open popovers and menus from JavaScript, not with the extension's clicks,
   which leave its cursor behind: click the invoker inside the component's
   shadow root, e.g. `picker.shadowRoot.querySelector('craft-button').click()`,
@@ -179,7 +178,7 @@ background, or faint alpha around the edges of a transparent PNG.
 - Before every capture, hover somewhere outside the capture region, such as
   the inset margin's bottom-right corner, including after a click that
   navigated to the page. Clicking or hovering moves the drawn cursor there.
-  Show hover states with `scripts/hover.sh` instead.
+  Show hover states with `.agents/skills/feature-screenshots/scripts/hover.sh` instead.
 - Keep the capture region at least 96px clear of the window's edges. For a
   feature that sits against an edge, such as a slideout, a sidebar or the
   header, move it in for the shot and capture it there:
@@ -211,7 +210,7 @@ the difference. Shadows come out as real partial transparency.
    capture:
 
    ```bash
-   scripts/capture.sh black.png <x> <y> <w> <h>
+   .agents/skills/feature-screenshots/scripts/capture.sh black.png <x> <y> <w> <h>
    ```
 
 3. `__shot.set({bg: '#fff'})` and `__shot.ready()`, and capture the same
@@ -219,7 +218,7 @@ the difference. Shadows come out as real partial transparency.
 4. Combine them:
 
    ```bash
-   scripts/matte.sh black.png white.png feature.png [W:H:X:Y]
+   .agents/skills/feature-screenshots/scripts/matte.sh black.png white.png feature.png [W:H:X:Y]
    ```
 
    Without a crop, the result is trimmed to the visible pixels plus 8px. For a
@@ -238,7 +237,7 @@ the difference. Shadows come out as real partial transparency.
    anything left behind the feature:
 
    ```bash
-   scripts/preview.sh feature.png preview.png
+   .agents/skills/feature-screenshots/scripts/preview.sh feature.png preview.png
    ```
 
    Then look at `preview.png`.
