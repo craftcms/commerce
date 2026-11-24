@@ -44,7 +44,7 @@
 - Fixed a bug where an order’s line items could be fulfilled beyond the committed and available stock at an inventory location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where stock reserved for an order’s shortfall wasn’t released when the stock was transferred to the order’s committed location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where the “See Orders” modal for committed stock didn’t list orders that had been partially fulfilled. ([#4367](https://github.com/craftcms/commerce/pull/4367))
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-9j9f-hvqx-wp2r)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. ([GHSA-9j9f-hvqx-wp2r](https://github.com/craftcms/commerce/security/advisories/GHSA-9j9f-hvqx-wp2r))
 
 ## 5.7.6 - 2026-10-08
 
