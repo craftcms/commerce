@@ -121,8 +121,6 @@ class Discounts
             return $this->activeDiscountsByKey[$cacheKeyMd5];
         }
 
-        $isPgsql = DB::connection()->getDriverName() === 'pgsql';
-
         $discountQuery = $this->query()
             ->where('enabled', true)
             ->where('storeId', $store->id)
@@ -188,18 +186,15 @@ class Discounts
 
         if ($order && $order->couponCode) {
             $code = $order->couponCode;
-            $discountQuery->where(function($q) use ($code, $isPgsql) {
-                $q->whereExists(function($sub) use ($code, $isPgsql) {
-                    $sub->from(Table::COUPONS)
-                        ->whereColumn('discountId', 'discounts.id')
-                        ->where('requireCouponCode', true)
-                        ->when($isPgsql,
-                            fn($q) => $q->whereRaw('LOWER(code) = LOWER(?)', [$code]),
-                            fn($q) => $q->where('code', $code)
-                        )
-                        ->where(function($q2) {
-                            $q2->whereNull('maxUses')->orWhereColumn('uses', '<', 'maxUses');
-                        });
+            $discountQuery->where(function($q) use ($code) {
+                $q->whereExists(function($sub) use ($code) {
+                    $sub->from(Table::COUPONS . ' as coupons')
+                        ->whereColumn('coupons.discountId', 'discounts.id')
+                        ->where('requireCouponCode', true);
+                    $this->whereCouponCode($sub, $code);
+                    $sub->where(function($q2) {
+                        $q2->whereNull('maxUses')->orWhereColumn('uses', '<', 'maxUses');
+                    });
                 })->orWhere('requireCouponCode', false);
             });
         } elseif ($order) {
@@ -304,17 +299,10 @@ class Discounts
 
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
-        $isPgsql = DB::connection()->getDriverName() === 'pgsql';
-
         $query = $this->query()
             ->where('storeId', $storeId)
             ->join(Table::COUPONS . ' as coupons', 'coupons.discountId', '=', 'discounts.id');
-
-        if ($isPgsql) {
-            $query->whereRaw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ') = LOWER(?)', [$code]);
-        } else {
-            $query->where('coupons.code', $code);
-        }
+        $this->whereCouponCode($query, $code);
 
         $rows = $query->get()->all();
 
@@ -864,7 +852,7 @@ class Discounts
                     $notice = new OrderNotice([
                         'type' => 'discountUsageExceeded',
                         'attribute' => 'couponCode',
-                        'message' => t('The discount "{name}" has exceeded its total usage limit of {limit}.', [
+                        'message' => t('The discount “{name}” has exceeded its total usage limit of {limit}.', [
                             'name' => $discount['name'] ?? $discount['discountUseId'],
                             'limit' => $discount['totalDiscountUseLimit'],
                         ], category: 'commerce'),
@@ -875,9 +863,10 @@ class Discounts
             }
 
             if ($order->couponCode) {
-                $coupon = CouponRecord::where('code', $order->couponCode)
-                    ->where('discountId', $discount['discountUseId'])
-                    ->first();
+                $couponQuery = CouponRecord::from(Table::COUPONS . ' as coupons')
+                    ->where('discountId', $discount['discountUseId']);
+                $this->whereCouponCode($couponQuery, $order->couponCode);
+                $coupon = $couponQuery->first();
                 if ($coupon) {
                     DB::table(Table::COUPONS)->where('id', $coupon->id)->increment('uses');
 
@@ -886,7 +875,7 @@ class Discounts
                         $notice = new OrderNotice([
                             'type' => 'couponUsageExceeded',
                             'attribute' => 'couponCode',
-                            'message' => t('The coupon "{code}" has exceeded its usage limit of {limit}.', [
+                            'message' => t('The coupon “{code}” has exceeded its usage limit of {limit}.', [
                                 'code' => $order->couponCode,
                                 'limit' => $coupon->maxUses,
                             ], category: 'commerce'),
@@ -1011,6 +1000,23 @@ class Discounts
         }
 
         return true;
+    }
+
+    /**
+     * Adds a condition that matches the coupons table’s code column exactly, ignoring case.
+     *
+     * MySQL’s default collations are already case-insensitive, while PostgreSQL and SQLite need both sides lowercased.
+     * The query must alias the coupons table as `coupons`.
+     */
+    private function whereCouponCode(\Illuminate\Contracts\Database\Query\Builder $query, string $code): void
+    {
+        if (DB::isMysql()) {
+            $query->where('coupons.code', $code);
+
+            return;
+        }
+
+        $query->whereRaw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ') = ?', [mb_strtolower($code)]);
     }
 
     private function clearCaches(): void

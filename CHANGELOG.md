@@ -1,9 +1,26 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.7.9 - 2026-11-18
 
+- Fixed a bug where coupon uses weren’t counted on PostgreSQL if the coupon code’s casing didn’t match. ([#4464](https://github.com/craftcms/commerce/pull/4464))
+- Fixed a bug where a stale copy of a cart could still revert a completed order as incomplete due to a race condition. ([#4450](https://github.com/craftcms/commerce/issues/4450))
+- Fixed an error that could occur when two requests tried to save a new cart with the same cart number. ([#4457](https://github.com/craftcms/commerce/pull/4457))
+- Added `craft\commerce\base\Widget`.
+- Added `craft\commerce\errors\OrderCompletedException`.
+- Added `craft\commerce\errors\OrderNumberConflictException`.
+- Fixed a bug where shipping rule rates were rounded using the current store’s currency instead of the order’s store currency.
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-98wq-3mvx-6jvv)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-grgh-r768-2cxf)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-ch56-6g32-55wc)
+
+## 5.7.8 - 2026-11-04
+
+- Fixed a PHP error that could occur when matching shipping methods with a “Discounted Item Subtotal” condition on a cart or order containing a deleted purchasable. ([#4432](https://github.com/craftcms/commerce/issues/4432))
+- Fixed an error that could occur when updating a cart with an unsupported payment currency.
+- Fixed a bug where the last variant of an enabled product could be deleted.
 - Fixed a bug where users with the “Manage inventory transfers” permission couldn’t view, save, or delete inventory transfers unless they had been granted it before Commerce 5.1.
 - Fixed a PHP error that could occur when processing gateway webhooks on a control panel-only domain. ([#4395](https://github.com/craftcms/commerce/issues/4395))
+- Fixed a bug where a completed order could be un-completed, or lose its adjustments, when a stale copy of the order was saved by a concurrent request. ([#4398](https://github.com/craftcms/commerce/issues/4398))
 
 ## 5.7.7 - 2026-10-28
 
@@ -27,7 +44,7 @@
 - Fixed a bug where an order’s line items could be fulfilled beyond the committed and available stock at an inventory location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where stock reserved for an order’s shortfall wasn’t released when the stock was transferred to the order’s committed location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where the “See Orders” modal for committed stock didn’t list orders that had been partially fulfilled. ([#4367](https://github.com/craftcms/commerce/pull/4367))
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-9j9f-hvqx-wp2r)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. ([GHSA-9j9f-hvqx-wp2r](https://github.com/craftcms/commerce/security/advisories/GHSA-9j9f-hvqx-wp2r))
 
 ## 5.7.6 - 2026-10-08
 
@@ -56,8 +73,8 @@
 
 ## 5.7.3 - 2026-09-02
 
-- Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren't setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
-- Fixed a bug where variants' auto-generated SKUs would be incorrect if the SKU Format contained `{id}`.
+- Fixed a bug where `craft\commerce\elements\Order::setShippingAddress()` and `setBillingAddress()` weren’t setting custom field values. ([#4353](https://github.com/craftcms/commerce/issues/4353))
+- Fixed a bug where variants’ auto-generated SKUs would be incorrect if the SKU Format contained `{id}`.
 - Fixed a bug where adding a new site via project config apply could cause additional project config changes. ([#4348](https://github.com/craftcms/commerce/issues/4348))
 - Fixed a deprecation warning that was getting logged when accessing `/admin/commerce`. ([#4349](https://github.com/craftcms/commerce/issues/4349))
 
