@@ -82,6 +82,7 @@ class CommerceCpAsset extends AssetBundle
                 'State',
                 'Status Updated.',
                 'Status change message',
+                'Suppress emails',
                 'Update Address',
                 'Update Order Status',
                 'Update',
