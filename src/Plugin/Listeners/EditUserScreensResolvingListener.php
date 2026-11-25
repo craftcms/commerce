@@ -13,11 +13,13 @@ use function CraftCms\Cms\t;
 class EditUserScreensResolvingListener
 {
     /**
-     * Adds a "Commerce" screen to the Edit User screen for users who can access Commerce.
+     * Adds a "Commerce" screen to the Edit User screen for users who can access Commerce and manage orders.
      */
     public function handle(EditUserScreensResolving $event): void
     {
-        if (currentUser()?->can('accessPlugin-commerce')) {
+        $currentUser = currentUser();
+
+        if ($currentUser?->can('accessPlugin-commerce') && $currentUser->can('commerce-manageOrders')) {
             $event->screens[UsersController::SCREEN_COMMERCE] = ['label' => t('Commerce', category: 'commerce')];
         }
     }

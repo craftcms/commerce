@@ -116,20 +116,27 @@ it('splits a customer\'s carts into active and inactive carts', function() {
         });
 });
 
-it('only shows the stores whose sites the viewer can edit', function() {
+/**
+ * @param list<string> $permissions
+ */
+function actingAsViewer(array $permissions): void
+{
     $viewer = new User();
     $viewer->username = 'viewer';
     $viewer->email = 'viewer@crafttest.com';
     $viewer->active = true;
     Elements::saveElement($viewer);
 
-    $permissions = ['accessCp', 'viewUsers', 'accessPlugin-commerce', 'commerce-manageOrders', 'editSite:' . $this->stores->ukSite->uid];
     $mock = Mockery::mock(UserPermissions::class)->makePartial();
     $mock->shouldReceive('doesUserHavePermission')
         ->andReturnUsing(fn(int $userId, string $permission): bool => in_array($permission, $permissions, true));
     app()->instance(UserPermissions::class, $mock);
 
     actingAs($viewer);
+}
+
+it('only shows the stores whose sites the viewer can edit', function() {
+    actingAsViewer(['accessCp', 'viewUsers', 'accessPlugin-commerce', 'commerce-manageOrders', 'editSite:' . $this->stores->ukSite->uid]);
 
     get("/admin/users/{$this->fixture->customer->id}/commerce")
         ->assertOk()
@@ -138,6 +145,12 @@ it('only shows the stores whose sites the viewer can edit', function() {
 
             expect(collect(findUiNodes($nodes, 'craft:tab'))->pluck('uid')->all())->toBe(['ukStore']);
         });
+});
+
+it('hides the Commerce screen from viewers who can\'t manage orders', function() {
+    actingAsViewer(['accessCp', 'viewUsers', 'accessPlugin-commerce', 'editSite:' . $this->stores->ukSite->uid]);
+
+    get("/admin/users/{$this->fixture->customer->id}/commerce")->assertForbidden();
 });
 
 it('downloads a PDF from the store\'s own PDFs in a store tab', function() {

@@ -29,12 +29,6 @@ readonly class UsersController
 
         $response = $this->asEditUserScreen($user, self::SCREEN_COMMERCE);
 
-        $currentUser = currentUser();
-
-        if (!$currentUser?->can('commerce-manageOrders')) {
-            return $response->contentHtml('');
-        }
-
         $edge = app(Carts::class)->getActiveCartEdgeDuration();
 
         $indexes = [
@@ -45,7 +39,7 @@ readonly class UsersController
 
         $ui = Ui::make();
 
-        foreach (app(Stores::class)->getStoresByUserId($currentUser->getCraftUserId()) as $store) {
+        foreach (app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId()) as $store) {
             $nodes = [];
 
             foreach ($indexes as $key => [$label, $criteria]) {
