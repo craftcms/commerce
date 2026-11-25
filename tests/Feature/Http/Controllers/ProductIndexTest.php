@@ -21,6 +21,7 @@ use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\ProductType\Data\ProductTypeSite;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Promotion\Actions\CreateDiscount;
+use CraftCms\Commerce\Promotion\Actions\CreateSale;
 use CraftCms\Commerce\Store\Stores;
 use CraftCms\Commerce\Tests\Support\ProductConditionsFixture;
 use Illuminate\Support\Facades\Gate;
@@ -114,6 +115,17 @@ it('sends the selected products to a new discount', function() {
     productIndexTestPerform($source, CreateDiscount::class, [$this->fixture->hoodie->id])
         ->assertOk()
         ->assertJsonPath('redirect', Url::cpUrl("commerce/store-management/$storeHandle/discounts/new", [
+            'purchasableIds' => (string)$this->fixture->hoodie->id,
+        ]));
+});
+
+it('sends the selected products to a new sale', function() {
+    $storeHandle = app(Stores::class)->getCurrentStore()->handle;
+    $source = 'productType:' . $this->fixture->hoodiesType->uid;
+
+    productIndexTestPerform($source, CreateSale::class, [$this->fixture->hoodie->id])
+        ->assertOk()
+        ->assertJsonPath('redirect', Url::cpUrl("commerce/store-management/$storeHandle/sales/new", [
             'purchasableIds' => (string)$this->fixture->hoodie->id,
         ]));
 });

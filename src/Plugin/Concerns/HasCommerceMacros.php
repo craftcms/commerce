@@ -91,7 +91,6 @@ trait HasCommerceMacros
 
         User::macro('getPrimaryBillingAddress', function(): ?Address {
             /** @var User $this */
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is another macro registered above, not visible to static analysis) */
             return $this->getAddresses()->firstWhere('id', $this->getPrimaryBillingAddressId());
         });
 
@@ -111,7 +110,6 @@ trait HasCommerceMacros
 
         User::macro('getPrimaryShippingAddress', function(): ?Address {
             /** @var User $this */
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is another macro registered above, not visible to static analysis) */
             return $this->getAddresses()->firstWhere('id', $this->getPrimaryShippingAddressId());
         });
 
@@ -131,7 +129,6 @@ trait HasCommerceMacros
                 if ($customer->primaryPaymentSourceId) {
                     ObjectState::set($this, 'primaryPaymentSourceId', $customer->primaryPaymentSourceId);
                 } else {
-                    /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSource() is another macro registered below, not visible to static analysis) */
                     $paymentSource = $this->getPrimaryPaymentSource();
                     ObjectState::set($this, 'primaryPaymentSourceId', $paymentSource?->id);
                 }
@@ -204,7 +201,6 @@ trait HasCommerceMacros
             /** @var Address $this */
             if (!ObjectState::has($this, 'isPrimaryBilling')) {
                 $owner = $this->getPrimaryOwner();
-                /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is a macro registered in registerCustomerMacros(), not visible to static analysis) */
                 $value = $this->id && $owner instanceof User && $this->id === $owner->getPrimaryBillingAddressId();
                 ObjectState::set($this, 'isPrimaryBilling', $value);
             }
@@ -225,7 +221,6 @@ trait HasCommerceMacros
             /** @var Address $this */
             if (!ObjectState::has($this, 'isPrimaryShipping')) {
                 $owner = $this->getPrimaryOwner();
-                /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is a macro registered in registerCustomerMacros(), not visible to static analysis) */
                 $value = $this->id && $owner instanceof User && $this->id === $owner->getPrimaryShippingAddressId();
                 ObjectState::set($this, 'isPrimaryShipping', $value);
             }

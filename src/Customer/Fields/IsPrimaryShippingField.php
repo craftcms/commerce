@@ -51,7 +51,6 @@ class IsPrimaryShippingField extends Field
             return false;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (getIsPrimaryShipping() is added to Address via a Macroable macro registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
         return $element->getIsPrimaryShipping();
     }
 

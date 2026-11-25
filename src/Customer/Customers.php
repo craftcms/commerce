@@ -35,7 +35,6 @@ class Customers
     {
         $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryShippingAddressId = $addressId;
-        /** @phpstan-ignore-next-line method.notFound (setPrimaryShippingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         $user->setPrimaryShippingAddressId($addressId);
         return $customerRecord->save();
     }
@@ -44,7 +43,6 @@ class Customers
     {
         $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryBillingAddressId = $addressId;
-        /** @phpstan-ignore-next-line method.notFound (setPrimaryBillingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         $user->setPrimaryBillingAddressId($addressId);
         return $customerRecord->save();
     }
@@ -66,7 +64,6 @@ class Customers
             return false;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (setPrimaryPaymentSourceId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         $user->setPrimaryPaymentSourceId($paymentSourceId);
 
         if ($originalPaymentSourceId != $paymentSourceId) {
@@ -107,21 +104,15 @@ class Customers
         /** @var User $user */
         $user = $event->element;
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         if ($user->getPrimaryBillingAddressId()) {
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
             $this->savePrimaryBillingAddressId($user, $user->getPrimaryBillingAddressId());
         }
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         if ($user->getPrimaryShippingAddressId()) {
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryShippingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
             $this->savePrimaryShippingAddressId($user, $user->getPrimaryShippingAddressId());
         }
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSourceId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         if ($user->getPrimaryPaymentSourceId()) {
-            /** @phpstan-ignore-next-line method.notFound (getPrimaryPaymentSourceId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
             $this->savePrimaryPaymentSourceId($user, $user->getPrimaryPaymentSourceId());
         }
 
@@ -159,15 +150,11 @@ class Customers
 
         $customer = $this->ensureCustomer($owner);
 
-        /** @phpstan-ignore-next-line method.notFound (hasIsPrimaryBillingBeenSet()/getIsPrimaryBilling() are added to Address via Macroable macros registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
         if ($address->hasIsPrimaryBillingBeenSet() && ($address->getIsPrimaryBilling() || $customer->primaryBillingAddressId === $address->id)) {
-            /** @phpstan-ignore-next-line method.notFound (getIsPrimaryBilling() is added to Address via a Macroable macro registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
             $this->savePrimaryBillingAddressId($owner, $address->getIsPrimaryBilling() ? $address->id : null);
         }
 
-        /** @phpstan-ignore-next-line method.notFound (hasIsPrimaryShippingBeenSet()/getIsPrimaryShipping() are added to Address via Macroable macros registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
         if ($address->hasIsPrimaryShippingBeenSet() && ($address->getIsPrimaryShipping() || $customer->primaryShippingAddressId === $address->id)) {
-            /** @phpstan-ignore-next-line method.notFound (getIsPrimaryShipping() is added to Address via a Macroable macro registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
             $this->savePrimaryShippingAddressId($owner, $address->getIsPrimaryShipping() ? $address->id : null);
         }
     }
