@@ -626,6 +626,7 @@ return [
     'Limit which orders this discount applies to based on its line items.' => 'Limit which orders this discount applies to based on its line items.',
     'Limit which purchasables this sale applies to.' => 'Limit which purchasables this sale applies to.',
     'Limit' => 'Limit',
+    'Line Item SKU' => 'Line Item SKU',
     'Line Item Statuses' => 'Line Item Statuses',
     'Line Item' => 'Line Item',
     'Line Items' => 'Line Items',
