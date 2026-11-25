@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Element\ElementCollection;
+use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Order\Carts;
+use CraftCms\Commerce\Order\DeletionBlockers\OrderCustomersDeletionBlocker;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\Orders;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
@@ -65,4 +70,22 @@ test('getOrdersByEmail returns all completed orders for an email address', funct
     foreach ($orders as $order) {
         expect($order->getEmail())->toBe($email);
     }
+});
+
+test('the customer deletion blocker lists the user’s completed orders', function() {
+    $fixture = OrdersFixture::seed();
+    $cart = new Order();
+    $cart->number = app(Carts::class)->generateCartNumber();
+    $cart->setCustomer($fixture->customer);
+    Elements::saveElement($cart, false);
+
+    $blocker = collect(User::deletionBlockers(new ElementCollection([$fixture->customer]), false))
+        ->first(fn($blocker) => $blocker instanceof OrderCustomersDeletionBlocker);
+
+    expect($blocker->isActive())->toBeTrue();
+    $details = $blocker->getDetails();
+    foreach ($fixture->orders as $order) {
+        expect($details)->toContain($order->getCpEditUrl());
+    }
+    expect($details)->not->toContain($cart->getCpEditUrl());
 });

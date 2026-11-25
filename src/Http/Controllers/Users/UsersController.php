@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Http\Controllers\Users;
 
+use CraftCms\Cms\Element\EmbeddedElementIndex;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Support\Arr;
-use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\Separator;
+use CraftCms\Cms\Ui\Ui;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 
-use CraftCms\Yii2Adapter\Cp\Html\ElementIndexHtml;
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
 
@@ -21,80 +22,31 @@ readonly class UsersController
 
     public const string SCREEN_COMMERCE = 'commerce';
 
-    public function __construct(
-        private ElementIndexHtml $elementIndexHtml,
-    ) {
-    }
-
     public function index(?int $userId = null): CpScreenResponse
     {
         $user = $this->editedUser($userId);
 
         $response = $this->asEditUserScreen($user, self::SCREEN_COMMERCE);
 
-        $config = [
-            'context' => 'embedded-index',
-            'sources' => false,
-            'showSiteMenu' => true,
-            'jsSettings' => [
-                'criteria' => ['customerId' => $user->id],
-            ],
-        ];
-
-        $edge = app(Carts::class)->getActiveCartEdgeDuration();
-
-        $content = '';
-        $key = 'Commerce-Users-element-indexes-%s';
-
-        if (currentUser()?->can('commerce-manageOrders')) {
-            $completedOrdersKey = sprintf($key, 'completed-orders');
-            $activeCartsKey = sprintf($key, 'active-carts');
-            $inactiveCartsKey = sprintf($key, 'inactive-carts');
-
-            $content .= Html::tag('h2', t('Orders', category: 'commerce')) .
-                Html::beginTag('div', ['class' => 'commerce-user-orders']) .
-                $this->elementIndexHtml->html(Order::class, Arr::merge($config, [
-                    'id' => $completedOrdersKey,
-                    'jsSettings' => [
-                        'criteria' => ['isCompleted' => true],
-                        'storageKey' => $completedOrdersKey,
-                    ],
-                ])) .
-                Html::endTag('div') .
-
-                Html::tag('hr') .
-
-                Html::tag('h2', t('Active Carts', category: 'commerce')) .
-                Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
-                $this->elementIndexHtml->html(Order::class, Arr::merge($config, [
-                    'id' => $activeCartsKey,
-                    'jsSettings' => [
-                        'criteria' => [
-                            'isCompleted' => false,
-                            'dateUpdated' => '>= ' . $edge,
-                        ],
-                        'storageKey' => $activeCartsKey,
-                    ],
-                ])) .
-                Html::endTag('div') .
-
-                Html::tag('hr') .
-
-                Html::tag('h2', t('Inactive Carts', category: 'commerce')) .
-                Html::beginTag('div', ['class' => 'commerce-user-active-carts']) .
-                $this->elementIndexHtml->html(Order::class, Arr::merge($config, [
-                    'id' => $inactiveCartsKey,
-                    'jsSettings' => [
-                        'criteria' => [
-                            'isCompleted' => false,
-                            'dateUpdated' => '< ' . $edge,
-                        ],
-                        'storageKey' => $inactiveCartsKey,
-                    ],
-                ])) .
-                Html::endTag('div');
+        if (!currentUser()?->can('commerce-manageOrders')) {
+            return $response;
         }
 
-        return $response->contentHtml($content);
+        $edge = app(Carts::class)->getActiveCartEdgeDuration();
+        $index = fn(string $key, array $criteria) => EmbeddedElementIndex::make(Order::class)
+            ->criteria(['customerId' => $user->id, ...$criteria])
+            ->storageKey("Commerce-Users-element-indexes-$key")
+            ->uiNode("commerce-user-$key");
+
+        return $response->ui(Ui::make([
+            Heading::make('commerce-user-orders-heading', t('Orders', category: 'commerce')),
+            $index('completed-orders', ['isCompleted' => true]),
+            Separator::make('commerce-user-orders-separator'),
+            Heading::make('commerce-user-active-carts-heading', t('Active Carts', category: 'commerce')),
+            $index('active-carts', ['isCompleted' => false, 'dateUpdated' => '>= ' . $edge]),
+            Separator::make('commerce-user-active-carts-separator'),
+            Heading::make('commerce-user-inactive-carts-heading', t('Inactive Carts', category: 'commerce')),
+            $index('inactive-carts', ['isCompleted' => false, 'dateUpdated' => '< ' . $edge]),
+        ]));
     }
 }
