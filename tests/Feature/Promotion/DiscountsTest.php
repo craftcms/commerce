@@ -40,6 +40,25 @@ function discountsTestUpdateDiscount(int $discountId, array $data): void
 }
 
 /**
+ * Makes an order that used the given discount with the given coupon code.
+ */
+function discountsTestCouponOrder(int $discountId, string $couponCode, int $customerId): Order
+{
+    $order = new Order();
+    $order->couponCode = $couponCode;
+    $order->setCustomerId($customerId);
+
+    $adjustment = new OrderAdjustment();
+    $adjustment->name = 'Discount';
+    $adjustment->type = DiscountAdjuster::ADJUSTMENT_TYPE;
+    $adjustment->amount = -5;
+    $adjustment->setSourceSnapshot(['discountUseId' => $discountId]);
+    $order->setAdjustments([$adjustment]);
+
+    return $order;
+}
+
+/**
  * Fills in default attributes shared by every discount in a dataset.
  *
  * @param array<string, array<string, mixed>> $discounts
@@ -211,16 +230,7 @@ test('orderCompleteHandler records discount, customer, email, and coupon usage',
 
     discountsTestUpdateDiscount($discountId, ['perUserLimit' => 0, 'perEmailLimit' => 0]);
 
-    $order = new Order();
-    $order->couponCode = 'discount_1';
-    $order->setCustomerId($fixture->customer->id);
-
-    $adjustment = new OrderAdjustment();
-    $adjustment->name = 'Discount';
-    $adjustment->type = DiscountAdjuster::ADJUSTMENT_TYPE;
-    $adjustment->amount = -5;
-    $adjustment->setSourceSnapshot(['discountUseId' => $discountId]);
-    $order->setAdjustments([$adjustment]);
+    $order = discountsTestCouponOrder($discountId, 'discount_1', $fixture->customer->id);
 
     app(Discounts::class)->orderCompleteHandler($order);
 
@@ -241,6 +251,41 @@ test('orderCompleteHandler records discount, customer, email, and coupon usage',
     expect((int) $emailUse->uses)->toBe(1);
 
     expect((int) DB::table(Table::COUPONS)->where('code', 'discount_1')->value('uses'))->toBe(1);
+});
+
+test('orderCompleteHandler counts coupon uses regardless of code casing', function(string $storedCode, string $orderCode) {
+    $fixture = DiscountsFixture::seed();
+    $discountId = $fixture->discountWithCoupon->id;
+
+    discountsTestUpdateDiscount($discountId, ['perUserLimit' => 0, 'perEmailLimit' => 0]);
+    DB::table(Table::COUPONS)->where('discountId', $discountId)->update(['code' => $storedCode, 'maxUses' => 1]);
+
+    $order = discountsTestCouponOrder($discountId, $orderCode, $fixture->customer->id);
+
+    $explanation = '';
+    expect(app(Discounts::class)->orderCouponAvailable($order, $explanation))->toBeTrue();
+
+    app(Discounts::class)->orderCompleteHandler($order);
+
+    expect((int) DB::table(Table::COUPONS)->where('discountId', $discountId)->value('uses'))->toBe(1);
+    expect(app(Discounts::class)->orderCouponAvailable($order, $explanation))->toBeFalse();
+    expect($explanation)->toBe('Coupon not valid.');
+})->with([
+    'stored upper, entered lower' => ['DISCOUNT_1', 'discount_1'],
+    'stored lower, entered upper' => ['discount_1', 'DISCOUNT_1'],
+    'both mixed case' => ['DiScOuNt_1', 'dIsCoUnT_1'],
+]);
+
+test('orderCompleteHandler does not count uses of a coupon whose code only starts with the order’s code', function() {
+    $fixture = DiscountsFixture::seed();
+    $discountId = $fixture->discountWithCoupon->id;
+
+    discountsTestUpdateDiscount($discountId, ['perUserLimit' => 0, 'perEmailLimit' => 0]);
+    DB::table(Table::COUPONS)->where('discountId', $discountId)->update(['code' => 'DISCOUNT_10']);
+
+    app(Discounts::class)->orderCompleteHandler(discountsTestCouponOrder($discountId, 'discount_1', $fixture->customer->id));
+
+    expect((int) DB::table(Table::COUPONS)->where('discountId', $discountId)->value('uses'))->toBe(0);
 });
 
 test('orderCompleteHandler is a no-op when the order has no discount adjustments', function(?string $couponCode) {
