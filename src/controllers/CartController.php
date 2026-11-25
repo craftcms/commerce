@@ -880,7 +880,7 @@ class CartController extends BaseFrontEndController
         // Estimated Shipping Address
         if ($estimatedShippingAddress) {
             if ($this->_cart->estimatedShippingAddressId) {
-                if ($address = Address::findOne($this->_cart->estimatedShippingAddressId)) {
+                if ($address = $this->_cart->getEstimatedShippingAddress()) {
                     $address->setAttributes($estimatedShippingAddress);
                     $estimatedShippingAddress = $address;
                 }
@@ -892,7 +892,7 @@ class CartController extends BaseFrontEndController
         // Estimated Billing Address
         if ($estimatedBillingAddress) {
             if ($this->_cart->estimatedBillingAddressId) {
-                if ($address = Address::findOne($this->_cart->estimatedBillingAddressId)) {
+                if ($address = $this->_cart->getEstimatedBillingAddress()) {
                     $address->setAttributes($estimatedBillingAddress);
                     $estimatedBillingAddress = $address;
                 }
