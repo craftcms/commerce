@@ -727,7 +727,7 @@ class CartController extends BaseFrontEndController
      * @throws NotFoundHttpException
      * @throws Throwable
      */
-    protected function _getCart(bool $forceSave = false): Order
+    private function _getCart(bool $forceSave = false): Order
     {
         $orderNumber = $this->request->getBodyParam('number');
 
