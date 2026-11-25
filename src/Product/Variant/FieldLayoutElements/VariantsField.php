@@ -59,18 +59,6 @@ class VariantsField extends BaseNativeField
         return t('Variants', category: 'commerce');
     }
 
-    protected function inputHtml(?ElementInterface $element = null, bool $static = false): ?string
-    {
-        if (!$element instanceof Product) {
-            throw new InvalidArgumentException('VariantsField can only be used in product field layouts.');
-        }
-
-        return $element->getVariantManager()->getIndexHtml(
-            $element,
-            $this->nestedElementManagerConfig($element, $static),
-        );
-    }
-
     /** @return array<string, mixed> */
     private function nestedElementManagerConfig(Product $product, bool $static): array
     {
