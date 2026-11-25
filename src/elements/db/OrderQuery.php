@@ -218,6 +218,12 @@ class OrderQuery extends ElementQuery
     public ?array $containsPurchasables = null;
 
     /**
+     * @var mixed The resulting orders must have a line item with a matching SKU.
+     * @since 5.8.0
+     */
+    public mixed $lineItemSku = null;
+
+    /**
      * @var bool|null Whether the order has any transactions
      */
     public ?bool $hasTransactions = null;
@@ -1452,6 +1458,47 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results to only orders that have a line item with a matching SKU.
+     *
+     * The SKU is the one saved on the line item when it was added to the order, so this also matches
+     * custom line items and line items whose purchasable has since been deleted.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'DONATION'` | with a line item whose SKU is `DONATION`.
+     * | `'TSHIRT-*'` | with a line item whose SKU begins with `TSHIRT-`.
+     * | `['A', 'B']` | with a line item whose SKU is `A` or `B`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch orders with a donation #}
+     * {% set {elements-var} = {twig-method}
+     *   .lineItemSku(craft.commerce.donation.sku)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch orders with a donation
+     * ${elements-var} = {php-method}
+     *     ->lineItemSku(\craft\commerce\elements\Donation::find()->one()->sku)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 5.8.0
+     */
+    public function lineItemSku(mixed $value): OrderQuery
+    {
+        $this->lineItemSku = $value;
+
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only orders that are related to the given store.
      *
      * Possible values include:
@@ -1949,6 +1996,16 @@ class OrderQuery extends ElementQuery
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
+            ]);
+        }
+
+        if (isset($this->lineItemSku)) {
+            $this->subQuery->andWhere([
+                'exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                    ->andWhere(Db::parseParam('lineitems.sku', $this->lineItemSku)),
             ]);
         }
 

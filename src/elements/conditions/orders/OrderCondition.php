@@ -39,6 +39,7 @@ class OrderCondition extends ElementCondition
             ContainsPurchasablesConditionRule::class,
             ItemSubtotalConditionRule::class,
             ItemTotalConditionRule::class,
+            LineItemSkuConditionRule::class,
             OrderStatusConditionRule::class,
             OrderSiteConditionRule::class,
             PaymentGatewayConditionRule::class,
