@@ -14,6 +14,7 @@ use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingRule;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Payment\Gateway\Types\Dummy;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\Data\ProductType;
 use CraftCms\Commerce\Product\Variant\Elements\Variant;
@@ -1334,8 +1335,7 @@ class Install extends Migration
 
         // Default (Dummy) gateway
         DB::table(Table::GATEWAYS)->insert([
-            // TODO: update to the CraftCms\Commerce\... FQCN once the Dummy gateway is migrated to src/
-            'type' => 'craft\\commerce\\gateways\\Dummy',
+            'type' => Dummy::class,
             'name' => 'Dummy',
             'handle' => 'dummy',
             'isFrontendEnabled' => '1',

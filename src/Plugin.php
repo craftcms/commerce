@@ -64,7 +64,6 @@ use CraftCms\Commerce\Plugin\Concerns\HasLegacyBridges;
 use CraftCms\Commerce\Plugin\Concerns\HasNativeFields;
 use CraftCms\Commerce\Plugin\Concerns\HasPermissions;
 use CraftCms\Commerce\Plugin\Concerns\HasProjectConfigListeners;
-use CraftCms\Commerce\Plugin\Concerns\HasServices;
 use CraftCms\Commerce\Plugin\Concerns\HasSystemMessages;
 use CraftCms\Commerce\Plugin\Concerns\HasUi;
 use CraftCms\Commerce\Plugin\Listeners\DefineDeletionBlockersListener;
@@ -95,7 +94,6 @@ use Illuminate\Support\Facades\Event;
 class Plugin extends BasePlugin
 {
     use HasPermissions;
-    use HasServices;
     use HasCommerceEditions;
     use HasCommerceMacros;
     use HasProjectConfigListeners;
@@ -213,7 +211,6 @@ class Plugin extends BasePlugin
 
     public function boot(): void
     {
-        $this->finalizeLegacyRegistrationEvents();
         $this->registerGqlArguments();
         $this->registerUiComponents();
         $this->registerCpSettings();
@@ -222,7 +219,6 @@ class Plugin extends BasePlugin
         $this->registerBehaviorMacros();
         $this->registerVariableMacros();
         $this->registerForeignKeysRestore();
-        $this->registerLegacyEventBridges();
 
         Twig::registerExtension(new CommerceTwigExtension());
 

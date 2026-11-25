@@ -19,6 +19,7 @@ class WorkbenchServiceProvider extends ServiceProvider
         $plugins[$composer['name']] = [...$composer['extra'], 'class' => \CraftCms\Commerce\Plugin::class, 'basePath' => $root . '/src'];
 
         $files->ensureDirectoryExists(dirname($path));
-        $files->put($path, '<?php return ' . var_export($plugins, return: true) . ';');
+        // Write atomically: parallel PHPStan workers each boot this provider and require the file.
+        $files->replace($path, '<?php return ' . var_export($plugins, return: true) . ';');
     }
 }

@@ -195,7 +195,7 @@ class Payments
      * Process return from off-site payment.
      *
      * @throws Throwable
-     * @throws \craft\commerce\errors\OrderStatusException
+     * @throws \CraftCms\Commerce\Order\Exceptions\OrderStatusException
      * @throws \CraftCms\Cms\Element\Queries\Exceptions\ElementNotFoundException
      */
     public function completePayment(Transaction $transaction, ?string &$customError, ?string &$redirect = null, ?Response &$redirectResponse = null): bool
