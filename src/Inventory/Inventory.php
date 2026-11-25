@@ -42,7 +42,6 @@ use Tpetry\QueryExpressions\Function\Conditional\Coalesce;
 use Tpetry\QueryExpressions\Language\Alias;
 use Tpetry\QueryExpressions\Language\CaseGroup;
 use Tpetry\QueryExpressions\Language\CaseRule;
-use Tpetry\QueryExpressions\Operator\Arithmetic\Subtract;
 use Tpetry\QueryExpressions\Operator\Comparison\Equal;
 use Tpetry\QueryExpressions\Operator\Comparison\GreaterThan;
 use Tpetry\QueryExpressions\Operator\Comparison\LessThan;
@@ -420,12 +419,11 @@ class Inventory
             $types = [$updateInventoryLevel->type];
         }
 
-        $quantityQuery = DB::table($tableName)
+        $quantityQuery = $updateInventoryLevel->quantity - (int) DB::table($tableName)
             ->whereIn('type', $types)
             ->where('inventoryItemId', $updateInventoryLevel->inventoryItemId)
             ->where('inventoryLocationId', $updateInventoryLevel->inventoryLocationId)
-            ->select(new Alias(new Subtract(new Number($updateInventoryLevel->quantity), new Coalesce([new Sum('quantity'), new Number(0)])), 'remaining'))
-            ->value('remaining');
+            ->sum('quantity');
 
         $type = $updateInventoryLevel->type;
         if ($updateInventoryLevel->type === 'onHand') {
