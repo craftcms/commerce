@@ -3711,10 +3711,12 @@ class Order extends Element implements HasStoreInterface
             $source = str_starts_with($source, '*/') ? substr($source, 2) : $source;
 
             if ($store && app(Pdfs::class)->getHasEnabledPdf($store->id)) {
-                $actions[] = ElementActions::createAction([
-                    'type' => DownloadOrderPdfAction::class,
-                    'storeId' => $store->id,
-                ], static::class);
+                $actions[] = request()->input('elementAction') === DownloadOrderPdfAction::class
+                    ? ElementActions::createAction([
+                        'type' => DownloadOrderPdfAction::class,
+                        'storeId' => $store->id,
+                    ], static::class)
+                    : DownloadOrderPdfAction::clientAction($store, $site);
             }
 
             if ($user->can('commerce-deleteOrders')) {

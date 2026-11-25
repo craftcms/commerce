@@ -1,5 +1,6 @@
 import {registerComponent, registerPage} from '@craftcms/cp';
 import CouponGeneratorNode from './modules/ui/CouponGeneratorNode.vue';
+import OrderActionsNode from './modules/ui/OrderActionsNode.vue';
 import SiteStoresControl from './modules/ui/SiteStoresControl.vue';
 import TransferDetailsControl from './modules/ui/TransferDetailsControl.vue';
 import TransferReceiveControl from './modules/ui/TransferReceiveControl.vue';
@@ -12,6 +13,7 @@ import UsageCounterNode from './modules/ui/UsageCounterNode.vue';
  */
 registerComponent('commerce:coupon-generator', CouponGeneratorNode);
 registerComponent('commerce:usage-counter', UsageCounterNode);
+registerComponent('commerce:order-actions', OrderActionsNode);
 registerComponent('commerce:site-stores', SiteStoresControl);
 registerComponent('commerce:transfer-details', TransferDetailsControl);
 registerComponent('commerce:transfer-receive', TransferReceiveControl);

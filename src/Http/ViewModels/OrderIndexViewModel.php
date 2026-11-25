@@ -12,13 +12,10 @@ use CraftCms\Cms\Shared\Enums\DateRangeType;
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Order\Actions\CopyLoadCartUrl;
-use CraftCms\Commerce\Order\Actions\DownloadOrderPdfAction;
 use CraftCms\Commerce\Order\Actions\UpdateOrderStatus;
 use CraftCms\Commerce\Order\Data\OrderStatus;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Order\OrderStatuses;
-use CraftCms\Commerce\Pdf\Data\Pdf;
-use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Store\Data\Store;
 use CraftCms\Commerce\Store\Stores;
 use DateTimeInterface;
@@ -39,8 +36,6 @@ class OrderIndexViewModel extends ContentIndexViewModel
     public const string UPDATE_ORDER_STATUS_EVENT = 'commerce:update-order-status';
 
     public const string COPY_LOAD_CART_URL_EVENT = 'commerce:copy-load-cart-url';
-
-    public const string DOWNLOAD_ORDER_PDF_EVENT = 'commerce:download-order-pdf';
 
     /**
      * The date range presets offered alongside a custom range.
@@ -156,28 +151,6 @@ class OrderIndexViewModel extends ContentIndexViewModel
     }
 
     /**
-     * The store's enabled PDFs, for the “Download PDF” popover.
-     *
-     * @return list<array{id: int, name: string}>
-     */
-    public function pdfs(): array
-    {
-        $store = $this->store();
-
-        if ($store === null || !currentUser()?->can('commerce-manageOrders')) {
-            return [];
-        }
-
-        return app(Pdfs::class)->getAllEnabledPdfs($store->id)
-            ->map(fn(Pdf $pdf) => [
-                'id' => (int)$pdf->id,
-                'name' => t((string)$pdf->name, category: 'site'),
-            ])
-            ->values()
-            ->all();
-    }
-
-    /**
      * @return array<string, string>
      */
     public function labels(): array
@@ -224,7 +197,6 @@ class OrderIndexViewModel extends ContentIndexViewModel
         $events = [
             UpdateOrderStatus::class => self::UPDATE_ORDER_STATUS_EVENT,
             CopyLoadCartUrl::class => self::COPY_LOAD_CART_URL_EVENT,
-            DownloadOrderPdfAction::class => self::DOWNLOAD_ORDER_PDF_EVENT,
         ];
 
         return array_map(function(array $item) use ($siteParams, $events): array {

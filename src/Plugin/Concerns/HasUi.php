@@ -11,6 +11,7 @@ use CraftCms\Commerce\Ui\Controls\SiteStores;
 use CraftCms\Commerce\Ui\Controls\TransferDetails;
 use CraftCms\Commerce\Ui\Controls\TransferReceive;
 use CraftCms\Commerce\Ui\Nodes\CouponGenerator;
+use CraftCms\Commerce\Ui\Nodes\OrderActions;
 use CraftCms\Commerce\Ui\Nodes\UsageCounter;
 
 /**
@@ -22,6 +23,7 @@ trait HasUi
     {
         app(UiNodeTypes::class)->register(CouponGenerator::class);
         app(UiNodeTypes::class)->register(UsageCounter::class);
+        app(UiNodeTypes::class)->register(OrderActions::class);
         app(UiControlTypes::class)->register(SiteStores::class);
         app(UiControlTypes::class)->register(TransferDetails::class);
         app(UiControlTypes::class)->register(TransferReceive::class);

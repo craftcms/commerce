@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use CraftCms\Cms\Element\ElementSources;
 use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\UserPermissions;
 use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Order\Actions\DownloadOrderPdfAction;
+use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Pdf\Data\Pdf;
+use CraftCms\Commerce\Pdf\Pdfs;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
 use CraftCms\Commerce\Tests\Support\StoresFixture;
 use Illuminate\Support\Collection;
@@ -14,6 +19,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\post;
 
 beforeEach(function() {
     $this->withoutVite();
@@ -108,4 +114,58 @@ it('only shows the stores whose sites the viewer can edit', function() {
 
             expect(collect(findUiNodes($nodes, 'craft:tab'))->pluck('uid')->all())->toBe(['ukStore']);
         });
+});
+
+it('downloads a PDF from the store\'s own PDFs in a store tab', function() {
+    $orders = array_values($this->fixture->orders);
+    DB::table(Table::ORDERS)->where('id', $orders[0]->id)->update(['storeId' => $this->stores->ukStore->id]);
+
+    $pdf = new Pdf([
+        'storeId' => $this->stores->ukStore->id,
+        'name' => 'UK Receipt',
+        'handle' => 'ukReceipt',
+        'templatePath' => 'shop/pdf/order',
+        'isDefault' => true,
+        'enabled' => true,
+    ]);
+    expect(app(Pdfs::class)->savePdf($pdf))->toBeTrue();
+
+    $ukIndex = null;
+
+    get("/admin/users/{$this->fixture->customer->id}/commerce")
+        ->assertOk()
+        ->assertInertia(function(AssertableInertia $page) use ($pdf, &$ukIndex) {
+            $indexes = collect(findUiNodes($page->toArray()['props']['ui']['nodes'], 'craft:element-index'))->keyBy('uid');
+            $primary = $this->stores->primaryStore->handle;
+            $downloadItem = fn(array $index): ?array => collect($index['props']['initial']['actions'])
+                ->firstWhere('key', DownloadOrderPdfAction::class);
+
+            $ukIndex = $indexes['ukStore-completed-orders-index'];
+            $item = $downloadItem($ukIndex);
+
+            expect($item['action']['name'])->toBe(DownloadOrderPdfAction::CLIENT_EVENT)
+                ->and($item['action']['detail']['url'])->toContain('site=ukSite')
+                ->and($item['action']['detail']['pdfs'])->toBe([['id' => $pdf->id, 'name' => 'UK Receipt']])
+                ->and($downloadItem($indexes["$primary-completed-orders-index"]))->toBeNull();
+        });
+
+    $pdfs = Mockery::mock(Pdfs::class)->makePartial();
+    $pdfs->shouldReceive('renderPdfForOrder')->andReturn('%PDF-1.4');
+    app()->instance(Pdfs::class, $pdfs);
+
+    $item = collect($ukIndex['props']['initial']['actions'])->firstWhere('key', DownloadOrderPdfAction::class);
+
+    post($item['action']['detail']['url'], [
+        'context' => ElementSources::CONTEXT_EMBEDDED_INDEX,
+        'source' => '__IMP__',
+        'elementType' => Order::class,
+        'embeddedIndexToken' => $ukIndex['props']['token'],
+        ...$item['action']['detail']['body'],
+        'elementIds' => [$orders[0]->id],
+        'pdfId' => $pdf->id,
+        'downloadType' => DownloadOrderPdfAction::TYPE_PDF_COLLATED,
+    ])
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertDownload("ukReceipt-{$orders[0]->number}.pdf");
 });

@@ -12,6 +12,7 @@ use CraftCms\Cms\Ui\Ui;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Ui\Nodes\OrderActions;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
@@ -67,6 +68,8 @@ readonly class UsersController
 
             $ui->addTab($store->getName(), $nodes, $store->handle);
         }
+
+        $ui->add(OrderActions::make('order-actions'));
 
         return $response->ui($ui);
     }
