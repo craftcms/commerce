@@ -1,16 +1,5 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
-
-### Store Management
-
-- Added the “Line Item SKU” order condition rule. ([#4486](https://github.com/craftcms/commerce/pull/4486))
-
-### Extensibility
-
-- Added `craft\commerce\elements\conditions\orders\LineItemSkuConditionRule`. ([#4486](https://github.com/craftcms/commerce/pull/4486))
-- Added `craft\commerce\elements\db\OrderQuery::lineItemSku()`. ([#4486](https://github.com/craftcms/commerce/pull/4486))
-
 ## 5.7.9 - 2026-11-18
 
 - Fixed a bug where coupon uses weren’t counted on PostgreSQL if the coupon code’s casing didn’t match. ([#4464](https://github.com/craftcms/commerce/pull/4464))
