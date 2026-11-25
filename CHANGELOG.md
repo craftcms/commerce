@@ -2,13 +2,17 @@
 
 ## Unreleased
 
+- Fixed a bug where per item discounts were rounded using the current store’s currency instead of the order’s currency.
+
+## 5.7.9 - 2026-11-18
+
+- Fixed a bug where coupon uses weren’t counted on PostgreSQL if the coupon code’s casing didn’t match. ([#4464](https://github.com/craftcms/commerce/pull/4464))
 - Fixed a bug where a stale copy of a cart could still revert a completed order as incomplete due to a race condition. ([#4450](https://github.com/craftcms/commerce/issues/4450))
 - Fixed an error that could occur when two requests tried to save a new cart with the same cart number. ([#4457](https://github.com/craftcms/commerce/pull/4457))
 - Added `craft\commerce\base\Widget`.
 - Added `craft\commerce\errors\OrderCompletedException`.
 - Added `craft\commerce\errors\OrderNumberConflictException`.
 - Fixed a bug where shipping rule rates were rounded using the current store’s currency instead of the order’s store currency.
-- Fixed a bug where per item discounts were rounded using the current store’s currency instead of the order’s currency.
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-98wq-3mvx-6jvv)
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-grgh-r768-2cxf)
 - Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-ch56-6g32-55wc)
@@ -44,7 +48,7 @@
 - Fixed a bug where an order’s line items could be fulfilled beyond the committed and available stock at an inventory location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where stock reserved for an order’s shortfall wasn’t released when the stock was transferred to the order’s committed location. ([#4367](https://github.com/craftcms/commerce/pull/4367))
 - Fixed a bug where the “See Orders” modal for committed stock didn’t list orders that had been partially fulfilled. ([#4367](https://github.com/craftcms/commerce/pull/4367))
-- Fixed a [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. (GHSA-9j9f-hvqx-wp2r)
+- Fixed a [moderate-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) SQL injection vulnerability. ([GHSA-9j9f-hvqx-wp2r](https://github.com/craftcms/commerce/security/advisories/GHSA-9j9f-hvqx-wp2r))
 
 ## 5.7.6 - 2026-10-08
 

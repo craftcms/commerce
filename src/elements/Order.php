@@ -2354,7 +2354,8 @@ class Order extends Element implements HasStoreInterface
 
             // Another request may have saved a new order with this number while this one waited for the lock.
             // The unique index would reject the insert, but fail early with an exception callers can handle.
-            if ($isNew && $this->_isOrderNumberTakenByAnotherOrder()) {
+            // An order without a number can't conflict: the unique index allows multiple NULLs.
+            if ($isNew && $this->number !== null && $this->_isOrderNumberTakenByAnotherOrder()) {
                 throw new OrderNumberConflictException($this->number);
             }
 

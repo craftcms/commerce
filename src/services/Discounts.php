@@ -383,17 +383,13 @@ class Discounts extends Component
         }
 
         $couponSubQuery = (new Query())
-            ->from(Table::COUPONS)
+            ->from(['coupons' => Table::COUPONS])
             ->leftJoin(Table::DISCOUNTS . ' disc', '[[disc.id]] = [[discountId]]')
             ->where(new Expression('[[discountId]] = [[discounts.id]]'));
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
         if ($order && $order->couponCode) {
-            if (Craft::$app->getDb()->getIsPgsql()) {
-                $codeWhere = ['ilike', 'code', $order->couponCode];
-            } else {
-                $codeWhere = ['code' => $order->couponCode];
-            }
+            $codeWhere = $this->_couponCodeCondition($order->couponCode);
 
             $discountQuery->andWhere(
                 [
@@ -543,11 +539,7 @@ class Discounts extends Component
 
         $query = $this->_createDiscountQuery()->where(['storeId' => $storeId]);
         $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
-        if (Craft::$app->getDb()->getIsPgsql()) {
-            $query->andWhere(['ilike', '[[coupons.code]]', $code]);
-        } else {
-            $query->andWhere(['[[coupons.code]]' => $code]);
-        }
+        $query->andWhere($this->_couponCodeCondition($code));
         $discounts = $query->all();
 
         if (!$discounts) {
@@ -1252,7 +1244,13 @@ SQL;
             }
 
             // if there was a coupon on the order update its usage
-            if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
+            /** @var CouponRecord|null $coupon */
+            $coupon = $order->couponCode ? CouponRecord::find()
+                ->alias('coupons')
+                ->where(['discountId' => $discount['discountUseId']])
+                ->andWhere($this->_couponCodeCondition($order->couponCode))
+                ->one() : null;
+            if ($coupon) {
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::COUPONS, [
                         'uses' => new Expression('[[uses]] + 1'),
@@ -1285,6 +1283,24 @@ SQL;
         }
     }
 
+
+    /**
+     * Returns a query condition that matches the coupons table’s code column exactly, ignoring case.
+     *
+     * MySQL’s default collations are already case-insensitive, while PostgreSQL needs both sides lowercased.
+     * The query must alias the coupons table as `coupons`.
+     *
+     * @param string $code
+     * @return array<string, string>|Expression
+     */
+    private function _couponCodeCondition(string $code): array|Expression
+    {
+        if (Craft::$app->getDb()->getIsPgsql()) {
+            return new Expression('LOWER([[coupons.code]]) = LOWER(:couponCode)', [':couponCode' => $code]);
+        }
+
+        return ['coupons.code' => $code];
+    }
 
     /**
      * @param Order $order
