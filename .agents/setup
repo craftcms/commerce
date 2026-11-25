@@ -6,9 +6,11 @@ cd "$repo_root"
 SECONDS=0
 
 echo 'Installing missing system packages'
-packages=(php8.2-cli php8.2-bcmath php8.2-curl php8.2-gd php8.2-imagick
-  php8.2-intl php8.2-mbstring php8.2-mysql php8.2-pgsql php8.2-xml php8.2-zip
-  composer postgresql-15 curl ca-certificates xz-utils unzip)
+# Unversioned packages install the distribution's PHP and PostgreSQL,
+# so this works on both Debian 12 (bookworm) and Debian 13 (trixie).
+packages=(php-cli php-bcmath php-curl php-gd php-imagick
+  php-intl php-mbstring php-mysql php-pgsql php-xml php-zip
+  composer postgresql curl ca-certificates xz-utils unzip)
 missing=()
 for package in "${packages[@]}"; do
   if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -qx 'install ok installed'; then
@@ -72,7 +74,9 @@ npm ci --no-audit --no-fund --prefer-offline
 echo "Frontend dependencies ready at ${SECONDS}s"
 
 echo 'Preparing the isolated PostgreSQL test database'
-pg_bin=/usr/lib/postgresql/15/bin
+pg_bin="$(find /usr/lib/postgresql -mindepth 2 -maxdepth 2 -name bin -type d | sort -V | tail -n 1)"
+# .agents/resume and .amp/services.yaml use this link, so they don't need the PostgreSQL version.
+ln -sfn "$pg_bin" "$tools_dir/pgbin"
 pg_data="$tools_dir/postgres"
 if [[ ! -f "$pg_data/PG_VERSION" ]]; then
   # Trust is limited to this disposable orb's local test database.
