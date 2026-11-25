@@ -5,10 +5,13 @@ declare(strict_types=1);
 use CraftCms\Cms\Support\Facades\Sites;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\Commerce\Database\Table;
+use CraftCms\Commerce\Helpers\Purchasable;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Shipping\Contracts\ShippingMethodInterface;
 use CraftCms\Commerce\Shipping\Events\ShippingMethodsResolving;
 use CraftCms\Commerce\Tests\Support\OrdersFixture;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 
 use function Pest\Laravel\actingAs;
@@ -74,6 +77,23 @@ it('sorts the purchasable table by the requested column', function() {
     $purchasable = collect($response->json('data'))->last();
 
     expect($purchasable['sku'])->toBe('hct-blue');
+})->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
+
+it('searches the purchasable table and hides temporary SKUs', function() {
+    $fixture = OrdersFixture::seed();
+
+    $skus = fn(string $search) => collect(get(Url::actionUrl('commerce/orders/purchasables-table', [
+        'siteId' => Sites::getPrimarySite()->id,
+        'search' => $search,
+    ]), ['Accept' => 'application/json'])->assertOk()->json('data'))->pluck('sku')->all();
+
+    expect($skus('BLUE'))->toBe(['hct-blue']);
+    // `_` is matched literally rather than as a single-character wildcard
+    expect($skus('hct_'))->toBe([]);
+
+    DB::table(Table::PURCHASABLES)->where('id', $fixture->blue->id)->update(['sku' => Purchasable::TEMPORARY_SKU_PREFIX . 'blue']);
+
+    expect($skus('hct'))->toBe(['hct-white']);
 })->group('yii2-adapter'); // TODO: remove from the yii2-adapter group once OrdersController is migrated
 
 it('searches for customers by email', function() {
