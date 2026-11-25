@@ -30,11 +30,26 @@ use CraftCms\Commerce\Order\LineItem\Enums\LineItemType;
 use CraftCms\Commerce\Purchasable\Elements\Purchasable as NewPurchasable;
 use CraftCms\Commerce\Purchasable\Purchasables;
 use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Contracts\Database\Query\ConditionExpression;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
+use Tpetry\QueryExpressions\Function\Aggregate\Min;
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
+use Tpetry\QueryExpressions\Function\Conditional\Coalesce;
+use Tpetry\QueryExpressions\Language\Alias;
+use Tpetry\QueryExpressions\Language\CaseGroup;
+use Tpetry\QueryExpressions\Language\CaseRule;
+use Tpetry\QueryExpressions\Operator\Arithmetic\Subtract;
+use Tpetry\QueryExpressions\Operator\Comparison\Equal;
+use Tpetry\QueryExpressions\Operator\Comparison\GreaterThan;
+use Tpetry\QueryExpressions\Operator\Comparison\LessThan;
+use Tpetry\QueryExpressions\Operator\Logical\CondAnd;
+use Tpetry\QueryExpressions\Operator\Logical\CondOr;
+use Tpetry\QueryExpressions\Value\Number;
+use Tpetry\QueryExpressions\Value\Value;
 use function CraftCms\Cms\t;
 
 #[Singleton]
@@ -242,7 +257,7 @@ class Inventory
                 'ii.id as inventoryItemId',
                 'it.type as type',
             ])
-            ->selectRaw('COALESCE(SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . '), 0) as quantity')
+            ->addSelect(new Alias(new Coalesce([new Sum('it.quantity'), new Number(0)]), 'quantity'))
             ->crossJoin(Table::INVENTORYITEMS . ' as ii')
             ->leftJoin(Table::INVENTORYTRANSACTIONS . ' as it', function($join) {
                 $join->on('il.id', '=', 'it.inventoryLocationId')
@@ -256,29 +271,21 @@ class Inventory
             $inventoryTotals->where('il.id', $inventoryLocationId);
         }
 
-        $sumOfTypes = fn(array $types, string $alias): string => sprintf(
-            "SUM(CASE WHEN %s IN (%s) THEN %s ELSE 0 END) as %s",
-            DB::getQueryGrammar()->wrap('it.type'),
-            implode(',', array_map(fn(string $type) => "'$type'", $types)),
-            DB::getQueryGrammar()->wrap('it.quantity'),
-            DB::getQueryGrammar()->wrap($alias),
-        );
-
         $query = DB::table(Table::INVENTORYITEMS . ' as ii')
             ->select([
                 'ii.id as inventoryItemId',
                 'ii.purchasableId as purchasableId',
                 'it.inventoryLocationId as inventoryLocationId',
             ])
-            ->selectRaw($sumOfTypes(['available'], 'availableTotal'))
-            ->selectRaw($sumOfTypes(['committed'], 'committedTotal'))
-            ->selectRaw($sumOfTypes(['reserved'], 'reservedTotal'))
-            ->selectRaw($sumOfTypes(['damaged'], 'damagedTotal'))
-            ->selectRaw($sumOfTypes(['safety'], 'safetyTotal'))
-            ->selectRaw($sumOfTypes(['qualityControl'], 'qualityControlTotal'))
-            ->selectRaw($sumOfTypes(['incoming'], 'incomingTotal'))
-            ->selectRaw($sumOfTypes(['qualityControl', 'safety', 'damaged', 'reserved'], 'unavailableTotal'))
-            ->selectRaw($sumOfTypes(['qualityControl', 'safety', 'damaged', 'reserved', 'available', 'committed'], 'onHandTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['available']), 'availableTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['committed']), 'committedTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['reserved']), 'reservedTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['damaged']), 'damagedTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['safety']), 'safetyTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['qualityControl']), 'qualityControlTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['incoming']), 'incomingTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['qualityControl', 'safety', 'damaged', 'reserved']), 'unavailableTotal'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes(['qualityControl', 'safety', 'damaged', 'reserved', 'available', 'committed']), 'onHandTotal'))
             ->leftJoinSub($inventoryTotals, 'it', function($join) {
                 $join->on('it.inventoryItemId', '=', 'ii.id');
             })
@@ -417,7 +424,7 @@ class Inventory
             ->whereIn('type', $types)
             ->where('inventoryItemId', $updateInventoryLevel->inventoryItemId)
             ->where('inventoryLocationId', $updateInventoryLevel->inventoryLocationId)
-            ->selectRaw('? - COALESCE(SUM(quantity), 0) as remaining', [$updateInventoryLevel->quantity])
+            ->select(new Alias(new Subtract(new Number($updateInventoryLevel->quantity), new Coalesce([new Sum('quantity'), new Number(0)])), 'remaining'))
             ->value('remaining');
 
         $type = $updateInventoryLevel->type;
@@ -570,7 +577,7 @@ class Inventory
             ->where('it.inventoryLocationId', $inventoryLocationId)
             ->where('it.type', InventoryTransactionType::COMMITTED->value)
             ->groupBy('lineItems.orderId', 'lineItems.id')
-            ->havingRaw('SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . ') > 0')
+            ->having(new Sum('it.quantity'), '>', 0)
             ->pluck('orderId')
             ->all();
 
@@ -651,8 +658,8 @@ class Inventory
             ->whereNull('elements.dateDeleted')
             ->when($inventoryLocationId !== null, fn(Builder $query) => $query->where('it.inventoryLocationId', $inventoryLocationId))
             ->when($lineItemIds !== null, fn(Builder $query) => $query->whereIn('it.lineItemId', $lineItemIds))
-            ->havingRaw('SUM(CASE WHEN ' . DB::getQueryGrammar()->wrap('it.type') . ' = ? THEN ' . DB::getQueryGrammar()->wrap('it.quantity') . ' ELSE 0 END) > 0', [InventoryTransactionType::COMMITTED->value])
-            ->orderByRaw('MIN(' . DB::getQueryGrammar()->wrap('orders.dateOrdered') . ') ASC');
+            ->having(self::sumQuantityOfTypes([InventoryTransactionType::COMMITTED->value]), '>', 0)
+            ->orderBy(new Min('orders.dateOrdered'));
 
         return $query->get()->map(fn($row) => $this->populateInventoryFulfillmentLevel((array) $row));
     }
@@ -672,14 +679,14 @@ class Inventory
     {
         $query = DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
             ->select(['it.lineItemId', 'li.orderId'])
-            ->selectRaw('SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . ') as ' . DB::getQueryGrammar()->wrap('reservedQty'))
-            ->selectRaw('MIN(' . DB::getQueryGrammar()->wrap('it.dateCreated') . ') as ' . DB::getQueryGrammar()->wrap('firstReservedDate'))
+            ->addSelect(new Alias(new Sum('it.quantity'), 'reservedQty'))
+            ->addSelect(new Alias(new Min('it.dateCreated'), 'firstReservedDate'))
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->where('it.type', InventoryTransactionType::RESERVED->value)
             ->where('it.inventoryItemId', $inventoryItemId)
             ->where('it.inventoryLocationId', $inventoryLocationId)
             ->groupBy('it.lineItemId', 'li.orderId')
-            ->havingRaw('SUM(' . DB::getQueryGrammar()->wrap('it.quantity') . ') > 0')
+            ->having(new Sum('it.quantity'), '>', 0)
             ->orderBy('firstReservedDate');
 
         if ($committedLocationId !== null) {
@@ -690,7 +697,7 @@ class Inventory
                 ->where('inventoryLocationId', $committedLocationId)
                 ->whereNotNull('lineItemId')
                 ->groupBy('lineItemId')
-                ->havingRaw('SUM(quantity) > 0'));
+                ->having(new Sum('quantity'), '>', 0));
         }
 
         return $query->get()->map(fn($row) => [
@@ -722,15 +729,33 @@ class Inventory
     {
         return DB::table(Table::INVENTORYTRANSACTIONS . ' as it')
             ->select(['it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId'])
-            ->selectRaw(
-                'SUM(CASE WHEN ((' . DB::getQueryGrammar()->wrap('it.type') . ' = ? AND ' . DB::getQueryGrammar()->wrap('it.quantity') . ' > 0) OR (' . DB::getQueryGrammar()->wrap('it.type') . ' = ? AND ' . DB::getQueryGrammar()->wrap('it.quantity') . ' < 0)) THEN ' . DB::getQueryGrammar()->wrap('it.quantity') . ' ELSE 0 END) AS ' . DB::getQueryGrammar()->wrap('committedQuantity'),
-                [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value],
-            )
-            ->selectRaw('SUM(CASE WHEN ' . DB::getQueryGrammar()->wrap('it.type') . ' = ? THEN ' . DB::getQueryGrammar()->wrap('it.quantity') . ' ELSE 0 END) AS ' . DB::getQueryGrammar()->wrap('outstandingCommittedQuantity'), [InventoryTransactionType::COMMITTED->value])
-            ->selectRaw('SUM(CASE WHEN ' . DB::getQueryGrammar()->wrap('it.type') . ' = ? THEN ' . DB::getQueryGrammar()->wrap('it.quantity') . ' ELSE 0 END) AS ' . DB::getQueryGrammar()->wrap('fulfilledQuantity'), [InventoryTransactionType::FULFILLED->value])
+            ->addSelect(new Alias(new Sum(new CaseGroup([
+                new CaseRule('it.quantity', new CondOr(
+                    new CondAnd(new Equal('it.type', new Value(InventoryTransactionType::COMMITTED->value)), new GreaterThan('it.quantity', new Number(0))),
+                    new CondAnd(new Equal('it.type', new Value(InventoryTransactionType::FULFILLED->value)), new LessThan('it.quantity', new Number(0))),
+                )),
+            ], new Number(0))), 'committedQuantity'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes([InventoryTransactionType::COMMITTED->value]), 'outstandingCommittedQuantity'))
+            ->addSelect(new Alias(self::sumQuantityOfTypes([InventoryTransactionType::FULFILLED->value]), 'fulfilledQuantity'))
             ->join(Table::LINEITEMS . ' as li', 'li.id', '=', 'it.lineItemId')
             ->whereIn('it.type', [InventoryTransactionType::COMMITTED->value, InventoryTransactionType::FULFILLED->value])
             ->groupBy('it.lineItemId', 'li.orderId', 'it.inventoryItemId', 'it.inventoryLocationId');
+    }
+
+    /**
+     * Returns a `SUM()` of the quantities of the `it` inventory transactions with any of the given types.
+     *
+     * @param non-empty-list<string> $types
+     */
+    private static function sumQuantityOfTypes(array $types): Sum
+    {
+        $condition = array_reduce(
+            array_slice($types, 1),
+            fn(ConditionExpression $condition, string $type) => new CondOr($condition, new Equal('it.type', new Value($type))),
+            new Equal('it.type', new Value($types[0])),
+        );
+
+        return new Sum(new CaseGroup([new CaseRule('it.quantity', $condition)], new Number(0)));
     }
 
     public function orderCompleteHandler(Order $order): void

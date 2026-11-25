@@ -22,6 +22,7 @@ use CraftCms\Commerce\Store\Contracts\HasStoreInterface;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Tpetry\QueryExpressions\Function\String\Lower;
 use function CraftCms\Cms\t;
 
 class Discount extends Component implements HasStoreInterface
@@ -437,7 +438,7 @@ class Discount extends Component implements HasStoreInterface
         DB::table(Table::COUPONS . ' as coupons')
             ->select(['coupons.code', 'discounts.name'])
             ->leftJoin(Table::DISCOUNTS . ' as discounts', 'discounts.id', '=', 'coupons.discountId')
-            ->whereIn(DB::raw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ')'), $lowercaseCodes)
+            ->whereIn(new Lower('coupons.code'), $lowercaseCodes)
             ->when($this->id, fn($query) => $query->where('coupons.discountId', '!=', $this->id))
             ->get()
             ->each(fn(object $existing) => $fail(t('Coupon code “{code}” is already in use by discount “{name}”.', [

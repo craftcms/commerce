@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
 
 #[Singleton]
 class Stores
@@ -562,12 +563,10 @@ class Stores
     public function getSiteIdsAvailableForAssignmentToNewStores(): array
     {
         // Sites that are assigned to more than one store
-        // Note: COUNT(*) here, not COUNT(storeId) — the latter is an unquoted identifier inside
-        // raw SQL, which Postgres folds to lowercase (`storeid`), a column that doesn't exist.
         $storeIds = DB::table(Table::SITESTORES)
             ->select('storeId')
             ->groupBy('storeId')
-            ->havingRaw('COUNT(*) > 1')
+            ->having(new Count('*'), '>', 1)
             ->pluck('storeId');
 
         return DB::table(Table::SITESTORES)

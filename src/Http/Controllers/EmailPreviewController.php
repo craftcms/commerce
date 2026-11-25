@@ -9,7 +9,6 @@ use CraftCms\Cms\Support\Facades\I18N;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\View\TemplateMode;
 use CraftCms\Commerce\Email\Emails;
-use CraftCms\Commerce\Helpers\Sql;
 use CraftCms\Commerce\Order\Data\OrderHistory;
 use CraftCms\Commerce\Order\Elements\Order;
 use Illuminate\Http\Request;
@@ -32,7 +31,7 @@ readonly class EmailPreviewController
             $order = Order::find()->shortNumber(substr((string)$orderNumber, 0, 7))->one();
         } else {
             $orderQuery = Order::find()->isCompleted(true);
-            $orderQuery->orderByRaw(Sql::randomSql());
+            $orderQuery->inRandomOrder();
 
             $order = $orderQuery->one();
         }

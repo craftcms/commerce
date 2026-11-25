@@ -6,7 +6,9 @@ namespace CraftCms\Commerce\Purchasable\Queries\Concerns;
 
 use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
-use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Language\CaseGroup;
+use Tpetry\QueryExpressions\Language\CaseRule;
+use Tpetry\QueryExpressions\Operator\Comparison\LessThan;
 
 /**
  * Purchasable price scopes, mirroring the `QueriesFields`/`QueriesAssetLocation` convention from
@@ -63,7 +65,7 @@ trait QueriesPurchasablePricing
             : [
                 'price' => 'purchasables_stores.basePrice',
                 'promotionalPrice' => 'purchasables_stores.basePromotionalPrice',
-                'salePrice' => DB::raw(self::baseSalePriceSql()),
+                'salePrice' => self::baseSalePrice(),
             ];
 
         $query->getQuery()->orders = array_map(function(array $order) use ($columns) {
@@ -75,13 +77,12 @@ trait QueriesPurchasablePricing
         }, $orders);
     }
 
-    private static function baseSalePriceSql(): string
+    private static function baseSalePrice(): CaseGroup
     {
-        $grammar = DB::connection()->getQueryGrammar();
-        $basePrice = $grammar->wrap('purchasables_stores.basePrice');
-        $basePromotionalPrice = $grammar->wrap('purchasables_stores.basePromotionalPrice');
-
-        return "CASE WHEN $basePromotionalPrice < $basePrice THEN $basePromotionalPrice ELSE $basePrice END";
+        // Not LEAST(), which returns NULL on MySQL when there's no promotional price.
+        return new CaseGroup([
+            new CaseRule('purchasables_stores.basePromotionalPrice', new LessThan('purchasables_stores.basePromotionalPrice', 'purchasables_stores.basePrice')),
+        ], 'purchasables_stores.basePrice');
     }
 
     public static function applyPrice(BuilderContract $query, mixed $value, bool $hasCatalogPricingRules): void
@@ -130,7 +131,7 @@ trait QueriesPurchasablePricing
             return;
         }
 
-        $query->whereParam(DB::raw(self::baseSalePriceSql()), $value);
+        $query->whereParam(self::baseSalePrice(), $value);
     }
 
     public function price(mixed $value): static

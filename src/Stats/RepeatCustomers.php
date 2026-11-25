@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
+use Tpetry\QueryExpressions\Language\Alias;
 
 /**
  * Repeat Customers Stat
@@ -22,7 +23,7 @@ class RepeatCustomers extends Stat
             ->getCountForPagination();
 
         $repeatRows = $this->createStatQuery()
-            ->selectRaw('COUNT(' . DB::getQueryGrammar()->wrap('orders.id') . ') as cnt')
+            ->select(new Alias(new Count('orders.id'), 'cnt'))
             ->groupBy('customerId')
             ->pluck('cnt');
 

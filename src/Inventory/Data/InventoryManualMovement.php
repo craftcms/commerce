@@ -7,6 +7,12 @@ namespace CraftCms\Commerce\Inventory\Data;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Inventory\Enums\InventoryTransactionType;
 use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
+use Tpetry\QueryExpressions\Function\Conditional\Coalesce;
+use Tpetry\QueryExpressions\Language\Alias;
+use Tpetry\QueryExpressions\Operator\Arithmetic\Add;
+use Tpetry\QueryExpressions\Operator\Arithmetic\Subtract;
+use Tpetry\QueryExpressions\Value\Number;
 
 class InventoryManualMovement extends InventoryMovement
 {
@@ -53,7 +59,7 @@ class InventoryManualMovement extends InventoryMovement
     public function fromLocationAfterQuantity(): int
     {
         return (int)DB::table(Table::INVENTORYTRANSACTIONS)
-            ->selectRaw('COALESCE(SUM(quantity), 0) - ? AS quantity', [$this->quantity])
+            ->select(new Alias(new Subtract(new Coalesce([new Sum('quantity'), new Number(0)]), new Number($this->quantity)), 'quantity'))
             ->where('type', $this->fromInventoryTransactionType->value)
             ->where('inventoryItemId', $this->inventoryItemId)
             ->where('inventoryLocationId', $this->fromInventoryLocation->id)
@@ -68,7 +74,7 @@ class InventoryManualMovement extends InventoryMovement
     public function toLocationAfterQuantity(): int
     {
         return (int)DB::table(Table::INVENTORYTRANSACTIONS)
-            ->selectRaw('COALESCE(SUM(quantity), 0) + ? AS quantity', [$this->quantity])
+            ->select(new Alias(new Add(new Coalesce([new Sum('quantity'), new Number(0)]), new Number($this->quantity)), 'quantity'))
             ->where('type', $this->toInventoryTransactionType->value)
             ->where('inventoryItemId', $this->inventoryItemId)
             ->where('inventoryLocationId', $this->toInventoryLocation->id)

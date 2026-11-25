@@ -36,6 +36,12 @@ use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
+use Tpetry\QueryExpressions\Function\Conditional\Coalesce;
+use Tpetry\QueryExpressions\Function\String\Lower;
+use Tpetry\QueryExpressions\Language\Alias;
+use Tpetry\QueryExpressions\Value\Number;
 use function CraftCms\Cms\currentUserElement;
 use function CraftCms\Cms\t;
 
@@ -138,7 +144,7 @@ class Discounts
         if ($order) {
             if ($order->getEmail()) {
                 $emailUsesSubQuery = DB::table(Table::EMAIL_DISCOUNTUSES . ' as edu')
-                    ->selectRaw('COALESCE(SUM(' . DB::getQueryGrammar()->wrap('edu.uses') . '), 0)')
+                    ->select(new Coalesce([new Sum('edu.uses'), new Number(0)]))
                     ->whereColumn('edu.discountId', 'discounts.id')
                     ->where('edu.email', $order->getEmail());
 
@@ -763,20 +769,21 @@ class Discounts
     public function getEmailUsageStatsById(int $id): array
     {
         return (array) DB::table(Table::EMAIL_DISCOUNTUSES)
-            ->selectRaw('COALESCE(SUM(uses), 0) as uses, COUNT(email) as emails')
+            ->select([
+                new Alias(new Coalesce([new Sum('uses'), new Number(0)]), 'uses'),
+                new Alias(new Count('email'), 'emails'),
+            ])
             ->where('discountId', $id)
             ->first();
     }
 
     public function getCustomerUsageStatsById(int $id): array
     {
-        // customerId is camelCase — quoted via the connection's own grammar, not embedded as
-        // bare SQL, since an unquoted raw fragment gets folded to lowercase by Postgres (see
-        // CatalogPricing::createCatalogPricesQuery()'s isPromotionalPrice for the same fix).
-        $customerId = DB::connection()->getQueryGrammar()->wrap('customerId');
-
         return (array) DB::table(Table::CUSTOMER_DISCOUNTUSES)
-            ->selectRaw("COALESCE(SUM(uses), 0) as uses, COUNT({$customerId}) as users")
+            ->select([
+                new Alias(new Coalesce([new Sum('uses'), new Number(0)]), 'uses'),
+                new Alias(new Count('customerId'), 'users'),
+            ])
             ->where('discountId', $id)
             ->first();
     }
@@ -1016,7 +1023,7 @@ class Discounts
             return;
         }
 
-        $query->whereRaw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ') = ?', [mb_strtolower($code)]);
+        $query->where(new Lower('coupons.code'), mb_strtolower($code));
     }
 
     private function clearCaches(): void

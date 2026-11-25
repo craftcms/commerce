@@ -27,7 +27,8 @@
     "ibericode/vat": "^2.0",
     "iio/libmergepdf": "^4.0",
     "moneyphp/money": "^4.2.0",
-    "php": "^8.5"
+    "php": "^8.5",
+    "tpetry/laravel-query-expressions": "^1.5"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
