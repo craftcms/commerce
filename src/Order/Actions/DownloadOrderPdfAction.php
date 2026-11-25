@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\Actions;
 
+use CraftCms\Cms\Element\Actions\ClientAction;
 use CraftCms\Cms\Element\Actions\ElementAction;
 use CraftCms\Cms\Element\Queries\Contracts\ElementQueryInterface;
+use CraftCms\Cms\Site\Data\Site;
 use CraftCms\Cms\Support\Facades\Path;
 use CraftCms\Cms\Support\Str;
+use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
+use CraftCms\Commerce\Store\Data\Store;
 use iio\libmergepdf\Merger;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -24,6 +28,7 @@ class DownloadOrderPdfAction extends ElementAction
 {
     public const TYPE_ZIP_ARCHIVE = 'zipArchive';
     public const TYPE_PDF_COLLATED = 'pdfCollated';
+    public const CLIENT_EVENT = 'commerce:download-order-pdf';
 
     #[\Override]
     public static function isDownload(): bool
@@ -36,6 +41,30 @@ class DownloadOrderPdfAction extends ElementAction
     public string $downloadType = self::TYPE_PDF_COLLATED;
 
     public ?int $storeId = null;
+
+    /**
+     * Offers the action as a client action, so the page can ask for the PDF and download type
+     * before posting this action to `element-indexes/perform-action` with them.
+     */
+    public static function clientAction(Store $store, Site $site): ClientAction
+    {
+        return new ClientAction(
+            key: self::class,
+            label: t('Download PDF', category: 'commerce'),
+            event: self::CLIENT_EVENT,
+            detail: [
+                'url' => Url::actionUrl('element-indexes/perform-action', ['site' => $site->handle]),
+                'body' => ['elementAction' => self::class],
+                'pdfs' => app(Pdfs::class)->getAllEnabledPdfs($store->id)
+                    ->map(fn(Pdf $pdf): array => [
+                        'id' => (int)$pdf->id,
+                        'name' => t((string)$pdf->name, category: 'site'),
+                    ])
+                    ->values()
+                    ->all(),
+            ],
+        );
+    }
 
     public function getTriggerLabel(): string
     {

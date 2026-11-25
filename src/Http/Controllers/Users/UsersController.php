@@ -8,10 +8,11 @@ use CraftCms\Cms\Element\EmbeddedElementIndex;
 use CraftCms\Cms\Http\Controllers\Users\EditUserTrait;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use CraftCms\Cms\Ui\Nodes\Heading;
-use CraftCms\Cms\Ui\Nodes\Separator;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Ui\Nodes\OrderActions;
 
 use function CraftCms\Cms\currentUser;
 use function CraftCms\Cms\t;
@@ -28,25 +29,42 @@ readonly class UsersController
 
         $response = $this->asEditUserScreen($user, self::SCREEN_COMMERCE);
 
-        if (!currentUser()?->can('commerce-manageOrders')) {
-            return $response;
+        $edge = app(Carts::class)->getActiveCartEdgeDuration();
+
+        $indexes = [
+            'completed-orders' => [t('Orders', category: 'commerce'), ['isCompleted' => true]],
+            'active-carts' => [t('Active Carts', category: 'commerce'), ['isCompleted' => false, 'dateUpdated' => '>= ' . $edge]],
+            'inactive-carts' => [t('Inactive Carts', category: 'commerce'), ['isCompleted' => false, 'dateUpdated' => '< ' . $edge]],
+        ];
+
+        $ui = Ui::make();
+
+        foreach (app(Stores::class)->getStoresByUserId(currentUser()?->getCraftUserId()) as $store) {
+            $nodes = [];
+
+            foreach ($indexes as $key => [$label, $criteria]) {
+                $nodes[] = Heading::make("$store->handle-$key-heading", $label);
+                $nodes[] = EmbeddedElementIndex::make(Order::class)
+                    ->criteria([
+                        ...$criteria,
+                        'customerId' => $user->id,
+                        'storeId' => $store->id,
+                        'siteId' => $store->getSites()->pluck('id')->values()->all(),
+                        'status' => null,
+                    ])
+                    ->storageKey("Commerce-Users-element-indexes-$store->handle-$key")
+                    ->defaultTableColumns($key === 'completed-orders'
+                        ? ['reference', 'orderStatus', 'dateOrdered', 'totalPrice']
+                        : ['reference', 'dateUpdated', 'totalPrice'])
+                    ->defaultSort($key === 'completed-orders' ? 'dateOrdered' : 'dateUpdated', 'desc')
+                    ->uiNode("$store->handle-$key-index");
+            }
+
+            $ui->addTab($store->getName(), $nodes, $store->handle);
         }
 
-        $edge = app(Carts::class)->getActiveCartEdgeDuration();
-        $index = fn(string $key, array $criteria) => EmbeddedElementIndex::make(Order::class)
-            ->criteria(['customerId' => $user->id, ...$criteria])
-            ->storageKey("Commerce-Users-element-indexes-$key")
-            ->uiNode("commerce-user-$key");
+        $ui->add(OrderActions::make('order-actions'));
 
-        return $response->ui(Ui::make([
-            Heading::make('commerce-user-orders-heading', t('Orders', category: 'commerce')),
-            $index('completed-orders', ['isCompleted' => true]),
-            Separator::make('commerce-user-orders-separator'),
-            Heading::make('commerce-user-active-carts-heading', t('Active Carts', category: 'commerce')),
-            $index('active-carts', ['isCompleted' => false, 'dateUpdated' => '>= ' . $edge]),
-            Separator::make('commerce-user-active-carts-separator'),
-            Heading::make('commerce-user-inactive-carts-heading', t('Inactive Carts', category: 'commerce')),
-            $index('inactive-carts', ['isCompleted' => false, 'dateUpdated' => '< ' . $edge]),
-        ]));
+        return $response->ui($ui);
     }
 }

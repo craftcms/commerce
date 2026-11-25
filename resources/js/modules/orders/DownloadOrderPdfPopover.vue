@@ -1,6 +1,7 @@
 <script setup lang="ts">
-  import {computed, ref, useId, watch} from 'vue';
+  import {computed, onMounted, onUnmounted, ref, useId} from 'vue';
   import {
+    DOWNLOAD_ORDER_PDF_EVENT,
     downloadOrderAction,
     type OrderActionEventDetail,
   } from './order-actions';
@@ -11,45 +12,60 @@
   }
 
   const props = defineProps<{
-    detail: OrderActionEventDetail | null;
-    anchor: Element | null;
-    pdfs: OrderPdfOption[];
     labels: Record<string, string>;
-  }>();
-
-  const emit = defineEmits<{
-    close: [];
   }>();
 
   const pdfFieldId = useId();
   const downloadTypeName = useId();
+  const detail = ref<OrderActionEventDetail | null>(null);
+  const anchor = ref<Element | null>(null);
   const pdfId = ref<number | null>(null);
   const downloadType = ref('pdfCollated');
   const downloading = ref(false);
+
+  const pdfs = computed<OrderPdfOption[]>(() => detail.value?.pdfs ?? []);
 
   const downloadTypes = computed(() => [
     {value: 'pdfCollated', label: props.labels.collatedPdf},
     {value: 'zipArchive', label: props.labels.zipFile},
   ]);
 
-  watch(
-    () => props.detail,
-    (detail) => {
-      if (detail) {
-        pdfId.value = props.pdfs[0]?.id ?? null;
-        downloadType.value = 'pdfCollated';
-      }
-    }
-  );
+  // The action's menu item is hidden as the menu closes, so the popover hangs
+  // off the menu's button. It opens a frame later, once the click that chose
+  // the action has finished, or that click would count as one outside it.
+  function open(event: Event): void {
+    const chosen = (event as CustomEvent<OrderActionEventDetail>).detail;
+    const invoker =
+      chosen.trigger
+        ?.closest('craft-action-menu')
+        ?.querySelector(':scope > [slot="invoker"]') ??
+      chosen.trigger ??
+      null;
+
+    detail.value = chosen;
+    pdfId.value = chosen.pdfs?.[0]?.id ?? null;
+    downloadType.value = 'pdfCollated';
+    requestAnimationFrame(() => {
+      anchor.value = invoker;
+    });
+  }
+
+  function close(): void {
+    detail.value = null;
+    anchor.value = null;
+  }
+
+  onMounted(() => window.addEventListener(DOWNLOAD_ORDER_PDF_EVENT, open));
+  onUnmounted(() => window.removeEventListener(DOWNLOAD_ORDER_PDF_EVENT, open));
 
   async function download(): Promise<void> {
-    if (!props.detail || pdfId.value === null) {
+    if (!detail.value || pdfId.value === null) {
       return;
     }
 
     downloading.value = true;
 
-    const downloaded = await downloadOrderAction(props.detail, {
+    const downloaded = await downloadOrderAction(detail.value, {
       pdfId: pdfId.value,
       downloadType: downloadType.value,
     });
@@ -57,7 +73,7 @@
     downloading.value = false;
 
     if (downloaded) {
-      emit('close');
+      close();
     }
   }
 </script>
@@ -67,7 +83,7 @@
     placement="top"
     .anchor="anchor ?? undefined"
     .open="detail !== null && anchor !== null"
-    @craft-hide.self="emit('close')"
+    @craft-hide.self="close"
   >
     <form
       slot="content-body"

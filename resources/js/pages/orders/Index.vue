@@ -11,9 +11,7 @@
   } from '@craftcms/cp';
   import {router} from '@inertiajs/vue3';
   import {computed, onMounted, onUnmounted, ref} from 'vue';
-  import DownloadOrderPdfPopover, {
-    type OrderPdfOption,
-  } from '../../modules/orders/DownloadOrderPdfPopover.vue';
+  import DownloadOrderPdfPopover from '../../modules/orders/DownloadOrderPdfPopover.vue';
   import OrderDateRangeMenu, {
     type DateRangeValue,
   } from '../../modules/orders/OrderDateRangeMenu.vue';
@@ -22,7 +20,6 @@
   } from '../../modules/orders/UpdateOrderStatusDialog.vue';
   import {
     COPY_LOAD_CART_URL_EVENT,
-    DOWNLOAD_ORDER_PDF_EVENT,
     promptLoadCartUrl,
     UPDATE_ORDER_STATUS_EVENT,
     type OrderActionEventDetail,
@@ -36,7 +33,6 @@
     dateRange: DateRangeValue;
     dateRangeOptions: Array<{value: string; label: string}>;
     orderStatuses: OrderStatusOption[] | null;
-    pdfs: OrderPdfOption[];
     labels: Record<string, string>;
     sourceNavItems?: NavItem[];
     elementType?: string | null;
@@ -121,8 +117,6 @@
   });
 
   const statusDetail = ref<OrderActionEventDetail | null>(null);
-  const pdfDetail = ref<OrderActionEventDetail | null>(null);
-  const pdfAnchor = ref<Element | null>(null);
 
   // A fresh visit rather than a partial reload, so the selection (held by the
   // index, out of the page's reach) goes with the orders that moved away.
@@ -144,33 +138,9 @@
     );
   }
 
-  // The action's menu item is hidden as the menu closes, so the popover hangs
-  // off the menu's button. It opens a frame later, once the click that chose
-  // the action has finished, or that click would count as one outside it.
-  function onDownloadOrderPdf(event: Event): void {
-    const detail = (event as CustomEvent<OrderActionEventDetail>).detail;
-    const anchor =
-      detail.trigger
-        ?.closest('craft-action-menu')
-        ?.querySelector(':scope > [slot="invoker"]') ??
-      detail.trigger ??
-      null;
-
-    pdfDetail.value = detail;
-    requestAnimationFrame(() => {
-      pdfAnchor.value = anchor;
-    });
-  }
-
-  function closePdfPopover(): void {
-    pdfDetail.value = null;
-    pdfAnchor.value = null;
-  }
-
   const listeners: Array<[string, (event: Event) => void]> = [
     [UPDATE_ORDER_STATUS_EVENT, onUpdateOrderStatus],
     [COPY_LOAD_CART_URL_EVENT, onCopyLoadCartUrl],
-    [DOWNLOAD_ORDER_PDF_EVENT, onDownloadOrderPdf],
   ];
 
   onMounted(() => {
@@ -221,11 +191,5 @@
     @updated="refreshIndex"
   />
 
-  <DownloadOrderPdfPopover
-    :detail="pdfDetail"
-    :anchor="pdfAnchor"
-    :pdfs="pdfs"
-    :labels="labels"
-    @close="closePdfPopover"
-  />
+  <DownloadOrderPdfPopover :labels="labels" />
 </template>

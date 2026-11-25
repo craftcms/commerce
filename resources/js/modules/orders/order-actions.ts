@@ -2,15 +2,18 @@ import {showCopyTextPrompt} from '@craftcms/cp';
 import {displayError, displayNotice, sendActionRequest} from './cp-client';
 
 /**
- * The detail of the window events `OrderIndexViewModel::actions()` swaps the
- * order actions that need a settings step for. The bulk actions bar adds the
- * selection; `url` and `body` are the request the action would have made.
+ * The detail of the window events for order actions that need a settings step.
+ * `url` and `body` are the request the action makes. The bulk actions bar adds
+ * the selection, and `indexParams`, which scope the request to the index the
+ * action was chosen in, such as an embedded index's token.
  */
 export interface OrderActionEventDetail {
   url: string;
   body: Record<string, unknown>;
   elementType: string;
   elementIds: Array<string | number>;
+  indexParams?: Record<string, unknown>;
+  pdfs?: Array<{id: number; name: string}>;
   trigger?: Element;
 }
 
@@ -44,6 +47,7 @@ function requestData(
   settings: Record<string, unknown>
 ): Record<string, unknown> {
   return {
+    ...detail.indexParams,
     ...detail.body,
     ...settings,
     elementType: detail.elementType,
