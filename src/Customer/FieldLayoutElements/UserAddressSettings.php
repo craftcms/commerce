@@ -61,13 +61,11 @@ class UserAddressSettings extends BaseField
             FormFields::lightswitchFieldHtml([
                 'fieldLabel' => t('Use as the primary billing address', category: 'commerce'),
                 'name' => 'isPrimaryBilling',
-                /** @phpstan-ignore-next-line method.notFound (getIsPrimaryBilling() is a macro registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
                 'on' => $element->getIsPrimaryBilling(),
             ]) .
             FormFields::lightswitchFieldHtml([
                 'fieldLabel' => t('Use as the primary shipping address', category: 'commerce'),
                 'name' => 'isPrimaryShipping',
-                /** @phpstan-ignore-next-line method.notFound (getIsPrimaryShipping() is a macro registered in Plugin::registerCustomerAddressMacros(), not visible to static analysis) */
                 'on' => $element->getIsPrimaryShipping(),
             ]);
     }

@@ -51,7 +51,6 @@ class PrimaryBillingAddressIdField extends Field
             return null;
         }
 
-        /** @phpstan-ignore-next-line method.notFound (getPrimaryBillingAddressId() is added to User via a Macroable macro registered in Plugin::registerCustomerMacros(), not visible to static analysis) */
         return $element->getPrimaryBillingAddressId();
     }
 

@@ -8,6 +8,7 @@ use CraftCms\Cms\User\Elements\User;
 use CraftCms\Cms\User\UserPermissions;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Order\Actions\DownloadOrderPdfAction;
+use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Pdf\Data\Pdf;
 use CraftCms\Commerce\Pdf\Pdfs;
@@ -89,6 +90,29 @@ it('lists a customer\'s orders and carts in a tab per store', function() {
                 ->and(listedOrderIds($indexes['ukStore-completed-orders-index']))->toBe([$orders[0]->id])
                 ->and(listedOrderIds($indexes['euStore-completed-orders-index']))->toBe([])
                 ->and(listedOrderIds($indexes["$primary-active-carts-index"]))->toBe([]);
+        });
+});
+
+it('splits a customer\'s carts into active and inactive carts', function() {
+    $carts = [];
+    foreach (['active', 'inactive'] as $key) {
+        $cart = new Order();
+        $cart->number = app(Carts::class)->generateCartNumber();
+        $cart->setCustomer($this->fixture->customer);
+        Elements::saveElement($cart, false);
+        $carts[$key] = $cart->id;
+    }
+    DB::table(Table::ORDERS)->where('id', $carts['inactive'])->update(['dateUpdated' => now()->subYear()]);
+    DB::table('elements')->where('id', $carts['inactive'])->update(['dateUpdated' => now()->subYear()]);
+
+    get("/admin/users/{$this->fixture->customer->id}/commerce")
+        ->assertOk()
+        ->assertInertia(function(AssertableInertia $page) use ($carts) {
+            $indexes = collect(findUiNodes($page->toArray()['props']['ui']['nodes'], 'craft:element-index'))->keyBy('uid');
+            $primary = $this->stores->primaryStore->handle;
+
+            expect(listedOrderIds($indexes["$primary-active-carts-index"]))->toBe([$carts['active']])
+                ->and(listedOrderIds($indexes["$primary-inactive-carts-index"]))->toBe([$carts['inactive']]);
         });
 });
 

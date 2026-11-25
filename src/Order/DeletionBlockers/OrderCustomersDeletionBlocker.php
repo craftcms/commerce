@@ -127,9 +127,8 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
     public function getDetails(): ?string
     {
         return $this->elementChipsHtml(Order::find()
-            ->customerId($this->elements->ids()->all())
-            ->isCompleted()
+            ->id($this->orderIds->all())
             ->status(null)
-            ->orderBy(['dateOrdered' => SORT_DESC]));
+            ->orderBy('dateOrdered', 'desc'));
     }
 }
