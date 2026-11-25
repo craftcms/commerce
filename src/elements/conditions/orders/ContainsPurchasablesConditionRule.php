@@ -15,7 +15,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\enums\ContainsPurchasablesMatch;
 use craft\commerce\Plugin;
-use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
@@ -173,11 +172,6 @@ class ContainsPurchasablesConditionRule extends BaseElementSelectConditionRule i
                     'class' => ['flex', 'flex-start'],
                 ]
             );
-    }
-
-    protected function selectionCondition(): ?ElementConditionInterface
-    {
-        return Craft::$app->getConditions()->createCondition(['class' => OrderCondition::class]);
     }
 
     /**

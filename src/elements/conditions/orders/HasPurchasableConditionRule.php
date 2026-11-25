@@ -14,7 +14,6 @@ use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
@@ -126,11 +125,6 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
             );
     }
 
-
-    protected function selectionCondition(): ?ElementConditionInterface
-    {
-        return Craft::$app->getConditions()->createCondition(['class' => OrderCondition::class]);
-    }
 
     /**
      * @return array
