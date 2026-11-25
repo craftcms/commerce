@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where per item discounts were rounded using the current store’s currency instead of the order’s currency.
+
 ## 5.7.9 - 2026-11-18
 
 - Fixed a bug where coupon uses weren’t counted on PostgreSQL if the coupon code’s casing didn’t match. ([#4464](https://github.com/craftcms/commerce/pull/4464))

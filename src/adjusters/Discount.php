@@ -261,7 +261,7 @@ class Discount extends Component implements AdjusterInterface
                 $adjustment = $this->_createOrderAdjustment($discount);
                 $adjustment->setLineItem($item);
                 $discountAmountPerItemPreDiscounts = 0;
-                $amountPerItem = Currency::round($discount->perItemDiscount);
+                $amountPerItem = Currency::round($discount->perItemDiscount, $this->_order->currency);
 
                 if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
                     $discountAmountPerItemPreDiscounts = (float)$teller->multiply($item->salePrice, $discount->percentDiscount);

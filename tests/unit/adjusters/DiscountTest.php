@@ -14,8 +14,10 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
+use craft\commerce\services\Stores;
 use craft\helpers\ArrayHelper;
 
 /**
@@ -103,6 +105,69 @@ class DiscountTest extends Unit
 
         self::assertEquals($expected['orderTotalPrice'], $order->getTotalPrice(), 'Order total price');
         self::assertEquals($expected['orderTotalDiscount'], $order->getTotalDiscount(), 'Order total discount');
+    }
+
+    /**
+     * The per item discount is rounded using the order’s currency, not the current store’s.
+     */
+    public function testPerItemDiscountUsesOrderCurrency(): void
+    {
+        $order = new Order();
+        $order->currency = 'USD';
+
+        $currentStore = new Store();
+        $currentStore->setCurrency('JPY');
+
+        $discount = new DiscountModel();
+        $discount->name = 'Per item';
+        $discount->description = 'Per item discount';
+        $discount->allPurchasables = true;
+        $discount->allCategories = true;
+        $discount->stopProcessing = false;
+        $discount->perItemDiscount = -4.75;
+
+        $lineItem = $this->make(LineItem::class, [
+            'qty' => 1,
+            'price' => 10,
+            'getPurchasable' => fn() => new class() extends Purchasable {
+                public function getPrice(): float
+                {
+                    return 10;
+                }
+
+                public function getSku(): string
+                {
+                    return 'testing';
+                }
+
+                public function getIsPromotable(): bool
+                {
+                    return true;
+                }
+            },
+        ]);
+        $order->setLineItems([$lineItem]);
+
+        $stores = $this->pluginInstance->getStores();
+        $discounts = $this->pluginInstance->getDiscounts();
+
+        try {
+            $this->pluginInstance->set('stores', $this->make(Stores::class, [
+                'getCurrentStore' => $currentStore,
+            ]));
+            $this->pluginInstance->set('discounts', $this->make(Discounts::class, [
+                'getAllActiveDiscounts' => fn($o) => [$discount],
+                'matchOrder' => fn($o, $d) => true,
+            ]));
+
+            $adjustments = (new Discount())->adjust($order);
+        } finally {
+            $this->pluginInstance->set('stores', $stores);
+            $this->pluginInstance->set('discounts', $discounts);
+        }
+
+        self::assertCount(1, $adjustments);
+        self::assertEqualsWithDelta(-4.75, $adjustments[0]->amount, 0.00001);
     }
 
     /**
