@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Order\DeletionBlockers;
 
-use CraftCms\Cms\Cp\Html\ElementIndexHtml;
 use CraftCms\Cms\Element\DeletionBlockers\BaseDeletionBlocker;
 use CraftCms\Cms\Element\ElementCollection;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Commerce\Order\Elements\Order;
+use CraftCms\Yii2Adapter\Cp\Html\ElementIndexHtml;
 use Illuminate\Support\Collection;
 use Override;
 
@@ -127,6 +127,11 @@ class OrderCustomersDeletionBlocker extends BaseDeletionBlocker
     #[Override]
     public function getDetails(): ?string
     {
+        // The legacy element index renderer lives in craftcms/yii2-adapter.
+        if (!class_exists(ElementIndexHtml::class)) {
+            return null;
+        }
+
         return app(ElementIndexHtml::class)->html(Order::class, [
             'context' => 'pane',
             'defaultTableColumns' => [
