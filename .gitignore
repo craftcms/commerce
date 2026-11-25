@@ -16,5 +16,5 @@ node_modules/
 .phpunit.cache
 *-private.md
 *-private.html
-/.claude
+.claude/settings.local.json
 /CLAUDE.md
