@@ -588,7 +588,7 @@ return [
     'If disabled, this PDF will not be available or sent with emails.' => '如果禁用，此 PDF 将不可用，也不会随电子邮件发送。',
     'If disabled, this email will not send.' => '如果禁用，将不会发送此电子邮件。',
     'If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart.' => '如果启用且此税率与订单不匹配，则会从购物车中的应税价格中扣除该税额。',
-    'If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option.' => '如果设置为“仅授权”，你需要手动捕获付款，资金才会转入你的账户。网关需要支持所选选项。',
+    'If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option.' => '如果设置为“仅授权”，您需要先手动捕获付款，然后资金才会转入您的账户。网关需要支持所选选项。',
     'If you select the percentage to be  “off the discounted item price”, this will include the “Per Item Amount” as well as any other discounts that applied before this one.' => '如果你选择百分比为“从折扣后的项目价格中减免”，则会包含“每件金额”以及在此之前应用的所有其他折扣。',
     'Ignore Promotions?' => '忽略促销？',
     'Ignore previous matching sales if this sale matches.' => '如果此促销匹配，则忽略之前匹配的促销。',
