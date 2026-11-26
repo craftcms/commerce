@@ -87,7 +87,7 @@ return [
     'Are you sure you want to send email: {name}?' => 'Möchtest du die E-Mail «{name}» wirklich senden?',
     'At least one site must be enabled for the product type.' => 'Mindestens eine Website muss für den Produkttyp aktiviert sein.',
     'Attempted Payments' => 'Versuchte Zahlungen',
-    'Attention' => 'Achtung',
+    'Attention' => 'Zu Händen',
     'Authorize Only (Manually Capture)' => 'Nur autorisieren (Manuelle Erfassung)',
     'Authorize' => 'Autorisieren',
     'Auto Set Cart Shipping Method Option' => 'Versandart des Warenkorbs autom. setzen',
