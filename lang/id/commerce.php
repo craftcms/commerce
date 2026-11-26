@@ -87,7 +87,7 @@ return [
     'Are you sure you want to send email: {name}?' => 'Apakah Anda yakin ingin mengirim email: {name}?',
     'At least one site must be enabled for the product type.' => 'Setidaknya satu situs harus diaktifkan untuk jenis produk ini.',
     'Attempted Payments' => 'Percobaan Pembayaran',
-    'Attention' => 'Perhatian',
+    'Attention' => 'Ditujukan kepada',
     'Authorize Only (Manually Capture)' => 'Hanya Otorisasi (Cairkan Secara Manual)',
     'Authorize' => 'Otorisasi',
     'Auto Set Cart Shipping Method Option' => 'Opsi Atur Otomatis Metode Pengiriman Keranjang',
