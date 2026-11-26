@@ -57,6 +57,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode
+ * @property int $saveVersion
  * @property int|null $shippingAddressId
  * @property string $shippingMethodHandle
  * @property string $shippingMethodName

@@ -537,6 +537,7 @@ class Install extends Migration
             'saveShippingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
             'makePrimaryShippingAddress' => $this->boolean()->notNull()->defaultValue(false),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
+            'saveVersion' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'returnUrl' => $this->text(),
             'cancelUrl' => $this->text(),
             'shippingMethodHandle' => $this->string()->notNull()->defaultValue(''),

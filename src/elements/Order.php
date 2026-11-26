@@ -34,6 +34,7 @@ use craft\commerce\errors\OrderAdjustmentNotFoundException;
 use craft\commerce\errors\OrderCompletedException;
 use craft\commerce\errors\OrderNumberConflictException;
 use craft\commerce\errors\OrderStatusException;
+use craft\commerce\errors\StaleOrderException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\events\OrderLineItemsRefreshEvent;
@@ -555,6 +556,13 @@ class Order extends Element implements HasStoreInterface
      * ```
      */
     public bool $isCompleted = false;
+
+    /**
+     * @var int|null The version of the order row when this instance was loaded. Used to detect saving a stale instance.
+     * `null` when the instance was not loaded from the database with this value (e.g. a new order).
+     * @since 5.8.0
+     */
+    public ?int $saveVersion = null;
 
     /**
      * The date and time this order was completed
@@ -2517,6 +2525,8 @@ class Order extends Element implements HasStoreInterface
 
             $orderRecord->save(false);
 
+            $this->_incrementSaveVersion($isNew);
+
             $this->_saveAdjustments();
             $this->_saveLineItems();
             $this->_saveNotices();
@@ -3925,6 +3935,33 @@ class Order extends Element implements HasStoreInterface
                 }
             }
         }
+    }
+
+    /**
+     * Atomically bumps the order's `saveVersion`, but only if it is still the version this instance was loaded with.
+     * If another request has saved the order since, this instance is stale and saving it would overwrite newer data,
+     * so we throw. The exception rolls back the element save's transaction.
+     *
+     * @throws StaleOrderException
+     */
+    private function _incrementSaveVersion(bool $isNew): void
+    {
+        if ($isNew || $this->saveVersion === null) {
+            $this->saveVersion = $isNew ? 0 : $this->saveVersion;
+            return;
+        }
+
+        $affected = Db::update(
+            Table::ORDERS,
+            ['saveVersion' => $this->saveVersion + 1],
+            ['id' => $this->id, 'saveVersion' => $this->saveVersion],
+        );
+
+        if ($affected === 0) {
+            throw new StaleOrderException("Order $this->number was modified by another request since it was loaded.");
+        }
+
+        $this->saveVersion++;
     }
 
     /**
