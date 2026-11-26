@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Helpers;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Facades\ProjectConfig;
 use CraftCms\Commerce\Email\Emails;
+use CraftCms\Commerce\License\Elements\License;
 use CraftCms\Commerce\Order\Elements\Order as OrderElement;
 use CraftCms\Commerce\Order\LineItemStatuses;
 use CraftCms\Commerce\Order\OrderStatuses;
@@ -51,6 +52,16 @@ class ProjectConfigData
             $output['orders'] = [
                 'fieldLayouts' => [
                     $orderFieldLayout->uid => $orderFieldLayoutConfig,
+                ],
+            ];
+        }
+
+        $licenseFieldLayout = Fields::getLayoutByType(License::class);
+
+        if ($licenseFieldLayout->id && ($licenseFieldLayoutConfig = $licenseFieldLayout->getConfig())) {
+            $output['licenses'] = [
+                'fieldLayouts' => [
+                    $licenseFieldLayout->uid => $licenseFieldLayoutConfig,
                 ],
             ];
         }

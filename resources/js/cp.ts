@@ -53,3 +53,7 @@ registerPage(
   'commerce::inventory/transfers/Index',
   () => import('./pages/inventory/transfers/Index.vue')
 );
+registerPage(
+  'commerce::licenses/Index',
+  () => import('./pages/licenses/Index.vue')
+);

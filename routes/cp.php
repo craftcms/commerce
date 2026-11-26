@@ -12,8 +12,10 @@ use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\IndexController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
+use CraftCms\Commerce\Http\Controllers\Licenses\LicensesController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\LicenseSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
@@ -36,6 +38,7 @@ use CraftCms\Commerce\Http\Controllers\Settings\TransferSettingsController;
 use CraftCms\Commerce\Http\Controllers\VariantsController;
 use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\Users\UsersController;
+use CraftCms\Commerce\Http\Middleware\RequireLicenses;
 use Illuminate\Support\Facades\Route;
 
 use function CraftCms\Cms\cp_url;
@@ -58,6 +61,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
         Route::get('commerce/settings/orders', fn() => redirect(cp_url('commerce/settings/orders/fields')));
         Route::get('commerce/settings/orders/fields', [OrderSettingsController::class, 'edit']);
         Route::get('commerce/settings/transfers', [TransferSettingsController::class, 'edit']);
+        Route::middleware(RequireLicenses::class)
+            ->get('commerce/settings/licenses', [LicenseSettingsController::class, 'edit']);
 
         Route::get('commerce/settings/stores', [StoresController::class, 'index']);
         Route::get('commerce/settings/stores/new', [StoresController::class, 'create']);
@@ -203,6 +208,12 @@ Route::middleware(['auth', 'can:accessPlugin-commerce'])->group(function () {
 
     Route::middleware('can:commerce-manageInventoryTransfers')
         ->get('commerce/inventory/transfers', [TransfersController::class, 'index']);
+
+    // Hidden until the Digital Products plugin's data has been migrated into Commerce.
+    Route::middleware(['can:commerce-manageLicenses', RequireLicenses::class])->group(function () use ($idSlugParams) {
+        Route::get('commerce/licenses', [LicensesController::class, 'index']);
+        Route::get('commerce/licenses/{id}{slug?}', EditElementController::class)->where($idSlugParams);
+    });
 });
 
 // The Commerce screen on the Edit User screen — permission is enforced inline via the

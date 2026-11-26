@@ -25,6 +25,8 @@ use CraftCms\Cms\Support\Sequence;
 use CraftCms\Cms\Support\Url;
 use CraftCms\Commerce\Database\Table;
 use CraftCms\Commerce\Helpers\Purchasable as PurchasableHelper;
+use CraftCms\Commerce\License\Licenses;
+use CraftCms\Commerce\Order\LineItem\Data\LineItem;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\Events\ProductSnapshotDataResolving;
 use CraftCms\Commerce\Product\Events\ProductSnapshotFieldsResolving;
@@ -43,6 +45,9 @@ use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Override;
@@ -126,6 +131,28 @@ class Variant extends Purchasable implements NestedElementInterface
     public const string EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
 
     public bool $isDefault = false;
+
+    /**
+     * Whether purchasing this variant issues a license for each unit, when its product type allows licenses.
+     *
+     * @see issuesLicenses()
+     */
+    public bool $issuesLicense = false;
+
+    /**
+     * Whether this variant’s licenses expire, when its product type lets variants override license expiry.
+     *
+     * @see getLicenseExpiryDuration()
+     */
+    public bool $licenseExpires = true;
+
+    /**
+     * How long this variant’s licenses last, as an ISO 8601 duration such as `P1Y`, when its product type lets
+     * variants override license expiry. When null, the product type’s duration is used.
+     *
+     * @see getLicenseExpiryDuration()
+     */
+    public ?string $licenseExpiryDuration = null;
 
     /**
      * @see getProductSlug()
@@ -281,6 +308,10 @@ class Variant extends Purchasable implements NestedElementInterface
 
         $this->validateMinQtyRange();
         $this->validateMaxQtyRange();
+
+        if ($this->licenseExpiryDuration && !Licenses::parseDuration($this->licenseExpiryDuration)) {
+            $this->errors()->add('licenseExpiryDuration', t('The license duration must be an ISO 8601 duration, such as {example}.', ['example' => 'P1Y'], category: 'commerce'));
+        }
     }
 
     /**
@@ -409,6 +440,59 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * Returns the product associated with this variant.
      */
+    /**
+     * Whether purchasing this variant issues licenses: it has “Issues License” turned on, and its product type allows licenses.
+     */
+    public function issuesLicenses(): bool
+    {
+        return $this->issuesLicense && ($this->getOwner()?->getType()->hasLicenses ?? false);
+    }
+
+    /**
+     * How long licenses issued by this variant last, or null when they don’t expire. The product type decides
+     * whether its licenses expire and for how long, unless it lets variants override that.
+     */
+    public function getLicenseExpiryDuration(): ?DateInterval
+    {
+        $productType = $this->getOwner()?->getType();
+
+        if (!$productType || !$this->issuesLicenses() || !$productType->hasLicenseExpiry) {
+            return null;
+        }
+
+        if (!$productType->allowLicenseExpiryOverride) {
+            return Licenses::parseDuration($productType->licenseExpiryDuration);
+        }
+
+        if (!$this->licenseExpires) {
+            return null;
+        }
+
+        return Licenses::parseDuration($this->licenseExpiryDuration ?: $productType->licenseExpiryDuration);
+    }
+
+    /**
+     * The expiry date for a license issued by this variant, counted from the given date or now.
+     */
+    public function getLicenseExpiryDate(?DateTimeInterface $from = null): ?DateTime
+    {
+        $duration = $this->getLicenseExpiryDuration();
+
+        return $duration ? DateTime::createFromInterface($from ?? new DateTime())->add($duration) : null;
+    }
+
+    #[Override]
+    public function validateLineItem(LineItem $lineItem): void
+    {
+        parent::validateLineItem($lineItem);
+
+        $renewLicenseKey = $lineItem->getOptions()[Licenses::RENEW_LICENSE_KEY_OPTION] ?? null;
+
+        if ($renewLicenseKey && !$lineItem->getOrder()?->isCompleted) {
+            app(Licenses::class)->validateRenewal($lineItem, $this, (string)$renewLicenseKey);
+        }
+    }
+
     public function getProduct(): ?Product
     {
         /** @var Product|null */
@@ -793,6 +877,9 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             $record->primaryOwnerId = $this->getPrimaryOwnerId();
+            $record->issuesLicense = $this->issuesLicense;
+            $record->licenseExpires = $this->licenseExpires;
+            $record->licenseExpiryDuration = $this->licenseExpiryDuration ?: null;
 
             // @TODO Remove in Commerce 6.0 if the `isDefault` column is removed from the variants table
             if ($this->getOwner()->getIsCanonical()) {

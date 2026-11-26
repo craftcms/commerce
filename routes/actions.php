@@ -10,12 +10,14 @@ use CraftCms\Commerce\Http\Controllers\EmailPreviewController;
 use CraftCms\Commerce\Http\Controllers\FormulasController;
 use CraftCms\Commerce\Http\Controllers\InventoryController;
 use CraftCms\Commerce\Http\Controllers\InventoryLocationsController;
+use CraftCms\Commerce\Http\Controllers\Licenses\LicensesController;
 use CraftCms\Commerce\Http\Controllers\OrdersController;
 use CraftCms\Commerce\Http\Controllers\PaymentsController;
 use CraftCms\Commerce\Http\Controllers\PaymentSourcesController;
 use CraftCms\Commerce\Http\Controllers\Settings\EmailsController;
 use CraftCms\Commerce\Http\Controllers\Settings\GatewaysController;
 use CraftCms\Commerce\Http\Controllers\Settings\GeneralSettingsController;
+use CraftCms\Commerce\Http\Controllers\Settings\LicenseSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\LineItemStatusesController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderSettingsController;
 use CraftCms\Commerce\Http\Controllers\Settings\OrderStatusesController;
@@ -39,6 +41,7 @@ use CraftCms\Commerce\Http\Controllers\TransfersController;
 use CraftCms\Commerce\Http\Controllers\UserOrdersController;
 use CraftCms\Commerce\Http\Controllers\WebhooksController;
 use CraftCms\Commerce\Http\Middleware\LogDeprecatedAction;
+use CraftCms\Commerce\Http\Middleware\RequireLicenses;
 use CraftCms\Commerce\Http\RateLimiters\CartChallengeRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\CartRateLimiter;
 use CraftCms\Commerce\Http\RateLimiters\PdfChallengeRateLimiter;
@@ -81,6 +84,10 @@ Route::get('cart/cart-sent', [CartController::class, 'cartSent']);
 Route::post('payments/pay', [PaymentsController::class, 'pay']);
 Route::match(['get', 'post'], 'payments/complete-payment', [PaymentsController::class, 'complete']);
 
+// Anonymous by design: the license key is the credential for downloading the licensed variant's files.
+Route::middleware(RequireLicenses::class)
+    ->get('licenses/download', [LicensesController::class, 'download']);
+
 Route::post('payment-sources/add', [PaymentSourcesController::class, 'store']);
 Route::post('payment-sources/set-primary-payment-source', [PaymentSourcesController::class, 'setPrimary']);
 Route::post('payment-sources/delete', [PaymentSourcesController::class, 'destroy']);
@@ -100,6 +107,8 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
 
     Route::post('settings/save-settings', [GeneralSettingsController::class, 'store']);
     Route::post('settings/save-transfer-settings', [TransferSettingsController::class, 'store']);
+    Route::middleware(RequireLicenses::class)
+        ->post('settings/save-license-settings', [LicenseSettingsController::class, 'store']);
     Route::post('order-settings/save', [OrderSettingsController::class, 'store']);
 
     Route::post('stores/save-store', [StoresController::class, 'store']);
@@ -119,6 +128,9 @@ Route::middleware(['auth', 'can:accessPlugin-commerce', RequireAdmin::class])->g
     Route::post('product-types/save-product-type', [ProductTypesController::class, 'store']);
     Route::match(['post', 'delete'], 'product-types/delete-product-type', [ProductTypesController::class, 'destroy']);
 });
+
+Route::middleware(['auth', 'can:accessPlugin-commerce', 'can:commerce-manageLicenses', RequireLicenses::class])
+    ->get('licenses/create', [LicensesController::class, 'create']);
 
 // BaseStoreManagementController::init() always required commerce-manageStoreSettings, on top of
 // whichever more specific permission each feature area's own controller adds — every route in

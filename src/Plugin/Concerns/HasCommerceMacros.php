@@ -10,6 +10,7 @@ use CraftCms\Cms\Support\Typecast;
 use CraftCms\Cms\Twig\Variables\CraftVariable;
 use CraftCms\Cms\User\Elements\User;
 use CraftCms\Commerce\Customer\Models\Customer as CustomerRecord;
+use CraftCms\Commerce\License\Elements\License;
 use CraftCms\Commerce\Order\Carts;
 use CraftCms\Commerce\Order\Elements\Order;
 use CraftCms\Commerce\Payment\Data\PaymentSource;
@@ -48,6 +49,13 @@ trait HasCommerceMacros
 
         CraftVariable::macro('variants', function(array $criteria = []) {
             $query = Variant::find();
+            Typecast::configure($query, $criteria);
+
+            return $query;
+        });
+
+        CraftVariable::macro('licenses', function(array $criteria = []) {
+            $query = License::find();
             Typecast::configure($query, $criteria);
 
             return $query;

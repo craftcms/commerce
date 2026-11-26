@@ -7,6 +7,7 @@ namespace CraftCms\Commerce\Product\ProductType\Data;
 use CraftCms\Cms\Component\Component;
 use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Enums\PropagationMethod;
+use CraftCms\Cms\Field\Assets;
 use CraftCms\Cms\FieldLayout\Contracts\FieldLayoutProviderInterface;
 use CraftCms\Cms\FieldLayout\FieldLayout;
 use CraftCms\Cms\FieldLayout\FieldLayoutTab;
@@ -16,6 +17,7 @@ use CraftCms\Cms\Support\Facades\Deprecator;
 use CraftCms\Cms\Support\Facades\Fields;
 use CraftCms\Cms\Support\Str;
 use CraftCms\Cms\Support\Url;
+use CraftCms\Commerce\License\Licenses;
 use CraftCms\Commerce\Product\Elements\Product;
 use CraftCms\Commerce\Product\ProductType\ProductTypes;
 use CraftCms\Commerce\Product\ProductType\Validation\ProductTypeRules;
@@ -26,6 +28,7 @@ use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Tax\Data\TaxCategory;
 use CraftCms\Commerce\Tax\TaxCategories;
 use CraftCms\RulesetValidation\Attributes\Ruleset;
+use DateTimeInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use function CraftCms\Cms\t;
@@ -52,6 +55,32 @@ class ProductType extends Component implements FieldLayoutProviderInterface
     public bool $enableVersioning = false;
 
     public bool $hasDimensions = false;
+
+    /**
+     * Whether variants of this type can issue licenses when they're purchased.
+     */
+    public bool $hasLicenses = false;
+
+    /**
+     * The UID of the Assets field, in the product or variant field layout, whose assets licenses can download.
+     * When null, licenses can download any asset related to the variant or its product.
+     */
+    public ?string $licenseDownloadFieldUid = null;
+
+    /**
+     * Whether licenses issued by this type's variants expire.
+     */
+    public bool $hasLicenseExpiry = false;
+
+    /**
+     * How long licenses last, as an ISO 8601 duration such as `P1Y`, when licenses expire.
+     */
+    public ?string $licenseExpiryDuration = null;
+
+    /**
+     * Whether variants can choose whether their licenses expire, and override the duration.
+     */
+    public bool $allowLicenseExpiryOverride = false;
 
     public ?int $maxVariants = null;
 
@@ -104,6 +133,10 @@ class ProductType extends Component implements FieldLayoutProviderInterface
     public ?int $variantFieldLayoutId = null;
 
     public ?string $uid = null;
+
+    public ?DateTimeInterface $dateCreated = null;
+
+    public ?DateTimeInterface $dateUpdated = null;
 
     public ?array $previewTargets = null;
 
@@ -169,6 +202,14 @@ class ProductType extends Component implements FieldLayoutProviderInterface
         $this->validateFieldLayout();
         $this->validateVariantFieldLayout();
         $this->validatePreviewTargets();
+
+        if ($this->hasLicenses && $this->licenseDownloadFieldUid && !$this->getLicenseDownloadField()) {
+            $this->errors()->add('licenseDownloadFieldUid', t('The download field must be an Assets field in the product or variant field layout.', category: 'commerce'));
+        }
+
+        if ($this->hasLicenses && $this->hasLicenseExpiry && !Licenses::parseDuration($this->licenseExpiryDuration)) {
+            $this->errors()->add('licenseExpiryDuration', t('The license duration must be an ISO 8601 duration, such as {example}.', ['example' => 'P1Y'], category: 'commerce'));
+        }
 
         if (empty($this->getSiteSettings())) {
             $this->errors()->add('siteSettings', t('At least one site must be enabled for the product type.', category: 'commerce'));
@@ -344,6 +385,26 @@ class ProductType extends Component implements FieldLayoutProviderInterface
     }
 
     /**
+     * Returns the Assets field licenses download from, if one is set and still in the variant or product field layout.
+     */
+    public function getLicenseDownloadField(): ?Assets
+    {
+        if (!$this->licenseDownloadFieldUid) {
+            return null;
+        }
+
+        foreach ([$this->getVariantFieldLayout(), $this->getProductFieldLayout()] as $fieldLayout) {
+            $field = $fieldLayout->getFieldByUid($this->licenseDownloadFieldUid);
+
+            if ($field) {
+                return $field instanceof Assets ? $field : null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param class-string $elementType
      */
     private function _resolveFieldLayout(?int $id, string $elementType): FieldLayout
@@ -389,7 +450,10 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             'freeShipping',
             'hasUnlimitedStock',
             'height',
+            'issuesLicense',
             'length',
+            'licenseExpires',
+            'licenseExpiryDuration',
             'maxQty',
             'minQty',
             'price',
@@ -453,6 +517,11 @@ class ProductType extends Component implements FieldLayoutProviderInterface
             'handle' => $this->handle,
             'enableVersioning' => $this->enableVersioning,
             'hasDimensions' => $this->hasDimensions,
+            'hasLicenses' => $this->hasLicenses,
+            'licenseDownloadFieldUid' => $this->licenseDownloadFieldUid,
+            'hasLicenseExpiry' => $this->hasLicenseExpiry,
+            'licenseExpiryDuration' => $this->licenseExpiryDuration,
+            'allowLicenseExpiryOverride' => $this->allowLicenseExpiryOverride,
             'maxVariants' => $this->maxVariants,
 
             'hasVariantTitleField' => $this->hasVariantTitleField,
