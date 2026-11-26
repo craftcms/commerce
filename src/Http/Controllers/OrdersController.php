@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace CraftCms\Commerce\Http\Controllers;
 
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
-use craft\db\Query;
-use craft\db\Table as CraftTable;
 use craft\helpers\AdminTable;
 use craft\helpers\Localization;
 use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\assets\money\MoneyAsset;
 use CraftCms\Cms\Address\Elements\Address;
 use CraftCms\Cms\Cp\SiteSwitcher;
+use CraftCms\Cms\Database\Table as CraftTable;
 use CraftCms\Cms\Element\Queries\ElementQuery;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Field\Field;
@@ -83,9 +82,12 @@ use CraftCms\Commerce\Purchasable\Queries\PurchasableQuery;
 use CraftCms\Commerce\Shipping\ShippingCategories;
 use CraftCms\Commerce\Shipping\ShippingMethods;
 use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Support\Expressions\Substr;
 use CraftCms\Commerce\Tax\TaxCategories;
 use DateTime;
 use DateTimeZone;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -482,43 +484,33 @@ JS, []);
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
-        $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-        $sqlQuery = new Query()
+        $sqlQuery = DB::table(Table::PURCHASABLES . ' as purchasables')
             ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku', 'elements.type'])
-            ->leftJoin(['elements' => CraftTable::ELEMENTS], [
-                'and',
-                '[[elements.id]] = [[purchasables.id]]',
-            ])
+            ->leftJoin(CraftTable::ELEMENTS . ' as elements', 'elements.id', '=', 'purchasables.id')
             // Make sure this purchasable is enabled for the site
-            ->innerJoin(['es' => CraftTable::ELEMENTS_SITES], [
-                'and',
-                '[[es.elementId]] = [[purchasables.id]]',
-                '[[es.siteId]] = :siteId',
-            ], [
-                ':siteId' => $siteId,
-            ])
-            ->innerJoin(['pstores' => '{{%' . Table::PURCHASABLES_STORES . '}}'], '[[purchasables.id]] = [[pstores.purchasableId]]')
-            ->where(['elements.enabled' => true])
-            ->andWhere(['pstores.storeId' => $store->id])
-            ->andWhere(['elements.revisionId' => null])
-            ->andWhere(['elements.draftId' => null])
-            ->from(['purchasables' => '{{%' . Table::PURCHASABLES . '}}']);
+            ->join(CraftTable::ELEMENTS_SITES . ' as es', function(JoinClause $join) use ($siteId) {
+                $join->on('es.elementId', '=', 'purchasables.id')
+                    ->where('es.siteId', $siteId);
+            })
+            ->join(Table::PURCHASABLES_STORES . ' as pstores', 'purchasables.id', '=', 'pstores.purchasableId')
+            ->where('elements.enabled', true)
+            ->where('pstores.storeId', $store->id)
+            ->whereNull('elements.revisionId')
+            ->whereNull('elements.draftId');
 
         // Are they searching for a SKU or purchasable description?
         if ($search) {
-            $sqlQuery->andwhere([
-                'or',
-                [$likeOperator, 'purchasables.description', '%' . str_replace(' ', '%', $search) . '%', false],
-                [$likeOperator, 'purchasables.sku', $search],
-            ]);
+            $sqlQuery->where(fn(Builder $query) => $query
+                // Spaces in the search act as wildcards in the description
+                ->whereLike('purchasables.description', '%' . str_replace(' ', '%', $search) . '%')
+                ->orWhereLike('purchasables.sku', '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search) . '%'));
         }
 
         // Do not return any purchasables with temp SKUs
-        // SUBSTR(str, start, length) is identical across MySQL/MariaDB, PostgreSQL, and SQLite.
-        $sqlQuery->andWhere(new \yii\db\Expression("SUBSTR([[purchasables.sku]], 1, " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+        $sqlQuery->where(new Substr('purchasables.sku', 1, strlen(Purchasable::TEMPORARY_SKU_PREFIX)), '!=', Purchasable::TEMPORARY_SKU_PREFIX);
 
         // Do not return soft deleted purchasables
-        $sqlQuery->andWhere(['elements.dateDeleted' => null]);
+        $sqlQuery->whereNull('elements.dateDeleted');
 
         // Apply sorting if required
         if ($sort && strpos((string)$sort, '|')) {
@@ -533,10 +525,10 @@ JS, []);
             }
 
             if ($column && in_array($direction, ['asc', 'desc'], true)) {
-                $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
+                $sqlQuery->orderBy($column, $direction);
             }
         } else {
-            $sqlQuery->orderBy(['purchasables.id' => 'asc']);
+            $sqlQuery->orderBy('purchasables.id');
         }
 
         // Trigger event before working out the total and limiting the results for pagination
@@ -549,10 +541,12 @@ JS, []);
 
         $total = $sqlQuery->count();
 
-        $sqlQuery->limit($limit);
-        $sqlQuery->offset($offset);
-
-        $result = $sqlQuery->all();
+        $result = $sqlQuery
+            ->limit($limit)
+            ->offset($offset)
+            ->get()
+            ->map(fn(object $row) => (array) $row)
+            ->all();
 
         return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, (int)$total, $limit),

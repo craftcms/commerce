@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
+use Tpetry\QueryExpressions\Language\Alias;
 
 #[Singleton]
 class OrderStatuses
@@ -132,7 +134,7 @@ class OrderStatuses
         $storeId ??= app(Stores::class)->getCurrentStore()->id;
 
         $countGroupedByStatusId = DB::table(Table::ORDERS . ' as o')
-            ->select(['o.orderStatusId', DB::raw('count(' . DB::getQueryGrammar()->wrap('o.id') . ') as ' . DB::getQueryGrammar()->wrap('orderCount'))])
+            ->select(['o.orderStatusId', new Alias(new Count('o.id'), 'orderCount')])
             ->join(CraftTable::ELEMENTS . ' as e', 'o.id', '=', 'e.id')
             ->where('o.isCompleted', true)
             ->whereNull('e.dateDeleted')

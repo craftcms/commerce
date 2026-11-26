@@ -13,6 +13,7 @@ use CraftCms\Commerce\Order\Adjuster\Tax;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
+use Tpetry\QueryExpressions\Function\Aggregate\Sum;
 use function CraftCms\Cms\t;
 
 class OrderExport extends ElementExporter
@@ -65,7 +66,7 @@ class OrderExport extends ElementExporter
     private function orderAdjustmentTotal(string $adjustmentType): Builder
     {
         return DB::table(Table::ORDERADJUSTMENTS)
-            ->selectRaw('SUM(amount)')
+            ->select(new Sum('amount'))
             ->whereColumn('orderId', Table::ORDERS . '.id')
             ->where('type', $adjustmentType);
     }

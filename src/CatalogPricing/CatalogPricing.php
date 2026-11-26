@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\CatalogPricing;
 
+use CraftCms\Cms\Database\Expressions\Cast;
 use CraftCms\Cms\Support\Facades\Conditions;
 use CraftCms\Cms\Support\Query;
 use CraftCms\Commerce\CatalogPricing\Conditions\CatalogPricingCondition;
@@ -12,16 +13,25 @@ use CraftCms\Commerce\CatalogPricing\Data\CatalogPricing as CatalogPricingModel;
 use CraftCms\Commerce\CatalogPricing\Jobs\CatalogPricingJob;
 use CraftCms\Commerce\CatalogPricing\Models\CatalogPricingQueue as CatalogPricingQueueRecord;
 use CraftCms\Commerce\Database\Table;
-use CraftCms\Commerce\Helpers\Sql;
 use CraftCms\Commerce\Store\Stores;
+use CraftCms\Commerce\Support\Expressions\Uuid;
 use DateTime;
 use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\OutputInterface;
+use Tpetry\QueryExpressions\Function\Aggregate\Min;
+use Tpetry\QueryExpressions\Function\Time\Now;
+use Tpetry\QueryExpressions\Language\Alias;
+use Tpetry\QueryExpressions\Language\CaseGroup;
+use Tpetry\QueryExpressions\Language\CaseRule;
+use Tpetry\QueryExpressions\Operator\Comparison\Equal;
+use Tpetry\QueryExpressions\Operator\Comparison\NotIsNull;
+use Tpetry\QueryExpressions\Value\Value;
 
 #[Scoped]
 class CatalogPricing
@@ -176,8 +186,8 @@ class CatalogPricing
             $baseStateTime = microtime(true);
             $count = 1;
 
-            $uuid = DB::raw(Sql::uuidSql());
-            $now = DB::raw(Sql::nowSql());
+            $uuid = new Uuid();
+            $now = new Now();
 
             foreach (array_chunk($purchasableIds, $chunkSize) as $chunk) {
                 $fromCount = number_format($count, 0);
@@ -197,7 +207,7 @@ class CatalogPricing
                 DB::table(Table::CATALOG_PRICING)->insertUsing(
                     ['price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'uid', 'dateCreated', 'dateUpdated'],
                     DB::table(Table::PURCHASABLES_STORES)
-                        ->select(['basePromotionalPrice', 'purchasableId', 'storeId', DB::raw('true'), $uuid, $now, $now])
+                        ->select(['basePromotionalPrice', 'purchasableId', 'storeId', new Value(true), $uuid, $now, $now])
                         ->whereNotNull('basePromotionalPrice')
                         ->whereIn('purchasableId', $chunk),
                 );
@@ -299,7 +309,7 @@ class CatalogPricing
         $rows = $this->buildCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset)
             ->select(['price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'])
             ->orderBy('purchasableId')
-            ->orderByRaw(DB::connection()->getQueryGrammar()->wrap('catalogPricingRuleId') . ' IS NOT NULL')
+            ->orderBy(new NotIsNull('catalogPricingRuleId'))
             ->orderBy('catalogPricingRuleId')
             ->orderBy('isPromotionalPrice')
             ->get()
@@ -496,16 +506,19 @@ class CatalogPricing
      */
     public function createCatalogPricesQuery(?int $userId = null, int|string|null $storeId = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
     {
-        // Quoted via the connection's own grammar, not embedded as bare SQL — the column and
-        // aliases are camelCase, and unquoted raw identifiers get folded to lowercase by Postgres.
-        $grammar = DB::connection()->getQueryGrammar();
-        $isPromotionalPrice = $grammar->wrap('isPromotionalPrice');
+        // SQLite (test suite only) returns MIN() of a decimal column as a float.
+        $decimal = fn(Expression $expression): Expression => DB::connection()->getDriverName() === 'sqlite'
+            ? new Cast($expression, 'DECIMAL(24,6)')
+            : $expression;
+        $minPrice = fn(bool $isPromotionalPrice): Min => new Min(new CaseGroup([
+            new CaseRule('price', new Equal('isPromotionalPrice', new Value($isPromotionalPrice))),
+        ]));
 
         $query = DB::table(Table::CATALOG_PRICING . ' as cp')
             ->select([
-                DB::raw(Sql::decimalSql("MIN(CASE WHEN $isPromotionalPrice = FALSE THEN price END)") . ' AS ' . $grammar->wrap('price')),
-                DB::raw(Sql::decimalSql("MIN(CASE WHEN $isPromotionalPrice = TRUE THEN price END)") . ' AS ' . $grammar->wrap('promotionalPrice')),
-                DB::raw(Sql::decimalSql('MIN(price)') . ' AS ' . $grammar->wrap('salePrice')),
+                new Alias($decimal($minPrice(false)), 'price'),
+                new Alias($decimal($minPrice(true)), 'promotionalPrice'),
+                new Alias($decimal(new Min('price')), 'salePrice'),
             ]);
 
         $condition ??= Conditions::createCondition([
@@ -548,7 +561,7 @@ class CatalogPricing
     public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): \Illuminate\Database\Query\Builder
     {
         $query = DB::table(Table::CATALOG_PRICING . ' as cp')
-            ->select([DB::raw('MIN(price) as price')]);
+            ->select([new Alias(new Min('price'), 'price')]);
 
         $condition ??= Conditions::createCondition([
             'class' => CatalogPricingCondition::class,

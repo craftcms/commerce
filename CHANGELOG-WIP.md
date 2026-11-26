@@ -51,6 +51,7 @@
 - Deprecated `craft\commerce\events\CustomizeVariantSnapshotDataEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotDataResolving` should be used instead.
 - Deprecated `craft\commerce\events\CustomizeVariantSnapshotFieldsEvent`. `CraftCms\Commerce\Product\Variant\Events\VariantSnapshotFieldsResolving` should be used instead.
 - Deprecated `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. `CraftCms\Commerce\Purchasable\Events\ModifyPurchasablesTableQueryEvent` should be used instead.
+- `craft\commerce\events\ModifyPurchasablesTableQueryEvent::$query` is now an `Illuminate\Database\Query\Builder` rather than a `craft\db\Query`. ([#4490](https://github.com/craftcms/commerce/pull/4490))
 - Deprecated `craft\commerce\events\ProductEvent`. `CraftCms\Commerce\Product\Events\ProductEvent` should be used instead.
 - Deprecated `craft\commerce\events\ProductTypeEvent` in favor of the following new events:
   - `craft\commerce\services\ProductTypes::EVENT_BEFORE_SAVE_PRODUCTTYPE` => `CraftCms\Commerce\Product\ProductType\Events\ProductTypeSaving`

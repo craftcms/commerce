@@ -8,7 +8,6 @@ use CraftCms\Cms\Database\Table as CmsTable;
 use CraftCms\Cms\Support\Facades\Addresses;
 use Tpetry\QueryExpressions\Function\Aggregate\Count;
 use Tpetry\QueryExpressions\Language\Alias;
-use Tpetry\QueryExpressions\Value\Value;
 
 use function CraftCms\Cms\t;
 
@@ -56,22 +55,15 @@ class TotalOrdersByCountry extends Stat
 
         $countryCodes = array_column($rows, 'countryCode');
 
-        $otherCountries = $this->createStatQuery()
-            ->select(new Alias(new Count('orders.id'), 'total'))
-            ->addSelect(new Alias(new Value(null), 'countryCode'))
-            ->leftJoin(CmsTable::ADDRESSES . ' as s', 's.id', '=', 'orders.shippingAddressId')
-            ->leftJoin(CmsTable::ADDRESSES . ' as b', 'b.id', '=', 'orders.billingAddressId')
-            ->whereNotIn($countryColumn, $countryCodes)
-            ->first();
-
-        $otherCountries = $otherCountries ? (array)$otherCountries : [];
-
-        if (empty($otherCountries)) {
-            return $rows;
-        }
-
-        $otherCountries['name'] = t('Other countries', category: 'commerce');
-        $rows[] = $otherCountries;
+        $rows[] = [
+            'total' => $this->createStatQuery()
+                ->leftJoin(CmsTable::ADDRESSES . ' as s', 's.id', '=', 'orders.shippingAddressId')
+                ->leftJoin(CmsTable::ADDRESSES . ' as b', 'b.id', '=', 'orders.billingAddressId')
+                ->whereNotIn($countryColumn, $countryCodes)
+                ->count('orders.id'),
+            'countryCode' => null,
+            'name' => t('Other countries', category: 'commerce'),
+        ];
 
         return $rows;
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CraftCms\Commerce\Stats;
 
-use Illuminate\Support\Facades\DB;
+use Tpetry\QueryExpressions\Function\Aggregate\Count;
 
 /**
  * Repeat Customers Stat
@@ -21,12 +21,11 @@ class RepeatCustomers extends Stat
             ->groupBy('customerId')
             ->getCountForPagination();
 
-        $repeatRows = $this->createStatQuery()
-            ->selectRaw('COUNT(' . DB::getQueryGrammar()->wrap('orders.id') . ') as cnt')
+        $repeat = $this->createStatQuery()
+            ->select('customerId')
             ->groupBy('customerId')
-            ->pluck('cnt');
-
-        $repeat = $repeatRows->filter(fn($row) => $row > 1)->count();
+            ->having(new Count('orders.id'), '>', 1)
+            ->getCountForPagination();
 
         $percentage = round($total ? ($repeat / $total) * 100 : 0);
 

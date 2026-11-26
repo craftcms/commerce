@@ -8,6 +8,7 @@ use CraftCms\Cms\Component\Component;
 use CraftCms\Commerce\Database\Table;
 use Illuminate\Support\Facades\DB;
 
+use Tpetry\QueryExpressions\Function\String\Lower;
 use function CraftCms\Cms\t;
 
 class Coupon extends Component
@@ -34,7 +35,7 @@ class Coupon extends Component
                         ->select(['coupons.code', 'discounts.name'])
                         ->leftJoin(Table::DISCOUNTS . ' as discounts', 'discounts.id', '=', 'coupons.discountId')
                         ->when($this->id, fn($q) => $q->where('coupons.id', '!=', $this->id))
-                        ->where(DB::raw('LOWER(' . DB::getQueryGrammar()->wrap('coupons.code') . ')'), mb_strtolower($value))
+                        ->where(new Lower('coupons.code'), mb_strtolower($value))
                         ->first();
 
                     if ($existing) {
