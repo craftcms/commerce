@@ -55,8 +55,8 @@
 - Fixed a bug where all catalog pricing rules’ prices could be removed if a rule was deleted while its catalog pricing job was running. ([#4374](https://github.com/craftcms/commerce/issues/4374))
 - Fixed a bug where non-admin users couldn’t create inventory locations. ([#4376](https://github.com/craftcms/commerce/issues/4376))
 - Fixed a bug where changing a product’s default variant within a provisional draft wasn’t sticking when the draft was applied. ([#4361](https://github.com/craftcms/commerce/issues/4361))
-- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerabilities. (GHSA-2m9x-wwwf-f798, GHSA-4rf5-rp2q-cwvw)
-- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. (GHSA-xh76-fg84-9j86)
+- Fixed [high-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) RCE vulnerabilities. ([GHSA-2m9x-wwwf-f798](https://github.com/craftcms/commerce/security/advisories/GHSA-2m9x-wwwf-f798), [GHSA-4rf5-rp2q-cwvw](https://github.com/craftcms/commerce/security/advisories/GHSA-4rf5-rp2q-cwvw))
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) authorization bypass vulnerability. ([GHSA-xh76-fg84-9j86](https://github.com/craftcms/commerce/security/advisories/GHSA-xh76-fg84-9j86))
 
 ## 5.7.5 - 2026-09-23
 
@@ -88,7 +88,7 @@
 - Fixed a bug where saving the transfer field layout would override the order field layout. ([#4345](https://github.com/craftcms/commerce/issues/4345))
 - Fixed a bug where generating a PDF or cart-load URL from a console request returned a blank URL. ([#4343](https://github.com/craftcms/commerce/pull/4343))
 - Fixed a bug where completed orders could unintentionally have their recalculation mode set to “all”. ([#4342](https://github.com/craftcms/commerce/issues/4342))
-- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. (GHSA-gcqr-xrx9-grcf)
+- Fixed a [low-severity](https://github.com/craftcms/cms/security/policy#severity--remediation) business logic vulnerability. ([GHSA-gcqr-xrx9-grcf](https://github.com/craftcms/commerce/security/advisories/GHSA-gcqr-xrx9-grcf))
 
 ## 5.7.1 - 2026-07-22
 
